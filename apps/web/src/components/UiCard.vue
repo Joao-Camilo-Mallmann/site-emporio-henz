@@ -1,11 +1,7 @@
 <script setup lang="ts">
-interface Props {
-  title?: string;
-  description?: string;
-  badge?: string;
-}
+import type { UiCardProps } from "@/types";
 
-defineProps<Props>();
+defineProps<UiCardProps>();
 </script>
 
 <template>
