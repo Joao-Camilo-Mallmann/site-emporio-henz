@@ -8,6 +8,7 @@ const appStore = useAppStore();
 
 onMounted(() => {
   appStore.checkBackendHealth();
+  appStore.carregarProdutos();
 });
 </script>
 
@@ -29,6 +30,9 @@ onMounted(() => {
           <UiButton variant="primary" @click="appStore.checkBackendHealth">
             Testar Conexão Backend
           </UiButton>
+          <UiButton variant="outline" class="!text-stone-100 !border-stone-500 !bg-stone-800/60 hover:!bg-stone-700" @click="appStore.carregarProdutos">
+            Recarregar Produtos
+          </UiButton>
           <a
             href="http://localhost:3001"
             target="_blank"
@@ -44,7 +48,7 @@ onMounted(() => {
     <!-- Status do Backend Bun -->
     <section>
       <UiCard
-        title="Status da Integração Bun API"
+        title="Status da Integração Bun API (via @/api/sistema)"
         :badge="appStore.backendStatus.online ? 'Online' : 'Offline'"
       >
         <div class="space-y-2 text-sm">
@@ -65,28 +69,94 @@ onMounted(() => {
           </div>
 
           <div v-if="appStore.backendStatus.error" class="text-rose-600 text-xs">
-            Aviso: {{ appStore.backendStatus.error }}. Inicie o backend com <code class="font-mono bg-stone-100 px-1 py-0.5 rounded">bun --filter backend dev</code>.
+            Aviso: {{ appStore.backendStatus.error }}. Inicie o backend com <code class="font-mono bg-stone-100 px-1 py-0.5 rounded">bun dev</code>.
           </div>
         </div>
       </UiCard>
     </section>
 
-    <!-- Recursos e Pilares -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Catálogo de Produtos da API (@/api/produtos) -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-stone-900">Catálogo em Destaque</h2>
+          <p class="text-sm text-stone-500">Dados obtidos dinamicamente via <code class="bg-stone-200 px-1 py-0.5 rounded font-mono text-xs">produtosApi.listar()</code> instanciados na classe <code class="bg-stone-200 px-1 py-0.5 rounded font-mono text-xs">Product</code></p>
+        </div>
+        <span class="text-xs font-medium text-stone-500">
+          {{ appStore.produtos.length }} produto(s) carregado(s)
+        </span>
+      </div>
+
+      <div v-if="appStore.produtosLoading" class="py-12 text-center text-stone-500 text-sm">
+        Carregando catálogo da API...
+      </div>
+
+      <div v-else-if="appStore.produtosError" class="rounded-xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700">
+        {{ appStore.produtosError }}
+      </div>
+
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          v-for="prod in appStore.produtos"
+          :key="prod.id"
+          class="rounded-xl border border-stone-200 bg-white p-6 shadow-sm flex flex-col justify-between hover:border-amber-700/50 hover:shadow-md transition-all"
+        >
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium uppercase tracking-wider text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/50">
+                {{ prod.category }}
+              </span>
+              <span class="text-xs font-mono text-stone-400">
+                {{ prod.formattedDimensions }}
+              </span>
+            </div>
+
+            <h3 class="text-lg font-semibold text-stone-900 pt-1">
+              {{ prod.name }}
+            </h3>
+
+            <p class="text-xs text-stone-600 leading-relaxed">
+              {{ prod.description }}
+            </p>
+
+            <p class="text-xs text-stone-500">
+              <strong class="font-medium text-stone-700">Material:</strong> {{ prod.material }}
+            </p>
+          </div>
+
+          <div class="pt-4 mt-4 border-t border-stone-100 flex items-center justify-between">
+            <span class="text-base font-bold text-amber-900">
+              {{ prod.formattedPrice }}
+            </span>
+            <span
+              :class="[
+                'text-xs px-2 py-0.5 rounded-full font-medium',
+                prod.isAvailable ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-stone-100 text-stone-500'
+              ]"
+            >
+              {{ prod.isAvailable ? 'Disponível' : 'Sob Encomenda' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recursos da Arquitetura -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-stone-200">
       <UiCard
-        title="Vue 3 + Vite"
-        badge="Frontend"
-        description="Single Page Application com Vue Router, Pinia, Single-File Components e compilação ultra rápida com Vite."
+        title="@/plugins"
+        badge="Plugins"
+        description="Centralização da instância do Axios e Pinia com registro automático no app Vue via registerPlugins."
       />
       <UiCard
-        title="Tailwind CSS v4"
-        badge="Estilo"
-        description="Nova geração do Tailwind CSS integrada diretamente via @tailwindcss/vite com zero configuração."
+        title="@/types"
+        badge="Tipagem & Domínio"
+        description="Interfaces IProduct, ApiResponse e classes de domínio completas com métodos de formatação e regras de negócio."
       />
       <UiCard
-        title="Bun.serve Nativo"
-        badge="Backend"
-        description="API ultrarrápida nativa em Bun rodando na porta 3001 com suporte CORS e tipagem TypeScript."
+        title="@/api"
+        badge="Serviços de Rotas"
+        description="Serviços modulares (produtos.ts, sistema.ts) com padrão listar, buscarPorId, insert, atualizar e deletar."
       />
     </section>
   </div>

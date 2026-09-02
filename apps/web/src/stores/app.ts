@@ -1,13 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-
-export interface BackendStatus {
-  online: boolean;
-  timestamp?: string;
-  uptime?: number;
-  loading: boolean;
-  error?: string;
-}
+import { sistemaApi, produtosApi } from "@/api";
+import { Product, type BackendStatus } from "@/types";
 
 export const useAppStore = defineStore("app", () => {
   const backendStatus = ref<BackendStatus>({
@@ -15,16 +9,15 @@ export const useAppStore = defineStore("app", () => {
     loading: false,
   });
 
+  const produtos = ref<Product[]>([]);
+  const produtosLoading = ref(false);
+  const produtosError = ref<string>();
+
   async function checkBackendHealth() {
     backendStatus.value.loading = true;
     backendStatus.value.error = undefined;
     try {
-      // Usa o proxy '/api/health' configurado no vite.config.ts ou direto no backend port 3001
-      const res = await fetch("http://localhost:3001/health");
-      if (!res.ok) {
-        throw new Error(`Status ${res.status}`);
-      }
-      const data = await res.json();
+      const data = await sistemaApi.status();
       backendStatus.value = {
         online: true,
         timestamp: data.timestamp,
@@ -40,8 +33,26 @@ export const useAppStore = defineStore("app", () => {
     }
   }
 
+  async function carregarProdutos() {
+    produtosLoading.value = true;
+    produtosError.value = undefined;
+    try {
+      const lista = await produtosApi.listar();
+      produtos.value = lista.map((p) => new Product(p));
+    } catch (err: unknown) {
+      produtosError.value =
+        err instanceof Error ? err.message : "Erro ao carregar produtos";
+    } finally {
+      produtosLoading.value = false;
+    }
+  }
+
   return {
     backendStatus,
+    produtos,
+    produtosLoading,
+    produtosError,
     checkBackendHealth,
+    carregarProdutos,
   };
 });

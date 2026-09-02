@@ -1,11 +1,7 @@
 <script setup lang="ts">
-interface Props {
-  variant?: "primary" | "secondary" | "outline";
-  type?: "button" | "submit" | "reset";
-  disabled?: boolean;
-}
+import type { UiButtonProps } from "@/types";
 
-withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<UiButtonProps>(), {
   variant: "primary",
   type: "button",
   disabled: false,
