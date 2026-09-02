@@ -1,78 +1,154 @@
-# Empório Henz — Expansão Digital e Resiliência Familiar
+# Turborepo starter
 
-> **"A resposta é expandir sem perder a essência. Uma experiência híbrida."**
+This Turborepo starter is maintained by the Turborepo core team.
 
-Este repositório reúne as diretrizes estratégicas, personas, especificações funcionais e entregáveis do projeto de **transformação digital** e **posicionamento de marca** do **Empório Henz**. Com quase meio século de tradição de família para família em Cruzeiro do Sul, o Empório Henz une a venda de móveis de alto padrão e materiais de excelência para obras ou reformas a um atendimento consultivo intimista e próximo.
+## Using this example
 
-O objetivo central deste projeto é expandir a atuação geográfica da loja e atrair uma nova base de clientes sem abrir mão do seu maior diferencial competitivo: o **atendimento direto e especializado com as proprietárias**.
+Run the following command:
 
----
+```sh
+npx create-turbo@latest
+```
 
-## 🏢 Sobre a Empresa: Empório Henz
+## What's inside?
 
-Fundada em Cruzeiro do Sul, a marca carrega um legado de **quase meio século** de atuação "de família para família". O Empório Henz consolidou sua reputação baseada na qualidade de seus móveis e na consultoria próxima oferecida no ponto de venda físico.
+This Turborepo includes the following packages/apps:
 
-A expansão digital surge não como uma substituição da loja física, mas como uma **experiência híbrida** capaz de unificar os canais online e offline (Omnichannel), maximizando o alcance de mercado e fortalecendo o relacionamento local.
+### Apps and Packages
 
----
+- `web`: Vue 3 + Vite
+- `backend`: Bun + Bun Native API
 
-## 👥 Personas do Projeto
+### Utilities
 
-Para garantir que a plataforma digital e a comunicação nas redes sociais fizessem sentido para o público real, o projeto foi desenhado sob a perspectiva de duas personas essenciais:
+This Turborepo has some additional tools already setup for you:
 
-### 1. Laura | Consumidora Final
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
 
-- **Perfil**: Lajeadense, nativa digital e usuária assídua do Pinterest.
-- **Comportamento**: Busca referências visuais de tendências e compara todas as opções de mercado para garantir o melhor custo-benefício.
-- **Dores & Receios**: Apresenta forte receio em comprar móveis online devido à incerteza sobre a real qualidade dos materiais e o processo/custo de montagem.
-- **Foco no Catálogo**: Busca transparência sobre as especificações do produto, valores claros de frete/montagem, recomendações personalizadas e validação de qualidade antes de fechar o negócio.
+### Build
 
-### 2. Henrique | Arquiteto e Parceiro Estratégico
+To build all apps and packages, run the following command:
 
-- **Perfil**: Arquiteto focado em entregar soluções otimizadas aos seus clientes.
-- **Comportamento**: Seleciona e indica móveis ideais para cada projeto específico, precisando organizar o catálogo por ambiente de forma simples.
-- **Dores & Receios**: Altamente preocupado com a exatidão das medidas, detalhes técnicos de fabricação e durabilidade dos materiais.
-- **Foco no Catálogo**: Necessita de ferramentas para agrupar e compartilhar produtos organizados por projeto diretamente com o cliente final, além de filtros técnicos refinados.
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
 
----
+```sh
+cd my-turborepo
+turbo build
+```
 
-## 💻 A Experiência Híbrida: O Catálogo Digital
+Without global `turbo`, use your package manager:
 
-A resposta para a expansão está em uma plataforma digital robusta de e-commerce e catálogo técnico. O sistema foi projetado em versões **Desktop e Mobile** com as seguintes frentes funcionais:
+```sh
+cd my-turborepo
+npx turbo build
+bun exec turbo build
+bun exec turbo build
+```
 
-### Funcionalidades do Sistema
+You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
 
-- **Navegação e Busca**: Experiência de navegação padrão e busca geral eficiente para fácil localização de produtos de diversos fornecedores, sem as limitações físicas de um showroom tradicional.
-- **Filtros Inteligentes**: Segmentação precisa por categoria, cor, material, preço e marca (atendendo às necessidades de Henrique e Laura).
-- **Especificações Completas**: Exibição detalhada de valor, custos de entrega, serviços de montagem e o prazo exato para encomendas.
-- **Agrupamento e Compartilhamento**: Funcionalidade para agrupar produtos em pastas compartilháveis, permitindo que arquitetos criem propostas para seus clientes de forma prática.
-- **Conexão Humana (WhatsApp a um clique)**: Para manter a essência do negócio, a finalização da compra ou dúvidas técnicas são direcionadas diretamente para o WhatsApp de atendimento especializado da loja.
-- **Convite para Conhecer Materiais**: Incentivo e direcionamento para visitas ao espaço físico para os clientes que desejarem atestar a qualidade dos materiais de perto.
-- **Sobre e Instruções**: Seção explicando claramente o processo de compra da loja e contando a história de tradição da marca.
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
 
-### Omnichannel no PDV (Uso Interno)
+```sh
+turbo build --filter=docs
+```
 
-Além de servir como plataforma para o cliente final, o catálogo digital torna-se uma **ferramenta de vendas para as atendentes na loja física**. Utilizando tablets no atendimento presencial, a equipe consegue mostrar aos clientes locais infinitas combinações de acabamentos e móveis sob encomenda que não estão expostos fisicamente no showroom, retendo o interesse do público que já está próximo.
+Without global `turbo`:
 
----
+```sh
+npx turbo build --filter=docs
+bun exec turbo build --filter=docs
+bun exec turbo build --filter=docs
+```
 
-## 📱 Fortalecimento da Presença nas Redes Sociais
+### Develop
 
-Com o intuito de estruturar e propagar a nova fase digital da marca, foi realizada uma análise profunda no perfil do Instagram da loja, avaliando identidade visual, tom de voz, comportamento dos usuários e profundidade técnica.
+To develop all apps and packages, run the following command:
 
-Com base nesse diagnóstico, foram gerados os seguintes materiais estratégicos e operacionais:
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
 
-- **Manual de Marca**: Documento estruturando a padronização visual e uniformização da comunicação nas redes.
-- **Documento de Sugestões de Aperfeiçoamentos**: Diagnóstico e plano tático para otimização contínua das mídias.
-- **Textos para Peças de Comunicação**: Redação publicitária e copys persuasivas para as mídias pagas e orgânicas.
-- **Roteiros de Vídeos Promocionais**: Guias prontos para captação de conteúdos audiovisuais focados em humanizar a marca e apresentar produtos.
-- **Fotos Institucionais**: Material visual de pessoas e produtos reais para estreitar o sentimento de proximidade e tradição familiar.
-- **Desdobramento de Telas Editáveis**: Templates parametrizados para garantir autonomia à equipe do Empório Henz na criação de posts futuros.
+```sh
+cd my-turborepo
+turbo dev
+```
 
----
+Without global `turbo`, use your package manager:
 
-## 🛠️ Como Utilizar este Projeto
+```sh
+cd my-turborepo
+npx turbo dev
+bun exec turbo dev
+bun exec turbo dev
+```
 
-1.  **Exploração dos Protótipos**: Navegue pelos protótipos de alta fidelidade (Mobile e Desktop) para entender a jornada das personas Laura e Henrique.
-2.  **Consulta ao Manual de Marca**: Utilize o manual estruturado para garantir que todas as novas postagens e mídias sigam a paleta de cores e o tom de voz definido.
-3.  **Implementação Técnica**: O escopo funcional do catálogo pode ser utilizado como especificação de software para o desenvolvimento final da plataforma web de vendas integrada ao WhatsApp.
+You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+
+```sh
+turbo dev --filter=web
+```
+
+Without global `turbo`:
+
+```sh
+npx turbo dev --filter=web
+bun exec turbo dev --filter=web
+bun exec turbo dev --filter=web
+```
+
+### Remote Caching
+
+> [!TIP]
+> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+
+Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+
+By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+
+```sh
+cd my-turborepo
+turbo login
+```
+
+Without global `turbo`, use your package manager:
+
+```sh
+cd my-turborepo
+npx turbo login
+bun exec turbo login
+bun exec turbo login
+```
+
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+
+With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+
+```sh
+turbo link
+```
+
+Without global `turbo`:
+
+```sh
+npx turbo link
+bun exec turbo link
+bun exec turbo link
+```
+
+## Useful Links
+
+Learn more about the power of Turborepo:
+
+- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
+- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
+- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
+- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
+- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
+- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
