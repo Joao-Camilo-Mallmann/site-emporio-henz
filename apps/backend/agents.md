@@ -12,6 +12,8 @@
 
 - **Runtime**: Bun (versão 1.4+)
 - **Servidor HTTP**: `Bun.serve` nativo com roteamento declarativo e tipado via TypeScript (sem frameworks pesados externos).
+- **Banco de Dados**: **PostgreSQL** para persistência relacional com regra estrita de **Soft Delete** (`deleted_at` em todas as entidades; nunca executar `DELETE` físico de registros).
+- **Armazenamento de Imagens**: Strings Base64 persistidas no PostgreSQL com compressão prévia (limite de 1 MB por imagem).
 - **Porta Padrão**: `3001` (configurável via `process.env.PORT`).
 - **CORS**: Pré-configurado para suportar preflight `OPTIONS` e requisições do frontend Vite (`http://localhost:3000`).
 
