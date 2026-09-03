@@ -2,40 +2,19 @@
 
 ## 🔴 Perguntas prioritárias
 
-1. **Quais problemas vocês têm hoje que precisariam de um sistema para resolver?**
+1. **Quando vocês falam em "salvamento em pastas compartilháveis", como vocês imaginam que isso funcionaria na prática? O cliente criará uma pasta para organizar produtos, como por exemplo, favoritos e desejos, e poderia compartilhar essa pasta com outras pessoas e com o vendedor?**
 
-2. **Como funciona hoje o processo desde o cliente encontrar um produto até a compra?**
+2. **Quando vocês falam em "convite para conhecer os materiais", o que exatamente vocês imaginam? O sistema deve convidar o cliente a visitar a loja para conhecer os materiais pessoalmente ou seria algum outro tipo de recurso? Adicionar os materiais de construção no catálogo?** 
 
-3. **Quando vocês falam em "salvamento em pastas compartilháveis", como vocês imaginam que isso funcionaria na prática? O cliente ou arquiteto criaria uma pasta para organizar produtos, como por exemplo um projeto, e poderia compartilhar essa pasta com outra pessoa?**
+3. **É estoque, encomenda ou o proprio cliente entra em contato para saber da disponibilidade do produto?**
 
-4. **Quando vocês falam em "convite para conhecer os materiais", o que exatamente vocês imaginam? O sistema deve convidar o cliente a visitar a loja para conhecer os materiais pessoalmente ou seria algum outro tipo de recurso?**
+4. **O preço mostrado no catálogo é definitivo ou também pode ser alterado na negociação com o cliente?**
 
-5. **Quem será responsável por cadastrar e atualizar os produtos no sistema?**
+5. **Cada produto tem o seu prazo definido? Exemplo: cadeira 10 dias, armário 20 dias**
 
-6. **Precisamos ter apenas um administrador ou um administrador poderá criar e gerenciar outros usuários administrativos? Esses usuários terão diferentes permissões?**
+6. **Quando o cliente clicar para entrar em contato para comprar, quais informações vocês precisam receber no WhatsApp junto com o produto?**
 
-7. **Quais informações de um produto são obrigatórias para vocês?**
-   Ex.: medidas, material, marca, cores, fotos, preço etc.
-
-8. **Como vocês controlam atualmente a disponibilidade dos produtos? O sistema precisa mostrar estoque/disponibilidade ou será apenas um catálogo?**
-
-9. **O preço mostrado no catálogo é definitivo ou pode mudar conforme forma de pagamento, quantidade ou negociação com o cliente?**
-
-10. **Como são definidos o valor e o prazo de entrega? Eles dependem da cidade, distância, produto ou fornecedor?**
-
-11. **A montagem está disponível para todos os produtos? E como é definido o valor da montagem?**
-
-12. **Quando o cliente clicar para entrar em contato para comprar, quais informações vocês precisam receber no WhatsApp junto com o produto?**
-
-13. **O arquiteto terá alguma funcionalidade diferente do consumidor final, principalmente para organizar produtos por projeto e compartilhar com clientes?**
-
-14. **Quais informações sobre materiais e medidas são indispensáveis para que um arquiteto consiga avaliar um produto?**
-
-15. **Como vocês gostariam de transmitir confiança sobre a qualidade dos materiais e da montagem para o cliente que tem receio de comprar móveis online?**
-
-16. **Quando um produto não estiver disponível, o que deve acontecer no catálogo?**
-
-17. **A loja também precisa ter acesso às pastas compartilháveis ou elas serão utilizadas somente pelos clientes e arquitetos?**
+7. **A loja também precisa ter acesso às pastas compartilháveis ou elas serão utilizadas somente pelos clientes e arquitetos?**
 
 ---
 
