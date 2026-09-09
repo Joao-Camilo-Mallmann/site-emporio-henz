@@ -117,55 +117,6 @@ O **RNF04** é o requisito crítico do sistema: assegura que as pastas, projetos
 | UC09 · Gerenciar fornecedores, tipos e subtipos                   | 8                          | RF04       |
 | UC10 · Ver produtos recomendados                                  | Nenhuma (extensão de UC02) | RF14       |
 
-### Diagrama de casos de uso
-
-```mermaid
-flowchart LR
-    subgraph Sistema ["Portal Empório Henz"]
-        UC01["UC01: Entrar no portal e autenticar"]
-        UC02["UC02: Navegar e filtrar catálogo"]
-        UC03["UC03: Ver detalhe do produto"]
-        UC04["UC04: Gerenciar listas e salvar produtos"]
-        UC05["UC05: Compartilhar lista via link público"]
-        UC06["UC06: Consultar lista por e-mail/link"]
-        UC07["UC07: Iniciar contato via WhatsApp"]
-        UC08["UC08: Gerenciar produtos (CRUD e Soft Delete)"]
-        UC09["UC09: Gerenciar fornecedores, tipos e subtipos"]
-        UC10["UC10: Ver produtos recomendados"]
-    end
-
-    Cliente((Cliente))
-    Vendedor((Vendedor))
-    Admin((Administrador))
-    Recomendador((Recomendador))
-
-    Cliente --> UC01
-    Cliente --> UC02
-    Cliente --> UC03
-    Cliente --> UC04
-    Cliente --> UC05
-    Cliente --> UC07
-
-    Vendedor --> UC01
-    Vendedor --> UC02
-    Vendedor --> UC03
-    Vendedor --> UC06
-
-    Admin --> UC01
-    Admin --> UC06
-    Admin --> UC08
-    Admin --> UC09
-
-    Recomendador --> UC10
-
-    UC03 -.->|<<extend>>| UC07
-    UC04 -.->|<<extend>>| UC07
-    UC04 -.->|<<include>>| UC05
-    UC02 -.->|<<extend>>| UC10
-```
-
----
-
 ### Detalhamento dos Casos de Uso com Regras de Negócio
 
 #### UC04 · Gerenciar listas e salvar produtos
