@@ -242,17 +242,165 @@ Contempla as entidades centrais do sistema (`User`, `Client`, `Category`, `Produ
 
 Define o esquema físico e relacional de tabelas, chaves primárias (`UUID`), chaves estrangeiras (`FK`), índices de unicidade (`UNIQUE`), campos para controle de concorrência/auditoria e colunas de suporte à estratégia obrigatória de exclusão lógica (`deleted_at timestamp`, soft delete).
 
-- **Arquivo anexo**: [der_emporio_henz.pdf](./der_emporio_henz.pdf)
+- **Arquivo anexo atualizado**: [der_emporio_henz.pdf](./der_emporio_henz.pdf)
+
+#### Diagrama Entidade-Relacionamento Integrado:
+
+```mermaid
+erDiagram
+    USERS ||--o| CLIENTS : "1:1 perfil cadastral"
+    CLIENTS ||--o{ LISTS : "possui"
+    CATEGORIES ||--o{ PRODUCT_SUBTYPES : "contem"
+    CATEGORIES ||--o{ PRODUCTS : "classifica"
+    PRODUCT_SUBTYPES ||--o{ PRODUCTS : "subclassifica"
+    SUPPLIERS ||--o{ PRODUCTS : "fornece / marca"
+    PRODUCTS ||--o{ PRODUCT_IMAGES : "carrossel (base64)"
+    PRODUCTS ||--o{ PRODUCT_VARIATIONS : "oferece acabamentos"
+    LISTS ||--o{ LIST_ITEMS : "contem"
+    PRODUCTS ||--o{ LIST_ITEMS : "item adicionado"
+    PRODUCT_VARIATIONS ||--o{ LIST_ITEMS : "acabamento escolhido"
+
+    USERS {
+        uuid id PK
+        varchar email UK "Identificador único (sem CPF)"
+        varchar password_hash "Hash seguro de senha"
+        smallint role "1=Cliente, 2=Vendedor, 3=Admin"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    CLIENTS {
+        uuid id PK
+        uuid user_id FK,UK "Vínculo 1:1 com users"
+        varchar full_name "Nome completo"
+        varchar phone "Telefone / WhatsApp"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    CATEGORIES {
+        uuid id PK
+        varchar name "Ex: Sala de Estar, Quarto"
+        varchar slug UK
+        boolean active
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    PRODUCT_SUBTYPES {
+        uuid id PK
+        uuid category_id FK
+        varchar name "Ex: Roupeiro, Sofá, Mesa"
+        varchar slug UK
+        boolean active
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    SUPPLIERS {
+        uuid id PK
+        varchar name "Marca / Fornecedor (ex: Primavera)"
+        varchar contact
+        boolean active
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    PRODUCTS {
+        uuid id PK
+        uuid category_id FK
+        uuid subtype_id FK
+        uuid supplier_id FK
+        varchar name "Ex: Roupeiro Roma"
+        varchar slug UK
+        varchar collection_line "Ex: Linha Itália"
+        varchar main_material "Material principal indexado (ex: MDF, Couro)"
+        numeric reference_price "Preço de referência fixo"
+        int max_installments "Parcelas (ex: 10x)"
+        varchar availability_type "IN_STOCK / ON_DEMAND"
+        int estimated_days "Prazo sob encomenda em dias"
+        int height_mm "Altura em mm (ex: 2300)"
+        int width_mm "Largura em mm (ex: 2430)"
+        int depth_mm "Profundidade em mm (ex: 565)"
+        text description "Texto descritivo amplo"
+        jsonb specifications "Tabela técnica estruturada flexível"
+        boolean active
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    PRODUCT_IMAGES {
+        uuid id PK
+        uuid product_id FK
+        uuid variation_id FK "Variação vinculada (troca de foto na cor)"
+        text thumbnail_base64 "Miniatura leve para cards (< 50KB)"
+        text full_base64 "Imagem completa para carrossel (< 2MB)"
+        int sort_order "Ordem de exibição"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    PRODUCT_VARIATIONS {
+        uuid id PK
+        uuid product_id FK
+        varchar name "Ex: Itaúba Âmbar / Carvalho Mel / Vidro Fumê"
+        varchar variation_type "COLOR / FABRIC / WOOD / FINISH"
+        varchar_array colors_hex "Array de cores hex (1, 2 [bicolor] ou N cores)"
+        text sample_image_base64 "Miniatura da textura real (amostra)"
+        jsonb finish_details "Estrutura, portas, puxadores, tecido, etc."
+        int sort_order "Ordem de exibição"
+        boolean in_stock "Disponibilidade da variação"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    LISTS {
+        uuid id PK
+        uuid client_id FK
+        varchar name "Nome da lista ou pasta"
+        varchar list_type "FAVORITES, WISHLIST, GIFT_LIST, CUSTOM"
+        boolean is_system "true para as 3 listas padrão"
+        uuid share_slug UK "Link público para compartilhamento"
+        boolean is_public
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    LIST_ITEMS {
+        uuid id PK
+        uuid list_id FK
+        uuid product_id FK
+        uuid variation_id FK "Variação opcional selecionada"
+        timestamp added_at
+        timestamp deleted_at
+    }
+```
 
 ## 9. Decisões de implementação
 
 - **Back-end em Bun nativo com TypeScript**: utiliza `Bun.serve` para alta performance, rotas modulares e tipagem estrita com TypeScript, mantendo a arquitetura limpa e sem dependências pesadas de frameworks externos.
 - **Front-end em Vue 3 + Vite + Tailwind CSS**: arquitetura com Single File Components (SFCs), gerenciamento de estado com Pinia (autenticação, listas e filtros do catálogo) e roteamento limpo com Vue Router.
 - **Banco de Dados Relacional PostgreSQL**: utilizado para garantir integridade referencial estrita, transações e relacionamento entre clientes, listas e produtos.
-- **Imagens em Base64 no Banco**: as fotos dos produtos são salvas diretamente no PostgreSQL como strings em Base64 (campo `text`). Para prevenir degradação de performance e sobrecarga no tráfego, as imagens passam por compressão client-side ou server-side antes do salvamento, limitadas a 2 MB por arquivo.
-- **Exclusão Lógica Obrigatória (Soft Delete)**: nenhuma operação no sistema executa deleção física (`DELETE`). Todas as tabelas contam com a coluna `deleted_at` (timestamp, nulo para registros ativos). Ao desativar ou remover produtos, categorias, fornecedores ou listas, o sistema preenche `deleted_at = NOW()`. O backend aplica automaticamente a cláusula `WHERE deleted_at IS NULL` em todas as consultas ativas, preservando a integridade histórica de transações, pedidos e auditoria permanente.
-- **Descrição Ampla em Textarea Livre**: a descrição do produto é armazenada em campo de texto amplo e formatado, permitindo à administração preencher de forma flexível as medidas (largura, altura, profundidade), linha, acabamentos e ferragens sem burocracia de dezenas de campos rígidos no formulário.
-- **Listas Fixas e Pastas Personalizadas**: ao ser cadastrado, todo cliente ganha automaticamente as 3 listas padrão: **Favoritos**, **Lista de Desejos** e **Lista de Presentes**. O cliente tem total liberdade para criar pastas adicionais por projeto ou ambiente.
+- **Perfis de Acesso (`role`) e Identificação por E-mail**: perfis tipados numericamente (`1 = Cliente`, `2 = Vendedor`, `3 = Administrador`), utilizando o **e-mail como chave única universal** (sem uso de CPF). A tabela `users` cuida de credenciais/login e a tabela `clients` armazena o perfil cadastral do consumidor final.
+- **Produto com Dimensões Estruturadas e Especificações Flexíveis**:
+  - Dimensões armazenadas nativamente em milímetros (`height_mm`, `width_mm`, `depth_mm`) e coleção (`collection_line`, ex.: "Linha Itália") para permitir filtros de busca por tamanho.
+  - Descrição ampla em texto livre (`description TEXT`) para o storytelling e apresentação do produto.
+  - Tabela de especificações técnicas dinâmica em `specifications JSONB` para gerar a ficha técnica na UI com os atributos específicos de cada categoria (portas/gavetas para roupeiros, espuma/molas para estofados, etc.) sem tabelas esparsas.
+- **Variações de Acabamento Flexíveis (`product_variations`)**:
+  - Array de cores hexadecimais (`colors_hex VARCHAR(7)[]`) capaz de representar 1 cor sólida, 2 cores (círculo bicolor do Figma) ou N combinações.
+  - Amostra real da textura em miniatura Base64 (`sample_image_base64`) para tecidos e lâminas de madeira.
+  - Detalhamento de partes em `finish_details JSONB` para especificar materiais de corpo, portas e puxadores.
+- **Listas Fixas e Pastas Personalizadas com Variação Escolhida**:
+  - Ao ser cadastrado, todo cliente ganha automaticamente as 3 listas padrão com `is_system = true`: **Favoritos**, **Lista de Desejos** e **Lista de Presentes**. O cliente tem total liberdade para criar pastas adicionais por projeto ou ambiente (`CUSTOM`).
+  - A tabela `list_items` suporta `variation_id (FK opcional)`, gravando a variação exata que o cliente favoritou.
+- **Preço Fixo de Referência e Negociação no WhatsApp**: o preço é cadastrado como valor base de referência do móvel (`reference_price`). Variações adicionais de acabamento, parcelamento estendido ou frete são ajustadas na conversa de WhatsApp com a equipe de vendas.
+- **Armazenamento Otimizado de Imagens (Thumbnail vs Full)**: as fotos são persistidas em Base64 no PostgreSQL com estratégia dupla em `product_images`:
+  - `thumbnail_base64`: miniatura leve (< 50 KB) retornada nas listagens e cards do catálogo para evitar sobrecarga de payload.
+  - `full_base64`: imagem em alta resolução (< 2 MB) carregada sob demanda na página de detalhe.
+  - Vínculo opcional `variation_id`: permite trocar a foto principal do carrossel quando o usuário seleciona uma cor/acabamento específico.
+- **Recomendações Automáticas ("Você também pode gostar")**: algoritmo direto de recomendação que busca itens ativos da mesma categoria/ambiente no catálogo (`WHERE category_id = p.category_id AND id != p.id LIMIT 4`), dispensando curadoria manual de tabelas adicionais.
+- **Exclusão Lógica Obrigatória (Soft Delete) com Índices Parciais**: nenhuma operação no sistema executa deleção física (`DELETE`). Todas as tabelas contam com a coluna `deleted_at`. Para prevenir falhas de unicidade com registros arquivados, chaves únicas como e-mail e slugs utilizam índices parciais (`WHERE deleted_at IS NULL`).
 - **Atendimento Presencial Conectado por e-mail**: o cadastro de clientes utiliza o e-mail como chave de identificação. A interface administrativa conta com um campo específico de pesquisa por e-mail para que vendedores em tablets na loja física acessem rapidamente as listas salvas do cliente em atendimento.
 - **Compartilhamento por Link Público Seguro (UUID)**: o compartilhamento de listas gera uma URL contendo um UUID randômico (`share_slug`). O visitante com o link acessa a lista em modo somente-leitura sem expor dados confidenciais do proprietário da pasta.
 - **Integração Descomplicada com WhatsApp**: sem necessidade de APIs pagas ou aprovação de templates da Meta; o sistema gera links padronizados (`https://wa.me/55...`) com payload codificado contendo os dados do produto ou da lista selecionada.

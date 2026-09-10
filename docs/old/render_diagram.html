@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>DER — Empório Henz</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    @page {
+      size: 2200px 2450px;
+      margin: 0;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 2200px;
+      height: 2450px;
+      margin: 0;
+      padding: 30px;
+      background-color: #0d1117 !important;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      overflow: hidden !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .header {
+      width: 100%;
+      max-width: 2100px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #30363d;
+      padding-bottom: 16px;
+    }
+    h1 {
+      font-size: 28px;
+      color: #58a6ff;
+      margin: 0;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: #8b949e;
+      margin-top: 6px;
+    }
+    .mermaid {
+      background: transparent;
+      width: 100%;
+      max-width: 2100px;
+      display: flex;
+      justify-content: center;
+      flex: 1;
+    }
+    svg {
+      max-width: 100% !important;
+      max-height: 2200px !important;
+      height: auto !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Portal Empório Henz · Diagrama Entidade-Relacionamento (DER)</h1>
+      <div class="subtitle">PostgreSQL 15+ · Catálogo de Móveis, Usuários, Listas e Variações de Acabamento</div>
+    </div>
+    <div style="text-align: right; font-size: 14px; color: #8b949e;">
+      <div>Versão: <strong>2.1 (Consolidada)</strong></div>
+      <div>Regra Global: <strong>Soft Delete (deleted_at) + Índices Parciais</strong></div>
+    </div>
+  </div>
+
+  <div class="mermaid">
+erDiagram
+    USERS ||--o| CLIENTS : "1:1 perfil cadastral"
+    CLIENTS ||--o{ LISTS : "possui"
+    CATEGORIES ||--o{ PRODUCT_SUBTYPES : "contem"
+    CATEGORIES ||--o{ PRODUCTS : "classifica"
+    PRODUCT_SUBTYPES ||--o{ PRODUCTS : "subclassifica"
+    SUPPLIERS ||--o{ PRODUCTS : "fornece / marca"
+    PRODUCTS ||--o{ PRODUCT_IMAGES : "carrossel (base64)"
+    PRODUCTS ||--o{ PRODUCT_VARIATIONS : "oferece acabamentos"
+    LISTS ||--o{ LIST_ITEMS : "contem"
+    PRODUCTS ||--o{ LIST_ITEMS : "item adicionado"
+    PRODUCT_VARIATIONS ||--o{ LIST_ITEMS : "acabamento escolhido"
+
+    USERS {
+        uuid id PK
+        varchar email UK "Identificador único (sem CPF)"
+        varchar password_hash "Hash seguro de senha"
+        smallint role "1=Cliente, 2=Vendedor, 3=Admin"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    CLIENTS {
+        uuid id PK
+        uuid user_id FK,UK "Vínculo 1:1 com users"
+        varchar full_name "Nome completo"
+        varchar phone "Telefone / WhatsApp"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    CATEGORIES {
+        uuid id PK
+        varchar name "Ex: Sala de Estar, Quarto"
+        varchar slug UK
+        boolean active
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    PRODUCT_SUBTYPES {
+        uuid id PK
+        uuid category_id FK
+        varchar name "Ex: Roupeiro, Sofá, Mesa"
+        varchar slug UK
+        boolean active
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    SUPPLIERS {
+        uuid id PK
+        varchar name "Marca / Fornecedor (ex: Primavera)"
+        varchar contact
+        boolean active
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    PRODUCTS {
+        uuid id PK
+        uuid category_id FK
+        uuid subtype_id FK
+        uuid supplier_id FK
+        varchar name "Ex: Roupeiro Roma"
+        varchar slug UK
+        varchar collection_line "Ex: Linha Itália"
+        varchar main_material "Material principal (MDF, Couro)"
+        numeric reference_price "Preço de referência fixo"
+        int max_installments "Parcelas (ex: 10x)"
+        varchar availability_type "IN_STOCK / ON_DEMAND"
+        int estimated_days "Prazo sob encomenda em dias"
+        int height_mm "Altura em mm (ex: 2300)"
+        int width_mm "Largura em mm (ex: 2430)"
+        int depth_mm "Profundidade em mm (ex: 565)"
+        text description "Texto descritivo amplo"
+        jsonb specifications "Tabela técnica estruturada flexível"
+        boolean active
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    PRODUCT_IMAGES {
+        uuid id PK
+        uuid product_id FK
+        uuid variation_id FK "Variação vinculada (troca na cor)"
+        text thumbnail_base64 "Miniatura catálogo (< 50KB)"
+        text full_base64 "Imagem alta resolução (< 2MB)"
+        int sort_order "Ordem de exibição"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    PRODUCT_VARIATIONS {
+        uuid id PK
+        uuid product_id FK
+        varchar name "Ex: Itaúba Âmbar / Carvalho Mel"
+        varchar variation_type "COLOR / FABRIC / WOOD / FINISH"
+        varchar_array colors_hex "Array de cores (1, 2 [bicolor] ou N)"
+        text sample_image_base64 "Miniatura da textura real (amostra)"
+        jsonb finish_details "Estrutura, portas, puxadores, etc."
+        int sort_order "Ordem de exibição"
+        boolean in_stock "Disponibilidade da variação"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    LISTS {
+        uuid id PK
+        uuid client_id FK
+        varchar name "Nome da lista ou pasta"
+        varchar list_type "FAVORITES, WISHLIST, GIFT_LIST, CUSTOM"
+        boolean is_system "true para as 3 listas padrão"
+        uuid share_slug UK "Link público para compartilhamento"
+        boolean is_public
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    LIST_ITEMS {
+        uuid id PK
+        uuid list_id FK
+        uuid product_id FK
+        uuid variation_id FK "Variação opcional selecionada"
+        timestamp added_at
+        timestamp deleted_at
+    }
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0d1117',
+        primaryColor: '#161b22',
+        primaryTextColor: '#c9d1d9',
+        primaryBorderColor: '#30363d',
+        lineColor: '#58a6ff',
+        secondaryColor: '#21262d',
+        tertiaryColor: '#161b22'
+      }
+    });
+  </script>
+</body>
+</html>

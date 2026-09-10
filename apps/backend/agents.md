@@ -13,7 +13,13 @@
 - **Runtime**: Bun (versão 1.4+)
 - **Servidor HTTP**: `Bun.serve` nativo com roteamento declarativo e tipado via TypeScript (sem frameworks pesados externos).
 - **Banco de Dados**: **PostgreSQL** para persistência relacional com regra estrita de **Soft Delete** (`deleted_at` em todas as entidades; nunca executar `DELETE` físico de registros).
-- **Armazenamento de Imagens**: Strings Base64 persistidas no PostgreSQL com compressão prévia (limite de 1 MB por imagem).
+  - **Identificação de Usuários**: Chave única `email` (sem CPF).
+  - **Perfis de Acesso (Roles)**: `1 = Cliente`, `2 = Vendedor`, `3 = Administrador` (armazenados em `users.role` como `smallint`).
+  - **Separação Users e Clients**: `users` gerencia credenciais e role; `clients` armazena dados cadastrais (nome e telefone) vinculado 1:1 com `users`.
+  - **Produtos e Especificações**: Dimensões estruturadas (`height_mm`, `width_mm`, `depth_mm`), `collection_line`, `main_material` (para filtros rápidos de catálogo), preço fixo de referência (`reference_price`), texto descritivo amplo (`description TEXT`) e tabela técnica flexível em `specifications JSONB`.
+  - **Variações de Acabamento Flexíveis**: `product_variations` com array de cores (`colors_hex VARCHAR(7)[]` para 1, 2 [bicolor] ou N cores), miniatura Base64 da textura real (`sample_image_base64`) e `finish_details JSONB` para detalhar partes (estrutura, portas, puxadores, tecido).
+  - **Listas do Cliente**: 3 fixas do sistema (`FAVORITES`, `WISHLIST`, `GIFT_LIST` com `is_system = true`) e pastas livres adicionais; `list_items` suporta `variation_id` opcional.
+  - **Armazenamento Otimizado de Imagens**: Em `product_images`, manter `thumbnail_base64` (< 50 KB para cards do catálogo) e `full_base64` (< 2 MB para página de produto), com `variation_id` opcional para troca dinâmica de fotos na seleção de cor.
 - **Porta Padrão**: `3001` (configurável via `process.env.PORT`).
 - **CORS**: Pré-configurado para suportar preflight `OPTIONS` e requisições do frontend Vite (`http://localhost:3000`).
 
