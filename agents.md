@@ -29,4 +29,12 @@
 - **Checagem de Tipos**: `bun run check-types`
 - **Linting**: `bun run lint`
 - **Build de Produção**: `bun run build`
-- **Ambiente de Desenvolvimento**: `bun run dev`
+- **Ambiente de Desenvolvimento Local**: `bun run dev`
+- **Ambiente de Contêineres (Docker Compose)**:
+  - Subir stack completa (`web`, `backend`, `postgres`): `bun run docker:up` (ou `docker compose up --build -d`)
+  - Parar contêineres: `bun run docker:down` (ou `docker compose down`)
+  - Acompanhar logs unificados: `bun run docker:logs` (ou `docker compose logs -f`)
+  - Banco de Dados (PostgreSQL 16): porta 5432, DDL e seeds em `docker/postgres/init.sql`
+  - Frontend SPA (Nginx Alpine): porta 3000 com proxy reverso em `/api/` e `/health` para porta 3001
+  - Backend API (Bun Alpine): porta 3001
+
