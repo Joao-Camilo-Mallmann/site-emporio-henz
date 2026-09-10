@@ -11,6 +11,24 @@
 >    - **`openspec-apply-change`**: Utilizar para executar as tarefas da mudança aprovada.
 >    - **`openspec-archive-change`**: Utilizar para finalizar e arquivar a feature concluída.
 >    - **SEMPRE alertar o usuário** caso ele solicite uma nova funcionalidade sem passar pelo fluxo do OpenSpec.
+> 3. **FLUXO OBRIGATÓRIO DE BRANCH, PULL REQUEST E GITHUB PROJECTS (TODA VEZ):**
+>    - **NUNCA comitar diretamente na branch `main`**.
+>    - Criar sempre uma branch específica para cada feature ou tarefa seguindo a convenção:
+>      - `feat--<nome-da-change>`
+>      - `fix--<nome-do-fix>`
+>      - `hotfix--<nome>`
+>    - Ao finalizar a implementação de qualquer tarefa ou mudança:
+>      1. Validar integridade (`bun run check-types` e `bun run lint`).
+>      2. Comitar as alterações com Conventional Commits (`feat(...)`, `fix(...)`).
+>      3. Realizar o push para o remote (`git push -u origin <branch>`).
+>      4. **SEMPRE criar automaticamente o Pull Request no GitHub** utilizando a GitHub CLI (`gh pr create`) apontando para `main`.
+>      5. No corpo do PR, utilizar o template [`.github/pull_request_template.md`](file:///home/joao/projects/site-emporio-henz/.github/pull_request_template.md) e vincular obrigatoriamente o GitHub Projects do usuário:
+>         - **Board do GitHub Projects**: `https://github.com/users/Joao-Camilo-Mallmann/projects/3/views/1`
+>      6. Autenticação com `gh`:
+>         ```bash
+>         TOKEN=$(echo -e "protocol=https\nhost=github.com\n" | git credential fill | grep password | cut -d= -f2)
+>         GH_TOKEN="$TOKEN" gh pr create --base main --head <branch> --title "..." --body "..."
+>         ```
 
 ---
 
