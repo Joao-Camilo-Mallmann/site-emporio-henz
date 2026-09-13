@@ -7,10 +7,18 @@ node_modules
 
 # Local env files
 .env
+.env.*
+!.env.example
+*.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Backups & Database dumps
+backups/
+*.dump
+*.sql.gz
 
 # Testing
 coverage

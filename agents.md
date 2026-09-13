@@ -18,9 +18,10 @@
 
 - **Gerenciador de Pacotes**: `bun` (versão 1.4+)
 - **Apps**:
-  - `apps/web`: Frontend em **Vue 3 + Vite** com **Tailwind CSS v4**, **Vue Router** e **Pinia** (porta padrão: 3000). Consulte [apps/web/agents.md](file:///home/joao/projects/site-emporio-henz/apps/web/agents.md).
-  - `apps/backend`: Backend em **Bun nativo** utilizando `Bun.serve` (porta padrão: 3001). Consulte [apps/backend/agents.md](file:///home/joao/projects/site-emporio-henz/apps/backend/agents.md).
-- Os apps `web` e `backend` são autocontidos e independentes (sem dependência de pasta `packages/`).
+  - `apps/web`: Frontend em **Vue 3 + Vite** com **Tailwind CSS v4**, **Vue Router** e **Pinia** (porta padrão: 3000). Consulte [apps/web/agents.md](apps/web/agents.md).
+  - `apps/backend`: Backend em **Bun nativo** utilizando `Bun.serve` (porta padrão: 3001). Consulte [apps/backend/agents.md](apps/backend/agents.md).
+- **Packages**:
+  - `packages/database`: Migrações e utilitários de banco de dados PostgreSQL.
 
 ---
 
@@ -30,3 +31,55 @@
 - **Linting**: `bun run lint`
 - **Build de Produção**: `bun run build`
 - **Ambiente de Desenvolvimento**: `bun run dev`
+
+---
+
+## Setup e Execução com Docker (Produção e Testes Isolados)
+
+O projeto possui orquestração completa via [docker-compose.yml](docker-compose.yml) e build multi-stage em [Dockerfile](Dockerfile).
+
+### 1. Arquitetura dos Serviços Docker
+
+- **`postgres`** (`postgres:16-alpine`): Banco relacional em rede interna (`emporio_net`), com volume persistente `postgres_data` e healthcheck automático.
+- **`migration`** (Runner Bun one-shot): Executa `packages/database/src/migrate.ts` assim que o PostgreSQL estiver saudável, aplicando migrações pendentes de forma idempotente.
+- **`backend`** (`apps/backend`): API em Bun nativo compilada para produção, exposta internamente na porta `3001`.
+- **`nginx`** (`nginx:alpine`): Ponto único de entrada público (`PORT_HTTP`, padrão: `80`), serve os arquivos estáticos do frontend (`apps/web/dist`) e atua como proxy reverso para a API em `/api/*`.
+
+### 2. Passo a Passo de Setup
+
+1. **Configurar o `.env`**:
+   - Copiar [.env.example](.env.example) para `.env`:
+     ```bash
+     # Linux / macOS / Git Bash
+     cp .env.example .env
+
+     # Windows (PowerShell)
+     Copy-Item .env.example .env
+     ```
+   - Em produção/VM, alterar as senhas de `POSTGRES_PASSWORD` e `DATABASE_URL`.
+
+2. **Subir toda a stack com build**:
+
+   ```bash
+   docker compose up -d --build
+   ```
+
+3. **Executar migrações avulsas (se necessário)**:
+
+   ```bash
+   docker compose run --rm migration
+   ```
+
+4. **Script de deploy automatizado (Linux/VM)**:
+   ```bash
+   chmod +x deploy.sh && ./deploy.sh
+   ```
+
+### 3. Comandos Úteis do Docker
+
+- **Status dos containers**: `docker compose ps`
+- **Logs unificados em tempo real**: `docker compose logs -f`
+- **Logs do backend**: `docker compose logs -f backend`
+- **Parar containers mantendo dados**: `docker compose down`
+- **Parar e limpar banco (reset completo)**: `docker compose down -v`
+- **Acessar shell de um container**: `docker compose exec backend sh` ou `docker compose exec postgres psql -U postgres -d emporio_henz`
