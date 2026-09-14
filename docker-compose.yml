@@ -12,6 +12,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-emporio_henz}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     networks:
       - emporio_net
     healthcheck:
@@ -57,6 +59,8 @@ services:
       PORT: 3001
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
+    ports:
+      - "3001:3001"
     networks:
       - emporio_net
 
@@ -70,7 +74,7 @@ services:
     container_name: emporio-henz-nginx
     restart: unless-stopped
     ports:
-      - "${PORT_HTTP:-80}:80"
+      - "${PORT_HTTP:-3000}:80"
     depends_on:
       - backend
     networks:

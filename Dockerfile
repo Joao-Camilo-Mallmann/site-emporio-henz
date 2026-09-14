@@ -35,7 +35,7 @@ ENV NODE_ENV=production
 ENV PORT=3001
 
 # Realiza o bundle de produção do backend
-RUN bun --filter backend run build
+RUN bun --filter backend build
 
 EXPOSE 3001
 CMD ["bun", "apps/backend/dist/index.js"]
@@ -46,7 +46,7 @@ CMD ["bun", "apps/backend/dist/index.js"]
 FROM base AS frontend-builder
 WORKDIR /app
 ENV NODE_ENV=production
-RUN bun --filter web run build
+RUN bun --filter web build
 
 # ==============================================================================
 # ESTÁGIO 5: NGINX — Servidor estático e proxy reverso (único ponto público)
