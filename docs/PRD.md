@@ -34,50 +34,54 @@ Principais pilares da solução:
 
 O sistema é estruturado em partes evolutivas na ordem abaixo. Cada etapa estabelece as fundações necessárias para a seguinte:
 
-| Ordem | Parte                                                                                                                                      | Por que nesta posição                                                                                               |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| 1     | Autenticação, perfis de acesso e cadastro de usuários (Admin, Vendedor, Cliente com e-mail)                                                | Sem identificação de usuários não é possível diferenciar permissões nem associar listas aos clientes                |
-| 2     | Catálogo público: navegação, busca e filtros (pronta entrega e sob encomenda com prazo em dias)                                            | É o coração da plataforma que resolve a descoberta de produtos para os clientes                                     |
-| 3     | Página de detalhe do produto (galeria de fotos, variações, preço de referência, política regional de entrega/montagem e convite de visita) | É a tela que dá segurança ao cliente e tira o receio da compra à distância                                          |
-| 4     | Gestão de listas do cliente (Favoritos, Lista de Desejos, Lista de Presentes e pastas personalizadas)                                      | Permite ao usuário reter itens de interesse, comparar opções e planejar suas compras                                |
-| 5     | Compartilhamento público de listas (link único somente-leitura) e consulta de listas por e-mail no atendimento                             | Atende aos arquitetos apresentando para clientes e permite aos vendedores consultar listas no tablet da loja física |
-| 6     | Disparo contextualizado de WhatsApp (do produto individual e da lista de itens)                                                            | É o canal que converte o interesse do cliente em venda real junto aos atendentes da loja                            |
-| 7     | Painel administrativo do catálogo (CRUD de produtos, desativação/soft delete, categorias e fornecedores)                                   | Garante a manutenção e atualização autônoma do catálogo pela equipe da loja                                         |
-| 8     | Recomendações de produtos no catálogo                                                                                                      | Enriquecimento que sugere itens complementares com base nas categorias visualizadas                                 |
+| Ordem | Parte                                                                                                                                                                                                | Por que nesta posição                                                                                                                                   |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ordem | Parte                                                                                                                                                                                                | Por que nesta posição                                                                                                                                   |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Autenticação, perfis de acesso, cadastro de usuários e governança de fornecedores (Admin global, Vendedor multi-empresa N:N, Cliente com e-mail)                                                     | Sem identificação de usuários e escopo de empresas não é possível diferenciar permissões nem associar listas ou restringir catálogos                    |
+| 2     | Catálogo público: navegação, busca e filtros (pronta entrega e sob encomenda com prazo em dias)                                                                                                      | É o coração da plataforma que resolve a descoberta de produtos para os clientes                                                                         |
+| 3     | Página de detalhe do produto (galeria de fotos, variações, preço de referência, política regional de entrega/montagem e convite de visita)                                                           | É a tela que dá segurança ao cliente e tira o receio da compra à distância                                                                              |
+| 4     | Gestão de listas do cliente (Favoritos, Lista de Desejos, Lista de Presentes e pastas personalizadas)                                                                                                | Permite ao usuário reter itens de interesse, comparar opções e planejar suas compras                                                                    |
+| 5     | Compartilhamento público de listas (link único somente-leitura) e consulta de listas por e-mail no atendimento                                                                                       | Atende aos arquitetos apresentando para clientes e permite aos vendedores consultar listas no tablet da loja física                                     |
+| 6     | Disparo contextualizado de WhatsApp (do produto individual e da lista de itens)                                                                                                                      | É o canal que converte o interesse do cliente em venda real junto aos atendentes da loja                                                                |
+| 7     | Painel administrativo do catálogo segregado (CRUD de produtos com escopo por empresa, soft delete, gestão de categorias e empresas exclusiva para Admin)                                             | Garante a governança centralizada pela gerência e a manutenção autônoma do catálogo de produtos por vendedores autorizados de suas respectivas marcas   |
+| 8     | Recomendações de produtos no catálogo                                                                                                                                                                | Enriquecimento que sugere itens complementares com base nas categorias visualizadas                                                                     |
 
 ## 4. Requisitos funcionais
 
-| ID   | Requisito                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RF01 | O sistema permite autenticação por e-mail e senha com controle de perfis: **Administrador**, **Vendedor** e **Cliente**.                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| RF02 | O sistema permite ao Administrador cadastrar e atualizar produtos com: nome, tipo/categoria principal, subtipo vinculado, fornecedor associado, preço fixo no site (negociável com o vendedor no WhatsApp), tipo de disponibilidade (**Pronta entrega** na loja física ou **Sob encomenda**), imagens salvas no banco em formato Base64, opções de variações de acabamento (cores/tecidos/madeiras) e um campo amplo de texto livre formatado para especificações técnicas, medidas (largura, altura, profundidade), composição e ferragens. |
-| RF03 | O sistema permite ao Administrador desativar produtos do catálogo através de exclusão lógica (**Soft Delete**, preenchendo o campo `deleted_at`); produtos desativados deixam de ser listados nas buscas públicas do catálogo imediatamente e são ocultados das listagens ativas de listas/pastas de clientes, sem nunca executar exclusão física (`DELETE`) do registro no banco de dados.                                                                                                                                                  |
-| RF04 | O sistema permite ao Administrador cadastrar, editar e desativar fornecedores, tipos/categorias principais (ex.: Sala de Estar, Jantar, Quarto, Cozinha, Escritório, Banheiro, Decoração) e **subtipos vinculados** (ex.: Sofá, Poltrona, Rack/Painel, Mesa de Centro; Cama, Guarda-Roupa, Cômoda, Mesa de Cabeceira), com controle de status ativo/inativo e soft delete.                                                                                                                                                                   |
-| RF05 | O sistema exibe o catálogo público com paginação/rolagem, busca textual por nome/descrição e filtros combinados por tipo (categoria principal), subtipo, faixa de preço, tipo de disponibilidade (pronta entrega ou sob encomenda), cor/acabamento e fornecedor.                                                                                                                                                                                                                                                                             |
-| RF06 | O sistema exibe a página de detalhe do produto com: carrossel de fotos, seletor de variações de acabamento, valor fixo (deixando claro que é preço de referência sujeito a negociação), prazo estimado de fabricação/entrega em dias, política informativa sobre entrega e montagem regional, especificações técnicas completas e um card convidando o cliente a visitar o showroom físico para tocar nas amostras de materiais.                                                                                                             |
-| RF07 | O sistema permite o autocadastro do Cliente informando nome completo, e-mail e senha.                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| RF08 | O sistema disponibiliza para cada cliente 3 listas padronizadas automáticas (**Favoritos**, **Lista de Desejos** e **Lista de Presentes**), além de permitir a criação, renomeação e exclusão de listas personalizadas livres.                                                                                                                                                                                                                                                                                                               |
-| RF09 | O sistema permite ao cliente adicionar ou remover produtos em qualquer uma de suas listas a partir do catálogo ou da página de detalhe do produto.                                                                                                                                                                                                                                                                                                                                                                                           |
-| RF10 | O sistema permite gerar um link público exclusivo (baseado em UUID) para qualquer lista ou pasta do cliente; qualquer visitante que possuir o link acessa a lista em modo somente-leitura, sem exibir dados confidenciais do cliente criador.                                                                                                                                                                                                                                                                                                |
-| RF11 | O sistema disponibiliza para o Administrador e Vendedor uma tela de consulta interna de listas para atendimento, permitindo buscar e visualizar as listas de um cliente através do seu **e-mail** ou pelo link compartilhado da lista.                                                                                                                                                                                                                                                                                                       |
-| RF12 | O sistema exibe na página de detalhe do produto e nas listas salvas um botão de contato via WhatsApp que gera automaticamente uma mensagem pré-preenchida contendo: nome do produto, variação/acabamento selecionado, preço de referência e link da página (ou, no caso da lista, nome da lista, link público e relação dos itens selecionados).                                                                                                                                                                                             |
-| RF13 | O sistema exibe páginas institucionais com a história de 50 anos da Empório Henz, fotos do showroom pós-reconstrução, endereço em Cruzeiro do Sul, horário de funcionamento e canais de atendimento.                                                                                                                                                                                                                                                                                                                                         |
-| RF14 | O sistema sugere produtos relacionados e recomendados no catálogo e no rodapé da página de produto com base na mesma categoria ou em categorias complementares.                                                                                                                                                                                                                                                                                                                                                                              |
+| ID   | Requisito                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| RF01 | O sistema permite autenticação por e-mail e senha com controle de perfis em 3 níveis: **Administrador**, **Vendedor** e **Cliente**. O perfil Vendedor pode possuir vínculo com uma ou mais empresas/fornecedores (`user_suppliers`), enquanto Administrador e Cliente não necessitam de vínculo.                                                                                                                                                                                                                                                                                                                                                                              |
+| RF02 | O sistema permite ao Administrador cadastrar e atualizar produtos de qualquer fornecedor globalmente. O sistema permite ao Vendedor cadastrar e atualizar produtos **exclusivamente das empresas às quais possui vínculo ativo**: se possuir apenas 1 vínculo, a empresa é fixada automaticamente no formulário; se possuir múltiplos vínculos, o sistema restringe o seletor apenas às empresas autorizadas. O cadastro contempla: nome, tipo/categoria, subtipo vinculado, fornecedor associado, preço fixo de referência, tipo de disponibilidade (**Pronta entrega** ou **Sob encomenda**), imagens em Base64, opções de variações e especificações técnicas estruturadas. |
+| RF03 | O sistema permite a desativação lógica de produtos do catálogo através de **Soft Delete** (`deleted_at` preenchido): o Administrador pode desativar produtos de qualquer empresa, enquanto o Vendedor só pode desativar produtos pertencentes às empresas com as quais tem vínculo ativo. Produtos desativados deixam de ser listados nas buscas públicas do catálogo imediatamente e são ocultados das listagens ativas de listas/pastas de clientes, sem nunca executar exclusão física (`DELETE`) do registro no banco de dados.                                                                                                                                            |
+| RF04 | O sistema permite **exclusivamente ao Administrador** cadastrar, editar e desativar empresas/fornecedores, associar e desassociar vendedores a fornecedores (`user_suppliers`), e gerenciar tipos/categorias e subtipos vinculados, com controle de status ativo/inativo e soft delete. Vendedores e clientes não têm permissão para cadastrar nem alterar fornecedores no sistema.                                                                                                                                                                                                                                                                                            |
+| RF05 | O sistema exibe o catálogo público com paginação/rolagem, busca textual por nome/descrição e filtros combinados por tipo (categoria principal), subtipo, faixa de preço, tipo de disponibilidade (pronta entrega ou sob encomenda), cor/acabamento e fornecedor.                                                                                                                                                                                                                                                                                                                                                                                                               |
+| RF06 | O sistema exibe a página de detalhe do produto com: carrossel de fotos, seletor de variações de acabamento, valor fixo (deixando claro que é preço de referência sujeito a negociação), prazo estimado de fabricação/entrega em dias, política informativa sobre entrega e montagem regional, especificações técnicas completas e um card convidando o cliente a visitar o showroom físico para tocar nas amostras de materiais.                                                                                                                                                                                                                                               |
+| RF07 | O sistema permite o autocadastro do Cliente informando nome completo, e-mail e senha. Clientes não possuem permissão para cadastrar ou gerenciar empresas ou produtos.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| RF08 | O sistema disponibiliza para cada cliente 3 listas padronizadas automáticas (**Favoritos**, **Lista de Desejos** e **Lista de Presentes**), além de permitir a criação, renomeação e exclusão de listas personalizadas livres.                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| RF09 | O sistema permite ao cliente adicionar ou remover produtos em qualquer uma de suas listas a partir do catálogo ou da página de detalhe do produto.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| RF10 | O sistema permite gerar um link público exclusivo (baseado em UUID) para qualquer lista ou pasta do cliente; qualquer visitante que possuir o link acessa a lista em modo somente-leitura, sem exibir dados confidenciais do cliente criador.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| RF11 | O sistema disponibiliza para o Administrador e Vendedor uma tela de consulta interna de listas para atendimento, permitindo buscar e visualizar as listas de um cliente através do seu **e-mail** ou pelo link compartilhado da lista.                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| RF12 | O sistema exibe na página de detalhe do produto e nas listas salvas um botão de contato via WhatsApp que gera automaticamente uma mensagem pré-preenchida contendo: nome do produto, variação/acabamento selecionado, preço de referência e link da página (ou, no caso da lista, nome da lista, link público e relação dos itens selecionados).                                                                                                                                                                                                                                                                                                                               |
+| RF13 | O sistema exibe páginas institucionais com a história de 50 anos da Empório Henz, fotos do showroom pós-reconstrução, endereço em Cruzeiro do Sul, horário de funcionamento e canais de atendimento.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| RF14 | O sistema sugere produtos relacionados e recomendados no catálogo e no rodapé da página de produto com base na mesma categoria ou em categorias complementares.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| RF15 | O sistema valida rigorosamente no **backend** a matriz de permissões e isolamento multi-empresa: tentativas de um Vendedor cadastrar, editar, desativar ou consultar privadamente produtos de uma empresa à qual não está vinculado retornam status HTTP `403 Forbidden`. Da mesma forma, qualquer tentativa de Vendedor ou Cliente cadastrar/alterar empresas/fornecedores ou manipular rotas de fornecedores retorna obrigatoriamente HTTP `403 Forbidden`. Vendedores sem empresa vinculada são impedidos de cadastrar produtos (`403 Forbidden`).                                                                                                                          |
 
 ## 5. Requisitos não funcionais
 
-| ID    | Requisito                                                                                                                                                                                                                                                                                                                                                | Como se verifica                                                                                                                                                                                                                 |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RNF01 | O catálogo com filtros combinados responde e renderiza em até 2 segundos em conexões padrão com até 15 produtos cadastrados                                                                                                                                                                                                                              | Medição de tempo de resposta da API e carregamento no DevTools do navegador                                                                                                                                                      |
-| RNF02 | As imagens de produtos enviadas em Base64 são comprimidas e limitadas a no máximo 2 MB por imagem antes da persistência no banco PostgreSQL                                                                                                                                                                                                              | Tentativa de upload de imagem bruta de alta resolução com validação do payload e do tamanho armazenado                                                                                                                           |
-| RNF03 | Senhas de usuários e clientes são obrigatoriamente criptografadas com hash seguro antes de persistir no banco                                                                                                                                                                                                                                            | Inspeção direta dos registros da tabela de credenciais no banco PostgreSQL                                                                                                                                                       |
-| RNF04 | **Requisito Crítico**: Um cliente nunca consegue visualizar ou alterar listas/pastas de outro cliente sem possuir o link público de compartilhamento gerado. O acesso da equipe interna de vendas às listas de um cliente depende da busca intencional por e-mail informado pelo cliente para atendimento                                                | Tentativa de requisição direta a endpoints protegidos de listas via URL com tokens de outros clientes                                                                                                                            |
-| RNF05 | A interface do portal deve ser fiel ao layout desenvolvido no Figma pela equipe de design.                                                                                                                                                                                                                                                               | Testes no navegador com emulação de dispositivos móveis e tablets                                                                                                                                                                |
-| RNF06 | A aplicação roda nos principais navegadores modernos (Google Chrome, Mozilla Firefox, Safari, Microsoft Edge) sem necessidade de plugins proprietários                                                                                                                                                                                                   | Validação cruzada de navegação e layouts nos browsers indicados                                                                                                                                                                  |
-| RNF07 | A API do backend em Bun é estruturada em rotas REST versionadas (`/api/v1/...`) respondendo em formato JSON com códigos de status HTTP semânticos (200, 201, 400, 401, 403, 404, 500)                                                                                                                                                                    | Inspeção das respostas e testes de integração com ferramentas HTTP/cURL                                                                                                                                                          |
-| RNF08 | O banco de dados relacional PostgreSQL adota estratégia estrita de **Soft Delete** (`deleted_at timestamp`, nulo para registros ativos e preenchido na exclusão lógica) em todas as entidades (produtos, categorias, fornecedores, listas), assegurando integridade histórica e de auditoria, sem nunca executar exclusão física (`DELETE`) de registros | Tentativa de exclusão de produto/registro pelo painel e verificação no PostgreSQL de que a linha permanece persistida com `deleted_at` preenchido e que as consultas públicas filtram automaticamente `WHERE deleted_at IS NULL` |
+| ID    | Requisito                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Como se verifica                                                                                                                                                                                                                 |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RNF01 | O catálogo com filtros combinados responde e renderiza em até 2 segundos em conexões padrão com até 15 produtos cadastrados                                                                                                                                                                                                                                                                                                                                                                                                                                        | Medição de tempo de resposta da API e carregamento no DevTools do navegador                                                                                                                                                      |
+| RNF02 | As imagens de produtos enviadas em Base64 são comprimidas e limitadas a no máximo 2 MB por imagem antes da persistência no banco PostgreSQL                                                                                                                                                                                                                                                                                                                                                                                                                        | Tentativa de upload de imagem bruta de alta resolução com validação do payload e do tamanho armazenado                                                                                                                           |
+| RNF03 | Senhas de usuários e clientes são obrigatoriamente criptografadas com hash seguro antes de persistir no banco                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Inspeção direta dos registros da tabela de credenciais no banco PostgreSQL                                                                                                                                                       |
+| RNF04 | **Requisito Crítico**: Um cliente nunca consegue visualizar ou alterar listas/pastas de outro cliente sem possuir o link público de compartilhamento gerado. O acesso da equipe interna de vendas às listas de um cliente depende da busca intencional por e-mail informado pelo cliente para atendimento                                                                                                                                                                                                                                                          | Tentativa de requisição direta a endpoints protegidos de listas via URL com tokens de outros clientes                                                                                                                            |
+| RNF05 | A interface do portal deve ser fiel ao layout desenvolvido no Figma pela equipe de design.                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Testes no navegador com emulação de dispositivos móveis e tablets                                                                                                                                                                |
+| RNF06 | A aplicação roda nos principais navegadores modernos (Google Chrome, Mozilla Firefox, Safari, Microsoft Edge) sem necessidade de plugins proprietários                                                                                                                                                                                                                                                                                                                                                                                                             | Validação cruzada de navegação e layouts nos browsers indicados                                                                                                                                                                  |
+| RNF07 | A API do backend em Bun é estruturada em rotas REST versionadas (`/api/v1/...`) respondendo em formato JSON com códigos de status HTTP semânticos (200, 201, 400, 401, 403, 404, 500)                                                                                                                                                                                                                                                                                                                                                                              | Inspeção das respostas e testes de integração com ferramentas HTTP/cURL                                                                                                                                                          |
+| RNF08 | O banco de dados relacional PostgreSQL adota estratégia estrita de **Soft Delete** (`deleted_at timestamp`, nulo para registros ativos e preenchido na exclusão lógica) em todas as entidades (produtos, categorias, fornecedores, listas), assegurando integridade histórica e de auditoria, sem nunca executar exclusão física (`DELETE`) de registros                                                                                                                                                                                                           | Tentativa de exclusão de produto/registro pelo painel e verificação no PostgreSQL de que a linha permanece persistida com `deleted_at` preenchido e que as consultas públicas filtram automaticamente `WHERE deleted_at IS NULL` |
+| RNF09 | **Segurança e Autorização em Níveis no Backend**: A matriz de autorização (Admin global, Vendedor restrito às empresas vinculadas, Cliente apenas consumidor) deve ser validada estritamente no backend (`Bun.serve`), nunca dependendo de ocultação na UI. Tentativas de acesso ou mutação não autorizadas (ex.: vendedor tentando criar produtos de fornecedor não vinculado, ou clientes/vendedores tentando cadastrar empresas) devem retornar invariavelmente HTTP `403 Forbidden` com payload JSON padronizado `{ "error": "Forbidden", "message": "..." }`. | Tentativa de requisições diretas via API com tokens de vendedor/cliente simulando envio de payload com `supplier_id` não autorizado ou rotas de fornecedor, comprovando bloqueio com código HTTP `403 Forbidden`                 |
 
-O **RNF04** é o requisito crítico do sistema: assegura que as pastas, projetos de arquitetos e intenções de compra dos clientes permaneçam estritamente privadas, protegendo a privacidade dos usuários e a confidencialidade dos projetos de especificação de arquitetura.
+O **RNF04** e o **RNF09** são requisitos críticos de segurança do sistema: asseguram respectivamente a estrita privacidade dos projetos/listas dos clientes e o isolamento seguro de produtos e governança exclusiva de empresas parceiras na plataforma.
 
 ## 6. Histórias de usuário
 
@@ -88,34 +92,37 @@ O **RNF04** é o requisito crítico do sistema: assegura que as pastas, projetos
 5. **Como cliente (consumidor ou arquiteto)**, quero clicar em um botão de WhatsApp no produto ou na minha lista de desejos e enviar uma mensagem formatada com os links e acabamentos escolhidos, para negociar diretamente com os atendentes da loja de forma rápida.
 6. **Como cliente presencial**, quero chegar na loja física em Cruzeiro do Sul e informar meu e-mail ao vendedor, para que ele visualize no tablet as listas de produtos que salvei em casa e me guie pelo showroom e pelas amostras de materiais.
 7. **Como vendedor da loja**, quero acessar uma tela de consulta no tablet e buscar as listas do cliente por e-mail ou link, para prestar um atendimento ágil e personalizado mostrando as amostras de tecidos e acabamentos correspondentes.
-8. **Como administradora da loja (Empório Henz)**, quero cadastrar e atualizar produtos com fotos em Base64, prazo em dias, variações e descrições detalhadas, para manter o mostruário digital sempre alinhado aos fornecedores.
+8. **Como administradora da loja (Empório Henz)**, quero cadastrar e atualizar produtos com fotos em Base64, prazo em dias, variações e descrições detalhadas de qualquer fabricante, para manter o mostruário digital sempre alinhado aos fornecedores.
 9. **Como administradora da loja**, quero desativar do catálogo produtos descontinuados via exclusão lógica (soft delete), para evitar que clientes comprem itens que não podem mais ser fabricados sem perder o histórico do produto no banco.
+10. **Como vendedor vinculado a múltiplas empresas**, quero cadastrar e gerenciar produtos selecionando apenas entre as empresas parceiras às quais possuo permissão concedida pela administração, para manter o portfólio dessas marcas atualizado com agilidade sem ter acesso indevido nem interferir em produtos de empresas concorrentes.
+11. **Como administradora da loja**, quero cadastrar empresas/fornecedores parceiros com exclusividade e vincular quais vendedores têm permissão de representar cada empresa, garantindo governança total, integridade de dados e centralização do controle de acesso.
 
 ## 7. Casos de uso
 
 ### Atores
 
-| Ator          | Quem é                                                                                                                                         |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cliente       | O consumidor final ou profissional (arquiteto/designer) que navega no catálogo, salva produtos em listas e aciona o WhatsApp para compra       |
-| Vendedor      | O colaborador da loja física que utiliza o tablet no showroom para consultar listas de clientes por e-mail ou link e apoiar a venda presencial |
-| Administrador | A gerência da Empório Henz, responsável por cadastrar produtos, categorias, fornecedores, gerenciar equipe e manter o catálogo                 |
-| Recomendador  | O próprio sistema web, que sugere itens relacionados e complementares com base nas categorias navegadas                                        |
+| Ator          | Quem é                                                                                                                                                                                                                                                                      |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cliente       | O consumidor final ou profissional (arquiteto/designer) que navega no catálogo público, salva produtos em listas e aciona o WhatsApp para compra. Não possui permissão de cadastro ou gestão de empresas e produtos.                                                        |
+| Vendedor      | O colaborador da loja física ou representante parceiro que apoia vendas presenciais no showroom e possui permissão para cadastrar, visualizar, editar e desativar produtos **exclusivamente das empresas às quais está vinculado**. Não pode cadastrar nem editar empresas. |
+| Administrador | A gerência da Empório Henz, com permissão global e irrestrita para cadastrar empresas/fornecedores em qualquer nível, vincular vendedores a múltiplas empresas, gerenciar categorias e controlar todos os produtos da plataforma.                                           |
+| Recomendador  | O próprio sistema web, que sugere itens relacionados e complementares com base nas categorias navegadas                                                                                                                                                                     |
 
 ### Casos de uso e rastreabilidade
 
-| Caso de uso                                                        | Vem da história            | Realiza    |
-| ------------------------------------------------------------------ | -------------------------- | ---------- |
-| UC01 · Entrar no portal e autenticar                               | Nenhuma (pré-requisito)    | RF01, RF07 |
-| UC02 · Navegar e filtrar catálogo público                          | 1                          | RF05       |
-| UC03 · Ver detalhe do produto e política de entrega/montagem       | 1, 2                       | RF06       |
-| UC04 · Gerenciar listas e salvar produtos                          | 3, 4                       | RF08, RF09 |
-| UC05 · Compartilhar lista via link público                         | 4                          | RF10       |
-| UC06 · Consultar lista de cliente por e-mail/link (Equipe da loja) | 6, 7                       | RF11       |
-| UC07 · Iniciar contato de compra via WhatsApp                      | 5                          | RF12       |
-| UC08 · Gerenciar produtos do catálogo (CRUD e Soft Delete)         | 8, 9                       | RF02, RF03 |
-| UC09 · Gerenciar fornecedores, tipos e subtipos                    | 8                          | RF04       |
-| UC10 · Ver produtos recomendados                                   | Nenhuma (extensão de UC02) | RF14       |
+| Caso de uso                                                                       | Vem da história            | Realiza          |
+| --------------------------------------------------------------------------------- | -------------------------- | ---------------- |
+| UC01 · Entrar no portal e autenticar                                              | Nenhuma (pré-requisito)    | RF01, RF07       |
+| UC02 · Navegar e filtrar catálogo público                                         | 1                          | RF05             |
+| UC03 · Ver detalhe do produto e política de entrega/montagem                      | 1, 2                       | RF06             |
+| UC04 · Gerenciar listas e salvar produtos                                         | 3, 4                       | RF08, RF09       |
+| UC05 · Compartilhar lista via link público                                        | 4                          | RF10             |
+| UC06 · Consultar lista de cliente por e-mail/link (Equipe da loja)                | 6, 7                       | RF11             |
+| UC07 · Iniciar contato de compra via WhatsApp                                     | 5                          | RF12             |
+| UC08 · Gerenciar produtos do catálogo com escopo por empresa (CRUD e Soft Delete) | 8, 9, 10                   | RF02, RF03, RF15 |
+| UC09 · Gerenciar fornecedores, tipos e subtipos (Exclusivo Administrador)         | 8, 11                      | RF04, RF15       |
+| UC10 · Ver produtos recomendados                                                  | Nenhuma (extensão de UC02) | RF14             |
+| UC11 · Gerenciar vínculos entre vendedores e empresas (N:N - Exclusivo Admin)     | 11                         | RF01, RF04, RF15 |
 
 ### Detalhamento dos Casos de Uso com Regras de Negócio
 
@@ -201,30 +208,94 @@ Pós-condição: A conversa no WhatsApp é iniciada com todas as referências do
 
 ---
 
-#### UC08 · Gerenciar produtos do catálogo (CRUD e Soft Delete)
+#### UC08 · Gerenciar produtos do catálogo com escopo por empresa (CRUD e Soft Delete)
 
-| Campo              | Conteúdo                                                                                                 |
-| ------------------ | -------------------------------------------------------------------------------------------------------- |
-| Ator principal     | Administrador                                                                                            |
-| Pré-condição       | Administrador autenticado no painel administrativo                                                       |
-| Disparo            | O administrador clica em "Cadastrar Novo Produto", "Editar" ou "Desativar/Excluir" no painel de produtos |
-| Requisitos ligados | RF02, RF03, RNF02, RNF08                                                                                 |
+| Campo              | Conteúdo                                                                                                                   |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| Ator principal     | Administrador ou Vendedor vinculado                                                                                        |
+| Pré-condição       | Usuário autenticado com perfil Administrador ou Vendedor (com ao menos 1 vínculo ativo em `user_suppliers` para inclusões) |
+| Disparo            | O usuário clica em "Cadastrar Novo Produto", "Editar" ou "Desativar/Excluir" no painel de produtos                         |
+| Requisitos ligados | RF02, RF03, RF15, RNF02, RNF08, RNF09                                                                                      |
 
 Fluxo principal (Cadastro/Edição):
 
-1. O administrador acessa a listagem administrativa de produtos e seleciona "Novo Produto" ou "Editar".
-2. Preenche os campos obrigatórios: Nome, Categoria, Fornecedor, Preço de Referência, Parcelamento Sugerido, Prazo Estimado (em dias) e Disponibilidade (**Pronta entrega** ou **Sob encomenda**).
-3. Seleciona arquivos de imagem locais; o sistema converte os arquivos em strings Base64 otimizadas e pré-visualiza no formulário.
-4. Cadastra as opções de variação (cores/acabamentos disponíveis) e preenche a descrição em área de texto livre formatada com medidas e ferragens.
-5. O administrador clica em "Salvar". O sistema valida os campos obrigatórios e grava o registro no PostgreSQL.
+1. O usuário acessa a listagem administrativa de produtos:
+   - Se for **Administrador**: o sistema lista todos os produtos de todos os fornecedores globalmente.
+   - Se for **Vendedor**: o sistema filtra e exibe exclusivamente os produtos pertencentes às empresas às quais o vendedor está ativamente vinculado via `user_suppliers`.
+2. O usuário clica em "Novo Produto" ou "Editar" em um item autorizado.
+3. Tratamento da seleção da Empresa/Fornecedor:
+   - Se for **Administrador**: o seletor exibe todos os fornecedores ativos cadastrados no sistema.
+   - Se for **Vendedor com 1 vínculo**: o sistema pré-seleciona e bloqueia a alteração do fornecedor, vinculando-o diretamente à sua única empresa autorizada.
+   - Se for **Vendedor com múltiplos vínculos**: o seletor exibe exclusivamente a lista das empresas às quais o vendedor possui vínculo ativo.
+4. O usuário preenche os demais campos obrigatórios: Nome, Categoria, Subtipo, Preço de Referência, Parcelamento Sugerido, Prazo Estimado (em dias) e Disponibilidade (**Pronta entrega** ou **Sob encomenda**).
+5. Seleciona arquivos de imagem locais; o sistema converte os arquivos em strings Base64 otimizadas e pré-visualiza no formulário.
+6. Cadastra opções de variação (cores/acabamentos disponíveis) e preenche especificações técnicas e dimensões em milímetros.
+7. O usuário clica em "Salvar". O backend valida se o usuário autenticado possui permissão sobre o `supplier_id` informado e persiste no PostgreSQL.
 
-Fluxo alternativo (Exclusão lógica de produto / Soft Delete):
+Fluxos alternativos e exceções:
 
-- **A1, Exclusão de produto (Soft Delete)**: O administrador aciona a ação "Excluir" em um produto descontinuado e confirma a desativação.
-- O sistema executa a exclusão lógica (**Soft Delete**), gravando o timestamp atual no campo `deleted_at` do produto no PostgreSQL, sem nunca disparar a remoção física (`DELETE`) do registro.
-- O produto deixa de aparecer instantaneamente nas buscas do catálogo público e nas consultas ativas, e o histórico de referências passadas é preservado com total integridade.
+- **A1, Exclusão lógica de produto (Soft Delete)**:
+  - O usuário aciona a ação "Excluir" em um produto e confirma a desativação.
+  - O backend confere a autorização (Admin global ou Vendedor com vínculo ativo com a empresa do produto).
+  - O sistema grava o timestamp atual no campo `deleted_at` do produto no PostgreSQL, sem nunca disparar a remoção física (`DELETE`).
+  - O produto é imediatamente ocultado das consultas públicas do catálogo e das listas de clientes.
+- **E1, Vendedor sem empresa vinculada tentando cadastrar**:
+  - O sistema impede a submissão e a API backend responde imediatamente com status HTTP `403 Forbidden` informando: `"Vendedor sem vínculo ativo com nenhuma empresa não possui permissão para cadastrar produtos."`.
+- **E2, Tentativa de cadastrar ou adulterar produto para empresa não autorizada**:
+  - Caso um vendedor tente injetar via payload de API um `supplier_id` fora de suas empresas vinculadas, o backend rejeita a operação com status HTTP `403 Forbidden` informando: `"Você não possui autorização para gerenciar produtos deste fornecedor."`.
+- **E3, Tentativa de editar ou desativar produto de outra empresa**:
+  - Caso um vendedor tente disparar `PUT /api/produtos/:id` ou `DELETE /api/produtos/:id` de um produto cujo fornecedor não conste em seus vínculos, o backend bloqueia a operação retornando HTTP `403 Forbidden`.
 
-Pós-condição: O produto é atualizado ou marcado como logicamente excluído (`deleted_at` preenchido) no banco de dados, sem exclusão física de registros.
+Pós-condição: O produto é criado, atualizado ou logicamente excluído com estrita governança e isolamento por empresa no banco de dados.
+
+---
+
+#### UC09 · Gerenciar fornecedores, tipos e subtipos (Exclusivo Administrador)
+
+| Campo              | Conteúdo                                                                     |
+| ------------------ | ---------------------------------------------------------------------------- |
+| Ator principal     | Administrador                                                                |
+| Pré-condição       | Administrador autenticado no painel administrativo                           |
+| Disparo            | O administrador acessa a área de "Configurações / Fornecedores e Categorias" |
+| Requisitos ligados | RF04, RF15, RNF08, RNF09                                                     |
+
+Fluxo principal:
+
+1. O administrador acessa a gestão de fornecedores e clica em "Cadastrar Fornecedor".
+2. Preenche o nome da empresa parceira/marca, dados de contato e confirma.
+3. O sistema persiste a empresa no PostgreSQL e a disponibiliza para categorização de produtos e vinculação de equipe.
+4. O administrador pode editar dados cadastrais ou inativar logicamente uma empresa (soft delete).
+5. O administrador gerencia as categorias principais e subtipos vinculados.
+
+Exceções:
+
+- **E1, Acesso indevido por Vendedor ou Cliente**: Vendedores e Clientes não possuem permissão para cadastrar nem alterar fornecedores. Qualquer tentativa de requisição à API de fornecedores por perfis não administradores retorna invariavelmente HTTP `403 Forbidden`.
+
+---
+
+#### UC11 · Gerenciar vínculos entre vendedores e empresas (N:N - Exclusivo Admin)
+
+| Campo              | Conteúdo                                                                                            |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| Ator principal     | Administrador                                                                                       |
+| Pré-condição       | Administrador autenticado e usuário com perfil Vendedor previamente cadastrado                      |
+| Disparo            | O administrador acessa a tela de "Gestão de Usuários / Vendedores" e seleciona "Gerenciar Vínculos" |
+| Requisitos ligados | RF01, RF04, RF15, RNF09                                                                             |
+
+Fluxo principal:
+
+1. O administrador localiza o vendedor pelo e-mail ou nome na listagem de usuários.
+2. Acessa a opção "Vínculos com Fornecedores". O sistema lista as empresas parceiras ativas e assinala as que já estão vinculadas ao vendedor.
+3. O administrador seleciona uma ou mais empresas para conceder permissão de representação/gestão ao vendedor.
+4. O administrador confirma a operação.
+5. O sistema grava ou reativa registros na tabela associativa `user_suppliers` no PostgreSQL.
+6. Em tempo real, o vendedor passa a ter autorização para operar produtos das empresas selecionadas.
+
+Fluxo de desvinculação:
+
+- **A1, Remoção de vínculo**: O administrador desmarca uma empresa vinculada. O sistema preenche o campo `deleted_at` no registro correspondente em `user_suppliers` (soft delete). O vendedor perde imediatamente o acesso para gerenciar produtos daquela empresa.
+
+Pós-condição: Os vínculos de autorização N:N entre o vendedor e os fornecedores são atualizados e refletidos instantaneamente nas validações da API.
 
 ## 8. Modelagem
 
@@ -234,7 +305,7 @@ Devido à extensão e ao detalhamento técnico dos modelos, ambos os diagramas f
 
 ### 8.1 Diagrama de Classes
 
-Contempla as entidades centrais do sistema (`User`, `Client`, `Category`, `ProductSubtype`, `Supplier`, `Product`, `ProductImage`, `ProductVariation`, `ProductList`, `ListItem`), suas responsabilidades, visibilidade de atributos e métodos de negócio.
+Contempla as entidades centrais do sistema (`User`, `UserSupplier`, `Client`, `Category`, `ProductSubtype`, `Supplier`, `Product`, `ProductImage`, `ProductVariation`, `ProductList`, `ListItem`), suas responsabilidades, visibilidade de atributos e métodos de negócio. A associação entre `User` (Vendedor) e `Supplier` é modelada através da classe associativa `UserSupplier`, permitindo que um vendedor represente uma ou mais marcas parceiras simultaneamente com isolamento estrito de catálogo.
 
 - **Arquivo anexo**: [diagrama_classes_emporio_henz.pdf](./diagrama_classes_emporio_henz.pdf)
 
@@ -249,6 +320,8 @@ Define o esquema físico e relacional de tabelas, chaves primárias (`UUID`), ch
 ```mermaid
 erDiagram
     USERS ||--o| CLIENTS : "1:1 perfil cadastral"
+    USERS ||--o{ USER_SUPPLIERS : "possui vinculos"
+    SUPPLIERS ||--o{ USER_SUPPLIERS : "vincula vendedores"
     CLIENTS ||--o{ LISTS : "possui"
     CATEGORIES ||--o{ PRODUCT_SUBTYPES : "contem"
     CATEGORIES ||--o{ PRODUCTS : "classifica"
@@ -265,6 +338,14 @@ erDiagram
         varchar email UK "Identificador único (sem CPF)"
         varchar password_hash "Hash seguro de senha"
         smallint role "1=Cliente, 2=Vendedor, 3=Admin"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
+    USER_SUPPLIERS {
+        uuid id PK
+        uuid user_id FK "Vínculo com USERS (role=2 Vendedor)"
+        uuid supplier_id FK "Vínculo com SUPPLIERS"
         timestamp created_at
         timestamp deleted_at
     }
@@ -405,12 +486,23 @@ erDiagram
 - **Compartilhamento por Link Público Seguro (UUID)**: o compartilhamento de listas gera uma URL contendo um UUID randômico (`share_slug`). O visitante com o link acessa a lista em modo somente-leitura sem expor dados confidenciais do proprietário da pasta.
 - **Integração Descomplicada com WhatsApp**: sem necessidade de APIs pagas ou aprovação de templates da Meta; o sistema gera links padronizados (`https://wa.me/55...`) com payload codificado contendo os dados do produto ou da lista selecionada.
 - **Segurança e Controle de Acesso no Servidor**: toda validação de autorização (quem pode criar produtos, quem pode visualizar listas privadas) é rigorosamente conferida no backend; esconder botões no frontend é apenas UX e nunca é considerado camada de segurança.
+- **Governança em 3 Níveis e Isolamento Multi-empresa N:N no Backend**:
+  - **Administrador**: possui privilégio global para cadastrar empresas/fornecedores parceiros, gerenciar categorias e controlar produtos de qualquer fabricante.
+  - **Vendedor**: não cadastra nem edita empresas. Pode estar vinculado a 1 ou N empresas através da tabela associativa `user_suppliers`. Ao cadastrar ou editar produtos, o backend valida estritamente se o `supplier_id` do produto consta nos vínculos ativos do vendedor autenticado (`SELECT 1 FROM user_suppliers WHERE user_id = :authUserId AND supplier_id = :targetSupplierId AND deleted_at IS NULL`). Caso não conste, a requisição é rejeitada com status HTTP `403 Forbidden` e payload JSON descritivo.
+  - **Cliente**: não possui acesso a rotas administrativas de cadastro de empresas ou produtos; qualquer tentativa de acesso a endpoints administrativos retorna status HTTP `403 Forbidden`.
 
 ## 10. Decisões de teste
 
 Os testes automatizados e manuais cobrem os comportamentos essenciais do sistema:
 
 - **Isolamento e Segurança de Listas (RNF04)**: garantir que uma requisição direta à rota de listas de um cliente sem o devido token de sessão retorne `401 Unauthorized` ou `403 Forbidden`, e que o link público retorne exclusivamente os dados em modo somente-leitura.
+- **Isolamento de Produtos por Empresa e Matriz de Autorização (RF02, RF04, RF15, RNF09)**:
+  - Vendedor sem empresa vinculada tentando cadastrar produto -> a API rejeita com status `403 Forbidden`.
+  - Vendedor vinculado às Empresas A e B cadastra com sucesso produtos para A e B.
+  - Vendedor vinculado apenas às Empresas A e B tentando enviar produto com `supplier_id` da Empresa C -> a API bloqueia com status `403 Forbidden`.
+  - Vendedor tentando editar ou desativar (`Soft Delete`) produto da Empresa C -> a API bloqueia com status `403 Forbidden`.
+  - Vendedor ou Cliente tentando enviar requisições de criação ou edição para rotas de fornecedores (`/api/fornecedores`) -> a API bloqueia com status `403 Forbidden`.
+  - Administrador cadastra e edita fornecedores em qualquer nível e gerencia produtos de qualquer empresa sem restrição.
 - **Exclusão Lógica / Soft Delete (RF03, RNF08)**: verificar que, ao desativar um produto no painel administrativo, o registro no PostgreSQL permanece intacto na tabela com `deleted_at` preenchido com timestamp atual, nenhuma instrução SQL `DELETE` física é executada, e as rotas públicas do catálogo (`GET /api/produtos`) não retornam mais o item desativado.
 - **Consulta de Listas por e-mail (RF11)**: validar que uma busca por um e-mail cadastrado retorna as listas vinculadas e que uma busca por e-mail inexistente responde amigavelmente com mensagem clara e código `404 Not Found`.
 - **Filtros e Busca do Catálogo (RF05)**: assegurar que buscas por texto livre e filtros combinados (ex.: categoria "Sala de Estar" + disponibilidade "Pronta entrega") retornam a interseção exata de produtos.
@@ -428,18 +520,93 @@ Os testes automatizados e manuais cobrem os comportamentos essenciais do sistema
 
 ## 12. Glossário
 
-| Termo                     | Significado neste projeto                                                                                                      |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Cliente                   | Consumidor final ou profissional (arquiteto/designer) cadastrado na plataforma com nome, e-mail e senha                        |
-| Vendedor                  | Colaborador da Empório Henz com permissão de consultar listas de clientes por e-mail/link e apoiar vendas no tablet            |
-| Administrador             | Gestor da loja com acesso total para cadastrar produtos, fornecedores, categorias e equipe                                     |
-| Produto                   | Móvel ou item de decoração exibido no catálogo com fotos, preço de referência, variações e especificações                      |
-| Pronta Entrega            | Produto disponível no showroom ou depósito da loja física para retirada ou entrega imediata                                    |
-| Sob Encomenda             | Produto fornecido por parceiros fabricantes, com prazo de produção/entrega estimado em dias no site                            |
-| Variação de Acabamento    | Opções de customização do produto (ex.: tecidos, tons de madeira, cores de laca)                                               |
-| Lista Padrão              | Listas essenciais criadas automaticamente no cadastro do cliente: **Favoritos**, **Lista de Desejos** e **Lista de Presentes** |
-| Pasta Personalizada       | Lista criada livremente pelo cliente ou arquiteto para organizar móveis de um projeto ou ambiente específico                   |
-| Link Público (Share Slug) | Identificador randômico em UUID que permite a qualquer pessoa visualizar uma lista em modo somente-leitura                     |
-| E-mail do Cliente         | Chave de identificação informada pelo cliente que possibilita ao vendedor localizar suas listas na loja física                 |
-| Tipo (Categoria)          | O ambiente ou categoria principal de móvel (ex.: Sala de Estar, Quarto, Cozinha)                                               |
-| Subtipo                   | A tipologia ou subcategoria específica vinculada a um Tipo (ex.: Sofá, Poltrona, Cama, Mesa)                                   |
+| Termo                     | Significado neste projeto                                                                                                                                             |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cliente                   | Consumidor final ou profissional (arquiteto/designer) cadastrado na plataforma com nome, e-mail e senha. Não gerencia empresas nem produtos                           |
+| Vendedor                  | Colaborador da Empório Henz ou parceiro que atende clientes e possui permissão para gerenciar produtos exclusivamente das empresas às quais possui vínculo ativo      |
+| Administrador             | Gestor da loja com acesso total para cadastrar e manter fornecedores/empresas em qualquer nível, vincular vendedores a fornecedores e governar o catálogo de produtos |
+| Fornecedor / Empresa      | Fabricante ou marca parceira cujos produtos são disponibilizados no catálogo; cadastrado com exclusividade pelo Administrador                                         |
+| Vínculo (`UserSupplier`)  | Entidade associativa N:N que concede permissão a um vendedor para representar e gerenciar produtos de uma empresa específica                                          |
+| Produto                   | Móvel ou item de decoração exibido no catálogo com fotos, preço de referência, variações e especificações                                                             |
+| Pronta Entrega            | Produto disponível no showroom ou depósito da loja física para retirada ou entrega imediata                                                                           |
+| Sob Encomenda             | Produto fornecido por parceiros fabricantes, com prazo de produção/entrega estimado em dias no site                                                                   |
+| Variação de Acabamento    | Opções de customização do produto (ex.: tecidos, tons de madeira, cores de laca)                                                                                      |
+| Lista Padrão              | Listas essenciais criadas automaticamente no cadastro do cliente: **Favoritos**, **Lista de Desejos** e **Lista de Presentes**                                        |
+| Pasta Personalizada       | Lista criada livremente pelo cliente ou arquiteto para organizar móveis de um projeto ou ambiente específico                                                          |
+| Link Público (Share Slug) | Identificador randômico em UUID que permite a qualquer pessoa visualizar uma lista em modo somente-leitura                                                            |
+| E-mail do Cliente         | Chave de identificação informada pelo cliente que possibilita ao vendedor localizar suas listas na loja física                                                        |
+| Tipo (Categoria)          | O ambiente ou categoria principal de móvel (ex.: Sala de Estar, Quarto, Cozinha)                                                                                      |
+| Subtipo                   | A tipologia ou subcategoria específica vinculada a um Tipo (ex.: Sofá, Poltrona, Cama, Mesa)                                                                          |
+
+## 13. Feature: Vínculo Multi-Empresa e Isolamento de Catálogo (Backlog e Tasks)
+
+### 13.1 Objetivo
+
+Formalizar e estruturar a governança de acesso entre Usuários (`users`), Fornecedores/Empresas (`suppliers`) e Produtos (`products`), implementando o modelo de múltiplos vínculos N:N (`user_suppliers`) para vendedores, isolamento rigoroso de catálogo por empresa no backend com retornos `403 Forbidden` e centralização exclusiva do cadastro de empresas no perfil Administrador.
+
+### 13.2 Regras de Negócio Consolidadas
+
+- **Administrador**:
+  - Exclusividade no cadastro, edição e desativação de empresas/fornecedores em qualquer nível.
+  - Acesso global irrestrito para cadastrar, editar e desativar produtos de qualquer empresa.
+  - Atribuição e revogação de vínculos entre vendedores e múltiplas empresas (`user_suppliers`).
+- **Vendedor**:
+  - Não pode cadastrar nem alterar empresas/fornecedores (`403 Forbidden`).
+  - Pode estar associado a uma ou mais empresas simultaneamente via tabela `user_suppliers`.
+  - Só pode cadastrar, visualizar privadamente, editar e desativar produtos pertencentes às empresas às quais possui vínculo ativo.
+  - No cadastro de produto: se possuir apenas 1 vínculo ativo, o fornecedor é pré-preenchido e travado automaticamente; se possuir múltiplos vínculos ativos, o seletor restringe a escolha apenas entre as empresas autorizadas.
+  - Caso tente cadastrar, editar ou desativar produto de empresa não vinculada, a API responde invariavelmente com status HTTP `403 Forbidden`.
+  - Caso não possua nenhum vínculo ativo com fornecedores, é bloqueado ao tentar cadastrar produtos (`403 Forbidden`).
+- **Cliente**:
+  - Não possui vínculo com empresas e não acessa rotas de cadastro ou edição de produtos nem de empresas (`403 Forbidden`).
+
+### 13.3 Critérios de Aceite
+
+- [ ] Vendedor sem empresa vinculada não consegue cadastrar produtos (`403 Forbidden`).
+- [ ] Vendedor consegue cadastrar produto apenas para empresas às quais está ativamente vinculado.
+- [ ] Se o vendedor tiver 1 única empresa vinculada, o fornecedor é definido e travado automaticamente no cadastro.
+- [ ] Se o vendedor tiver múltiplas empresas vinculadas, o formulário exibe apenas as empresas de seu vínculo ativo.
+- [ ] Vendedor não consegue alterar o `supplier_id` do produto para uma empresa fora de seus vínculos (`403 Forbidden`).
+- [ ] Vendedor não consegue visualizar no painel interno, editar ou desativar produtos de outra empresa (`403 Forbidden`).
+- [ ] Vendedor e Cliente não conseguem cadastrar nem editar empresas/fornecedores (`403 Forbidden`).
+- [ ] Administrador consegue cadastrar fornecedores em qualquer nível e gerenciar produtos de qualquer empresa.
+- [ ] Administrador consegue associar e desassociar vendedores a múltiplas empresas.
+- [ ] Cliente não possui vínculo obrigatório com fornecedores e não acessa rotas administrativas.
+- [ ] Testes automatizados cobrem o isolamento multi-empresa e as respostas semânticas de `403 Forbidden`.
+
+### 13.4 Checklist de Tarefas Operacionais (Tasks)
+
+#### Fase 1: Banco de Dados & Migrações
+
+- [ ] **Task 1.1**: Criar arquivo de migração PostgreSQL `002_create_user_suppliers.sql` estruturando a tabela `user_suppliers` (`id UUID PK`, `user_id UUID FK`, `supplier_id UUID FK`, `created_at`, `updated_at`, `deleted_at`) e o índice único parcial `(user_id, supplier_id) WHERE deleted_at IS NULL`.
+- [ ] **Task 1.2**: Assegurar idempotência da migration e integridade referencial com chaves estrangeiras `ON DELETE RESTRICT`.
+
+#### Fase 2: Tipagem e Modelos de Domínio
+
+- [ ] **Task 2.1**: Definir interfaces `IUserSupplier` e payloads de entrada/saída em `packages/database` e `apps/backend/src/types`.
+- [ ] **Task 2.2**: Atualizar interfaces e classes de modelos no frontend em `apps/web/src/types`.
+
+#### Fase 3: Backend — Autorização e Gestão de Vínculos
+
+- [ ] **Task 3.1**: Implementar utilitário/função de autorização `checkSupplierAccess(userId, supplierId): Promise<boolean>` no backend.
+- [ ] **Task 3.2**: Proteger endpoints de fornecedores (`POST /api/fornecedores`, `PUT /api/fornecedores/:id`, `DELETE /api/fornecedores/:id`) para responder `403 Forbidden` para qualquer usuário que não possua `role = 3` (Administrador).
+- [ ] **Task 3.3**: Criar endpoints para gerenciamento de vínculos N:N por Administradores (`GET /api/vendedores/:id/empresas`, `POST /api/vendedores/:id/empresas`, `DELETE /api/vendedores/:id/empresas/:supplierId`).
+
+#### Fase 4: Backend — CRUD de Produtos com Escopo Multi-Empresa
+
+- [ ] **Task 4.1**: Ajustar endpoint `GET /api/produtos` no contexto administrativo para filtrar automaticamente pelos `supplier_id` autorizados do vendedor autenticado.
+- [ ] **Task 4.2**: Ajustar endpoint `POST /api/produtos` para validar o vínculo do vendedor com o fornecedor informado (ou injetar o vínculo único); rejeitar com `403 Forbidden` caso não autorizado.
+- [ ] **Task 4.3**: Ajustar endpoints `PUT /api/produtos/:id` e `DELETE /api/produtos/:id` para verificar se o produto pertence a uma das empresas vinculadas ao vendedor antes de permitir modificações; rejeitar com `403 Forbidden` caso pertença a outra empresa.
+
+#### Fase 5: Frontend — Formulários e Painel Administrativo
+
+- [ ] **Task 5.1**: Adaptar o formulário de cadastro/edição de produtos para carregar apenas as empresas vinculadas ao vendedor (com seleção automática e campo bloqueado se houver apenas 1 empresa vinculada).
+- [ ] **Task 5.2**: Ocultar botões, links e telas de criação/edição de fornecedores para vendedores e clientes.
+- [ ] **Task 5.3**: Criar tela/modal no painel administrativo para o Administrador associar e desassociar múltiplos fornecedores a um usuário vendedor.
+- [ ] **Task 5.4**: Tratar respostas de erro HTTP `403 Forbidden` nos interceptors do Axios com mensagens amigáveis ao usuário.
+
+#### Fase 6: Testes Automatizados e Homologação
+
+- [ ] **Task 6.1**: Implementar testes de integração da API cobrindo criação e edição de produtos por vendedores com 1 vínculo, múltiplos vínculos e sem vínculo.
+- [ ] **Task 6.2**: Implementar testes automatizados garantindo retornos `403 Forbidden` em tentativas de violação de escopo de empresa e tentativas de cadastro de fornecedores por perfis não administradores.
+- [ ] **Task 6.3**: Testar consistência da exclusão lógica (Soft Delete) de vínculos em `user_suppliers` e de produtos.
