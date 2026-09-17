@@ -4,7 +4,7 @@
 
 1. **Quando vocês falam em "salvamento em pastas compartilháveis", como vocês imaginam que isso funcionaria na prática? O cliente criará uma pasta para organizar produtos, como por exemplo, favoritos e desejos, e poderia compartilhar essa pasta com outras pessoas e com o vendedor?**
 
-2. **Quando vocês falam em "convite para conhecer os materiais", o que exatamente vocês imaginam? O sistema deve convidar o cliente a visitar a loja para conhecer os materiais pessoalmente ou seria algum outro tipo de recurso? Adicionar os materiais de construção no catálogo?** 
+2. **Quando vocês falam em "convite para conhecer os materiais", o que exatamente vocês imaginam? O sistema deve convidar o cliente a visitar a loja para conhecer os materiais pessoalmente ou seria algum outro tipo de recurso? Adicionar os materiais de construção no catálogo?**
 
 3. **É estoque, encomenda ou o proprio cliente entra em contato para saber da disponibilidade do produto?**
 

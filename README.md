@@ -1,154 +1,180 @@
-# Turborepo starter
+# Empório Henz — Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+Repositório oficial do sistema e e-commerce **Empório Henz**, estruturado como um monorepo gerenciado com [Turborepo](https://turbo.build/) e [Bun](https://bun.sh/).
 
-## Using this example
+---
 
-Run the following command:
+## 🚀 Como Rodar o Projeto com Docker (Sem Setup Manual)
 
-```sh
-npx create-turbo@latest
+A forma mais rápida e recomendada de inicializar toda a stack (**PostgreSQL**, **Backend Bun**, **Frontend Vue 3** e proxy reverso **Nginx**) sem precisar instalar Bun, Node ou PostgreSQL na sua máquina hospedeira.
+
+### Pré-requisitos
+
+- [Docker](https://docs.docker.com/get-docker/) instalado
+- [Docker Compose](https://docs.docker.com/compose/) instalado (incluso por padrão no Docker Desktop)
+
+---
+
+### Passo a Passo Rápido
+
+#### 1. Clonar o repositório e acessar a pasta
+
+```bash
+git clone <url-do-repositorio>
+cd site-emporio-henz
 ```
 
-## What's inside?
+#### 2. Configurar o arquivo de ambiente (`.env`)
 
-This Turborepo includes the following packages/apps:
+Copie o arquivo de exemplo [.env.example](.env.example) para criar o seu `.env`:
 
-### Apps and Packages
+**No Linux / macOS / Git Bash:**
 
-- `web`: Vue 3 + Vite
-- `backend`: Bun + Bun Native API
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+cp .env.example .env
 ```
 
-Without global `turbo`, use your package manager:
+**No Windows (PowerShell):**
 
-```sh
-cd my-turborepo
-npx turbo build
-bun exec turbo build
-bun exec turbo build
+```powershell
+Copy-Item .env.example .env
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+**No Windows (CMD):**
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```cmd
+copy .env.example .env
 ```
 
-Without global `turbo`:
+> [!NOTE]
+> As configurações padrão contidas no [.env.example](.env.example) já funcionam imediatamente para execução local via Docker Compose (porta HTTP 80, banco PostgreSQL interno).
 
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
+#### 3. Subir os serviços com Docker Compose
+
+Execute o comando para construir as imagens e iniciar os containers em segundo plano:
+
+```bash
+docker compose up -d --build
 ```
 
-### Develop
+O [docker-compose.yml](docker-compose.yml) cuidará automaticamente de:
 
-To develop all apps and packages, run the following command:
+1. Subir o container de banco de dados **PostgreSQL 16**.
+2. Aguardar o healthcheck do PostgreSQL ficar saudável.
+3. Executar o container de migração SQL nativo ([packages/database](packages/database)).
+4. Subir a API backend com **Bun.serve** ([apps/backend](apps/backend)).
+5. Subir o servidor **Nginx** servindo o frontend compilado ([apps/web](apps/web)) e roteando requisições de `/api` para o backend.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+---
 
-```sh
-cd my-turborepo
-turbo dev
+### Alternativa: Script Automatizado de Deploy Local (`deploy.sh`)
+
+Em ambientes Linux / WSL / Git Bash, você também pode utilizar o script [deploy.sh](deploy.sh), que realiza a verificação de `.env`, build, migrações e limpeza de imagens antigas:
+
+```bash
+chmod +x deploy.sh
+./deploy.sh
 ```
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
-```
+### 🌐 Endereços de Acesso
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Após iniciar os containers, acesse em seu navegador:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- **Frontend (Aplicação Web)**: [http://localhost](http://localhost) (ou na porta configurada em `PORT_HTTP`)
+- **Backend API**: [http://localhost/api](http://localhost/api)
+- **Healthcheck da API**: [http://localhost/health](http://localhost/health)
 
-```sh
-turbo dev --filter=web
-```
+---
 
-Without global `turbo`:
+### 🛠️ Comandos Úteis do Docker
 
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
-```
+- **Acompanhar logs de todos os serviços em tempo real:**
+  ```bash
+  docker compose logs -f
+  ```
+- **Acompanhar logs apenas do backend:**
+  ```bash
+  docker compose logs -f backend
+  ```
+- **Executar migrações do banco manualmente:**
+  ```bash
+  docker compose run --rm migration
+  ```
+- **Parar todos os containers mantendo os dados do banco:**
+  ```bash
+  docker compose down
+  ```
+- **Parar containers e apagar todos os volumes (resetar banco de dados):**
+  ```bash
+  docker compose down -v
+  ```
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+## 💻 Como Rodar Localmente sem Docker (Desenvolvimento com Bun)
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+Caso deseje desenvolver diretamente na máquina host:
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+### Pré-requisitos Locais
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+- [Bun](https://bun.sh/) 1.4+
+- [PostgreSQL](https://www.postgresql.org/) 16 ativo localmente
 
-```sh
-cd my-turborepo
-turbo login
-```
+### Passo a Passo
 
-Without global `turbo`, use your package manager:
+1. **Instalar dependências do monorepo:**
+   ```bash
+   bun install
+   ```
+2. **Configurar variáveis de ambiente:**
+   Copie `.env.example` para `.env` e ajuste `DATABASE_URL` e `POSTGRES_HOST=localhost` com as credenciais do seu banco local.
+3. **Executar as migrações no banco de dados:**
+   ```bash
+   bun run migrate
+   ```
+4. **Iniciar o ambiente de desenvolvimento (com hot-reload):**
+   ```bash
+   bun dev
+   ```
+   - Frontend Vite: [http://localhost:3000](http://localhost:3000)
+   - Backend Bun: [http://localhost:3001](http://localhost:3001)
 
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
+---
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## 📦 Estrutura do Monorepo
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- [**`apps/web`**](apps/web): Frontend em **Vue 3**, **Vite**, **Tailwind CSS v4**, **Vue Router** e **Pinia**.
+- [**`apps/backend`**](apps/backend): Backend em **Bun nativo** utilizando `Bun.serve` e conexão com PostgreSQL.
+- [**`packages/database`**](packages/database): Scripts e migrações SQL nativas idempotentes.
+- [**`nginx.conf`**](nginx.conf): Configuração do proxy reverso e servidor de arquivos estáticos para produção.
+- [**`Dockerfile`**](Dockerfile): Build multi-stage otimizado para as aplicações e migração.
+- [**`docker-compose.yml`**](docker-compose.yml): Orquestração de containers para produção e testes locais.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+---
 
-```sh
-turbo link
-```
+## 📋 Padrões de Execução e Qualidade
 
-Without global `turbo`:
+- **Checagem de Tipos (TypeScript):**
+  ```bash
+  bun run check-types
+  ```
+- **Linting (ESLint):**
+  ```bash
+  bun run lint
+  ```
+- **Formatação (Prettier):**
+  ```bash
+  bun run format
+  ```
+- **Build de Produção:**
+  ```bash
+  bun run build
+  ```
 
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
+---
 
-## Useful Links
+## 📖 Diretrizes e Desenvolvimento de Novas Features
 
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+Consulte o arquivo [agents.md](agents.md) para as regras de desenvolvimento e arquitetura do projeto. O ciclo de vida de novas features deve seguir o fluxo **OpenSpec** (`openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-archive-change`).

@@ -1,0 +1,92 @@
+services:
+  # ============================================================================
+  # BANCO DE DADOS: PostgreSQL 16 (Rede interna isolada, sem porta pública)
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: emporio-henz-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-emporio_henz}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - emporio_net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-emporio_henz}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  # ============================================================================
+  # MIGRAÇÕES: Runner idempotente one-shot com Bun nativo
+  # ============================================================================
+  migration:
+    build:
+      context: .
+      target: migration
+    container_name: emporio-henz-migration
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
+    networks:
+      - emporio_net
+
+  # ============================================================================
+  # BACKEND: API Bun nativa (Bun.serve)
+  # ============================================================================
+  backend:
+    build:
+      context: .
+      target: backend
+    container_name: emporio-henz-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
+    ports:
+      - "3001:3001"
+    networks:
+      - emporio_net
+
+  # ============================================================================
+  # NGINX: Servidor estático e proxy reverso (Único ponto de entrada público)
+  # ============================================================================
+  nginx:
+    build:
+      context: .
+      target: nginx
+    container_name: emporio-henz-nginx
+    restart: unless-stopped
+    ports:
+      - "${PORT_HTTP:-3000}:80"
+    depends_on:
+      - backend
+    networks:
+      - emporio_net
+
+# ==============================================================================
+# VOLUMES E REDES
+# ==============================================================================
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  emporio_net:
+    driver: bridge
