@@ -5,6 +5,7 @@
 >
 > - **SEMPRE CONSULTAR ESTE ARQUIVO** ao trabalhar no frontend.
 > - **NOVAS FUNCIONALIDADES DEVEM PASSAR PELO OPENSPEC:** Ao solicitar ou desenvolver novas features, sempre alertar e direcionar o usuário para o fluxo do OpenSpec (`openspec-explore` e `openspec-propose`).
+> - **DECOMPOSIÇÃO ESTRITA DE TAREFAS:** Telas e componentes correspondem a tarefas `[FE]` integradas a rotas `[BE]` e esquemas de dados previamente estruturados. Consulte [docs/padrao-historias-tarefas.md](../../docs/padrao-historias-tarefas.md).
 
 ---
 

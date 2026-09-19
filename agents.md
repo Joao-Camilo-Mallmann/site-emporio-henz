@@ -11,6 +11,10 @@
 >    - **`openspec-apply-change`**: Utilizar para executar as tarefas da mudança aprovada.
 >    - **`openspec-archive-change`**: Utilizar para finalizar e arquivar a feature concluída.
 >    - **SEMPRE alertar o usuário** caso ele solicite uma nova funcionalidade sem passar pelo fluxo do OpenSpec.
+> 3. **ESTRATÉGIA DATABASE FIRST & DECOMPOSIÇÃO ESTRITA DE TAREFAS (OBRIGATÓRIO):**
+>    - **Database First**: Todo o Banco de Dados (tabelas, migrações idempotentes em `packages/database`, integridade referencial, soft delete com `deleted_at`, índices parciais e seeds essenciais) DEVE ser modelado, migrado e validado ANTES da implementação de Back-end e Front-end.
+>    - **Decomposição em 3 Camadas**: Toda nova funcionalidade que envolva persistência, lógica e tela DEVE ser dividida em tarefas/issues separadas: `[DB]` Banco de Dados, `[BE]` Back-end e `[FE]` Front-end.
+>    - **Padrão de Histórias de Usuário**: Todas as tarefas/issues devem seguir rigorosamente o template e convenções do guia [docs/padrao-historias-tarefas.md](docs/padrao-historias-tarefas.md) e estar registradas no backlog [docs/user-stories-backlog.md](docs/user-stories-backlog.md).
 
 ---
 

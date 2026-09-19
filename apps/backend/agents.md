@@ -5,6 +5,7 @@
 >
 > - **SEMPRE CONSULTAR ESTE ARQUIVO** ao trabalhar no backend.
 > - **NOVAS FUNCIONALIDADES DEVEM PASSAR PELO OPENSPEC:** Ao solicitar ou desenvolver novos endpoints ou features, sempre alertar e direcionar o usuário para o fluxo do OpenSpec (`openspec-explore` e `openspec-propose`).
+> - **ESTRATÉGIA DATABASE FIRST:** Nenhuma rota ou lógica de servidor deve ser criada antes do esquema de dados no PostgreSQL estar validado. Consulte [docs/padrao-historias-tarefas.md](../../docs/padrao-historias-tarefas.md).
 
 ---
 
