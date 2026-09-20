@@ -9,7 +9,7 @@
     <div class="relative w-full mx-auto select-none">
       <!-- Imagem da Composição da Poltrona Azul com fundo orgânico marinho -->
       <img
-        src="/images/hero-banner-mobile.png"
+        src="/images/hero/hero-banner-mobile.png"
         alt="Móveis para transformar o seu lar - Empório Henz"
         class="w-full h-auto block object-cover pointer-events-none"
       />

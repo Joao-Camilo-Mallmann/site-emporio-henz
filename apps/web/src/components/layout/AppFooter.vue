@@ -14,7 +14,7 @@ import UiFloatingButton from "@/components/UiFloatingButton.vue";
       <div class="flex items-center gap-10 md:gap-12 shrink-0">
         <div class="flex flex-col items-center">
           <img
-            src="/images/logo-vertical.svg"
+            src="/images/logos/logo-vertical.svg"
             alt="Empório Henz"
             class="h-28 w-auto object-contain filter brightness-0 invert"
           />

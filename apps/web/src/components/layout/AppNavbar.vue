@@ -190,7 +190,7 @@ onUnmounted(() => {
           class="flex items-center gap-3 shrink-0 group transition-opacity hover:opacity-95"
         >
           <img
-            src="/images/logo-horizontal.svg"
+            src="/images/logos/logo-horizontal.svg"
             alt="Empório Henz"
             class="h-8 md:h-9 w-auto object-contain filter brightness-0 invert"
             onerror="
@@ -529,7 +529,7 @@ onUnmounted(() => {
           <!-- Logo Centralizada (Figma node #3094:1333) -->
           <RouterLink to="/" class="flex items-center justify-center">
             <img
-              src="/images/logo-horizontal.svg"
+              src="/images/logos/logo-horizontal.svg"
               alt="Empório Henz"
               class="h-7 w-auto object-contain filter brightness-0 invert"
             />
@@ -764,7 +764,7 @@ onUnmounted(() => {
             >
               <RouterLink to="/" @click="closeDrawer" class="flex items-center">
                 <img
-                  src="/images/logo-horizontal.svg"
+                  src="/images/logos/logo-horizontal.svg"
                   alt="Empório Henz"
                   class="h-8 w-auto object-contain filter brightness-0 invert"
                 />

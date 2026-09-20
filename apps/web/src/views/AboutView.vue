@@ -88,7 +88,7 @@ const comoFuncionaItems = [
           <!-- Logo Horizontal Branca -->
           <div class="flex flex-col items-center">
             <img
-              src="/images/logo-horizontal.svg"
+              src="/images/logos/logo-horizontal.svg"
               alt="Empório Henz"
               class="h-10 sm:h-12 md:h-14 w-auto object-contain filter brightness-0 invert"
             />
