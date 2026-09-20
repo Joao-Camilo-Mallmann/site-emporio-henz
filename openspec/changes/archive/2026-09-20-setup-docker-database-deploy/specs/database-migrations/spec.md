@@ -2,7 +2,7 @@
 
 ### Requirement: Gerenciamento de Migrações em Pacote Próprio
 
-O sistema DEVE possuir o pacote `packages/database` isolado no monorepo para centralizar arquivos de migração SQL e lógica de execução via Bun.
+The monorepo MUST maintain an isolated `packages/database` package to centralize SQL migration files and Bun execution runner.
 
 #### Scenario: Execução em ambiente limpo
 
@@ -16,7 +16,7 @@ O sistema DEVE possuir o pacote `packages/database` isolado no monorepo para cen
 
 ### Requirement: Rastreamento de Migrações Aplicadas
 
-O sistema DEVE persistir no PostgreSQL o nome do arquivo da migração e a data de execução para cada script executado com sucesso.
+The database system MUST track executed migrations in PostgreSQL with file name and execution timestamp.
 
 #### Scenario: Nova migração detectada
 
@@ -30,7 +30,7 @@ O sistema DEVE persistir no PostgreSQL o nome do arquivo da migração e a data 
 
 ### Requirement: Conexão Nativa PostgreSQL com Bun
 
-O runner de migrações e o backend DEVEM utilizar conexão com PostgreSQL via Bun nativo e SQL puro, sem a utilização de ORMs (como Prisma, Drizzle ou TypeORM).
+The migration runner and backend MUST use native Bun PostgreSQL connection and raw SQL without third-party ORMs.
 
 #### Scenario: Leitura de configuração de banco
 

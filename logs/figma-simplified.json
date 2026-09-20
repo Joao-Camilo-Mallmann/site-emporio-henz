@@ -1,0 +1,3269 @@
+{
+  "name": "Catálogo digital - Empório Henz",
+  "nodes": [
+    {
+      "id": "38:2521",
+      "name": "Mobile home",
+      "type": "FRAME",
+      "layout": {
+        "mode": "none",
+        "sizing": {}
+      },
+      "fills": "fill_658ab2fa",
+      "children": [
+        {
+          "id": "113:9071",
+          "name": "Rectangle 235",
+          "type": "RECTANGLE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 0,
+              "y": 150
+            },
+            "dimensions": {
+              "width": 412,
+              "height": 376
+            }
+          },
+          "fills": [
+            "rgba(0, 124, 216, 0.25)"
+          ]
+        },
+        {
+          "id": "119:9134",
+          "name": "Vector 15",
+          "type": "IMAGE-SVG",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 121,
+              "y": 145
+            },
+            "dimensions": {
+              "width": 490,
+              "height": 348
+            }
+          },
+          "fills": "fill_e95cebdf"
+        },
+        {
+          "id": "113:9083",
+          "name": "ChatGPT Image 15 de jun. de 2026, 22_05_11 1",
+          "type": "RECTANGLE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 100,
+              "y": 55
+            },
+            "dimensions": {
+              "width": 331,
+              "height": 496
+            }
+          },
+          "fills": [
+            {
+              "type": "IMAGE",
+              "imageRef": "02263cfc72d41dc94bc4a5221e51d21f13dc32d6",
+              "scaleMode": "STRETCH",
+              "objectFit": "fill",
+              "isBackground": false,
+              "imageDownloadArguments": {
+                "needsCropping": true,
+                "requiresImageDimensions": false,
+                "cropTransform": [
+                  [
+                    1,
+                    0,
+                    -0.04354652017354965
+                  ],
+                  [
+                    0,
+                    0.9977924823760986,
+                    -0.012398497201502323
+                  ]
+                ],
+                "filenameSuffix": "7c407e"
+              }
+            }
+          ]
+        },
+        {
+          "id": "38:2669",
+          "name": "Footer mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 0,
+              "y": 2319
+            },
+            "dimensions": {
+              "width": 412,
+              "height": 555
+            }
+          },
+          "componentId": "36:1407",
+          "children": [
+            {
+              "id": "I38:2669;3106:1685",
+              "name": "Rectangle 186",
+              "type": "RECTANGLE",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 0,
+                  "y": 0
+                },
+                "dimensions": {
+                  "width": 412,
+                  "height": 555
+                }
+              },
+              "fills": "fill_e95cebdf"
+            },
+            {
+              "id": "I38:2669;3106:1703",
+              "name": "Empório Henz",
+              "type": "TEXT",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 18.25,
+                  "y": 304
+                },
+                "dimensions": {
+                  "width": 90,
+                  "height": 18
+                }
+              },
+              "text": "Empório Henz",
+              "textStyle": "Body-sm/bold",
+              "fills": "fill_658ab2fa"
+            },
+            {
+              "id": "I38:2669;3106:1705",
+              "name": "Group 241",
+              "type": "GROUP",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 18,
+                  "y": 380
+                },
+                "dimensions": {
+                  "width": 376,
+                  "height": 36
+                }
+              },
+              "borderRadius": "0px 0px 0px 0px",
+              "children": [
+                {
+                  "id": "I38:2669;3106:1706",
+                  "name": "Rua General Neto, 317 - Centro, Cruzeiro do Sul - RS, 95930-000",
+                  "type": "TEXT",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {},
+                    "locationRelativeToParent": {
+                      "x": 0,
+                      "y": 0
+                    },
+                    "dimensions": {
+                      "width": 376,
+                      "height": 36
+                    }
+                  },
+                  "text": "Rua General Neto, 317 - Centro, Cruzeiro do Sul - RS, 95930-000",
+                  "textStyle": {
+                    "fontFamily": "Estedad-VF",
+                    "fontStyle": "Regular",
+                    "fontWeight": 400,
+                    "fontSize": 14,
+                    "lineHeight": "1.3em",
+                    "letterSpacing": "0.0071em",
+                    "textAlignHorizontal": "LEFT",
+                    "textAlignVertical": "CENTER"
+                  },
+                  "fills": "fill_658ab2fa"
+                }
+              ]
+            },
+            {
+              "id": "I38:2669;3106:1708",
+              "name": "Group 239",
+              "type": "IMAGE-SVG",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 18,
+                  "y": 432
+                },
+                "dimensions": {
+                  "width": 40,
+                  "height": 40
+                }
+              }
+            },
+            {
+              "id": "I38:2669;3106:1711",
+              "name": "Group 238",
+              "type": "IMAGE-SVG",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 66,
+                  "y": 432
+                },
+                "dimensions": {
+                  "width": 40,
+                  "height": 40
+                }
+              }
+            },
+            {
+              "id": "I38:2669;3106:1714",
+              "name": "Item",
+              "type": "INSTANCE",
+              "layout": {
+                "mode": "row",
+                "justifyContent": "center",
+                "alignItems": "center",
+                "gap": "10px",
+                "sizing": {
+                  "horizontal": "fixed",
+                  "vertical": "fixed"
+                },
+                "locationRelativeToParent": {
+                  "x": 18.25,
+                  "y": 346
+                },
+                "dimensions": {
+                  "width": 72,
+                  "height": 18
+                }
+              },
+              "componentId": "12:1490",
+              "children": [
+                {
+                  "id": "I38:2669;3106:1714;3106:1645",
+                  "name": "Item",
+                  "type": "TEXT",
+                  "layout": "layout_177c5efc",
+                  "text": "Sobre a loja",
+                  "textStyle": "Body-sm/regular",
+                  "fills": "fill_658ab2fa"
+                }
+              ]
+            },
+            {
+              "id": "I38:2669;3106:1786",
+              "name": "Group 250",
+              "type": "GROUP",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 18,
+                  "y": 128
+                },
+                "dimensions": {
+                  "width": 253,
+                  "height": 128
+                }
+              },
+              "children": [
+                {
+                  "id": "I38:2669;3106:1716",
+                  "name": "Categorias",
+                  "type": "TEXT",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {},
+                    "locationRelativeToParent": {
+                      "x": 0,
+                      "y": 0
+                    },
+                    "dimensions": {
+                      "width": 72,
+                      "height": 18
+                    }
+                  },
+                  "text": "Categorias",
+                  "textStyle": "Body-sm/bold (1:160)",
+                  "fills": "fill_658ab2fa"
+                },
+                {
+                  "id": "I38:2669;3106:1718",
+                  "name": "Item",
+                  "type": "INSTANCE",
+                  "layout": {
+                    "mode": "row",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "gap": "10px",
+                    "sizing": {
+                      "horizontal": "fixed",
+                      "vertical": "fixed"
+                    },
+                    "locationRelativeToParent": {
+                      "x": 0,
+                      "y": 42
+                    },
+                    "dimensions": {
+                      "width": 45,
+                      "height": 18
+                    }
+                  },
+                  "componentId": "12:1490",
+                  "children": [
+                    {
+                      "id": "I38:2669;3106:1718;3106:1645",
+                      "name": "Item",
+                      "type": "TEXT",
+                      "layout": "layout_177c5efc",
+                      "text": "Quarto",
+                      "textStyle": "Body-sm/regular",
+                      "fills": "fill_658ab2fa"
+                    }
+                  ]
+                },
+                {
+                  "id": "I38:2669;3106:1719",
+                  "name": "Item",
+                  "type": "INSTANCE",
+                  "layout": {
+                    "mode": "row",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "gap": "10px",
+                    "sizing": {
+                      "horizontal": "fixed",
+                      "vertical": "fixed"
+                    },
+                    "locationRelativeToParent": {
+                      "x": 0,
+                      "y": 76
+                    },
+                    "dimensions": {
+                      "width": 81,
+                      "height": 18
+                    }
+                  },
+                  "componentId": "12:1490",
+                  "children": [
+                    {
+                      "id": "I38:2669;3106:1719;3106:1645",
+                      "name": "Item",
+                      "type": "TEXT",
+                      "layout": "layout_177c5efc",
+                      "text": "Sala de Estar",
+                      "textStyle": "Body-sm/regular",
+                      "fills": "fill_658ab2fa"
+                    }
+                  ]
+                },
+                {
+                  "id": "I38:2669;3106:1720",
+                  "name": "Item",
+                  "type": "INSTANCE",
+                  "layout": {
+                    "mode": "row",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "gap": "10px",
+                    "sizing": {
+                      "horizontal": "fixed",
+                      "vertical": "fixed"
+                    },
+                    "locationRelativeToParent": {
+                      "x": 0,
+                      "y": 110
+                    },
+                    "dimensions": {
+                      "width": 90,
+                      "height": 18
+                    }
+                  },
+                  "componentId": "12:1490",
+                  "children": [
+                    {
+                      "id": "I38:2669;3106:1720;3106:1645",
+                      "name": "Item",
+                      "type": "TEXT",
+                      "layout": "layout_177c5efc",
+                      "text": "Sala de Jantar",
+                      "textStyle": "Body-sm/regular",
+                      "fills": "fill_658ab2fa"
+                    }
+                  ]
+                },
+                {
+                  "id": "I38:2669;3106:1721",
+                  "name": "Item",
+                  "type": "INSTANCE",
+                  "layout": {
+                    "mode": "row",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "gap": "10px",
+                    "sizing": {
+                      "horizontal": "fixed",
+                      "vertical": "fixed"
+                    },
+                    "locationRelativeToParent": {
+                      "x": 190,
+                      "y": 42
+                    },
+                    "dimensions": {
+                      "width": 51,
+                      "height": 18
+                    }
+                  },
+                  "componentId": "12:1490",
+                  "children": [
+                    {
+                      "id": "I38:2669;3106:1721;3106:1645",
+                      "name": "Item",
+                      "type": "TEXT",
+                      "layout": "layout_177c5efc",
+                      "text": "Cozinha",
+                      "textStyle": "Body-sm/regular",
+                      "fills": "fill_658ab2fa"
+                    }
+                  ]
+                },
+                {
+                  "id": "I38:2669;3106:1722",
+                  "name": "Item",
+                  "type": "INSTANCE",
+                  "layout": {
+                    "mode": "row",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "gap": "10px",
+                    "sizing": {
+                      "horizontal": "fixed",
+                      "vertical": "fixed"
+                    },
+                    "locationRelativeToParent": {
+                      "x": 190,
+                      "y": 76
+                    },
+                    "dimensions": {
+                      "width": 63,
+                      "height": 18
+                    }
+                  },
+                  "componentId": "12:1490",
+                  "children": [
+                    {
+                      "id": "I38:2669;3106:1722;3106:1645",
+                      "name": "Item",
+                      "type": "TEXT",
+                      "layout": "layout_177c5efc",
+                      "text": "Escritório",
+                      "textStyle": "Body-sm/regular",
+                      "fills": "fill_658ab2fa"
+                    }
+                  ]
+                },
+                {
+                  "id": "I38:2669;3106:1723",
+                  "name": "Item",
+                  "type": "INSTANCE",
+                  "layout": {
+                    "mode": "row",
+                    "justifyContent": "center",
+                    "alignItems": "center",
+                    "gap": "10px",
+                    "sizing": {
+                      "horizontal": "fixed",
+                      "vertical": "fixed"
+                    },
+                    "locationRelativeToParent": {
+                      "x": 190,
+                      "y": 110
+                    },
+                    "dimensions": {
+                      "width": 57,
+                      "height": 18
+                    }
+                  },
+                  "componentId": "12:1490",
+                  "children": [
+                    {
+                      "id": "I38:2669;3106:1723;3106:1645",
+                      "name": "Item",
+                      "type": "TEXT",
+                      "layout": "layout_177c5efc",
+                      "text": "Banheiro",
+                      "textStyle": "Body-sm/regular",
+                      "fills": "fill_658ab2fa"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "I38:2669;3106:1768",
+              "name": "Logo horizontal",
+              "type": "IMAGE-SVG",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 111,
+                  "y": 32
+                },
+                "dimensions": {
+                  "width": 190,
+                  "height": 48
+                }
+              },
+              "componentId": "1:179"
+            }
+          ]
+        },
+        {
+          "id": "38:2668",
+          "name": "Cabeçalho mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 0,
+              "y": 0
+            },
+            "dimensions": {
+              "width": 412,
+              "height": 152
+            }
+          },
+          "fills": "fill_97d170e1",
+          "componentId": "134:11144",
+          "children": [
+            {
+              "id": "I38:2668;3094:1270",
+              "name": "Rectangle 10",
+              "type": "RECTANGLE",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 0,
+                  "y": 0
+                },
+                "dimensions": {
+                  "width": 412,
+                  "height": 118
+                }
+              },
+              "fills": "fill_e95cebdf"
+            },
+            {
+              "id": "I38:2668;3094:1274",
+              "name": "Salvar",
+              "type": "IMAGE-SVG",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 326,
+                  "y": 16
+                },
+                "dimensions": {
+                  "width": 26,
+                  "height": 26
+                }
+              },
+              "componentId": "1:144"
+            },
+            {
+              "id": "I38:2668;3094:1275",
+              "name": "Menu",
+              "type": "IMAGE-SVG",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 18,
+                  "y": 16
+                },
+                "dimensions": {
+                  "width": 26,
+                  "height": 26
+                }
+              },
+              "componentId": "1:175"
+            },
+            {
+              "id": "I38:2668;3094:1276",
+              "name": "Perfil",
+              "type": "IMAGE-SVG",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 368,
+                  "y": 16
+                },
+                "dimensions": {
+                  "width": 26,
+                  "height": 26
+                }
+              },
+              "componentId": "1:177"
+            },
+            {
+              "id": "I38:2668;3094:1286",
+              "name": "Group 221",
+              "type": "GROUP",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 0,
+                  "y": 118
+                },
+                "dimensions": {
+                  "width": 412,
+                  "height": 34
+                }
+              },
+              "effects": "Overlay Shadow",
+              "children": [
+                {
+                  "id": "I38:2668;3094:1287",
+                  "name": "Rectangle 168",
+                  "type": "RECTANGLE",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {},
+                    "locationRelativeToParent": {
+                      "x": 0,
+                      "y": 0
+                    },
+                    "dimensions": {
+                      "width": 412,
+                      "height": 34
+                    }
+                  },
+                  "fills": [
+                    "#007CD8"
+                  ]
+                },
+                {
+                  "id": "I38:2668;3094:1288",
+                  "name": "Group 119",
+                  "type": "GROUP",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {},
+                    "locationRelativeToParent": {
+                      "x": 51,
+                      "y": 7
+                    },
+                    "dimensions": {
+                      "width": 318,
+                      "height": 20
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "I38:2668;3094:1289",
+                      "name": "Entrega e montagem em todo Vale do Taquari",
+                      "type": "TEXT",
+                      "layout": {
+                        "mode": "none",
+                        "sizing": {},
+                        "locationRelativeToParent": {
+                          "x": 26,
+                          "y": 0
+                        },
+                        "dimensions": {
+                          "width": 292,
+                          "height": 20
+                        }
+                      },
+                      "text": "Entrega e montagem em todo Vale do Taquari",
+                      "textStyle": "Paragraph/body-sm/regular",
+                      "fills": "fill_658ab2fa"
+                    },
+                    {
+                      "id": "I38:2668;3094:1290",
+                      "name": "Frame",
+                      "type": "IMAGE-SVG",
+                      "layout": {
+                        "mode": "none",
+                        "sizing": {},
+                        "locationRelativeToParent": {
+                          "x": 0,
+                          "y": 1
+                        },
+                        "dimensions": {
+                          "width": 18,
+                          "height": 18
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "I38:2668;3094:1333",
+              "name": "Logo horizontal",
+              "type": "IMAGE-SVG",
+              "layout": {
+                "mode": "none",
+                "sizing": {},
+                "locationRelativeToParent": {
+                  "x": 142,
+                  "y": 13
+                },
+                "dimensions": {
+                  "width": 128,
+                  "height": 32
+                }
+              },
+              "componentId": "1:179"
+            },
+            {
+              "id": "I38:2668;3094:2619",
+              "name": "Campo de busca",
+              "type": "INSTANCE",
+              "layout": {
+                "mode": "row",
+                "padding": "12px 16px",
+                "justifyContent": "center",
+                "alignItems": "center",
+                "gap": "10px",
+                "sizing": {
+                  "horizontal": "fixed",
+                  "vertical": "fixed"
+                },
+                "locationRelativeToParent": {
+                  "x": 18,
+                  "y": 61
+                },
+                "dimensions": {
+                  "width": 380,
+                  "height": 45
+                }
+              },
+              "fills": "fill_97d170e1",
+              "componentId": "134:11122",
+              "children": [
+                {
+                  "id": "I38:2668;3094:2619;3094:1271",
+                  "name": "Rectangle 4",
+                  "type": "RECTANGLE",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {
+                      "horizontal": "fixed",
+                      "vertical": "fixed"
+                    },
+                    "position": "absolute",
+                    "locationRelativeToParent": {
+                      "x": 0,
+                      "y": 0
+                    },
+                    "dimensions": {
+                      "width": 380,
+                      "height": 45
+                    }
+                  },
+                  "fills": "fill_658ab2fa",
+                  "strokes": "fill_18a26ab9",
+                  "strokeWeight": "1px",
+                  "borderRadius": "10px"
+                },
+                {
+                  "id": "I38:2668;3094:2619;3094:2084",
+                  "name": "Frame 222",
+                  "type": "FRAME",
+                  "layout": {
+                    "mode": "row",
+                    "alignItems": "center",
+                    "gap": "16px",
+                    "sizing": {
+                      "horizontal": "fill",
+                      "vertical": "hug"
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "I38:2668;3094:2619;3094:1272",
+                      "name": "Busque por móveis para sua casa",
+                      "type": "TEXT",
+                      "layout": {
+                        "mode": "none",
+                        "sizing": {
+                          "horizontal": "fill",
+                          "vertical": "fixed"
+                        },
+                        "dimensions": {
+                          "height": 21
+                        }
+                      },
+                      "text": "Busque por móveis para sua casa",
+                      "textStyle": "Body-md/regular",
+                      "fills": [
+                        "rgba(100, 100, 100, 0.7)"
+                      ]
+                    },
+                    {
+                      "id": "I38:2668;3094:2619;3094:1273",
+                      "name": "Busca",
+                      "type": "IMAGE-SVG",
+                      "layout": {
+                        "mode": "none",
+                        "sizing": {
+                          "horizontal": "fixed",
+                          "vertical": "fixed"
+                        },
+                        "dimensions": {
+                          "width": 18,
+                          "height": 18
+                        }
+                      },
+                      "componentId": "1:196"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "50:4502",
+          "name": "Categoria na home - mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 18,
+              "y": 481
+            },
+            "dimensions": {
+              "width": 182,
+              "height": 182
+            }
+          },
+          "componentId": "143:4119",
+          "children": [
+            {
+              "id": "I50:4502;3292:292",
+              "name": "Rectangle 207",
+              "template": "EL-e5e0fa9d"
+            },
+            {
+              "id": "I50:4502;3284:2369",
+              "name": "Rectangle 204",
+              "template": "EL-d62af070"
+            },
+            {
+              "id": "I50:4502;3345:2708",
+              "name": "Mask group",
+              "template": "EL-9197df7a"
+            },
+            {
+              "id": "I50:4502;3284:2370",
+              "name": "Rectangle 205",
+              "type": "RECTANGLE",
+              "layout": "layout_b5846140",
+              "fills": [
+                {
+                  "type": "IMAGE",
+                  "imageRef": "7c96b0997eeae1d1f56a47bef484452ad57599dc",
+                  "scaleMode": "FIT",
+                  "objectFit": "contain",
+                  "isBackground": false,
+                  "imageDownloadArguments": {
+                    "needsCropping": false,
+                    "requiresImageDimensions": false
+                  }
+                }
+              ]
+            },
+            {
+              "id": "I50:4502;3284:2371",
+              "name": "Rectangle 206",
+              "template": "EL-6b76e35d"
+            },
+            {
+              "id": "I50:4502;3284:2372",
+              "name": "Quarto",
+              "type": "TEXT",
+              "layout": "layout_eae1331e",
+              "text": "Quarto",
+              "textStyle": "Body-sm/medium",
+              "fills": "fill_658ab2fa"
+            },
+            {
+              "id": "I50:4502;3284:2373",
+              "name": "Flecha direita",
+              "template": "EL-1dc6b6d3"
+            }
+          ]
+        },
+        {
+          "id": "50:4510",
+          "name": "Categoria na home - mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 212,
+              "y": 481
+            },
+            "dimensions": {
+              "width": 182,
+              "height": 182
+            }
+          },
+          "componentId": "143:4119",
+          "children": [
+            {
+              "id": "I50:4510;3292:292",
+              "name": "Rectangle 207",
+              "template": "EL-e5e0fa9d"
+            },
+            {
+              "id": "I50:4510;3284:2369",
+              "name": "Rectangle 204",
+              "template": "EL-d62af070"
+            },
+            {
+              "id": "I50:4510;3345:2708",
+              "name": "Mask group",
+              "template": "EL-9197df7a"
+            },
+            {
+              "id": "I50:4510;3284:2370",
+              "name": "Rectangle 205",
+              "type": "RECTANGLE",
+              "layout": "layout_b5846140",
+              "fills": [
+                {
+                  "type": "IMAGE",
+                  "imageRef": "5fbca4e25b667467d9dc03325bd34b7cc7a85e69",
+                  "scaleMode": "FIT",
+                  "objectFit": "contain",
+                  "isBackground": false,
+                  "imageDownloadArguments": {
+                    "needsCropping": false,
+                    "requiresImageDimensions": false
+                  }
+                }
+              ]
+            },
+            {
+              "id": "I50:4510;3284:2371",
+              "name": "Rectangle 206",
+              "template": "EL-6b76e35d"
+            },
+            {
+              "id": "I50:4510;3284:2372",
+              "name": "Quarto",
+              "type": "TEXT",
+              "layout": "layout_eae1331e",
+              "text": "Sala de Estar",
+              "textStyle": "Body-sm/medium",
+              "fills": "fill_658ab2fa"
+            },
+            {
+              "id": "I50:4510;3284:2373",
+              "name": "Flecha direita",
+              "template": "EL-1dc6b6d3"
+            }
+          ]
+        },
+        {
+          "id": "50:4517",
+          "name": "Categoria na home - mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 18,
+              "y": 675
+            },
+            "dimensions": {
+              "width": 182,
+              "height": 182
+            }
+          },
+          "componentId": "143:4119",
+          "children": [
+            {
+              "id": "I50:4517;3292:292",
+              "name": "Rectangle 207",
+              "template": "EL-e5e0fa9d"
+            },
+            {
+              "id": "I50:4517;3284:2369",
+              "name": "Rectangle 204",
+              "template": "EL-d62af070"
+            },
+            {
+              "id": "I50:4517;3345:2708",
+              "name": "Mask group",
+              "template": "EL-9197df7a"
+            },
+            {
+              "id": "I50:4517;3284:2370",
+              "name": "Rectangle 205",
+              "type": "RECTANGLE",
+              "layout": "layout_b5846140",
+              "fills": [
+                {
+                  "type": "IMAGE",
+                  "imageRef": "57cce4ef367b8cd176a24a8edbf3ff9718df9d1b",
+                  "scaleMode": "FIT",
+                  "objectFit": "contain",
+                  "isBackground": false,
+                  "imageDownloadArguments": {
+                    "needsCropping": false,
+                    "requiresImageDimensions": false
+                  }
+                }
+              ]
+            },
+            {
+              "id": "I50:4517;3284:2371",
+              "name": "Rectangle 206",
+              "template": "EL-6b76e35d"
+            },
+            {
+              "id": "I50:4517;3284:2372",
+              "name": "Quarto",
+              "type": "TEXT",
+              "layout": "layout_eae1331e",
+              "text": "Cozinha",
+              "textStyle": "Body-sm/medium",
+              "fills": "fill_658ab2fa"
+            },
+            {
+              "id": "I50:4517;3284:2373",
+              "name": "Flecha direita",
+              "template": "EL-1dc6b6d3"
+            }
+          ]
+        },
+        {
+          "id": "50:4518",
+          "name": "Categoria na home - mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 212,
+              "y": 675
+            },
+            "dimensions": {
+              "width": 182,
+              "height": 182
+            }
+          },
+          "componentId": "143:4119",
+          "children": [
+            {
+              "id": "I50:4518;3292:292",
+              "name": "Rectangle 207",
+              "template": "EL-e5e0fa9d"
+            },
+            {
+              "id": "I50:4518;3284:2369",
+              "name": "Rectangle 204",
+              "template": "EL-d62af070"
+            },
+            {
+              "id": "I50:4518;3345:2708",
+              "name": "Mask group",
+              "template": "EL-9197df7a"
+            },
+            {
+              "id": "I50:4518;3284:2370",
+              "name": "Rectangle 205",
+              "type": "RECTANGLE",
+              "layout": "layout_b5846140",
+              "fills": [
+                {
+                  "type": "IMAGE",
+                  "imageRef": "ec1fef17f0badbb5e72520d66fbb31dcd4746db4",
+                  "scaleMode": "FIT",
+                  "objectFit": "contain",
+                  "isBackground": false,
+                  "imageDownloadArguments": {
+                    "needsCropping": false,
+                    "requiresImageDimensions": false
+                  }
+                }
+              ]
+            },
+            {
+              "id": "I50:4518;3284:2371",
+              "name": "Rectangle 206",
+              "template": "EL-6b76e35d"
+            },
+            {
+              "id": "I50:4518;3284:2372",
+              "name": "Quarto",
+              "type": "TEXT",
+              "layout": "layout_eae1331e",
+              "text": "Sala de Jantar",
+              "textStyle": "Body-sm/medium",
+              "fills": "fill_658ab2fa"
+            },
+            {
+              "id": "I50:4518;3284:2373",
+              "name": "Flecha direita",
+              "template": "EL-1dc6b6d3"
+            }
+          ]
+        },
+        {
+          "id": "50:4531",
+          "name": "Categoria na home - mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 18,
+              "y": 869
+            },
+            "dimensions": {
+              "width": 182,
+              "height": 182
+            }
+          },
+          "componentId": "143:4119",
+          "children": [
+            {
+              "id": "I50:4531;3292:292",
+              "name": "Rectangle 207",
+              "template": "EL-e5e0fa9d"
+            },
+            {
+              "id": "I50:4531;3284:2369",
+              "name": "Rectangle 204",
+              "template": "EL-d62af070"
+            },
+            {
+              "id": "I50:4531;3345:2708",
+              "name": "Mask group",
+              "template": "EL-9197df7a"
+            },
+            {
+              "id": "I50:4531;3284:2370",
+              "name": "Rectangle 205",
+              "type": "RECTANGLE",
+              "layout": "layout_b5846140",
+              "fills": [
+                {
+                  "type": "IMAGE",
+                  "imageRef": "21d76bd9974c08aec728bc0856bf2413e7e3b8bc",
+                  "scaleMode": "FIT",
+                  "objectFit": "contain",
+                  "isBackground": false,
+                  "imageDownloadArguments": {
+                    "needsCropping": false,
+                    "requiresImageDimensions": false
+                  }
+                }
+              ]
+            },
+            {
+              "id": "I50:4531;3284:2371",
+              "name": "Rectangle 206",
+              "template": "EL-6b76e35d"
+            },
+            {
+              "id": "I50:4531;3284:2372",
+              "name": "Quarto",
+              "type": "TEXT",
+              "layout": "layout_eae1331e",
+              "text": "Escritório",
+              "textStyle": "Body-sm/medium",
+              "fills": "fill_658ab2fa"
+            },
+            {
+              "id": "I50:4531;3284:2373",
+              "name": "Flecha direita",
+              "template": "EL-1dc6b6d3"
+            }
+          ]
+        },
+        {
+          "id": "50:4532",
+          "name": "Categoria na home - mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 212,
+              "y": 869
+            },
+            "dimensions": {
+              "width": 182,
+              "height": 182
+            }
+          },
+          "componentId": "143:4119",
+          "children": [
+            {
+              "id": "I50:4532;3292:292",
+              "name": "Rectangle 207",
+              "template": "EL-e5e0fa9d"
+            },
+            {
+              "id": "I50:4532;3284:2369",
+              "name": "Rectangle 204",
+              "template": "EL-d62af070"
+            },
+            {
+              "id": "I50:4532;3345:2708",
+              "name": "Mask group",
+              "template": "EL-9197df7a"
+            },
+            {
+              "id": "I50:4532;3284:2370",
+              "name": "Rectangle 205",
+              "type": "RECTANGLE",
+              "layout": "layout_b5846140",
+              "fills": [
+                {
+                  "type": "IMAGE",
+                  "imageRef": "d077e986d84d24a27ddff06b75690fe6cdeaed33",
+                  "scaleMode": "FIT",
+                  "objectFit": "contain",
+                  "isBackground": false,
+                  "imageDownloadArguments": {
+                    "needsCropping": false,
+                    "requiresImageDimensions": false
+                  }
+                }
+              ]
+            },
+            {
+              "id": "I50:4532;3284:2371",
+              "name": "Rectangle 206",
+              "template": "EL-6b76e35d"
+            },
+            {
+              "id": "I50:4532;3284:2372",
+              "name": "Quarto",
+              "type": "TEXT",
+              "layout": "layout_eae1331e",
+              "text": "Banheiro",
+              "textStyle": "Body-sm/medium",
+              "fills": "fill_658ab2fa"
+            },
+            {
+              "id": "I50:4532;3284:2373",
+              "name": "Flecha direita",
+              "template": "EL-1dc6b6d3"
+            }
+          ]
+        },
+        {
+          "id": "50:4546",
+          "name": "Destaques",
+          "type": "TEXT",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 16,
+              "y": 1147
+            },
+            "dimensions": {
+              "width": 79,
+              "height": 21
+            }
+          },
+          "text": "Destaques",
+          "textStyle": "Body-md/bold",
+          "fills": "fill_6e80d156"
+        },
+        {
+          "id": "50:4609",
+          "name": "Vistos recentemente",
+          "type": "TEXT",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 16,
+              "y": 1850
+            },
+            "dimensions": {
+              "width": 155,
+              "height": 21
+            }
+          },
+          "text": "Vistos recentemente",
+          "textStyle": "Body-md/bold",
+          "fills": "fill_6e80d156"
+        },
+        {
+          "id": "50:4610",
+          "name": "Frame 219",
+          "type": "FRAME",
+          "layout": {
+            "mode": "column",
+            "overflowScroll": [
+              "x"
+            ],
+            "gap": "10px",
+            "sizing": {
+              "horizontal": "fixed",
+              "vertical": "fixed"
+            },
+            "locationRelativeToParent": {
+              "x": 0,
+              "y": 1883
+            },
+            "dimensions": {
+              "width": 412,
+              "height": 400
+            }
+          },
+          "children": [
+            {
+              "id": "50:4611",
+              "name": "Group 217",
+              "type": "GROUP",
+              "layout": {
+                "mode": "none",
+                "sizing": {
+                  "horizontal": "fixed",
+                  "vertical": "fixed"
+                },
+                "dimensions": {
+                  "width": 1188,
+                  "height": 374
+                }
+              },
+              "children": [
+                {
+                  "id": "50:4612",
+                  "name": "Group 219",
+                  "type": "GROUP",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {},
+                    "locationRelativeToParent": {
+                      "x": 16,
+                      "y": 0
+                    },
+                    "dimensions": {
+                      "width": 1156,
+                      "height": 374
+                    }
+                  },
+                  "children": [
+                    {
+                      "id": "50:4613",
+                      "name": "Card de produto - swiper mobile",
+                      "type": "INSTANCE",
+                      "layout": "layout_df957be1",
+                      "componentId": "12:2437",
+                      "children": [
+                        {
+                          "id": "I50:4613;3070:264",
+                          "name": "Rectangle 161",
+                          "template": "EL-e6b82d44"
+                        },
+                        {
+                          "id": "I50:4613;3070:345",
+                          "name": "Group 211",
+                          "template": "EL-8f905e2b",
+                          "children": [
+                            {
+                              "id": "I50:4613;3070:344",
+                              "name": "Group 210",
+                              "template": "EL-8f905e2b",
+                              "children": [
+                                {
+                                  "id": "I50:4613;3070:358",
+                                  "name": "Frame 35",
+                                  "type": "FRAME",
+                                  "layout": "layout_25b90bd4",
+                                  "fills": [
+                                    {
+                                      "type": "IMAGE",
+                                      "imageRef": "8ad28f6a91f724ee9d9d70ab6e8343d90965caad",
+                                      "scaleMode": "FILL",
+                                      "backgroundSize": "cover",
+                                      "backgroundRepeat": "no-repeat",
+                                      "isBackground": true,
+                                      "imageDownloadArguments": {
+                                        "needsCropping": false,
+                                        "requiresImageDimensions": false
+                                      }
+                                    }
+                                  ],
+                                  "borderRadius": "9px 9px 0px 0px",
+                                  "children": [
+                                    {
+                                      "id": "I50:4613;3070:354",
+                                      "name": "Card - Acabamento",
+                                      "template": "EL-9bafcc47",
+                                      "children": [
+                                        {
+                                          "id": "I50:4613;3070:354;3070:284",
+                                          "name": "Ellipse 36",
+                                          "type": "ELLIPSE",
+                                          "layout": "layout_2812f6d4",
+                                          "fills": [
+                                            {
+                                              "type": "IMAGE",
+                                              "imageRef": "9f88d51e5bccd14b3782fcae8688b909c8d53c4d",
+                                              "scaleMode": "FILL",
+                                              "objectFit": "cover",
+                                              "isBackground": false,
+                                              "imageDownloadArguments": {
+                                                "needsCropping": false,
+                                                "requiresImageDimensions": false
+                                              }
+                                            }
+                                          ],
+                                          "strokes": "fill_658ab2fa",
+                                          "strokeWeight": "1px"
+                                        },
+                                        {
+                                          "id": "I50:4613;3070:354;3070:287",
+                                          "name": "Ellipse 38",
+                                          "template": "EL-696f1ab6"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "I50:4613;3070:342",
+                                  "name": "Frame 34",
+                                  "template": "EL-924c5782",
+                                  "children": [
+                                    {
+                                      "id": "I50:4613;3070:339",
+                                      "name": "Roupeiro Milano",
+                                      "type": "TEXT",
+                                      "layout": "layout_56d3c81c",
+                                      "text": "Roupeiro Milano",
+                                      "textStyle": "Body-sm/regular (1:154)",
+                                      "fills": "fill_6e80d156"
+                                    },
+                                    {
+                                      "id": "I50:4613;3070:343",
+                                      "name": "Group 209",
+                                      "template": "EL-7ba8ad43",
+                                      "children": [
+                                        {
+                                          "id": "I50:4613;3070:340",
+                                          "name": "R$ 4.900,00",
+                                          "type": "TEXT",
+                                          "layout": "layout_2aa8db50",
+                                          "text": "R$ 4.900{ts1},00{/ts1}",
+                                          "textStyle": "Header-lg/bold",
+                                          "fills": "fill_18a26ab9"
+                                        },
+                                        {
+                                          "id": "I50:4613;3070:341",
+                                          "name": "Até 10x no cartão",
+                                          "template": "EL-87b47ef0"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I50:4613;3070:270",
+                              "name": "Rectangle 150",
+                              "template": "EL-a89bf4ae"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "50:4614",
+                      "name": "Card de produto - swiper mobile",
+                      "type": "INSTANCE",
+                      "layout": {
+                        "mode": "none",
+                        "sizing": {},
+                        "locationRelativeToParent": {
+                          "x": 292,
+                          "y": 0
+                        },
+                        "dimensions": {
+                          "width": 280,
+                          "height": 374
+                        }
+                      },
+                      "componentId": "12:2437",
+                      "children": [
+                        {
+                          "id": "I50:4614;3070:264",
+                          "name": "Rectangle 161",
+                          "template": "EL-e6b82d44"
+                        },
+                        {
+                          "id": "I50:4614;3070:345",
+                          "name": "Group 211",
+                          "template": "EL-8f905e2b",
+                          "children": [
+                            {
+                              "id": "I50:4614;3070:344",
+                              "name": "Group 210",
+                              "template": "EL-8f905e2b",
+                              "children": [
+                                {
+                                  "id": "I50:4614;3070:358",
+                                  "name": "Frame 35",
+                                  "type": "FRAME",
+                                  "layout": "layout_25b90bd4",
+                                  "fills": [
+                                    {
+                                      "type": "IMAGE",
+                                      "imageRef": "f5e03ccbcb6b92dfed00b4f5f3717ed9e6759dea",
+                                      "scaleMode": "FILL",
+                                      "backgroundSize": "cover",
+                                      "backgroundRepeat": "no-repeat",
+                                      "isBackground": true,
+                                      "imageDownloadArguments": {
+                                        "needsCropping": false,
+                                        "requiresImageDimensions": false
+                                      }
+                                    }
+                                  ],
+                                  "borderRadius": "9px 9px 0px 0px",
+                                  "children": [
+                                    {
+                                      "id": "I50:4614;3070:354",
+                                      "name": "Card - Acabamento",
+                                      "template": "EL-9bafcc47",
+                                      "children": [
+                                        {
+                                          "id": "I50:4614;3070:354;3070:284",
+                                          "name": "Ellipse 36",
+                                          "template": "EL-5edf6148"
+                                        },
+                                        {
+                                          "id": "I50:4614;3070:354;3070:287",
+                                          "name": "Ellipse 38",
+                                          "template": "EL-1604d88a"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "I50:4614;3070:342",
+                                  "name": "Frame 34",
+                                  "template": "EL-924c5782",
+                                  "children": [
+                                    {
+                                      "id": "I50:4614;3070:339",
+                                      "name": "Roupeiro Milano",
+                                      "type": "TEXT",
+                                      "layout": "layout_56d3c81c",
+                                      "text": "Roupeiro Veneza",
+                                      "textStyle": "Body-sm/regular (1:154)",
+                                      "fills": "fill_6e80d156"
+                                    },
+                                    {
+                                      "id": "I50:4614;3070:343",
+                                      "name": "Group 209",
+                                      "template": "EL-7ba8ad43",
+                                      "children": [
+                                        {
+                                          "id": "I50:4614;3070:340",
+                                          "name": "R$ 4.900,00",
+                                          "type": "TEXT",
+                                          "layout": "layout_2aa8db50",
+                                          "text": "R$ 7.300{ts2},00{/ts2}",
+                                          "textStyle": "Header-lg/bold",
+                                          "fills": "fill_18a26ab9"
+                                        },
+                                        {
+                                          "id": "I50:4614;3070:341",
+                                          "name": "Até 10x no cartão",
+                                          "template": "EL-87b47ef0"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I50:4614;3070:270",
+                              "name": "Rectangle 150",
+                              "template": "EL-a89bf4ae"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "50:4615",
+                      "name": "Card de produto - swiper mobile",
+                      "type": "INSTANCE",
+                      "layout": {
+                        "mode": "none",
+                        "sizing": {},
+                        "locationRelativeToParent": {
+                          "x": 584,
+                          "y": 0
+                        },
+                        "dimensions": {
+                          "width": 280,
+                          "height": 374
+                        }
+                      },
+                      "componentId": "12:2437",
+                      "children": [
+                        {
+                          "id": "I50:4615;3070:264",
+                          "name": "Rectangle 161",
+                          "template": "EL-e6b82d44"
+                        },
+                        {
+                          "id": "I50:4615;3070:345",
+                          "name": "Group 211",
+                          "template": "EL-8f905e2b",
+                          "children": [
+                            {
+                              "id": "I50:4615;3070:344",
+                              "name": "Group 210",
+                              "template": "EL-8f905e2b",
+                              "children": [
+                                {
+                                  "id": "I50:4615;3070:358",
+                                  "name": "Frame 35",
+                                  "type": "FRAME",
+                                  "layout": "layout_25b90bd4",
+                                  "fills": [
+                                    {
+                                      "type": "IMAGE",
+                                      "imageRef": "ae81f4d4c20c3991443b87cd11c210cfc8c1c471",
+                                      "scaleMode": "FILL",
+                                      "backgroundSize": "cover",
+                                      "backgroundRepeat": "no-repeat",
+                                      "isBackground": true,
+                                      "imageDownloadArguments": {
+                                        "needsCropping": false,
+                                        "requiresImageDimensions": false
+                                      }
+                                    }
+                                  ],
+                                  "borderRadius": "9px 9px 0px 0px",
+                                  "children": [
+                                    {
+                                      "id": "I50:4615;3070:354",
+                                      "name": "Card - Acabamento",
+                                      "template": "EL-9bafcc47",
+                                      "children": [
+                                        {
+                                          "id": "I50:4615;3070:354;3070:284",
+                                          "name": "Ellipse 36",
+                                          "template": "EL-ceadda4a"
+                                        },
+                                        {
+                                          "id": "I50:4615;3070:354;3070:287",
+                                          "name": "Ellipse 38",
+                                          "template": "EL-c2391639"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "I50:4615;3070:342",
+                                  "name": "Frame 34",
+                                  "template": "EL-924c5782",
+                                  "children": [
+                                    {
+                                      "id": "I50:4615;3070:339",
+                                      "name": "Roupeiro Milano",
+                                      "type": "TEXT",
+                                      "layout": "layout_56d3c81c",
+                                      "text": "Cômoda Itália",
+                                      "textStyle": "Body-sm/regular (1:154)",
+                                      "fills": "fill_6e80d156"
+                                    },
+                                    {
+                                      "id": "I50:4615;3070:343",
+                                      "name": "Group 209",
+                                      "template": "EL-7ba8ad43",
+                                      "children": [
+                                        {
+                                          "id": "I50:4615;3070:340",
+                                          "name": "R$ 4.900,00",
+                                          "type": "TEXT",
+                                          "layout": "layout_2aa8db50",
+                                          "text": "R$ 1.500{ts2},00{/ts2}",
+                                          "textStyle": "Header-lg/bold",
+                                          "fills": "fill_18a26ab9"
+                                        },
+                                        {
+                                          "id": "I50:4615;3070:341",
+                                          "name": "Até 10x no cartão",
+                                          "template": "EL-87b47ef0"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I50:4615;3070:270",
+                              "name": "Rectangle 150",
+                              "template": "EL-a89bf4ae"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "50:4616",
+                      "name": "Card de produto - swiper mobile",
+                      "type": "INSTANCE",
+                      "layout": {
+                        "mode": "none",
+                        "sizing": {},
+                        "locationRelativeToParent": {
+                          "x": 876,
+                          "y": 0
+                        },
+                        "dimensions": {
+                          "width": 280,
+                          "height": 374
+                        }
+                      },
+                      "componentId": "12:2437",
+                      "children": [
+                        {
+                          "id": "I50:4616;3070:264",
+                          "name": "Rectangle 161",
+                          "template": "EL-e6b82d44"
+                        },
+                        {
+                          "id": "I50:4616;3070:345",
+                          "name": "Group 211",
+                          "template": "EL-8f905e2b",
+                          "children": [
+                            {
+                              "id": "I50:4616;3070:344",
+                              "name": "Group 210",
+                              "template": "EL-8f905e2b",
+                              "children": [
+                                {
+                                  "id": "I50:4616;3070:358",
+                                  "name": "Frame 35",
+                                  "type": "FRAME",
+                                  "layout": "layout_25b90bd4",
+                                  "fills": [
+                                    {
+                                      "type": "IMAGE",
+                                      "imageRef": "c1163eb6f13ad9e7ffd2b835a352056ea3cb45e4",
+                                      "scaleMode": "FILL",
+                                      "backgroundSize": "cover",
+                                      "backgroundRepeat": "no-repeat",
+                                      "isBackground": true,
+                                      "imageDownloadArguments": {
+                                        "needsCropping": false,
+                                        "requiresImageDimensions": false
+                                      }
+                                    }
+                                  ],
+                                  "borderRadius": "9px 9px 0px 0px",
+                                  "children": [
+                                    {
+                                      "id": "I50:4616;3070:354",
+                                      "name": "Card - Acabamento",
+                                      "template": "EL-9bafcc47",
+                                      "children": [
+                                        {
+                                          "id": "I50:4616;3070:354;3070:284",
+                                          "name": "Ellipse 36",
+                                          "template": "EL-ceadda4a"
+                                        },
+                                        {
+                                          "id": "I50:4616;3070:354;3070:287",
+                                          "name": "Ellipse 38",
+                                          "template": "EL-c2391639"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": "I50:4616;3070:342",
+                                  "name": "Frame 34",
+                                  "template": "EL-924c5782",
+                                  "children": [
+                                    {
+                                      "id": "I50:4616;3070:339",
+                                      "name": "Roupeiro Milano",
+                                      "type": "TEXT",
+                                      "layout": "layout_56d3c81c",
+                                      "text": "Cabeceira Itália",
+                                      "textStyle": "Body-sm/regular (1:154)",
+                                      "fills": "fill_6e80d156"
+                                    },
+                                    {
+                                      "id": "I50:4616;3070:343",
+                                      "name": "Group 209",
+                                      "template": "EL-7ba8ad43",
+                                      "children": [
+                                        {
+                                          "id": "I50:4616;3070:340",
+                                          "name": "R$ 4.900,00",
+                                          "type": "TEXT",
+                                          "layout": "layout_2aa8db50",
+                                          "text": "R$ 550{ts2},00{/ts2}",
+                                          "textStyle": "Header-lg/bold",
+                                          "fills": "fill_18a26ab9"
+                                        },
+                                        {
+                                          "id": "I50:4616;3070:341",
+                                          "name": "Até 10x no cartão",
+                                          "template": "EL-87b47ef0"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "id": "I50:4616;3070:270",
+                              "name": "Rectangle 150",
+                              "template": "EL-a89bf4ae"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "50:4617",
+                  "name": "Rectangle 184",
+                  "type": "RECTANGLE",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {},
+                    "locationRelativeToParent": {
+                      "x": 1172,
+                      "y": 187
+                    },
+                    "dimensions": {
+                      "width": 16,
+                      "height": 42
+                    }
+                  },
+                  "fills": "fill_97d170e1"
+                },
+                {
+                  "id": "50:4618",
+                  "name": "Rectangle 183",
+                  "type": "RECTANGLE",
+                  "layout": {
+                    "mode": "none",
+                    "sizing": {},
+                    "locationRelativeToParent": {
+                      "x": 0,
+                      "y": 166
+                    },
+                    "dimensions": {
+                      "width": 16,
+                      "height": 42
+                    }
+                  },
+                  "fills": "fill_97d170e1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "50:4677",
+          "name": "Card de produto - listagem mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "row",
+            "gap": "10px",
+            "sizing": {
+              "horizontal": "fixed",
+              "vertical": "hug"
+            },
+            "locationRelativeToParent": {
+              "x": 16,
+              "y": 1180
+            },
+            "dimensions": {
+              "width": 184
+            }
+          },
+          "fills": "fill_658ab2fa",
+          "effects": "Highlight shadow",
+          "borderRadius": "10px",
+          "componentId": "134:10760",
+          "children": [
+            {
+              "id": "I50:4677;3150:696",
+              "name": "Group 210",
+              "template": "EL-b6627508",
+              "children": [
+                {
+                  "id": "I50:4677;3150:697",
+                  "name": "Frame 35",
+                  "type": "FRAME",
+                  "layout": "layout_6a9a54e5",
+                  "fills": [
+                    {
+                      "type": "IMAGE",
+                      "imageRef": "24c736b2c446271f45e7576f18240380a9f11c80",
+                      "scaleMode": "FILL",
+                      "backgroundSize": "cover",
+                      "backgroundRepeat": "no-repeat",
+                      "isBackground": true,
+                      "imageDownloadArguments": {
+                        "needsCropping": false,
+                        "requiresImageDimensions": false
+                      }
+                    }
+                  ],
+                  "borderRadius": "9px 9px 0px 0px"
+                },
+                {
+                  "id": "I50:4677;3150:699",
+                  "name": "Frame 34",
+                  "template": "EL-70cae110",
+                  "children": [
+                    {
+                      "id": "I50:4677;3150:700",
+                      "name": "Roupeiro Milano",
+                      "type": "TEXT",
+                      "layout": "layout_56d3c81c",
+                      "text": "Cristaleira Liara",
+                      "textStyle": "Body-sm/regular (1:154)",
+                      "fills": "fill_6e80d156"
+                    },
+                    {
+                      "id": "I50:4677;3150:701",
+                      "name": "Group 209",
+                      "template": "EL-96081e07",
+                      "children": [
+                        {
+                          "id": "I50:4677;3150:702",
+                          "name": "R$ 4.900,00",
+                          "type": "TEXT",
+                          "layout": "layout_b9e31f71",
+                          "text": "{ts3}R$ 1.900{/ts3}{ts4},00{/ts4}",
+                          "textStyle": "Header-lg/bold",
+                          "fills": "fill_18a26ab9"
+                        },
+                        {
+                          "id": "I50:4677;3150:703",
+                          "name": "Até 10x no cartão",
+                          "template": "EL-90a6c6b9"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "I50:4677;3150:695",
+              "name": "Group 211",
+              "template": "EL-39fa9f68"
+            }
+          ]
+        },
+        {
+          "id": "50:4678",
+          "name": "Card de produto - listagem mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "row",
+            "gap": "10px",
+            "sizing": {
+              "horizontal": "fixed",
+              "vertical": "hug"
+            },
+            "locationRelativeToParent": {
+              "x": 16,
+              "y": 1475
+            },
+            "dimensions": {
+              "width": 184
+            }
+          },
+          "fills": "fill_658ab2fa",
+          "effects": "Highlight shadow",
+          "borderRadius": "10px",
+          "componentId": "134:10760",
+          "children": [
+            {
+              "id": "I50:4678;3150:696",
+              "name": "Group 210",
+              "template": "EL-b6627508",
+              "children": [
+                {
+                  "id": "I50:4678;3150:697",
+                  "name": "Frame 35",
+                  "type": "FRAME",
+                  "layout": "layout_6a9a54e5",
+                  "fills": [
+                    {
+                      "type": "IMAGE",
+                      "imageRef": "2f44d1d3c4aef9d919d756435978b2035f2baa9f",
+                      "scaleMode": "FILL",
+                      "backgroundSize": "cover",
+                      "backgroundRepeat": "no-repeat",
+                      "isBackground": true,
+                      "imageDownloadArguments": {
+                        "needsCropping": false,
+                        "requiresImageDimensions": false
+                      }
+                    }
+                  ],
+                  "borderRadius": "9px 9px 0px 0px",
+                  "children": [
+                    {
+                      "id": "I50:4678;3150:698",
+                      "name": "Card - Acabamento",
+                      "template": "EL-9bafcc47",
+                      "children": [
+                        {
+                          "id": "I50:4678;3150:698;3070:284",
+                          "name": "Ellipse 36",
+                          "template": "EL-1604d88a"
+                        },
+                        {
+                          "id": "I50:4678;3150:698;3070:287",
+                          "name": "Ellipse 38",
+                          "template": "EL-696f1ab6"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "I50:4678;3150:699",
+                  "name": "Frame 34",
+                  "template": "EL-70cae110",
+                  "children": [
+                    {
+                      "id": "I50:4678;3150:700",
+                      "name": "Roupeiro Milano",
+                      "type": "TEXT",
+                      "layout": "layout_56d3c81c",
+                      "text": "Home Ripado Supremo",
+                      "textStyle": "Body-sm/regular (1:154)",
+                      "fills": "fill_6e80d156"
+                    },
+                    {
+                      "id": "I50:4678;3150:701",
+                      "name": "Group 209",
+                      "template": "EL-96081e07",
+                      "children": [
+                        {
+                          "id": "I50:4678;3150:702",
+                          "name": "R$ 4.900,00",
+                          "type": "TEXT",
+                          "layout": "layout_b9e31f71",
+                          "text": "{ts3}R$ 1.550{/ts3}{ts4},00{/ts4}",
+                          "textStyle": "Header-lg/bold",
+                          "fills": "fill_18a26ab9"
+                        },
+                        {
+                          "id": "I50:4678;3150:703",
+                          "name": "Até 10x no cartão",
+                          "template": "EL-90a6c6b9"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "I50:4678;3150:695",
+              "name": "Group 211",
+              "template": "EL-39fa9f68"
+            }
+          ]
+        },
+        {
+          "id": "50:4679",
+          "name": "Card de produto - listagem mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "row",
+            "gap": "10px",
+            "sizing": {
+              "horizontal": "fixed",
+              "vertical": "hug"
+            },
+            "locationRelativeToParent": {
+              "x": 211,
+              "y": 1180
+            },
+            "dimensions": {
+              "width": 184
+            }
+          },
+          "fills": "fill_658ab2fa",
+          "effects": "Highlight shadow",
+          "borderRadius": "10px",
+          "componentId": "134:10760",
+          "children": [
+            {
+              "id": "I50:4679;3150:696",
+              "name": "Group 210",
+              "template": "EL-b6627508",
+              "children": [
+                {
+                  "id": "I50:4679;3150:697",
+                  "name": "Frame 35",
+                  "type": "FRAME",
+                  "layout": "layout_6a9a54e5",
+                  "fills": [
+                    {
+                      "type": "IMAGE",
+                      "imageRef": "5b307252dafb8b6beb3efd041076063e2d843b5b",
+                      "scaleMode": "FILL",
+                      "backgroundSize": "cover",
+                      "backgroundRepeat": "no-repeat",
+                      "isBackground": true,
+                      "imageDownloadArguments": {
+                        "needsCropping": false,
+                        "requiresImageDimensions": false
+                      }
+                    }
+                  ],
+                  "borderRadius": "9px 9px 0px 0px",
+                  "children": [
+                    {
+                      "id": "I50:4679;3150:698",
+                      "name": "Card - Acabamento",
+                      "type": "INSTANCE",
+                      "layout": "layout_b2b3e583",
+                      "fills": "fill_5fbe7675",
+                      "borderRadius": "20px",
+                      "componentId": "2:941",
+                      "children": [
+                        {
+                          "id": "I50:4679;3150:698;3070:332",
+                          "name": "Ellipse 36",
+                          "type": "ELLIPSE",
+                          "layout": "layout_2812f6d4",
+                          "fills": [
+                            "#C97C49"
+                          ],
+                          "strokes": "fill_658ab2fa",
+                          "strokeWeight": "1px"
+                        },
+                        {
+                          "id": "I50:4679;3150:698;3070:333",
+                          "name": "Ellipse 38",
+                          "type": "ELLIPSE",
+                          "layout": "layout_2812f6d4",
+                          "fills": [
+                            "#EFC171"
+                          ],
+                          "strokes": "fill_658ab2fa",
+                          "strokeWeight": "1px"
+                        },
+                        {
+                          "id": "I50:4679;3150:698;3070:334",
+                          "name": "Ellipse 39",
+                          "type": "ELLIPSE",
+                          "layout": "layout_2812f6d4",
+                          "fills": [
+                            "#D7D5CF"
+                          ],
+                          "strokes": "fill_658ab2fa",
+                          "strokeWeight": "1px"
+                        },
+                        {
+                          "id": "I50:4679;3150:698;3070:335",
+                          "name": "+2",
+                          "type": "TEXT",
+                          "layout": {
+                            "mode": "none",
+                            "sizing": {
+                              "horizontal": "fixed",
+                              "vertical": "fixed"
+                            },
+                            "dimensions": {
+                              "width": 20,
+                              "height": 14
+                            }
+                          },
+                          "text": "+2",
+                          "textStyle": {
+                            "fontFamily": "Estedad-VF",
+                            "fontStyle": "Regular",
+                            "fontWeight": 400,
+                            "fontSize": 12,
+                            "lineHeight": "1.3em",
+                            "letterSpacing": "0.0083em",
+                            "textAlignHorizontal": "CENTER",
+                            "textAlignVertical": "TOP"
+                          },
+                          "fills": "fill_658ab2fa"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "I50:4679;3150:699",
+                  "name": "Frame 34",
+                  "template": "EL-70cae110",
+                  "children": [
+                    {
+                      "id": "I50:4679;3150:700",
+                      "name": "Roupeiro Milano",
+                      "type": "TEXT",
+                      "layout": "layout_56d3c81c",
+                      "text": "Mesa de Centro Pétala",
+                      "textStyle": "Body-sm/regular (1:154)",
+                      "fills": "fill_6e80d156"
+                    },
+                    {
+                      "id": "I50:4679;3150:701",
+                      "name": "Group 209",
+                      "template": "EL-96081e07",
+                      "children": [
+                        {
+                          "id": "I50:4679;3150:702",
+                          "name": "R$ 4.900,00",
+                          "type": "TEXT",
+                          "layout": "layout_b9e31f71",
+                          "text": "{ts3}R$ 720{/ts3}{ts4},00{/ts4}",
+                          "textStyle": "Header-lg/bold",
+                          "fills": "fill_18a26ab9"
+                        },
+                        {
+                          "id": "I50:4679;3150:703",
+                          "name": "Até 10x no cartão",
+                          "template": "EL-90a6c6b9"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "I50:4679;3150:695",
+              "name": "Group 211",
+              "template": "EL-39fa9f68"
+            }
+          ]
+        },
+        {
+          "id": "50:4680",
+          "name": "Card de produto - listagem mobile",
+          "type": "INSTANCE",
+          "layout": {
+            "mode": "row",
+            "gap": "10px",
+            "sizing": {
+              "horizontal": "fixed",
+              "vertical": "hug"
+            },
+            "locationRelativeToParent": {
+              "x": 211,
+              "y": 1475
+            },
+            "dimensions": {
+              "width": 184
+            }
+          },
+          "fills": "fill_658ab2fa",
+          "effects": "Highlight shadow",
+          "borderRadius": "10px",
+          "componentId": "134:10760",
+          "children": [
+            {
+              "id": "I50:4680;3150:696",
+              "name": "Group 210",
+              "template": "EL-b6627508",
+              "children": [
+                {
+                  "id": "I50:4680;3150:697",
+                  "name": "Frame 35",
+                  "type": "FRAME",
+                  "layout": "layout_6a9a54e5",
+                  "fills": [
+                    {
+                      "type": "IMAGE",
+                      "imageRef": "c70930995d3c2bc3c3124b411ec1cce36b170ccf",
+                      "scaleMode": "FILL",
+                      "backgroundSize": "cover",
+                      "backgroundRepeat": "no-repeat",
+                      "isBackground": true,
+                      "imageDownloadArguments": {
+                        "needsCropping": false,
+                        "requiresImageDimensions": false
+                      }
+                    }
+                  ],
+                  "borderRadius": "9px 9px 0px 0px",
+                  "children": [
+                    {
+                      "id": "I50:4680;3150:698",
+                      "name": "Card - Acabamento",
+                      "type": "INSTANCE",
+                      "layout": "layout_b2b3e583",
+                      "fills": "fill_5fbe7675",
+                      "borderRadius": "20px",
+                      "componentId": "2:937",
+                      "children": [
+                        {
+                          "id": "I50:4680;3150:698;3070:408",
+                          "name": "Ellipse 39",
+                          "template": "EL-5edf6148"
+                        },
+                        {
+                          "id": "I50:4680;3150:698;3070:406",
+                          "name": "Ellipse 36",
+                          "template": "EL-1604d88a"
+                        },
+                        {
+                          "id": "I50:4680;3150:698;3070:407",
+                          "name": "Ellipse 38",
+                          "type": "ELLIPSE",
+                          "layout": "layout_2812f6d4",
+                          "fills": [
+                            "#303030"
+                          ],
+                          "strokes": "fill_658ab2fa",
+                          "strokeWeight": "1px"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "I50:4680;3150:699",
+                  "name": "Frame 34",
+                  "template": "EL-70cae110",
+                  "children": [
+                    {
+                      "id": "I50:4680;3150:700",
+                      "name": "Roupeiro Milano",
+                      "type": "TEXT",
+                      "layout": "layout_56d3c81c",
+                      "text": "Poltrona Tissi",
+                      "textStyle": "Body-sm/regular (1:154)",
+                      "fills": "fill_6e80d156"
+                    },
+                    {
+                      "id": "I50:4680;3150:701",
+                      "name": "Group 209",
+                      "template": "EL-96081e07",
+                      "children": [
+                        {
+                          "id": "I50:4680;3150:702",
+                          "name": "R$ 4.900,00",
+                          "type": "TEXT",
+                          "layout": "layout_b9e31f71",
+                          "text": "{ts3}R$ 2.370{/ts3}{ts4},00{/ts4}",
+                          "textStyle": "Header-lg/bold",
+                          "fills": "fill_18a26ab9"
+                        },
+                        {
+                          "id": "I50:4680;3150:703",
+                          "name": "Até 10x no cartão",
+                          "template": "EL-90a6c6b9"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "I50:4680;3150:695",
+              "name": "Group 211",
+              "template": "EL-39fa9f68"
+            }
+          ]
+        },
+        {
+          "id": "76:3770",
+          "name": "Vector 1",
+          "type": "IMAGE-SVG",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 13,
+              "y": 1802
+            },
+            "dimensions": {
+              "width": 376,
+              "height": 0
+            }
+          },
+          "strokes": "fill_116877b1",
+          "strokeWeight": "1px",
+          "strokeAlign": "CENTER"
+        },
+        {
+          "id": "76:3771",
+          "name": "Vector 2",
+          "type": "IMAGE-SVG",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 13,
+              "y": 1099
+            },
+            "dimensions": {
+              "width": 376,
+              "height": 0
+            }
+          },
+          "strokes": "fill_116877b1",
+          "strokeWeight": "1px",
+          "strokeAlign": "CENTER"
+        },
+        {
+          "id": "119:9094",
+          "name": "Móveis para transformar o seu lar",
+          "type": "TEXT",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 24,
+              "y": 196
+            },
+            "dimensions": {
+              "width": 166,
+              "height": 78
+            }
+          },
+          "text": "Móveis para {ts5}**transformar**{/ts5} o seu lar",
+          "boldWeight": 700,
+          "textStyle": {
+            "fontFamily": "Estedad",
+            "fontStyle": "Regular",
+            "fontWeight": 400,
+            "fontSize": 26,
+            "lineHeight": "1em",
+            "letterSpacing": "0.0154em",
+            "textAlignHorizontal": "LEFT",
+            "textAlignVertical": "TOP"
+          },
+          "fills": "fill_e95cebdf"
+        },
+        {
+          "id": "50:4671",
+          "name": "Floating button - whatsapp",
+          "type": "IMAGE-SVG",
+          "layout": {
+            "mode": "none",
+            "sizing": {},
+            "locationRelativeToParent": {
+              "x": 342,
+              "y": 790
+            },
+            "dimensions": {
+              "width": 56,
+              "height": 56
+            }
+          },
+          "componentId": "69:3235"
+        }
+      ]
+    }
+  ],
+  "components": {
+    "36:1407": {
+      "id": "36:1407",
+      "key": "87ca1df352ea7aeb4b861da9a8c3b02a81868c53",
+      "name": "Footer mobile"
+    },
+    "1:213": {
+      "id": "1:213",
+      "key": "f32b4580a5ab3f40a23e221bacdba92626614eb4",
+      "name": "whatsapp"
+    },
+    "1:215": {
+      "id": "1:215",
+      "key": "4c0bd23c07bcd42dd5bfa253db2933578977872d",
+      "name": "Instagram"
+    },
+    "12:1490": {
+      "id": "12:1490",
+      "key": "a89ddfc1dba6aacf219d9685979421bb10fc3663",
+      "name": "Propriedade=Default",
+      "componentSetId": "12:1489"
+    },
+    "1:179": {
+      "id": "1:179",
+      "key": "331ea539716125ba462d1119a6c0684d864a0fa3",
+      "name": "Logo horizontal"
+    },
+    "134:11144": {
+      "id": "134:11144",
+      "key": "bcae84be0023199379d59b750e8bc90e3b156742",
+      "name": "Cabeçalho mobile"
+    },
+    "1:144": {
+      "id": "1:144",
+      "key": "707970cee2de629550be8b2d924b5b1ed22c7921",
+      "name": "Salvar"
+    },
+    "1:175": {
+      "id": "1:175",
+      "key": "97ba47cc75068b14a501da14c3184cd41e6e58c7",
+      "name": "Menu"
+    },
+    "1:177": {
+      "id": "1:177",
+      "key": "22e112a95b76c28493daf5f8c3a8998497e64639",
+      "name": "Perfil"
+    },
+    "134:11122": {
+      "id": "134:11122",
+      "key": "989ed4f99f04e060e64324bcd041b426ffec9a14",
+      "name": "Propriedade=Default",
+      "componentSetId": "134:11121"
+    },
+    "1:196": {
+      "id": "1:196",
+      "key": "e57b66d3fa44252eada2108c1b3e952306cd7932",
+      "name": "Busca"
+    },
+    "143:4119": {
+      "id": "143:4119",
+      "key": "c379c4dbd410983fc048d26a0d71a79828843cbd",
+      "name": "Propriedade 1=Padrão",
+      "componentSetId": "143:4118"
+    },
+    "42:4425": {
+      "id": "42:4425",
+      "key": "189524ffd496273d0fd17274c2e53403e42ccc97",
+      "name": "Flecha direita"
+    },
+    "12:2437": {
+      "id": "12:2437",
+      "key": "f560f1a8da86873cc1fea70ea69c25ff23ecea54",
+      "name": "Propriedade 1=Default",
+      "componentSetId": "12:2436"
+    },
+    "1:61": {
+      "id": "1:61",
+      "key": "eafbb76b23f0dd12e070e1ba743725fb1baa21fa",
+      "name": "Propriedade 1=2 (mínimo)",
+      "componentSetId": "1:60"
+    },
+    "134:10760": {
+      "id": "134:10760",
+      "key": "d955b9e6d25aed283718563568424fc2102ad7d6",
+      "name": "Propriedade 1=Padrão",
+      "componentSetId": "134:10759"
+    },
+    "2:941": {
+      "id": "2:941",
+      "key": "20404a31dd539c8c4b902d66c85e300a9fa341f6",
+      "name": "Propriedade 1=Mais de 3",
+      "componentSetId": "1:60"
+    },
+    "2:937": {
+      "id": "2:937",
+      "key": "c95fc6ddf36abcdcceafc5131c143542b6d70c52",
+      "name": "Propriedade 1=3",
+      "componentSetId": "1:60"
+    },
+    "69:3235": {
+      "id": "69:3235",
+      "key": "d733678c6e7480ef3f4ea09f1986d9b44904c58d",
+      "name": "Floating button - whatsapp"
+    }
+  },
+  "componentSets": {
+    "12:1489": {
+      "id": "12:1489",
+      "key": "f0eef48bbc6f8179869e8eb4a83adcfd91988534",
+      "name": "Item",
+      "description": ""
+    },
+    "134:11121": {
+      "id": "134:11121",
+      "key": "bdfb0899d09ae29fcce2dd794b1e49ffcaff49ab",
+      "name": "Campo de busca",
+      "description": ""
+    },
+    "143:4118": {
+      "id": "143:4118",
+      "key": "f89178fcd6778f82d22e2d04028ffe363d12c006",
+      "name": "Categoria na home - mobile",
+      "description": ""
+    },
+    "12:2436": {
+      "id": "12:2436",
+      "key": "31b62633f16fa0770b611e1dce58a5fd4cb06139",
+      "name": "Card de produto - swiper mobile",
+      "description": ""
+    },
+    "1:60": {
+      "id": "1:60",
+      "key": "2197413a69844b7314737272b8a598a922d953b9",
+      "name": "Card - Acabamento",
+      "description": ""
+    },
+    "134:10759": {
+      "id": "134:10759",
+      "key": "73826ee1fe3f1544de2cfeeb6fc198424609be22",
+      "name": "Card de produto - listagem mobile",
+      "description": ""
+    }
+  },
+  "globalVars": {
+    "styles": {
+      "fill_658ab2fa": [
+        "#FFFFFF"
+      ],
+      "fill_e95cebdf": [
+        "#123854"
+      ],
+      "Body-sm/bold": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Bold",
+        "fontWeight": 700,
+        "fontSize": 14,
+        "lineHeight": "1.3em",
+        "letterSpacing": "0.0071em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "fill_18a26ab9": [
+        "#005CA1"
+      ],
+      "layout_177c5efc": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "Body-sm/regular": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Regular",
+        "fontWeight": 400,
+        "fontSize": 14,
+        "lineHeight": "1.3em",
+        "letterSpacing": "0.0071em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "Body-sm/bold (1:160)": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Bold",
+        "fontWeight": 700,
+        "fontSize": 14,
+        "lineHeight": "1.3em",
+        "letterSpacing": "0.0071em",
+        "textAlignHorizontal": "CENTER",
+        "textAlignVertical": "CENTER"
+      },
+      "fill_97d170e1": [],
+      "Overlay Shadow": {
+        "boxShadow": "0px 8px 16px 0px rgba(0, 0, 0, 0.1)"
+      },
+      "Paragraph/body-sm/regular": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Regular",
+        "fontWeight": 400,
+        "fontSize": 14,
+        "lineHeight": "1.4em",
+        "letterSpacing": "0.0214em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "Body-md/regular": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Regular",
+        "fontWeight": 400,
+        "fontSize": 16,
+        "lineHeight": "1.3em",
+        "letterSpacing": "0.0063em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "CENTER"
+      },
+      "fill_6e80d156": [
+        "#1D1D24"
+      ],
+      "layout_af9501ab": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 182,
+          "height": 182
+        }
+      },
+      "Highlight shadow": {
+        "boxShadow": "0px 5px 8px 0px rgba(0, 0, 0, 0.05)"
+      },
+      "layout_b5846140": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 182,
+          "height": 140
+        }
+      },
+      "layout_eae1331e": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 12,
+          "y": 152
+        },
+        "dimensions": {
+          "width": 131,
+          "height": 18
+        }
+      },
+      "Body-sm/medium": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Medium",
+        "fontWeight": 500,
+        "fontSize": 14,
+        "lineHeight": "1.3em",
+        "letterSpacing": "0.0071em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "Body-md/bold": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Bold",
+        "fontWeight": 700,
+        "fontSize": 16,
+        "lineHeight": "1.3em",
+        "letterSpacing": "0.0063em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "layout_df957be1": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 280,
+          "height": 374
+        }
+      },
+      "layout_ab371529": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 280,
+          "height": 375
+        }
+      },
+      "layout_25b90bd4": {
+        "mode": "column",
+        "padding": "145px 12px 12px 109px",
+        "justifyContent": "flex-end",
+        "alignItems": "flex-end",
+        "gap": "10px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 280,
+          "height": 280,
+          "aspectRatio": 1
+        }
+      },
+      "layout_b2b3e583": {
+        "mode": "row",
+        "padding": "4px",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "gap": "2px",
+        "sizing": {
+          "horizontal": "hug",
+          "vertical": "hug"
+        }
+      },
+      "fill_5fbe7675": [
+        "rgba(29, 29, 36, 0.8)"
+      ],
+      "layout_2812f6d4": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 26,
+          "height": 26
+        }
+      },
+      "layout_56d3c81c": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "hug"
+        }
+      },
+      "Body-sm/regular (1:154)": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Regular",
+        "fontWeight": 400,
+        "fontSize": 14,
+        "lineHeight": "1.3em",
+        "letterSpacing": "0.0071em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "layout_2aa8db50": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 248,
+          "height": 31
+        }
+      },
+      "ts1": {
+        "fontFamily": "Estedad-VF",
+        "lineHeight": "1.3em"
+      },
+      "Header-lg/bold": {
+        "fontFamily": "Estedad",
+        "fontStyle": "Bold",
+        "fontWeight": 700,
+        "fontSize": 24,
+        "lineHeight": "1.2em",
+        "letterSpacing": "0.0167em",
+        "textAlignHorizontal": "LEFT",
+        "textAlignVertical": "TOP"
+      },
+      "ts2": {
+        "lineHeight": "1.3em"
+      },
+      "layout_6a9a54e5": {
+        "mode": "column",
+        "padding": "145px 12px 12px 109px",
+        "justifyContent": "flex-end",
+        "alignItems": "flex-end",
+        "gap": "10px",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 184,
+          "height": 184,
+          "aspectRatio": 1
+        }
+      },
+      "layout_b9e31f71": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 151.39,
+          "height": 26
+        }
+      },
+      "ts3": {
+        "fontSize": 20,
+        "lineHeight": "1.2em"
+      },
+      "ts4": {
+        "fontFamily": "Estedad-VF",
+        "fontSize": 20,
+        "lineHeight": "1.3em"
+      },
+      "fill_116877b1": [
+        "rgba(100, 100, 100, 0.3)"
+      ],
+      "ts5": {
+        "fontStyle": "Bold",
+        "lineHeight": "1em"
+      }
+    }
+  },
+  "elements": {
+    "EL-e5e0fa9d": {
+      "type": "RECTANGLE",
+      "layout": "layout_af9501ab",
+      "fills": "fill_658ab2fa",
+      "effects": "Highlight shadow",
+      "borderRadius": "10px"
+    },
+    "EL-d62af070": {
+      "type": "RECTANGLE",
+      "layout": "layout_af9501ab",
+      "fills": [
+        "rgba(0, 124, 216, 0.05)"
+      ],
+      "strokes": [
+        "rgba(18, 56, 84, 0.3)"
+      ],
+      "strokeWeight": "1px",
+      "effects": "Highlight shadow",
+      "borderRadius": "10px"
+    },
+    "EL-9197df7a": {
+      "type": "IMAGE-SVG",
+      "layout": "layout_af9501ab",
+      "borderRadius": "0px 0px 0px 0px"
+    },
+    "EL-6b76e35d": {
+      "type": "RECTANGLE",
+      "layout": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 140
+        },
+        "dimensions": {
+          "width": 182,
+          "height": 42
+        }
+      },
+      "fills": "fill_e95cebdf",
+      "borderRadius": "0px 0px 10px 10px"
+    },
+    "EL-1dc6b6d3": {
+      "type": "IMAGE-SVG",
+      "layout": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 154,
+          "y": 153
+        },
+        "dimensions": {
+          "width": 16,
+          "height": 16
+        }
+      },
+      "componentId": "42:4425"
+    },
+    "EL-e6b82d44": {
+      "type": "RECTANGLE",
+      "layout": "layout_df957be1",
+      "fills": "fill_658ab2fa",
+      "effects": "Highlight shadow",
+      "borderRadius": "10px"
+    },
+    "EL-8f905e2b": {
+      "type": "GROUP",
+      "layout": "layout_ab371529",
+      "borderRadius": "0px 0px 0px 0px"
+    },
+    "EL-9bafcc47": {
+      "type": "INSTANCE",
+      "layout": "layout_b2b3e583",
+      "fills": "fill_5fbe7675",
+      "borderRadius": "20px",
+      "componentId": "1:61"
+    },
+    "EL-696f1ab6": {
+      "type": "ELLIPSE",
+      "layout": "layout_2812f6d4",
+      "fills": [
+        {
+          "type": "IMAGE",
+          "imageRef": "ab04469c410be2be26409583619286bc83c940bb",
+          "scaleMode": "FILL",
+          "objectFit": "cover",
+          "isBackground": false,
+          "imageDownloadArguments": {
+            "needsCropping": false,
+            "requiresImageDimensions": false
+          }
+        }
+      ],
+      "strokes": "fill_658ab2fa",
+      "strokeWeight": "1px"
+    },
+    "EL-924c5782": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "padding": "16px",
+        "justifyContent": "center",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 280
+        },
+        "dimensions": {
+          "width": 280
+        }
+      },
+      "fills": "fill_658ab2fa",
+      "borderRadius": "0px 0px 10px 10px"
+    },
+    "EL-7ba8ad43": {
+      "type": "GROUP",
+      "layout": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 249,
+          "height": 45
+        }
+      },
+      "borderRadius": "0px 0px 0px 0px"
+    },
+    "EL-87b47ef0": {
+      "type": "TEXT",
+      "layout": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 27
+        },
+        "dimensions": {
+          "width": 249,
+          "height": 18
+        }
+      },
+      "text": "Até 10x no cartão",
+      "textStyle": "Body-sm/regular (1:154)",
+      "fills": "fill_18a26ab9",
+      "opacity": 0.699999988079071
+    },
+    "EL-a89bf4ae": {
+      "type": "RECTANGLE",
+      "layout": "layout_ab371529",
+      "strokes": [
+        "rgba(100, 100, 100, 0.1)"
+      ],
+      "strokeWeight": "1px",
+      "borderRadius": "10px"
+    },
+    "EL-5edf6148": {
+      "type": "ELLIPSE",
+      "layout": "layout_2812f6d4",
+      "fills": [
+        "#4A3024"
+      ],
+      "strokes": "fill_658ab2fa",
+      "strokeWeight": "1px"
+    },
+    "EL-1604d88a": {
+      "type": "ELLIPSE",
+      "layout": "layout_2812f6d4",
+      "fills": [
+        "#A58D63"
+      ],
+      "strokes": "fill_658ab2fa",
+      "strokeWeight": "1px"
+    },
+    "EL-ceadda4a": {
+      "type": "ELLIPSE",
+      "layout": "layout_2812f6d4",
+      "fills": [
+        {
+          "type": "IMAGE",
+          "imageRef": "4a75767183ed2223badaf634ed1d688b88385f39",
+          "scaleMode": "FILL",
+          "objectFit": "cover",
+          "isBackground": false,
+          "imageDownloadArguments": {
+            "needsCropping": false,
+            "requiresImageDimensions": false
+          }
+        }
+      ],
+      "strokes": "fill_658ab2fa",
+      "strokeWeight": "1px"
+    },
+    "EL-c2391639": {
+      "type": "ELLIPSE",
+      "layout": "layout_2812f6d4",
+      "fills": [
+        {
+          "type": "IMAGE",
+          "imageRef": "5a31355982d97d7a01c68c90c39efa56732d68c4",
+          "scaleMode": "FILL",
+          "objectFit": "cover",
+          "isBackground": false,
+          "imageDownloadArguments": {
+            "needsCropping": false,
+            "requiresImageDimensions": false
+          }
+        }
+      ],
+      "strokes": "fill_658ab2fa",
+      "strokeWeight": "1px"
+    },
+    "EL-b6627508": {
+      "type": "GROUP",
+      "layout": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "width": 184,
+          "height": 279
+        }
+      },
+      "borderRadius": "0px 0px 0px 0px"
+    },
+    "EL-70cae110": {
+      "type": "FRAME",
+      "layout": {
+        "mode": "column",
+        "padding": "16px",
+        "justifyContent": "center",
+        "alignItems": "stretch",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "hug"
+        },
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 184
+        },
+        "dimensions": {
+          "width": 184
+        }
+      },
+      "fills": "fill_658ab2fa",
+      "borderRadius": "0px 0px 10px 10px"
+    },
+    "EL-96081e07": {
+      "type": "GROUP",
+      "layout": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fill",
+          "vertical": "fixed"
+        },
+        "dimensions": {
+          "height": 45
+        }
+      },
+      "borderRadius": "0px 0px 0px 0px"
+    },
+    "EL-90a6c6b9": {
+      "type": "TEXT",
+      "layout": {
+        "mode": "none",
+        "sizing": {},
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 27
+        },
+        "dimensions": {
+          "width": 152,
+          "height": 18
+        }
+      },
+      "text": "Até 10x no cartão",
+      "textStyle": "Body-sm/regular (1:154)",
+      "fills": "fill_18a26ab9",
+      "opacity": 0.699999988079071
+    },
+    "EL-39fa9f68": {
+      "type": "IMAGE-SVG",
+      "layout": {
+        "mode": "none",
+        "sizing": {
+          "horizontal": "fixed",
+          "vertical": "fixed"
+        },
+        "position": "absolute",
+        "locationRelativeToParent": {
+          "x": 0,
+          "y": 0
+        },
+        "dimensions": {
+          "width": 184,
+          "height": 279
+        }
+      },
+      "borderRadius": "10px"
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 ### Requirement: Dockerfile Multi-stage Unificado
 
-O repositório DEVE possuir um único `Dockerfile` com múltiplos estágios para build do frontend, runtime do backend, executor de migração e runtime do Nginx.
+The repository MUST provide a unified multi-stage `Dockerfile` with stages for frontend build, backend runtime, migration runner, and Nginx runtime.
 
 #### Scenario: Build da imagem do frontend
 
@@ -16,7 +16,7 @@ O repositório DEVE possuir um único `Dockerfile` com múltiplos estágios para
 
 ### Requirement: Orquestração Segura via Docker Compose
 
-O sistema DEVE disponibilizar arquivo `docker-compose.yml` orquestrando os serviços `postgres`, `migration`, `backend` e `nginx`.
+The system MUST provide a `docker-compose.yml` orchestrating `postgres`, `migration`, `backend`, and `nginx` services.
 
 #### Scenario: Isolamento de rede do PostgreSQL
 
@@ -30,7 +30,7 @@ O sistema DEVE disponibilizar arquivo `docker-compose.yml` orquestrando os servi
 
 ### Requirement: Proxy Reverso e Servidor Estático Nginx
 
-O container `nginx` DEVE ser o único ponto de entrada público na porta 80 da máquina.
+The `nginx` container MUST be the single public entrypoint on port 80.
 
 #### Scenario: Acesso à interface web
 
@@ -44,7 +44,7 @@ O container `nginx` DEVE ser o único ponto de entrada público na porta 80 da m
 
 ### Requirement: Script de Automação de Deploy Local
 
-O sistema DEVE fornecer o script executável `deploy.sh` para automação dos passos de atualização e subida na VM.
+The system MUST provide an executable `deploy.sh` script to automate update and deploy steps on the VM.
 
 #### Scenario: Execução do script de deploy
 

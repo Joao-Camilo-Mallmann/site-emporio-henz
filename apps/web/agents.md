@@ -6,6 +6,7 @@
 > - **SEMPRE CONSULTAR ESTE ARQUIVO** ao trabalhar no frontend.
 > - **NOVAS FUNCIONALIDADES DEVEM PASSAR PELO OPENSPEC:** Ao solicitar ou desenvolver novas features, sempre alertar e direcionar o usuário para o fluxo do OpenSpec (`openspec-explore` e `openspec-propose`).
 > - **DECOMPOSIÇÃO ESTRITA DE TAREFAS:** Telas e componentes correspondem a tarefas `[FE]` integradas a rotas `[BE]` e esquemas de dados previamente estruturados. Consulte [docs/padrao-historias-tarefas.md](../../docs/padrao-historias-tarefas.md).
+> - **DESIGN SYSTEM E PADRONIZAÇÃO DE CORES (OBRIGATÓRIO):** É **estritamente proibido** utilizar valores hexadecimais arbitrários inline (ex: `bg-[#123854]`, `text-[#007CD8]`, `text-[#1D1D24]`). Sempre utilize as classes utilitárias de tema do Tailwind CSS v4 configuradas no `@theme` de `src/style.css` (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte o catálogo completo em [docs/design-system-cores.md](../../docs/design-system-cores.md).
 
 ---
 
@@ -13,11 +14,24 @@
 
 - **Framework**: Vue 3 (Composition API com `<script setup lang="ts">`).
 - **Build Tool**: Vite 6 (`@vitejs/plugin-vue`, `@tailwindcss/vite`).
-- **Estilização**: Tailwind CSS v4 via `@import "tailwindcss";` em `src/style.css`.
+- **Estilização**: Tailwind CSS v4 via `@import "tailwindcss";` e `@theme` em `src/style.css`.
 - **Roteamento**: Vue Router 4 em `src/router/`.
 - **Gerenciamento de Estado**: Pinia em `src/stores/`.
 - **Cliente HTTP**: Axios centralizado em `src/plugins/axios.ts`.
 - **Tipagem**: `vue-tsc` para verificação estrita de tipos TypeScript.
+
+### 1.1. Design System e Tokens de Cores
+
+As cores oficiais do Figma estão formalmente declaradas em `@theme` no arquivo `src/style.css`:
+
+- `primary` (`#123854`): Azul marinho institucional (Navbar, cabeçalhos, elementos de destaque).
+- `primary-dark` (`#0C2340`): Azul marinho profundo de alto contraste (Portal da Equipe, rodapés escuros).
+- `secondary` (`#007CD8`): Azul vivo de destaque (preços, links ativos, sub-navbar, botões).
+- `secondary-hover` (`#005CA1`): Azul intermediário interativo (estados `:hover`, foco em formulários).
+- `neutral-dark` (`#1D1D24`): Grafite escuro para tipografia e badges com opacidade (`bg-neutral-dark/80`).
+- `surface-light` (`#FEFEFE`): Fundo claro base da página.
+- `surface-tint` (`#D2E8F8`): Azul suave para fundos do Hero Banner e blocos institucionais.
+- `wood-*`: Tons terrosos de acabamento (`wood-dark`, `wood-light`, `wood-cherry`, `wood-honey`, `wood-offwhite`).
 
 ---
 
