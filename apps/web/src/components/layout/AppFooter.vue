@@ -72,7 +72,7 @@ import UiFloatingButton from "@/components/UiFloatingButton.vue";
       >
         <h3 class="text-sm font-bold text-white tracking-wide">Empório Henz</h3>
         <RouterLink
-          to="/"
+          to="/sobre-a-loja"
           class="hover:text-sky-300 opacity-90 hover:opacity-100 transition-all duration-150 cursor-pointer"
         >
           Sobre a loja

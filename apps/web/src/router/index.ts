@@ -39,6 +39,14 @@ const router = createRouter({
         title: "Portal da Equipe | Empório Henz",
       },
     },
+    {
+      path: "/sobre-a-loja",
+      name: "sobre-a-loja",
+      component: () => import("@/views/AboutView.vue"),
+      meta: {
+        title: "Sobre a Loja | Empório Henz",
+      },
+    },
   ],
 });
 

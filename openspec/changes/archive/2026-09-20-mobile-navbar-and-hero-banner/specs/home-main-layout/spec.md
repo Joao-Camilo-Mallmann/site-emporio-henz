@@ -1,10 +1,4 @@
-# Home and Main Layout
-
-## Purpose
-
-Provide application shell layout (Navbar and Footer) and the high-end storefront landing page showcasing Empório Henz's 50-year heritage, furniture environments, and responsive navigation experience for desktop and mobile viewports.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Responsive Base Layout with Figma Identity
 The application SHALL render a consistent, responsive layout comprising `AppNavbar` and `AppFooter` themed with Empório Henz's deep navy palette (`#123854`), secondary vibrant blue (`#007CD8`), and warm accents, with dedicated responsive layouts for desktop and mobile viewports.
@@ -39,6 +33,8 @@ The application SHALL provide a rich `HomeView` at `/` showcasing hero banner, e
 #### Scenario: Category showcase grid alignment on mobile
 - **WHEN** a user views the category showcase grid on viewport < 768px
 - **THEN** the category showcase grid SHALL render in 2 columns with non-overlapping positive top margin, white card background, and navy bottom label with right chevron
+
+## ADDED Requirements
 
 ### Requirement: Mobile Drawer Navigation Menu
 The application SHALL provide an off-canvas drawer navigation menu accessible via the hamburger icon on mobile viewports (< 768px) adhering to the visual design in `munu-mobile.png`.

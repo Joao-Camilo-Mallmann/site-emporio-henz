@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
+import { Icon } from "@iconify/vue";
 import { onMounted, onUnmounted, ref } from "vue";
 
 const authStore = useAuthStore();
 
 const searchQuery = ref("");
 const isUserMenuOpen = ref(false);
-const isMobileMenuOpen = ref(false);
+const isDrawerOpen = ref(false);
 const activeDropdown = ref<string | null>(null);
+const activeAccordion = ref<string | null>(null);
 
 let dropdownTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -111,10 +113,36 @@ function closeUserMenu() {
   isUserMenuOpen.value = false;
 }
 
+function openDrawer() {
+  isDrawerOpen.value = true;
+  document.body.style.overflow = "hidden";
+}
+
+function closeDrawer() {
+  isDrawerOpen.value = false;
+  activeAccordion.value = null;
+  document.body.style.overflow = "";
+}
+
+function toggleAccordion(slug: string) {
+  activeAccordion.value = activeAccordion.value === slug ? null : slug;
+}
+
 function handleLogout() {
   authStore.logout();
   closeUserMenu();
   router.push("/");
+}
+
+function handleLogoutDrawer() {
+  authStore.logout();
+  closeDrawer();
+  router.push("/");
+}
+
+function handleSearch() {
+  if (!searchQuery.value.trim()) return;
+  router.push({ path: "/", query: { q: searchQuery.value.trim() } });
 }
 
 function handleClickOutside(event: MouseEvent) {
@@ -124,23 +152,39 @@ function handleClickOutside(event: MouseEvent) {
   }
 }
 
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    if (isDrawerOpen.value) {
+      closeDrawer();
+    }
+    if (isUserMenuOpen.value) {
+      closeUserMenu();
+    }
+  }
+}
+
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  window.addEventListener("keydown", handleKeydown);
 });
 
 onUnmounted(() => {
   if (dropdownTimer) clearTimeout(dropdownTimer);
   document.removeEventListener("click", handleClickOutside);
+  window.removeEventListener("keydown", handleKeydown);
+  document.body.style.overflow = "";
 });
 </script>
 
 <template>
-  <header class="sticky top-0 z-50 w-full shadow-md">
+  <header class="sticky top-0 z-40 w-full shadow-md">
+    <!-- Cabeçalho Principal (bg-primary #123854) -->
     <div class="bg-primary text-white">
+      <!-- 1. Linha Superior Desktop (hidden md:flex) -->
       <div
-        class="mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4"
+        class="hidden md:flex mx-auto px-4 sm:px-6 lg:px-8 h-20 items-center justify-between gap-4 max-w-7xl"
       >
-        <!-- Logo Horizontal -->
+        <!-- Logo Horizontal Desktop -->
         <RouterLink
           to="/"
           class="flex items-center gap-3 shrink-0 group transition-opacity hover:opacity-95"
@@ -168,9 +212,9 @@ onUnmounted(() => {
           </div>
         </RouterLink>
 
-        <!-- Campo de Busca Central -->
-        <div class="hidden md:flex flex-1 max-w-xl mx-4">
-          <div class="relative w-full group">
+        <!-- Campo de Busca Central Desktop -->
+        <div class="flex flex-1 max-w-xl mx-4">
+          <form @submit.prevent="handleSearch" class="relative w-full group">
             <input
               v-model="searchQuery"
               type="text"
@@ -178,7 +222,7 @@ onUnmounted(() => {
               class="w-full bg-white text-stone-900 placeholder:text-stone-400 text-sm rounded-lg pl-4 pr-11 py-2.5 border border-transparent hover:border-sky-300 focus:border-secondary focus:outline-none focus:ring-2 focus:ring-sky-200 transition-all shadow-sm"
             />
             <button
-              type="button"
+              type="submit"
               class="absolute right-0 top-0 h-full px-3.5 flex items-center justify-center text-stone-400 hover:text-secondary hover:scale-110 transition-all cursor-pointer"
               aria-label="Buscar"
             >
@@ -196,17 +240,16 @@ onUnmounted(() => {
                 />
               </svg>
             </button>
-          </div>
+          </form>
         </div>
 
-        <!-- Ações do Cabeçalho Direito (Sobre a loja, Salvos, Minha conta) -->
+        <!-- Ações Desktop: Sobre a loja, Salvos, Minha conta -->
         <div class="flex items-center gap-2 sm:gap-4 text-xs font-medium">
           <!-- Sobre a loja -->
           <RouterLink
-            to="/"
+            to="/sobre-a-loja"
             class="flex flex-col items-center justify-center gap-1 text-white hover:text-sky-200 hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer"
           >
-            <!-- Ícone Loja Física Oficial Figma (Storefront com toldo e entrada) -->
             <svg
               class="w-5 h-5 text-white transition-all duration-200 group-hover:scale-110 group-hover:text-sky-200"
               fill="none"
@@ -240,7 +283,7 @@ onUnmounted(() => {
             >
           </RouterLink>
 
-          <!-- Salvos (Ícone de Coração do Figma image.png) -->
+          <!-- Salvos -->
           <RouterLink
             to="/"
             class="flex flex-col items-center justify-center gap-1 text-white hover:text-rose-200 hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer"
@@ -263,7 +306,7 @@ onUnmounted(() => {
             >
           </RouterLink>
 
-          <!-- Menu de Usuário Autenticado / Não Autenticado -->
+          <!-- Menu de Usuário Desktop -->
           <div id="user-menu-container" class="relative">
             <!-- Usuário Autenticado -->
             <button
@@ -273,7 +316,7 @@ onUnmounted(() => {
               aria-label="Abrir menu do usuário"
             >
               <div
-                class="w-7 h-7 rounded-full flex items-center border-white justify-center text-white font-bold text-xs uppercase transition-colors border-1"
+                class="w-7 h-7 rounded-full flex items-center border-white justify-center text-white font-bold text-xs uppercase transition-colors border"
               >
                 {{ authStore.user.name.charAt(0) }}
               </div>
@@ -294,19 +337,10 @@ onUnmounted(() => {
                   }}
                 </div>
               </div>
-              <svg
-                class="w-3.5 h-3.5 text-white/80 group-hover:rotate-180 transition-transform duration-200"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+              <Icon
+                :icon="isUserMenuOpen ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                class="w-4 h-4 text-white/80 transition-transform duration-200"
+              />
             </button>
 
             <!-- Dropdown do Usuário Autenticado -->
@@ -437,7 +471,7 @@ onUnmounted(() => {
               </div>
             </div>
 
-            <!-- Visitante Não Autenticado (Ícone Pessoa em Círculo conforme image.png) -->
+            <!-- Visitante Não Autenticado Desktop -->
             <RouterLink
               v-if="!authStore.isAuthenticated"
               to="/login"
@@ -463,41 +497,147 @@ onUnmounted(() => {
               >
             </RouterLink>
           </div>
+        </div>
+      </div>
 
-          <!-- Botão Mobile Hamburger -->
+      <!-- 2. Cabeçalho Mobile Oficial Figma (block md:hidden) -->
+      <div class="block md:hidden">
+        <!-- Linha Superior Mobile: Hambúrguer à esquerda, Logo Centralizada, Salvos e Perfil à direita -->
+        <div class="px-3.5 sm:px-4 h-14 flex items-center justify-between">
+          <!-- Hambúrguer à esquerda (Figma node #1:175) -->
           <button
             type="button"
-            class="md:hidden p-2 text-stone-300 hover:text-white focus:outline-none cursor-pointer"
-            @click="isMobileMenuOpen = !isMobileMenuOpen"
-            aria-label="Menu de navegação mobile"
+            class="p-2 text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            @click="openDrawer"
+            aria-label="Abrir menu de navegação"
           >
             <svg
               class="w-6 h-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              stroke-width="2"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
           </button>
+
+          <!-- Logo Centralizada (Figma node #3094:1333) -->
+          <RouterLink to="/" class="flex items-center justify-center">
+            <img
+              src="/images/logo-horizontal.svg"
+              alt="Empório Henz"
+              class="h-7 w-auto object-contain filter brightness-0 invert"
+            />
+          </RouterLink>
+
+          <!-- Ícones da Direita: Salvos e Perfil (Figma nodes #1:144 e #1:177) -->
+          <div class="flex items-center gap-1 sm:gap-2">
+            <!-- Salvos -->
+            <RouterLink
+              to="/"
+              class="p-2 text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+              aria-label="Móveis Salvos"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+            </RouterLink>
+
+            <!-- Perfil / Minha Conta -->
+            <RouterLink
+              v-if="!authStore.isAuthenticated"
+              to="/login"
+              class="p-2 text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+              aria-label="Minha conta"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <circle cx="12" cy="12" r="9" />
+                <circle cx="12" cy="10" r="3" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.832 2.849"
+                />
+              </svg>
+            </RouterLink>
+
+            <button
+              v-else
+              type="button"
+              @click="openDrawer"
+              class="w-7 h-7 rounded-full flex items-center justify-center border border-white text-white font-bold text-xs uppercase hover:bg-white/10 transition-colors cursor-pointer"
+              aria-label="Menu do Usuário"
+            >
+              {{ authStore.user?.name.charAt(0) }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Linha de Busca Dedicada Mobile (Abaixo da logo, Figma node #3094:2619) -->
+        <div class="px-3.5 sm:px-4 pb-3 pt-0.5">
+          <form @submit.prevent="handleSearch" class="relative w-full">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Busque por móveis para sua casa"
+              class="w-full bg-white text-stone-900 placeholder:text-stone-400 text-sm rounded-xl pl-4 pr-11 py-2.5 border border-transparent focus:border-secondary focus:outline-none shadow-sm"
+            />
+            <button
+              type="submit"
+              class="absolute right-0 top-0 h-full px-3.5 flex items-center justify-center text-stone-500 hover:text-secondary cursor-pointer"
+              aria-label="Buscar móveis"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
+          </form>
         </div>
       </div>
     </div>
 
-    <!-- Barra Secundária (#007CD8) com Dropdowns Interativos nos Hovers das Categorias -->
+    <!-- Barra Secundária (#007CD8) com Dropdowns Desktop e Centralização Mobile -->
     <div
       class="bg-secondary text-white border-b border-sky-600 shadow-sm relative"
     >
       <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center justify-between text-xs"
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-9 md:h-10 flex items-center justify-center md:justify-between text-xs"
       >
-        <!-- Aviso Vale do Taquari (Ícone de Caminhão de Entrega conforme Figma image.png) -->
-        <div class="flex items-center gap-2 text-white font-medium select-none">
+        <!-- Aviso Vale do Taquari (Centralizado no mobile, alinhado à esquerda no desktop) -->
+        <div
+          class="flex items-center justify-center gap-2 text-white font-medium select-none text-center w-full md:w-auto"
+        >
           <svg
             class="w-4 h-4 text-white shrink-0"
             fill="none"
@@ -516,12 +656,12 @@ onUnmounted(() => {
               d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8h4.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h4"
             />
           </svg>
-          <span class="font-normal text-white"
-            >Entrega e montagem em todo Vale do Taquari</span
-          >
+          <span class="font-normal text-white">
+            Entrega e montagem em todo Vale do Taquari
+          </span>
         </div>
 
-        <!-- Links de Categorias com Dropdowns Anti-flicker no Hover -->
+        <!-- Links de Categorias Desktop com Dropdowns no Hover (hidden md:flex) -->
         <nav class="hidden md:flex items-center gap-1 sm:gap-2">
           <div
             v-for="cat in categories"
@@ -536,23 +676,13 @@ onUnmounted(() => {
               class="flex items-center gap-1 font-medium text-white hover:bg-white/15 px-3 py-1 rounded-md transition-all cursor-pointer"
             >
               <span>{{ cat.name }}</span>
-              <svg
-                class="w-12 h-4 text-white transition-transform duration-200"
-                :class="{ 'rotate-180': activeDropdown === cat.slug }"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2.5"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+              <Icon
+                :icon="activeDropdown === cat.slug ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                class="w-4 h-4 text-white transition-transform duration-200"
+              />
             </RouterLink>
 
-            <!-- Dropdown Menu Flutuante ao passar o mouse com ponte invisível anti-flicker -->
+            <!-- Dropdown Menu Flutuante ao passar o mouse com ponte anti-flicker -->
             <div
               v-show="activeDropdown === cat.slug"
               @mouseenter="handleCategoryMouseEnter(cat.slug)"
@@ -596,50 +726,247 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Gaveta Mobile Aberta -->
-    <div
-      v-if="isMobileMenuOpen"
-      class="md:hidden bg-white border-b border-stone-200 p-4 space-y-4 shadow-lg text-sm animate-in fade-in duration-150"
-    >
-      <div class="relative">
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Busque por móveis..."
-          class="w-full bg-stone-100 text-stone-900 text-sm rounded-lg pl-3 pr-10 py-2 border border-stone-300 focus:outline-none focus:border-secondary"
-        />
-        <button
-          type="button"
-          class="absolute right-0 top-0 h-full px-3 text-stone-500 cursor-pointer"
+    <!-- 3. Drawer Lateral Mobile Oficial (munu-mobile.png) -->
+    <Teleport to="body">
+      <div v-if="isDrawerOpen" class="fixed inset-0 z-50 flex">
+        <!-- Backdrop Escurecido -->
+        <Transition
+          enter-active-class="transition-opacity duration-300 ease-out"
+          enter-from-class="opacity-0"
+          enter-to-class="opacity-100"
+          leave-active-class="transition-opacity duration-200 ease-in"
+          leave-from-class="opacity-100"
+          leave-to-class="opacity-0"
+          appear
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </button>
-      </div>
+          <div
+            class="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            @click="closeDrawer"
+          ></div>
+        </Transition>
 
-      <div class="grid grid-cols-2 gap-2 pt-2 border-t border-stone-100">
-        <RouterLink
-          v-for="cat in categories"
-          :key="cat.slug"
-          to="/"
-          @click="isMobileMenuOpen = false"
-          class="p-2 rounded-lg hover:bg-sky-50 text-stone-700 font-medium text-xs flex items-center justify-between transition-colors"
+        <!-- Painel Deslizante Lateral -->
+        <Transition
+          enter-active-class="transition-transform duration-300 ease-out"
+          enter-from-class="-translate-x-full"
+          enter-to-class="translate-x-0"
+          leave-active-class="transition-transform duration-200 ease-in"
+          leave-from-class="translate-x-0"
+          leave-to-class="-translate-x-full"
+          appear
         >
-          <span>{{ cat.name }}</span>
-          <span class="text-stone-400">›</span>
-        </RouterLink>
+          <div
+            class="relative w-[82%] max-w-xs sm:max-w-sm h-full flex flex-col shadow-2xl z-10 select-none overflow-hidden"
+          >
+            <!-- Cabeçalho do Drawer em bg-primary com a logo branca e botão fechar -->
+            <div
+              class="bg-primary px-5 py-5 flex items-center justify-between border-b border-primary-dark shrink-0"
+            >
+              <RouterLink to="/" @click="closeDrawer" class="flex items-center">
+                <img
+                  src="/images/logo-horizontal.svg"
+                  alt="Empório Henz"
+                  class="h-8 w-auto object-contain filter brightness-0 invert"
+                />
+              </RouterLink>
+              <button
+                type="button"
+                @click="closeDrawer"
+                class="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                aria-label="Fechar menu"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Corpo do Drawer em bg-secondary com Categorias e Ações -->
+            <div
+              class="bg-secondary flex-1 overflow-y-auto px-5 py-4 space-y-1 text-white text-sm"
+            >
+              <!-- Lista de Categorias com Acordeão -->
+              <div
+                v-for="cat in categories"
+                :key="cat.slug"
+              >
+                <button
+                  type="button"
+                  @click="toggleAccordion(cat.slug)"
+                  class="w-full flex items-center justify-between py-3.5 text-left font-bold text-white hover:text-white/90 text-base transition-colors cursor-pointer"
+                  :aria-expanded="activeAccordion === cat.slug"
+                >
+                  <span>{{ cat.name }}</span>
+                  <Icon
+                    :icon="activeAccordion === cat.slug ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                    class="w-5 h-5 text-white transition-transform duration-200"
+                  />
+                </button>
+
+                <!-- Subcategorias do Acordeão -->
+                <div
+                  v-if="activeAccordion === cat.slug"
+                  class="pb-3 pl-3 space-y-1 animate-in fade-in duration-200"
+                >
+                  <RouterLink
+                    v-for="sub in cat.subcategories"
+                    :key="sub"
+                    to="/"
+                    @click="closeDrawer"
+                    class="block py-1.5 px-2.5 text-sm text-white/90 hover:text-white hover:bg-white/15 rounded-md transition-colors"
+                  >
+                    {{ sub }}
+                  </RouterLink>
+                </div>
+              </div>
+
+              <!-- Divisor Sutil -->
+              <div class="border-t border-white/25 my-4 pt-3 space-y-2">
+                <!-- Salvos -->
+                <RouterLink
+                  to="/"
+                  @click="closeDrawer"
+                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                >
+                  <svg
+                    class="w-5 h-5 text-white shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    />
+                  </svg>
+                  <span>Salvos</span>
+                </RouterLink>
+
+                <!-- Sobre a loja -->
+                <RouterLink
+                  to="/sobre-a-loja"
+                  @click="closeDrawer"
+                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                >
+                  <svg
+                    class="w-5 h-5 text-white shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3 9l1.5-5h15l1.5 5"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M4 9.5V19a1 1 0 001 1h14a1 1 0 001-1V9.5"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M9 20v-5a1 1 0 011-1h4a1 1 0 011 1v5"
+                    />
+                  </svg>
+                  <span>Sobre a loja</span>
+                </RouterLink>
+
+                <!-- Minha conta -->
+                <RouterLink
+                  :to="authStore.isAuthenticated ? '/' : '/login'"
+                  @click="closeDrawer"
+                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                >
+                  <svg
+                    class="w-5 h-5 text-white shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <circle cx="12" cy="12" r="9" />
+                    <circle cx="12" cy="10" r="3" />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.832 2.849"
+                    />
+                  </svg>
+                  <span v-if="authStore.isAuthenticated && authStore.user">
+                    Minha conta ({{ authStore.user.name.split(" ")[0] }})
+                  </span>
+                  <span v-else>Minha conta</span>
+                </RouterLink>
+
+                <!-- Sair / Entrar -->
+                <button
+                  v-if="authStore.isAuthenticated"
+                  type="button"
+                  @click="handleLogoutDrawer"
+                  class="w-full flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-left"
+                >
+                  <svg
+                    class="w-5 h-5 text-white shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                    />
+                  </svg>
+                  <span>Sair</span>
+                </button>
+
+                <RouterLink
+                  v-else
+                  to="/login"
+                  @click="closeDrawer"
+                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                >
+                  <svg
+                    class="w-5 h-5 text-white shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.8"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                    />
+                  </svg>
+                  <span>Entrar</span>
+                </RouterLink>
+              </div>
+            </div>
+          </div>
+        </Transition>
       </div>
-    </div>
+    </Teleport>
   </header>
 </template>
