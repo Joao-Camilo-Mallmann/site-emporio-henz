@@ -4,21 +4,17 @@
 
 <template>
   <!-- Hero Banner Desktop: Fundo azul suave (surface-tint), Círculo Azul-marinho (primary) e Sofá 3 Lugares -->
-  <section class="relative overflow-hidden bg-surface-tint">
+  <section class="relative overflow-hidden bg-surface-tint hidden md:block pb-4">
     <!-- Círculo decorativo azul marinho atrás do sofá (Figma node #50:4729) -->
     <div
-      class="absolute -right-32 lg:-right-0 top-10 w-[900px] h-[500px] rounded-[52%_48%_40%_25%/45%_55%_38%_48%] bg-primary pointer-events-none rotate-320"
+      class="absolute right-0 top-10 w-[900px] h-[500px] rounded-[52%_48%_40%_25%/45%_55%_38%_48%] bg-primary pointer-events-none rotate-320 "
     ></div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-      <div
-        class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
-      >
+    <div class="max-w-7xl mx-auto px-8 relative z-10">
+      <div class="grid grid-cols-12 gap-12 items-center">
         <!-- Textos e Cartão Flutuante de Benefícios -->
-        <div class="lg:col-span-5 space-y-8">
-          <h1
-            class="text-4xl sm:text-5xl lg:text-[50px] font-normal text-primary leading-[1.12]"
-          >
+        <div class="col-span-5 space-y-8">
+          <h1 class="text-[50px] font-normal text-primary leading-[1.12]">
             Móveis para<br />
             <span class="font-bold text-primary">transformar</span><br />
             o seu lar
@@ -26,7 +22,7 @@
 
           <!-- Card Branco de Benefícios (Figma node #128:9170) com Microinterações -->
           <div
-            class="bg-white rounded-2xl p-4 sm:p-5 shadow-[0px_8px_24px_rgba(0,0,0,0.06)] border border-stone-200/60 max-w-sm"
+            class="bg-white rounded-2xl p-5 shadow-[0px_8px_24px_rgba(0,0,0,0.06)] border border-stone-200/60 max-w-sm"
           >
             <div
               class="grid grid-cols-3 divide-x divide-stone-200 text-center"
@@ -83,9 +79,7 @@
         </div>
 
         <!-- Cena de Móveis do Figma (PNG Transparente recortado) -->
-        <div
-          class="lg:col-span-7 relative flex justify-center lg:justify-end"
-        >
+        <div class="col-span-7 relative flex justify-end">
           <img
             src="/images/hero/hero-furniture.png"
             alt="Ambiente Empório Henz"

@@ -638,25 +638,8 @@ onUnmounted(() => {
         <div
           class="flex items-center justify-center gap-2 text-white font-medium select-none text-center w-full md:w-auto"
         >
-          <svg
-            class="w-4 h-4 text-white shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="1.8"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8h4.586a1 1 0 01.707.293l2.414 2.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h4"
-            />
-          </svg>
-          <span class="font-normal text-white">
+          <Icon icon="mdi-truck" class="w-5 h-5 shrink-0" />
+          <span class="font-normal text-white ">
             Entrega e montagem em todo Vale do Taquari
           </span>
         </div>
@@ -673,11 +656,15 @@ onUnmounted(() => {
             <!-- Botão da Categoria -->
             <RouterLink
               to="/"
-              class="flex items-center gap-1 font-medium text-white hover:bg-white/15 px-3 py-1 rounded-md transition-all cursor-pointer"
+              class="flex items-center gap-1 font-medium text-white hover:bg-white/15 px-1 lg:px-3 py-1 rounded-md transition-all cursor-pointer"
             >
               <span>{{ cat.name }}</span>
               <Icon
-                :icon="activeDropdown === cat.slug ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                :icon="
+                  activeDropdown === cat.slug
+                    ? 'mdi:chevron-up'
+                    : 'mdi:chevron-down'
+                "
                 class="w-4 h-4 text-white transition-transform duration-200"
               />
             </RouterLink>
@@ -796,10 +783,7 @@ onUnmounted(() => {
               class="bg-secondary flex-1 overflow-y-auto px-5 py-4 space-y-1 text-white text-sm"
             >
               <!-- Lista de Categorias com Acordeão -->
-              <div
-                v-for="cat in categories"
-                :key="cat.slug"
-              >
+              <div v-for="cat in categories" :key="cat.slug">
                 <button
                   type="button"
                   @click="toggleAccordion(cat.slug)"
@@ -808,7 +792,11 @@ onUnmounted(() => {
                 >
                   <span>{{ cat.name }}</span>
                   <Icon
-                    :icon="activeAccordion === cat.slug ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                    :icon="
+                      activeAccordion === cat.slug
+                        ? 'mdi:chevron-up'
+                        : 'mdi:chevron-down'
+                    "
                     class="w-5 h-5 text-white transition-transform duration-200"
                   />
                 </button>
