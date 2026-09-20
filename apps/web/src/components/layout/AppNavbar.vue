@@ -537,7 +537,7 @@ onUnmounted(() => {
             >
               <span>{{ cat.name }}</span>
               <svg
-                class="w-3 h-3 text-white transition-transform duration-200"
+                class="w-12 h-4 text-white transition-transform duration-200"
                 :class="{ 'rotate-180': activeDropdown === cat.slug }"
                 fill="none"
                 viewBox="0 0 24 24"

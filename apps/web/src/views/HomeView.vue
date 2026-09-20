@@ -188,7 +188,7 @@ const recomendados: ProductItem[] = [
           <!-- Textos e Cartão Flutuante de Benefícios -->
           <div class="lg:col-span-5 space-y-8">
             <h1
-              class="text-4xl sm:text-5xl lg:text-[48px] font-sans font-normal text-primary leading-[1.1] tracking-tight"
+              class="text-4xl sm:text-5xl lg:text-[50px] font-normal text-primary leading-[1.12]"
             >
               Móveis para<br />
               <span class="font-bold text-primary">transformar</span><br />
@@ -281,7 +281,7 @@ const recomendados: ProductItem[] = [
           @mouseenter="hoveredCategory = cat.slug"
           @mouseleave="hoveredCategory = null"
           @click="selectedCategory = cat.slug"
-          class="group rounded-2xl overflow-hidden transition-all duration-300 border flex flex-col cursor-pointer"
+          class="group rounded-2xl overflow-hidden transition-all duration-300 border border-primary flex flex-col cursor-pointer"
           :class="[
             hoveredCategory === cat.slug ||
             (!hoveredCategory && selectedCategory === cat.slug)
@@ -344,7 +344,9 @@ const recomendados: ProductItem[] = [
     <!-- Seção Destaques (Figma node #50:5154) -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4">
       <div class="flex items-center justify-between">
-        <h2 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+        <h2
+          class="text-2xl sm:text-3xl font-serif font-bold text-neutral-dark tracking-tight"
+        >
           Destaques
         </h2>
       </div>
@@ -446,7 +448,9 @@ const recomendados: ProductItem[] = [
     <!-- Seção "Você também pode gostar" (footer.png) -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4">
       <div class="flex items-center justify-between">
-        <h2 class="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+        <h2
+          class="text-2xl sm:text-3xl font-serif font-bold text-neutral-dark tracking-tight"
+        >
           Você também pode gostar
         </h2>
       </div>

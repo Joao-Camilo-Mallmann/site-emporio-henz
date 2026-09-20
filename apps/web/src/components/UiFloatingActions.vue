@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { Icon } from "@iconify/vue";
 import type { UiFloatingActionsProps } from "@/types";
+import UiFloatingButton from "@/components/UiFloatingButton.vue";
+import { Icon } from "@iconify/vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 
 const props = withDefaults(defineProps<UiFloatingActionsProps>(), {
-  whatsappNumber: "5551998765432",
-  whatsappMessage: "Olá, gostaria de informações sobre o catálogo de móveis da Empório Henz.",
+  whatsappNumber: "5551998981063",
+  whatsappMessage:
+    "Olá, gostaria de informações sobre o catálogo de móveis da Empório Henz.",
   showScrollTop: true,
   showWhatsApp: true,
   scrollThreshold: 280,
@@ -67,19 +69,16 @@ onUnmounted(() => {
     </Transition>
 
     <!-- Botão Oficial do WhatsApp (Zap) com estilo do AppFooter -->
-    <a
+    <UiFloatingButton
       v-if="props.showWhatsApp"
       :href="whatsappUrl"
       target="_blank"
-      rel="noopener noreferrer"
-      class="pointer-events-auto w-12 h-12 rounded-full bg-secondary hover:bg-secondary-hover text-white flex items-center justify-center transition-all duration-200 shadow-sm hover:scale-115 cursor-pointer"
+      size="lg"
+      variant="primary"
       aria-label="Falar pelo WhatsApp com a Empório Henz"
       title="Fale conosco no WhatsApp"
-    >
-      <Icon
-        icon="mdi:whatsapp"
-        class="w-6 h-6 text-white"
-      />
-    </a>
+      class="pointer-events-auto"
+      icon="mdi:whatsapp"
+    />
   </div>
 </template>

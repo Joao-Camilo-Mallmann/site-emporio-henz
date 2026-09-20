@@ -19,8 +19,9 @@ export interface UiFloatingButtonProps {
   href?: string;
   to?: string;
   target?: string;
+  type?: "button" | "submit" | "reset";
   ariaLabel?: string;
-  variant?: "whatsapp" | "primary" | "secondary" | "dark";
+  variant?: "primary" | "secondary" | "dark" | "ghost";
   size?: "sm" | "md" | "lg";
   title?: string;
 }
