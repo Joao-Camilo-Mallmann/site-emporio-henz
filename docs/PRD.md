@@ -322,6 +322,7 @@ Define o esquema físico e relacional de tabelas, chaves primárias (`UUID`), ch
 
 ```mermaid
 erDiagram
+    ROLES ||--o{ USERS : "define permissoes"
     USERS ||--o| CLIENTS : "1:1 perfil cadastral"
     USERS ||--o{ USER_SUPPLIERS : "possui vinculos"
     SUPPLIERS ||--o{ USER_SUPPLIERS : "vincula vendedores"
@@ -330,24 +331,32 @@ erDiagram
     CATEGORIES ||--o{ PRODUCTS : "classifica"
     PRODUCT_SUBTYPES ||--o{ PRODUCTS : "subclassifica"
     SUPPLIERS ||--o{ PRODUCTS : "fornece / marca"
-    PRODUCTS ||--o{ PRODUCT_IMAGES : "carrossel (base64)"
+    PRODUCTS ||--o{ PRODUCT_IMAGES : "carrossel de fotos"
     PRODUCTS ||--o{ PRODUCT_VARIATIONS : "oferece acabamentos"
     LISTS ||--o{ LIST_ITEMS : "contem"
     PRODUCTS ||--o{ LIST_ITEMS : "item adicionado"
     PRODUCT_VARIATIONS ||--o{ LIST_ITEMS : "acabamento escolhido"
 
+    ROLES {
+        smallint id PK
+        varchar role "Ex: 1=Cliente, 2=Vendedor, 3=Admin"
+        timestamp created_at
+        timestamp deleted_at
+    }
+
     USERS {
         uuid id PK
         varchar email UK "Identificador único (sem CPF)"
         varchar password_hash "Hash seguro de senha"
-        smallint role "1=Cliente, 2=Vendedor, 3=Admin"
+        varchar city "Cidade do usuário"
+        smallint role FK "Vínculo com ROLES"
         timestamp created_at
         timestamp deleted_at
     }
 
     USER_SUPPLIERS {
         uuid id PK
-        uuid user_id FK "Vínculo com USERS (role=2 Vendedor)"
+        uuid user_id FK "Vínculo com USERS(Vendedor)"
         uuid supplier_id FK "Vínculo com SUPPLIERS"
         timestamp created_at
         timestamp deleted_at
@@ -373,7 +382,7 @@ erDiagram
 
     PRODUCT_SUBTYPES {
         uuid id PK
-        uuid category_id FK
+        uuid category_id FK "Vínculo com CATEGORIES"
         varchar name "Ex: Roupeiro, Sofá, Mesa"
         varchar slug UK
         boolean active
@@ -383,7 +392,7 @@ erDiagram
 
     SUPPLIERS {
         uuid id PK
-        varchar name "Marca / Fornecedor (ex: Primavera)"
+        varchar name "Marca / Fornecedor"
         varchar contact
         boolean active
         timestamp created_at
@@ -398,16 +407,16 @@ erDiagram
         varchar name "Ex: Roupeiro Roma"
         varchar slug UK
         varchar collection_line "Ex: Linha Itália"
-        varchar main_material "Material principal indexado (ex: MDF, Couro)"
+        varchar main_material "Material principal (MDF, MDP)"
         numeric reference_price "Preço de referência fixo"
-        int max_installments "Parcelas (ex: 10x)"
+        int max_installments "Parcelas (ex: 10)"
         varchar availability_type "IN_STOCK / ON_DEMAND"
         int estimated_days "Prazo sob encomenda em dias"
-        int height_mm "Altura em mm (ex: 2300)"
-        int width_mm "Largura em mm (ex: 2430)"
-        int depth_mm "Profundidade em mm (ex: 565)"
+        int height_mm "Altura em mm"
+        int width_mm "Largura em mm"
+        int depth_mm "Profundidade em mm"
         text description "Texto descritivo amplo"
-        jsonb specifications "Tabela técnica estruturada flexível"
+        jsonb specifications "Tabela técnica flexível"
         boolean active
         timestamp created_at
         timestamp updated_at
@@ -417,22 +426,22 @@ erDiagram
     PRODUCT_IMAGES {
         uuid id PK
         uuid product_id FK
-        uuid variation_id FK "Variação vinculada (troca de foto na cor)"
-        text thumbnail_base64 "Miniatura leve para cards (< 50KB)"
-        text full_base64 "Imagem completa para carrossel (< 2MB)"
+        uuid variation_id FK "Variação vinculada (opcional)"
+        varchar thumbnail_path "Caminho do arquivo reduzido"
+        varchar full_image_path "Caminho do arquivo original"
         int sort_order "Ordem de exibição"
-        timestamp created_at
-        timestamp deleted_at
+        timestamptz created_at
+        timestamptz deleted_at
     }
 
     PRODUCT_VARIATIONS {
         uuid id PK
         uuid product_id FK
-        varchar name "Ex: Itaúba Âmbar / Carvalho Mel / Vidro Fumê"
+        varchar name "Ex: Carvalho Mel"
         varchar variation_type "COLOR / FABRIC / WOOD / FINISH"
-        varchar_array colors_hex "Array de cores hex (1, 2 [bicolor] ou N cores)"
-        text sample_image_base64 "Miniatura da textura real (amostra)"
-        jsonb finish_details "Estrutura, portas, puxadores, tecido, etc."
+        varchar_array_7 colors_hex "Array de cores hex"
+        varchar sample_image_path "Caminho da amostra da textura"
+        jsonb finish_details "Estrutura, portas, puxadores"
         int sort_order "Ordem de exibição"
         boolean in_stock "Disponibilidade da variação"
         timestamp created_at
@@ -442,7 +451,7 @@ erDiagram
     LISTS {
         uuid id PK
         uuid client_id FK
-        varchar name "Nome da lista ou pasta"
+        varchar name "Nome da lista"
         varchar list_type "FAVORITES, WISHLIST, GIFT_LIST, CUSTOM"
         boolean is_system "true para as 3 listas padrão"
         uuid share_slug UK "Link público para compartilhamento"
@@ -455,9 +464,9 @@ erDiagram
         uuid id PK
         uuid list_id FK
         uuid product_id FK
-        uuid variation_id FK "Variação opcional selecionada"
-        timestamp added_at
-        timestamp deleted_at
+        uuid variation_id FK "Variação opcional"
+        timestamptz added_at
+        timestamptz deleted_at
     }
 ```
 
