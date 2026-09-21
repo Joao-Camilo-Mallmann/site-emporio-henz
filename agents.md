@@ -15,6 +15,9 @@
 >    - **Database First**: Todo o Banco de Dados (tabelas, migrações idempotentes em `packages/database`, integridade referencial, soft delete com `deleted_at`, índices parciais e seeds essenciais) DEVE ser modelado, migrado e validado ANTES da implementação de Back-end e Front-end.
 >    - **Decomposição em 3 Camadas**: Toda nova funcionalidade que envolva persistência, lógica e tela DEVE ser dividida em tarefas/issues separadas: `[DB]` Banco de Dados, `[BE]` Back-end e `[FE]` Front-end.
 >    - **Padrão de Histórias de Usuário**: Todas as tarefas/issues devem seguir rigorosamente o template e convenções do guia [docs/padrao-historias-tarefas.md](docs/padrao-historias-tarefas.md) e estar registradas no backlog [docs/user-stories-backlog.md](docs/user-stories-backlog.md).
+> 4. **DESIGN SYSTEM & PADRONIZAÇÃO DE CORES TAILWIND (OBRIGATÓRIO):**
+>    - **Proibição de Hexadecimais Arbitrários**: É terminantemente proibido utilizar classes com códigos hexadecimais arbitrários inline (`[#...]`) no código do frontend (`apps/web`).
+>    - **Tokens Semânticos do Tailwind v4**: Utilize sempre as classes utilitárias semânticas padronizadas baseadas no Figma (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte a documentação completa em [docs/design-system-cores.md](docs/design-system-cores.md) e [apps/web/agents.md](apps/web/agents.md).
 
 ---
 
