@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
 import { Icon } from "@iconify/vue";
 import { onMounted, onUnmounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const authStore = useAuthStore();
 
 const searchQuery = ref("");

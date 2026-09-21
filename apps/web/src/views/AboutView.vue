@@ -120,7 +120,9 @@ const comoFuncionaItems = [
     </section>
 
     <!-- CONTAINER PRINCIPAL CENTRALIZADO -->
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
+    <div
+      class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12"
+    >
       <!-- 2. SEÇÃO EDITORIAL E TEXTUAL DA HISTÓRIA -->
       <section aria-label="História da Empório Henz" class="space-y-6">
         <h1
@@ -133,11 +135,11 @@ const comoFuncionaItems = [
           class="space-y-4 text-neutral-dark/90 text-base sm:text-lg leading-relaxed"
         >
           <p>
-            Acreditamos que uma casa vira um lar quando é preenchida por memórias.
-            Nascida em Cruzeiro do Sul, a
-            <strong class="font-bold text-neutral-dark">Empório Henz</strong> é um
-            negócio familiar que há quase cinco décadas transforma ambientes e
-            constrói relações de confiança que passam de geração em geração.
+            Acreditamos que uma casa vira um lar quando é preenchida por
+            memórias. Nascida em Cruzeiro do Sul, a
+            <strong class="font-bold text-neutral-dark">Empório Henz</strong> é
+            um negócio familiar que há quase cinco décadas transforma ambientes
+            e constrói relações de confiança que passam de geração em geração.
           </p>
 
           <p>
@@ -149,7 +151,9 @@ const comoFuncionaItems = [
 
         <!-- Foto da Equipe / Fundadores -->
         <div class="pt-4">
-          <div class="w-full rounded-2xl overflow-hidden shadow-sm border border-stone-200/80">
+          <div
+            class="w-full rounded-2xl overflow-hidden shadow-sm border border-stone-200/80"
+          >
             <img
               src="/images/about/equipe-henz-alta.png"
               alt="Fundadoras e Equipe Empório Henz"
@@ -170,8 +174,11 @@ const comoFuncionaItems = [
           >
             Como funciona
           </h2>
-          <p class="mt-2 text-neutral-dark/80 text-sm sm:text-base leading-relaxed">
-            Unimos a praticidade do digital à segurança da experiência presencial para tornar sua compra simples e confiável.
+          <p
+            class="mt-2 text-neutral-dark/80 text-sm sm:text-base leading-relaxed"
+          >
+            Unimos a praticidade do digital à segurança da experiência
+            presencial para tornar sua compra simples e confiável.
           </p>
         </div>
 
@@ -186,10 +193,14 @@ const comoFuncionaItems = [
               <Icon :icon="item.icon" class="w-7 h-7 sm:w-8 sm:h-8" />
             </div>
             <div class="space-y-1.5 flex-1">
-              <h3 class="font-bold text-neutral-dark text-base sm:text-lg leading-snug">
+              <h3
+                class="font-bold text-neutral-dark text-base sm:text-lg leading-snug"
+              >
                 {{ item.title }}
               </h3>
-              <p class="text-neutral-dark/80 text-xs sm:text-sm leading-relaxed">
+              <p
+                class="text-neutral-dark/80 text-xs sm:text-sm leading-relaxed"
+              >
                 {{ item.description }}
               </p>
             </div>
@@ -216,7 +227,9 @@ const comoFuncionaItems = [
               <Icon icon="mdi:map-marker-outline" class="w-6 h-6" />
             </div>
             <div>
-              <h3 class="font-bold text-sm sm:text-base text-neutral-dark">Endereço</h3>
+              <h3 class="font-bold text-sm sm:text-base text-neutral-dark">
+                Endereço
+              </h3>
               <p class="text-xs sm:text-sm text-neutral-dark/85 mt-0.5">
                 Rua General Neto, 317 – Centro, Cruzeiro do Sul – RS, 95930–000
               </p>
@@ -232,7 +245,9 @@ const comoFuncionaItems = [
               <h3 class="font-bold text-sm sm:text-base text-neutral-dark">
                 Horário de funcionamento
               </h3>
-              <div class="text-xs sm:text-sm text-neutral-dark/85 mt-0.5 space-y-0.5">
+              <div
+                class="text-xs sm:text-sm text-neutral-dark/85 mt-0.5 space-y-0.5"
+              >
                 <p>Segunda à sexta–feira: 08:00 – 12:00 | 13:30 – 18:00</p>
                 <p>Sábado: 08:00 – 12:00</p>
               </div>
@@ -245,7 +260,9 @@ const comoFuncionaItems = [
               <Icon icon="mdi:whatsapp" class="w-6 h-6" />
             </div>
             <div>
-              <h3 class="font-bold text-sm sm:text-base text-neutral-dark">Contato</h3>
+              <h3 class="font-bold text-sm sm:text-base text-neutral-dark">
+                Contato
+              </h3>
               <p class="text-xs sm:text-sm text-neutral-dark/85 mt-0.5">
                 <a
                   href="https://wa.me/5551998981063"
@@ -261,7 +278,9 @@ const comoFuncionaItems = [
         </div>
 
         <!-- Google Maps Iframe Interativo -->
-        <div class="w-full rounded-2xl overflow-hidden border border-stone-200 shadow-sm relative aspect-[16/10] sm:aspect-[21/9]">
+        <div
+          class="w-full rounded-2xl overflow-hidden border border-stone-200 shadow-sm relative aspect-[16/10] sm:aspect-[21/9]"
+        >
           <iframe
             title="Localização da Empório Henz"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3472.6393529342417!2d-51.9897184!3d-29.5168233!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x951c6204c34a9bbf%3A0xe54955b253b3b2c!2sR.%20Gen.%20Neto%2C%20317%20-%20Centro%2C%20Cruzeiro%20do%20Sul%20-%20RS%2C%2095930-000!5e0!3m2!1spt-BR!2sbr!4v1710000000000!5m2!1spt-BR!2sbr"
