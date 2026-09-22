@@ -310,13 +310,13 @@ Devido à extensão e ao detalhamento técnico dos modelos, ambos os diagramas f
 
 Contempla as entidades centrais do sistema (`User`, `UserSupplier`, `Client`, `Category`, `ProductSubtype`, `Supplier`, `Product`, `ProductImage`, `ProductVariation`, `ProductList`, `ListItem`), suas responsabilidades, visibilidade de atributos e métodos de negócio. A associação entre `User` (Vendedor) e `Supplier` é modelada através da classe associativa `UserSupplier`, permitindo que um vendedor represente uma ou mais marcas parceiras simultaneamente com isolamento estrito de catálogo.
 
-- **Arquivo anexo**: [diagrama_classes_emporio_henz.pdf](./diagrama_classes_emporio_henz.pdf)
+- **Arquivo anexo**: [diagrama_classes_emporio_henz.pdf](./backend/diagrama_classes_emporio_henz.pdf)
 
 ### 8.2 Modelo de Dados (DER Relacional para PostgreSQL)
 
 Define o esquema físico e relacional de tabelas, chaves primárias (`UUID`), chaves estrangeiras (`FK`), índices de unicidade (`UNIQUE`), campos para controle de concorrência/auditoria e colunas de suporte à estratégia obrigatória de exclusão lógica (`deleted_at timestamp`, soft delete).
 
-- **Arquivo anexo atualizado**: [der_emporio_henz.pdf](./der_emporio_henz.pdf)
+- **Arquivo anexo atualizado**: [der_emporio_henz.pdf](./database/der_emporio_henz.pdf) · [diagram.png](./database/diagram.png)
 
 #### Diagrama Entidade-Relacionamento Integrado:
 

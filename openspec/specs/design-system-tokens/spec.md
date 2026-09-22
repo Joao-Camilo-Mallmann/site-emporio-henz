@@ -17,11 +17,11 @@ The frontend application (`apps/web`) SHALL define centralized color design toke
 - **THEN** utility classes for variants such as `primary-dark` (`#0C2340`) and `secondary-hover` (`#005CA1`) SHALL be available and functional
 
 ### Requirement: Agent and Project Color Guidelines Documentation
-The project SHALL provide comprehensive documentation in `docs/design-system-cores.md` and enforce rules in `apps/web/agents.md` and `AGENTS.md` forbidding arbitrary inline hex colors (`[#...]`) in favor of the standardized Tailwind tokens.
+The project SHALL provide comprehensive documentation in `docs/frontend/design-system-cores.md` and enforce rules in `apps/web/agents.md` and `AGENTS.md` forbidding arbitrary inline hex colors (`[#...]`) in favor of the standardized Tailwind tokens.
 
 #### Scenario: Developer or AI agent consults design token guide
 - **WHEN** a developer or AI agent builds or edits a frontend view or component
-- **THEN** they SHALL find the complete reference table mapping Figma colors to Tailwind classes and usage guidelines in `docs/design-system-cores.md` and summarized instructions in `apps/web/agents.md`
+- **THEN** they SHALL find the complete reference table mapping Figma colors to Tailwind classes and usage guidelines in `docs/frontend/design-system-cores.md` and summarized instructions in `apps/web/agents.md`
 
 #### Scenario: Prohibition of arbitrary inline hex values
 - **WHEN** an AI agent creates new UI code

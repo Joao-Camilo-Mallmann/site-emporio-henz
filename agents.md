@@ -17,7 +17,7 @@
 >    - **Padrão de Histórias de Usuário**: Todas as tarefas/issues devem seguir rigorosamente o template e convenções do guia [docs/padrao-historias-tarefas.md](docs/padrao-historias-tarefas.md) e estar registradas no backlog [docs/user-stories-backlog.md](docs/user-stories-backlog.md).
 > 4. **DESIGN SYSTEM & PADRONIZAÇÃO DE CORES TAILWIND (OBRIGATÓRIO):**
 >    - **Proibição de Hexadecimais Arbitrários**: É terminantemente proibido utilizar classes com códigos hexadecimais arbitrários inline (`[#...]`) no código do frontend (`apps/web`).
->    - **Tokens Semânticos do Tailwind v4**: Utilize sempre as classes utilitárias semânticas padronizadas baseadas no Figma (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte a documentação completa em [docs/design-system-cores.md](docs/design-system-cores.md) e [apps/web/agents.md](apps/web/agents.md).
+>    - **Tokens Semânticos do Tailwind v4**: Utilize sempre as classes utilitárias semânticas padronizadas baseadas no Figma (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte a documentação completa em [docs/frontend/design-system-cores.md](docs/frontend/design-system-cores.md) e [apps/web/agents.md](apps/web/agents.md).
 
 ---
 
