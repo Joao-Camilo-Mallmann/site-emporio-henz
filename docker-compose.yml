@@ -1,6 +1,6 @@
 services:
   # ============================================================================
-  # BANCO DE DADOS: PostgreSQL 16 (Rede interna isolada, sem porta pública)
+  # BANCO DE DADOS: PostgreSQL 16 (Rede interna isolada, com porta mapeável)
   # ============================================================================
   postgres:
     image: postgres:16-alpine
@@ -13,7 +13,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - emporio_net
     healthcheck:
@@ -25,6 +25,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   # ============================================================================
   # MIGRAÇÕES: Runner idempotente one-shot com Bun nativo
   # ============================================================================
@@ -55,12 +56,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migration:
+        condition: service_completed_successfully
     environment:
       PORT: 3001
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
     ports:
-      - "3001:3001"
+      - "${BACKEND_PORT:-3001}:3001"
     networks:
       - emporio_net
 

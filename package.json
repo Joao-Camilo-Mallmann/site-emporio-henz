@@ -10,6 +10,7 @@
     "migrate": "bun packages/database/src/index.ts"
   },
   "devDependencies": {
+    "@types/bun": "^1.4.2",
     "prettier": "3.9.6",
     "turbo": "^2.11.2",
     "typescript": "^5.9.3"
