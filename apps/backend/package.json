@@ -8,13 +8,14 @@
     "build": "bun build src/index.ts --outdir dist --target bun",
     "start": "bun dist/index.js",
     "lint": "eslint . --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "bun test"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/bun": "^1.2.0",
     "eslint": "^9.21.0",
-    "typescript": "^5.8.2",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.25.0"
   }
 }

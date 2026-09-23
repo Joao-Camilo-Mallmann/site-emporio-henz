@@ -1,15 +1,19 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "types": ["bun"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@database/*": ["../../packages/database/*"]
+    }
   },
-  "include": ["src/**/*", "eslint.config.js"],
+  "include": ["src/**/*", "tests/**/*", "eslint.config.js"],
   "exclude": ["node_modules", "dist"]
 }

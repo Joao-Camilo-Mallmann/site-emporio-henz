@@ -167,10 +167,10 @@ O RNF03 do PRD exige que todas as senhas de usuários sejam criptografadas com h
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Senhas com mais de 8 caracteres são criptografadas em hash Argon2id válido.
-- [ ] O utilitário rejeita senhas inválidas na verificação de hash.
-- [ ] Tokens JWT gerados contêm claims semânticas e validam assinatura corretamente.
-- [ ] Tokens expirados ou adulterados retornam `null` na validação sem lançar unhandled exceptions.
+- [x] Senhas com mais de 8 caracteres são criptografadas em hash Argon2id válido.
+- [x] O utilitário rejeita senhas inválidas na verificação de hash.
+- [x] Tokens JWT gerados contêm claims semânticas e validam assinatura corretamente.
+- [x] Tokens expirados ou adulterados retornam `null` na validação sem lançar unhandled exceptions.
 
 ---
 
@@ -193,9 +193,9 @@ Rotas de perfil, clientes, fornecedores e listas exigem identificação do usuá
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Requisição com token válido prossegue normalmente para o handler da rota com contexto preenchido.
-- [ ] Requisição sem token em rota protegida recebe HTTP `401 Unauthorized`.
-- [ ] Requisição com token inválido ou corrompido recebe HTTP `401 Unauthorized`.
+- [x] Requisição com token válido prossegue normalmente para o handler da rota com contexto preenchido.
+- [x] Requisição sem token em rota protegida recebe HTTP `401 Unauthorized`.
+- [x] Requisição com token inválido ou corrompido recebe HTTP `401 Unauthorized`.
 
 ---
 
@@ -227,10 +227,10 @@ Atende aos requisitos **RF01** e **RF07**. O login confere e-mail e senha e reto
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Login com credenciais válidas retorna status HTTP 200 e token JWT assinado.
-- [ ] Autocadastro persiste dados corretamente em `users` e `clients` em transação SQL segura.
-- [ ] Tentativa de cadastro com e-mail já existente é rejeitada com status HTTP 409.
-- [ ] Rota `/api/auth/me` recupera os dados corretos com base no token fornecido.
+- [x] Login com credenciais válidas retorna status HTTP 200 e token JWT assinado.
+- [x] Autocadastro persiste dados corretamente em `users` e `clients` em transação SQL segura.
+- [x] Tentativa de cadastro com e-mail já existente é rejeitada com status HTTP 409.
+- [x] Rota `/api/auth/me` recupera os dados corretos com base no token fornecido.
 
 ---
 
@@ -326,10 +326,10 @@ Atende ao **RF01** e **RNF08**. A exclusão de um cliente nunca executa `DELETE`
 
 #### ✅ Critérios de Aceitação
 
-- [ ] A listagem filtra registros inativos (`deleted_at IS NOT NULL`) automaticamente.
-- [ ] A busca textual por nome ou e-mail responde de forma rápida e precisa.
-- [ ] A exclusão preenche `deleted_at` no banco sem disparar `DELETE` SQL físico.
-- [ ] A rota `GET /api/clientes/:id` retorna HTTP 404 para registros marcados com soft delete.
+- [x] A listagem filtra registros inativos (`deleted_at IS NOT NULL`) automaticamente.
+- [x] A busca textual por nome ou e-mail responde de forma rápida e precisa.
+- [x] A exclusão preenche `deleted_at` no banco sem disparar `DELETE` SQL físico.
+- [x] A rota `GET /api/clientes/:id` retorna HTTP 404 para registros marcados com soft delete.
 
 ---
 
@@ -394,10 +394,10 @@ Atende aos requisitos **RF04**, **RF18** e **RNF08**. Apenas o Administrador pod
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Endpoints respondem com status HTTP semânticos (200, 201, 400, 404).
-- [ ] Criação persiste o fornecedor no PostgreSQL com `active = TRUE` e `deleted_at = NULL`.
-- [ ] A exclusão atualiza `deleted_at` com timestamp atual e preserva o histórico no banco.
-- [ ] A listagem `GET /api/fornecedores` omite registros com `deleted_at IS NOT NULL`.
+- [x] Endpoints respondem com status HTTP semânticos (200, 201, 400, 404).
+- [x] Criação persiste o fornecedor no PostgreSQL com `active = TRUE` e `deleted_at = NULL`.
+- [x] A exclusão atualiza `deleted_at` com timestamp atual e preserva o histórico no banco.
+- [x] A listagem `GET /api/fornecedores` omite registros com `deleted_at IS NOT NULL`.
 
 ---
 
@@ -555,9 +555,9 @@ Atende ao **RNF09** e **RF19**. Segurança no servidor é mandatória e nunca de
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Requisições de Cliente tentando acessar rotas administrativas recebem invariavelmente HTTP 403.
-- [ ] Requisições de Vendedor tentando cadastrar ou alterar fornecedor recebem HTTP 403.
-- [ ] Administrador acessa todas as rotas com sucesso (HTTP 200/201).
+- [x] Requisições de Cliente tentando acessar rotas administrativas recebem invariavelmente HTTP 403.
+- [x] Requisições de Vendedor tentando cadastrar ou alterar fornecedor recebem HTTP 403.
+- [x] Administrador acessa todas as rotas com sucesso (HTTP 200/201).
 
 ---
 
@@ -580,9 +580,9 @@ Atende aos requisitos **RF15**, **RF16** e **RF17**. Um vendedor pode representa
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Apenas o Administrador consegue invocar as rotas de vínculo (outros recebem 403).
-- [ ] O vínculo N:N persiste corretamente na tabela `user_suppliers`.
-- [ ] A desvinculação executa soft delete e reflete imediatamente nas validações de permissão do vendedor.
+- [x] Apenas o Administrador consegue invocar as rotas de vínculo (outros recebem 403).
+- [x] O vínculo N:N persiste corretamente na tabela `user_suppliers`.
+- [x] A desvinculação executa soft delete e reflete imediatamente nas validações de permissão do vendedor.
 
 ---
 

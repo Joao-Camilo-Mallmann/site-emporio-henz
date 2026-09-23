@@ -33,18 +33,37 @@
   - `404 Not Found` padronizado em JSON com `{ error: "Not Found", message: string }`.
   - `500 Internal Server Error` protegido por `try/catch` global retornando JSON padronizado.
 - **Variáveis de Ambiente**: Sempre registrar qualquer variável de ambiente no `turbo.json` (seção `globalEnv`, como `PORT`) para cumprir a regra `turbo/no-undeclared-env-vars`.
+- **Path Aliases**: Utilizar sempre `@/` para imports internos de `src/` (ex: `@/config/env`, `@/lib/response`, `@/middlewares/auth`) e `@database/` para `packages/database`.
 
 ---
 
-## 3. Endpoints Implementados
+## 3. Endpoints Implementados (API V1)
 
-- `GET /`: Status da API e listagem de endpoints disponíveis.
-- `GET /health` e `GET /api/health`: Healthcheck com uptime, status e timestamp ISO.
-- `GET /api/produtos`: Listagem com filtros por query params (`search` e `category`).
-- `GET /api/produtos/:id`: Busca por ID específico.
-- `POST /api/produtos`: Criação de novo produto.
-- `PUT /api/produtos/:id`: Atualização de produto existente.
-- `DELETE /api/produtos/:id`: Remoção de produto por ID.
+Consulte a documentação completa de contratos e tipos em [docs/rotas-api-frontend.md](../../docs/rotas-api-frontend.md).
+
+- **Healthcheck & Status**:
+  - `GET /api/v1/health` e `GET /health`: Uptime, status e timestamp.
+  - `GET /`: Status do serviço e mapa de endpoints.
+- **Autenticação (`/api/v1/auth`)**:
+  - `POST /api/v1/auth/register`: Autocadastro público de novos Clientes (`role = 1`).
+  - `POST /api/v1/auth/login`: Autenticação por e-mail e senha com Argon2id e emissão de JWT.
+  - `GET /api/v1/auth/me`: Perfil completo da sessão autenticada.
+- **Gestão de Usuários (`/api/v1/users`)** *(exclusivo ADMIN = 3)*:
+  - `GET /api/v1/users`: Listagem paginada com busca por termo e filtro de perfil.
+  - `GET /api/v1/users/:id`: Detalhes de um usuário específico.
+  - `POST /api/v1/users`: Criação administrativa de usuários.
+  - `PUT /api/v1/users/:id`: Atualização de perfil, senha e permissões.
+  - `DELETE /api/v1/users/:id`: Desativação lógica (soft delete).
+- **Gestão de Fornecedores (`/api/v1/suppliers`)** *(ADMIN para escrita, SELLER/ADMIN para leitura)*:
+  - `GET /api/v1/suppliers`: Listagem alfabética de marcas parceiras.
+  - `GET /api/v1/suppliers/:id`: Detalhes de um fornecedor.
+  - `POST /api/v1/suppliers`: Cadastro de novo parceiro.
+  - `PUT /api/v1/suppliers/:id`: Atualização cadastral.
+  - `DELETE /api/v1/suppliers/:id`: Desativação lógica (soft delete).
+- **Vínculos Multi-Empresa (`/api/v1/users/:userId/suppliers`)** *(exclusivo ADMIN = 3)*:
+  - `GET /api/v1/users/:userId/suppliers`: Fornecedores vinculados a um vendedor.
+  - `POST /api/v1/users/:userId/suppliers`: Atribuição de vínculo vendedor ↔ fornecedor.
+  - `DELETE /api/v1/users/:userId/suppliers/:supplierId`: Revogação lógica de vínculo.
 
 ---
 
@@ -52,8 +71,9 @@
 
 ```bash
 bun dev          # Inicia servidor com hot-reload (bun --watch src/index.ts)
-bun run build    # Empacota via bun build src/index.ts --outdir dist --target bun
-bun run start    # Executa arquivo em producao
+bun test         # Executa a suite de testes automatizados com bun:test
+bun run build    # Empacota bundle para produção (bun build src/index.ts --outdir dist --target bun)
+bun run start    # Executa bundle compilado de produção
 bun run lint     # Lint com ESLint
 bun check-types  # Checagem estrita de tipos com tsc
 ```

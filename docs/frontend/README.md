@@ -27,6 +27,7 @@ Conforme estabelecido nas regras do projeto ([agents.md](../../agents.md) e [app
 | Arquivo                                            | Descrição                                                                                                                                                                        |
 | :------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [design-system-cores.md](./design-system-cores.md) | Catálogo completo de cores oficiais do Figma, tokens semânticos do Tailwind v4 (`primary`, `secondary`, `neutral-dark`, `wood-*`, `surface-*`), códigos HEX e diretrizes de uso. |
+| [rotas-api-frontend.md](../rotas-api-frontend.md) | **Guia oficial de rotas da API V1 para integração do front-end**: endpoints, contratos JSON, autenticação Bearer, tipagens TypeScript e exemplo de cliente HTTP. |
 
 ---
 
