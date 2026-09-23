@@ -15,7 +15,10 @@ export default {
     if (USE_MOCK) {
       return await mockLogin(credentials);
     }
-    const response = await axios.post<AuthResponse>("/api/auth/login", credentials);
+    const response = await axios.post<AuthResponse>(
+      "/api/auth/login",
+      credentials,
+    );
     return response.data;
   },
 

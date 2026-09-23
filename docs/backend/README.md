@@ -33,8 +33,8 @@ Conforme estabelecido em [agents.md](../../agents.md) e [apps/backend/agents.md]
 
 ## 📁 Arquivos e Artefatos do Diretório
 
-| Arquivo | Descrição |
-| :--- | :--- |
+| Arquivo                                                                  | Descrição                                                                                                                 |
+| :----------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
 | [diagrama_classes_emporio_henz.pdf](./diagrama_classes_emporio_henz.pdf) | Diagrama de classes UML formal detalhando entidades de domínio, atributos, tipos, métodos e relacionamentos associativos. |
 
 ---

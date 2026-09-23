@@ -24,8 +24,8 @@ Conforme estabelecido nas regras do projeto ([agents.md](../../agents.md) e [app
 
 ## 📁 Arquivos e Guias do Diretório
 
-| Arquivo | Descrição |
-| :--- | :--- |
+| Arquivo                                            | Descrição                                                                                                                                                                        |
+| :------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [design-system-cores.md](./design-system-cores.md) | Catálogo completo de cores oficiais do Figma, tokens semânticos do Tailwind v4 (`primary`, `secondary`, `neutral-dark`, `wood-*`, `surface-*`), códigos HEX e diretrizes de uso. |
 
 ---

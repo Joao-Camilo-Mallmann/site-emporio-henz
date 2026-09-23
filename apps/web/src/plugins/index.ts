@@ -13,4 +13,3 @@ export function registerPlugins(app: App): void {
 
 export * from "./axios";
 export * from "./pinia";
-

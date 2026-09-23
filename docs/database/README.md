@@ -17,11 +17,11 @@ Conforme definido em [docs/padrao-historias-tarefas.md](../padrao-historias-tare
 
 ## 📁 Arquivos e Artefatos do Diretório
 
-| Arquivo | Descrição |
-| :--- | :--- |
-| [diagram.png](./diagram.png) | Renderização gráfica em alta resolução do Diagrama Entidade-Relacionamento (DER). |
-| [der_emporio_henz.pdf](./der_emporio_henz.pdf) | Versão em PDF para documentação formal e submissão acadêmica/avaliação. |
-| [render_diagram.html](./render_diagram.html) | Ferramenta interativa Mermaid.js em HTML para visualização, edição e exportação do DER. |
+| Arquivo                                        | Descrição                                                                               |
+| :--------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| [diagram.png](./diagram.png)                   | Renderização gráfica em alta resolução do Diagrama Entidade-Relacionamento (DER).       |
+| [der_emporio_henz.pdf](./der_emporio_henz.pdf) | Versão em PDF para documentação formal e submissão acadêmica/avaliação.                 |
+| [render_diagram.html](./render_diagram.html)   | Ferramenta interativa Mermaid.js em HTML para visualização, edição e exportação do DER. |
 
 ---
 

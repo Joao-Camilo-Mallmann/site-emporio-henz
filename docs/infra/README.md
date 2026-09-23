@@ -50,8 +50,8 @@ A infraestrutura completa roda de forma orquestrada em rede interna isolada (`em
 
 ## 📁 Arquivos e Guias do Diretório
 
-| Arquivo | Descrição |
-| :--- | :--- |
+| Arquivo                                              | Descrição                                                                                                                                                           |
+| :--------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [backup-restore-guide.md](./backup-restore-guide.md) | Guia operacional completo para rotinas manuais e automáticas de backup com compressão `.sql.gz`, restauração com flag `--force` e agendamento via Cron na VM Linux. |
 
 ---

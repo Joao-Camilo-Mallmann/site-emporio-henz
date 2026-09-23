@@ -1,11 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { authApi } from "@/api";
-import type {
-  UserProfile,
-  LoginCredentials,
-  RegisterInput,
-} from "@/types";
+import type { UserProfile, LoginCredentials, RegisterInput } from "@/types";
 
 export const TOKEN_STORAGE_KEY = "token";
 
@@ -30,9 +26,14 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = response.user;
       localStorage.setItem(TOKEN_STORAGE_KEY, response.token);
     } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const message =
-        errorObj.response?.data?.message || errorObj.message || "Falha ao realizar login.";
+        errorObj.response?.data?.message ||
+        errorObj.message ||
+        "Falha ao realizar login.";
       error.value = message;
       throw new Error(message);
     } finally {
@@ -49,9 +50,14 @@ export const useAuthStore = defineStore("auth", () => {
       user.value = response.user;
       localStorage.setItem(TOKEN_STORAGE_KEY, response.token);
     } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const message =
-        errorObj.response?.data?.message || errorObj.message || "Falha ao realizar cadastro.";
+        errorObj.response?.data?.message ||
+        errorObj.message ||
+        "Falha ao realizar cadastro.";
       error.value = message;
       throw new Error(message);
     } finally {

@@ -1,21 +1,27 @@
 services:
   # ============================================================================
-  # BANCO DE DADOS: PostgreSQL 16 (Rede interna isolada, com porta mapeável)
+  # BANCO DE DADOS
   # ============================================================================
+
   postgres:
     image: postgres:16-alpine
     container_name: emporio-henz-postgres
     restart: unless-stopped
+
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-emporio_henz}
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
+
     networks:
       - emporio_net
+
     healthcheck:
       test:
         [
@@ -27,65 +33,125 @@ services:
       retries: 5
 
   # ============================================================================
-  # MIGRAÇÕES: Runner idempotente one-shot com Bun nativo
+  # [PRODUÇÃO] BACKEND
   # ============================================================================
-  migration:
-    build:
-      context: .
-      target: migration
-    container_name: emporio-henz-migration
-    restart: "no"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
-    networks:
-      - emporio_net
 
-  # ============================================================================
-  # BACKEND: API Bun nativa (Bun.serve)
-  # ============================================================================
   backend:
+    profiles: ["prod", "production"]
+
     build:
       context: .
       target: backend
+
     container_name: emporio-henz-backend
     restart: unless-stopped
+
     depends_on:
       postgres:
         condition: service_healthy
-      migration:
-        condition: service_completed_successfully
+
     environment:
       PORT: 3001
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
+
     ports:
       - "${BACKEND_PORT:-3001}:3001"
+
     networks:
       - emporio_net
 
   # ============================================================================
-  # NGINX: Servidor estático e proxy reverso (Único ponto de entrada público)
+  # [PRODUÇÃO] NGINX
   # ============================================================================
+
   nginx:
+    profiles: ["prod", "production"]
+
     build:
       context: .
       target: nginx
+
     container_name: emporio-henz-nginx
     restart: unless-stopped
+
     ports:
-      - "${PORT_HTTP:-3000}:80"
+      - "${PORT_HTTP:-80}:80"
+
     depends_on:
       - backend
+
+    networks:
+      - emporio_net
+
+  # ============================================================================
+  # [DESENVOLVIMENTO] BACKEND
+  # ============================================================================
+
+  backend-dev:
+    profiles: ["dev", "development"]
+
+    build:
+      context: .
+      target: backend-dev
+
+    container_name: emporio-henz-backend-dev
+    restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./packages:/app/packages
+
+    environment:
+      PORT: 3001
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
+
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+
+    networks:
+      - emporio_net
+
+  # ============================================================================
+  # [DESENVOLVIMENTO] WEB
+  # ============================================================================
+
+  web-dev:
+    profiles: ["dev", "development"]
+
+    build:
+      context: .
+      target: web-dev
+
+    container_name: emporio-henz-web-dev
+    restart: unless-stopped
+
+    depends_on:
+      - backend-dev
+
+    volumes:
+      - ./apps/web:/app/apps/web
+      - /app/apps/web/node_modules
+
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      VITE_API_URL: http://localhost:${BACKEND_PORT:-3001}
+
+    ports:
+      - "${PORT_HTTP:-3000}:3000"
+
     networks:
       - emporio_net
 
 # ==============================================================================
 # VOLUMES E REDES
 # ==============================================================================
+
 volumes:
   postgres_data:
     driver: local

@@ -41,26 +41,31 @@ docs/
 ## 📚 Categorias Detalhadas
 
 ### 1. 📖 Requisitos Gerais, Negócio e Governança (Raiz)
+
 - **[PRD.md](./PRD.md)**: Visão completa do produto, regras de negócio, personas, jornada do usuário e requisitos funcionais/não-funcionais.
 - **[user-stories-backlog.md](./user-stories-backlog.md)**: Todas as histórias de usuário decompostas por fases (`Fase 1` - Parcial 1 e `Fase 2` - Parcial 2 / Final) e por camadas técnicas (`[DB]`, `[BE]`, `[FE]`, `[INFRA]`, `[TEST]`).
 - **[padrao-historias-tarefas.md](./padrao-historias-tarefas.md)**: Manual normativo com o fluxo de trabalho Database First, convenção de títulos e template oficial para criação de issues no GitHub.
 - **[perguntas-cliente.md](./perguntas-cliente.md)**: Respostas e alinhamentos reais obtidos durante a entrevista inicial com a liderança da Empório Henz.
 
 ### 2. 🗄️ [database/](./database) — Persistência e Banco de Dados
+
 - Modelagem conceitual, lógica e física em PostgreSQL 16.
 - [Diagrama Entidade-Relacionamento (DER)](./database/diagram.png) e sua versão em [PDF](./database/der_emporio_henz.pdf).
 - Gerenciamento de migrações SQL idempotentes em `packages/database`.
 
 ### 3. 💻 [backend/](./backend) — API e Regras de Servidor
+
 - Servidor em tempo de execução com Bun nativo (`Bun.serve`).
 - [Diagrama de Classes UML](./backend/diagrama_classes_emporio_henz.pdf).
 - Matriz de perfis (Administrador, Vendedor, Cliente) e controle de acesso multi-empresa.
 
 ### 4. 🎨 [frontend/](./frontend) — Interface e Design System
+
 - Aplicação Single Page Application (SPA) em Vue 3, Vite, Tailwind CSS v4 e Pinia.
 - [Catálogo do Design System & Cores](./frontend/design-system-cores.md) com tabela completa de tokens semânticos baseados no Figma.
 
 ### 5. 🏗️ [infra/](./infra) — Infraestrutura, Docker e Deploy
+
 - Orquestração de containers com Docker Compose (`postgres`, `migration`, `backend`, `nginx`).
 - Scripts operacionais de deploy automatizado (`deploy.sh`) e rotinas de salvaguarda.
 - [Guia Operacional de Backup e Restauração](./infra/backup-restore-guide.md).

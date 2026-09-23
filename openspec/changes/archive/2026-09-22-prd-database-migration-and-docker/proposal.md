@@ -23,6 +23,7 @@ Para a primeira fase (PR 1) da plataforma Empório Henz, o foco da persistência
 ## Capabilities
 
 ### Modified Capabilities
+
 - `database-migrations`: Define que as migrações iniciais criam unicamente `roles`, `users`, `clients`, `suppliers` e `user_suppliers` para suportar autenticação e governança no PR 1.
 - `containerized-deployment`: Atualização da orquestração Docker Compose com sincronização de migração e inclusão de `.dockerignore`.
 

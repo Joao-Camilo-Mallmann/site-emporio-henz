@@ -8,6 +8,7 @@ As cores oficiais do projeto foram definidas no Figma ([Catálogo digital - Emp�
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Configurar formalmente a paleta de cores do Figma no Tailwind CSS v4 utilizando a diretiva `@theme` em `apps/web/src/style.css`.
 - Estabelecer uma nomenclatura semântica clara: `primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, além de tokens para acabamentos de madeira (`wood-*`).
 - Criar a documentação completa do Design System em `docs/design-system-cores.md`.
@@ -16,12 +17,14 @@ As cores oficiais do projeto foram definidas no Figma ([Catálogo digital - Emp�
 - Garantir que a verificação de tipos e o build continuem executando com 100% de sucesso.
 
 **Non-Goals:**
+
 - Alterar regras de layout, tipografia ou responsividade não relacionadas à tokenização de cores.
 - Alterações em APIs, contratos de backend ou migrações de banco de dados.
 
 ## Decisions
 
 ### 1. Utilização da diretiva `@theme` nativa do Tailwind CSS v4
+
 - **Decisão**: Declarar as cores no bloco `@theme` em `apps/web/src/style.css`.
 - **Alternativas consideradas**:
   - `tailwind.config.js`: Descontinuado como padrão no Tailwind CSS v4, que adota configuração CSS-first.
@@ -31,31 +34,33 @@ As cores oficiais do projeto foram definidas no Figma ([Catálogo digital - Emp�
   @theme {
     /* Identidade Principal - Azul Institucional Empório Henz */
     --color-primary: #123854;
-    --color-primary-dark: #0C2340;
+    --color-primary-dark: #0c2340;
 
     /* Destaques e Ações - Azul Vibrante */
-    --color-secondary: #007CD8;
-    --color-secondary-hover: #005CA1;
+    --color-secondary: #007cd8;
+    --color-secondary-hover: #005ca1;
 
     /* Superfícies e Textos */
-    --color-neutral-dark: #1D1D24;
-    --color-surface-light: #FEFEFE;
-    --color-surface-tint: #D2E8F8;
+    --color-neutral-dark: #1d1d24;
+    --color-surface-light: #fefefe;
+    --color-surface-tint: #d2e8f8;
 
     /* Tons Terrosos / Madeiras (Acabamentos) */
-    --color-wood-dark: #4A3024;
-    --color-wood-light: #A58D63;
-    --color-wood-cherry: #C97C49;
-    --color-wood-honey: #EFC171;
-    --color-wood-offwhite: #D7D5CF;
+    --color-wood-dark: #4a3024;
+    --color-wood-light: #a58d63;
+    --color-wood-cherry: #c97c49;
+    --color-wood-honey: #efc171;
+    --color-wood-offwhite: #d7d5cf;
   }
   ```
 
 ### 2. Nomenclatura Semântica com Suporte a Variações
+
 - **Decisão**: Usar nomes semânticos (`primary`, `secondary`, `neutral-dark`, `surface-*`) para a estrutura do layout, permitindo que a intenção do design permaneça evidente e desacoplada do tom exato.
 - **Alternativas consideradas**: Nomes puramente descritivos (`navy-500`, `blue-600`). Rejeitado para evitar ambiguidades sobre qual cor aplicar em botões primários vs elementos de fundo.
 
 ### 3. Duplo Nível de Documentação (Humanos e Agentes)
+
 - **Decisão**: Criar `docs/design-system-cores.md` com a tabela visual de referência e atualizar `apps/web/agents.md` e `AGENTS.md` com diretrizes imperativas para agentes.
 - **Justificativa**: Agentes de IA consultam primordialmente os arquivos `agents.md` do repositório antes de realizar tarefas; documentar ali garante que futuras gerações de componentes respeitem o padrão automaticamente.
 

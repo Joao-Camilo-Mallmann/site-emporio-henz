@@ -7,9 +7,8 @@
 # 2. Verificação do arquivo de variáveis (.env)
 # 3. Build das imagens Docker multi-stage
 # 4. Inicialização do banco PostgreSQL com espera de prontidão (healthcheck)
-# 5. Execução do runner de migrações idempotente (one-shot)
-# 6. Inicialização e reinício sem downtime do Backend e Nginx
-# 7. Limpeza de imagens antigas não utilizadas (dangling images)
+# 5. Inicialização do Backend (executa auto-migração no startup) e Nginx
+# 6. Limpeza de imagens antigas não utilizadas (dangling images)
 # ==============================================================================
 
 set -e
@@ -84,12 +83,8 @@ if [ $RETRIES -le 0 ]; then
     sleep 3
 fi
 
-# 6. Executar migrações pendentes em container one-shot
-echo -e "\n${BLUE}[4/5] Executando migrações no banco de dados...${NC}"
-$DOCKER_COMPOSE run --rm migration
-
-# 7. Iniciar Backend e Nginx
-echo -e "\n${BLUE}[5/5] Subindo serviços de aplicação (Backend + Nginx)...${NC}"
+# 6. Iniciar Backend (que executa as migrações no startup) e Nginx
+echo -e "\n${BLUE}[4/4] Subindo serviços de aplicação (Backend + Nginx)...${NC}"
 $DOCKER_COMPOSE up -d --remove-orphans backend nginx
 
 # 8. Limpar imagens antigas sem tag para economizar disco na VM
