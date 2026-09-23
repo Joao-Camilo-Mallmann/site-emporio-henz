@@ -1,10 +1,6 @@
-# Authentication Screens
+# Spec Delta
 
-## Purpose
-
-Define responsive authentication screens (unified login and customer self-registration) matching the Figma visual design standards.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Public Customer Login Screen
 
@@ -26,16 +22,8 @@ The application SHALL provide a single, unified, responsive login view at `/logi
 - **WHEN** the user clicks any test account button on the login screen (Cliente, Vendedor, or Admin)
 - **THEN** the form SHALL populate the corresponding email and password fields immediately without navigating away
 
-### Requirement: Customer Self-Registration Screen
+## REMOVED Requirements
 
-The application SHALL provide a registration view at `/cadastro` with real-time field validation, phone mask, and seamless submission.
-
-#### Scenario: Valid customer registration
-
-- **WHEN** the user fills full name, valid email, Brazilian phone format `(99) 99999-9999`, and matching passwords with at least 8 characters
-- **THEN** the application SHALL register the user, authenticate the session, and navigate directly to the authenticated storefront
-
-#### Scenario: Form validation prevents submission
-
-- **WHEN** any mandatory field is missing, email format is invalid, or password confirmation does not match
-- **THEN** the form SHALL highlight the invalid fields with descriptive inline error messages and block submission
+### Requirement: Internal Employee Portal Login
+**Reason**: Replaced by the unified login screen at `/login` for all roles, eliminating redundant screens and aligning with PRD RF01.
+**Migration**: All staff and administrator users authenticate via `/login`. The `/equipe/login` route and component are removed completely.

@@ -31,8 +31,7 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
       if (
         typeof window !== "undefined" &&
-        !window.location.pathname.startsWith("/login") &&
-        !window.location.pathname.startsWith("/equipe/login")
+        !window.location.pathname.startsWith("/login")
       ) {
         window.location.href = "/login";
       }

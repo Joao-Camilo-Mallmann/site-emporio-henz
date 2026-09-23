@@ -1,7 +1,8 @@
 import HomeView from "@/views/HomeView.vue";
-import EquipeLoginView from "@/views/auth/EquipeLoginView.vue";
 import LoginView from "@/views/auth/LoginView.vue";
 import RegisterView from "@/views/auth/RegisterView.vue";
+import { useAppStore } from "@/stores/app";
+import { useAuthStore } from "@/stores/auth";
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
@@ -32,11 +33,13 @@ const router = createRouter({
       },
     },
     {
-      path: "/equipe/login",
-      name: "equipe-login",
-      component: EquipeLoginView,
+      path: "/admin",
+      name: "admin",
+      component: () => import("@/views/admin/AdminDashboardView.vue"),
       meta: {
-        title: "Portal da Equipe | Empório Henz",
+        title: "Painel Administrativo | Empório Henz",
+        requiresAuth: true,
+        roles: [2, 3],
       },
     },
     {
@@ -48,6 +51,44 @@ const router = createRouter({
       },
     },
   ],
+});
+
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore();
+  const appStore = useAppStore();
+
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const requiredRoles = to.meta.roles as number[] | undefined;
+
+  // Se houver token salvo mas o usuário ainda não estiver no Pinia, aguarda carregamento
+  if (authStore.token && !authStore.user) {
+    try {
+      await authStore.fetchCurrentUser();
+    } catch {
+      // Falha ao obter usuário; fluxo abaixo cuidará da negação
+    }
+  }
+
+  if (requiresAuth || requiredRoles) {
+    // Visitante não autenticado tentando acessar rota restrita
+    if (!authStore.isAuthenticated || !authStore.user) {
+      return {
+        path: "/login",
+        query: { redirect: to.fullPath },
+      };
+    }
+
+    // Usuário autenticado mas sem cargo autorizado (ex: Cliente tentando acessar /admin)
+    if (requiredRoles && !requiredRoles.includes(authStore.user.role)) {
+      appStore.showAlert(
+        "Acesso negado: o Painel Administrativo é exclusivo para a equipe de colaboradores e gestores.",
+        "warning",
+      );
+      return {
+        path: "/",
+      };
+    }
+  }
 });
 
 router.afterEach((to) => {

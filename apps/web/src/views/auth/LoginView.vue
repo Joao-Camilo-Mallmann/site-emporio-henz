@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
 import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 const form = reactive({
@@ -48,7 +49,12 @@ async function handleSubmit() {
       email: form.email.trim(),
       password: form.password,
     });
-    router.push("/");
+    const redirectPath =
+      typeof route.query.redirect === "string" &&
+      route.query.redirect.startsWith("/")
+        ? route.query.redirect
+        : "/";
+    router.push(redirectPath);
   } catch (err: unknown) {
     const errorObj = err as Error;
     generalError.value =
@@ -270,16 +276,24 @@ function fillTestAccount(email: string, pass: string) {
           <button
             type="button"
             @click="fillTestAccount('cliente@emporiohenz.com.br', '12345678')"
-            class="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 font-mono transition-colors"
+            class="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium transition-colors cursor-pointer"
           >
             Cliente (Maria)
           </button>
-          <RouterLink
-            to="/equipe/login"
-            class="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 font-medium transition-colors inline-flex items-center gap-1"
+          <button
+            type="button"
+            @click="fillTestAccount('vendedor@emporiohenz.com.br', '12345678')"
+            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/60 font-medium transition-colors cursor-pointer"
           >
-            Portal da Equipe ↗
-          </RouterLink>
+            Vendedor (Carlos)
+          </button>
+          <button
+            type="button"
+            @click="fillTestAccount('admin@emporiohenz.com.br', 'admin123')"
+            class="px-2.5 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-primary-dark border border-sky-200/60 font-medium transition-colors cursor-pointer"
+          >
+            Admin (João)
+          </button>
         </div>
       </div>
     </div>
