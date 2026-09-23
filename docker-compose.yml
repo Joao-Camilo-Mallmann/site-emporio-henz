@@ -140,7 +140,6 @@ services:
 
     environment:
       NODE_ENV: ${NODE_ENV:-development}
-      VITE_API_URL: http://localhost:${BACKEND_PORT:-3001}
 
     ports:
       - "${PORT_HTTP:-3000}:3000"
