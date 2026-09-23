@@ -17,17 +17,7 @@ COPY apps ./apps
 COPY packages ./packages
 
 # ==============================================================================
-# ESTÁGIO 2: MIGRATION — Runner idempotente one-shot via Turborepo
-# ==============================================================================
-FROM base AS migration
-WORKDIR /app
-ENV NODE_ENV=production
-
-# Utiliza o script de migração padronizado no package.json raiz do Turborepo
-CMD ["bun", "run", "migrate"]
-
-# ==============================================================================
-# ESTÁGIO 3: BACKEND — Build e runtime de produção da API Bun (Bun.serve)
+# ESTÁGIO 2: BACKEND — Build e runtime de produção da API Bun (Bun.serve)
 # ==============================================================================
 FROM base AS backend
 WORKDIR /app
@@ -38,10 +28,11 @@ ENV PORT=3001
 RUN bun --filter backend build
 
 EXPOSE 3001
-CMD ["bun", "apps/backend/dist/index.js"]
+# Executa as migrações no startup e inicia a API em seguida
+CMD ["sh", "-c", "bun run migrate && exec bun apps/backend/dist/index.js"]
 
 # ==============================================================================
-# ESTÁGIO 4: FRONTEND BUILDER — Build estático do Vue 3 / Vite
+# ESTÁGIO 3: FRONTEND BUILDER — Build estático do Vue 3 / Vite
 # ==============================================================================
 FROM base AS frontend-builder
 WORKDIR /app
@@ -49,7 +40,7 @@ ENV NODE_ENV=production
 RUN bun --filter web build
 
 # ==============================================================================
-# ESTÁGIO 5: NGINX — Servidor estático e proxy reverso (único ponto público)
+# ESTÁGIO 4: NGINX — Servidor estático e proxy reverso (único ponto público)
 # ==============================================================================
 FROM nginx:alpine AS nginx
 
@@ -65,3 +56,23 @@ COPY --from=frontend-builder /app/apps/web/dist /usr/share/nginx/html
 EXPOSE 80
 STOPSIGNAL SIGQUIT
 CMD ["nginx", "-g", "daemon off;"]
+
+# ==============================================================================
+# ESTÁGIO 5: BACKEND-DEV — Runtime de desenvolvimento com live-reload (bun --watch)
+# ==============================================================================
+FROM base AS backend-dev
+WORKDIR /app
+ENV NODE_ENV=development
+ENV PORT=3001
+EXPOSE 3001
+# Executa as migrações no startup e inicia o servidor com live-reload
+CMD ["sh", "-c", "bun run migrate && exec bun --filter backend dev"]
+
+# ==============================================================================
+# ESTÁGIO 6: WEB-DEV — Servidor Vite em modo desenvolvimento com HMR
+# ==============================================================================
+FROM base AS web-dev
+WORKDIR /app
+ENV NODE_ENV=development
+EXPOSE 3000
+CMD ["bun", "--filter", "web", "dev", "--host", "0.0.0.0"]

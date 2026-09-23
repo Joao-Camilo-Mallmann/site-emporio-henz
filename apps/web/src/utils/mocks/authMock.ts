@@ -46,13 +46,17 @@ function getStoredUsers(): Array<UserProfile & { passwordHash: string }> {
     const raw = localStorage.getItem(USERS_STORAGE_KEY);
     if (!raw) return defaultMockUsers;
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? [...defaultMockUsers, ...parsed] : defaultMockUsers;
+    return Array.isArray(parsed)
+      ? [...defaultMockUsers, ...parsed]
+      : defaultMockUsers;
   } catch {
     return defaultMockUsers;
   }
 }
 
-function saveRegisteredUser(user: UserProfile & { passwordHash: string }): void {
+function saveRegisteredUser(
+  user: UserProfile & { passwordHash: string },
+): void {
   try {
     const raw = localStorage.getItem(USERS_STORAGE_KEY);
     const existing = raw ? JSON.parse(raw) : [];
@@ -102,13 +106,17 @@ function sanitizeUser(u: UserProfile & { passwordHash: string }): UserProfile {
   };
 }
 
-export async function mockLogin(credentials: LoginCredentials): Promise<AuthResponse> {
+export async function mockLogin(
+  credentials: LoginCredentials,
+): Promise<AuthResponse> {
   await delay(DELAY_MS);
 
   const users = getStoredUsers();
   const normalizedEmail = credentials.email.trim().toLowerCase();
   const found = users.find(
-    (u) => u.email.toLowerCase() === normalizedEmail && u.passwordHash === credentials.password,
+    (u) =>
+      u.email.toLowerCase() === normalizedEmail &&
+      u.passwordHash === credentials.password,
   );
 
   if (!found) {
@@ -124,7 +132,9 @@ export async function mockLogin(credentials: LoginCredentials): Promise<AuthResp
   };
 }
 
-export async function mockRegister(input: RegisterInput): Promise<AuthResponse> {
+export async function mockRegister(
+  input: RegisterInput,
+): Promise<AuthResponse> {
   await delay(DELAY_MS);
 
   const users = getStoredUsers();
@@ -181,4 +191,3 @@ export async function mockMe(token: string): Promise<UserProfile> {
     throw new MockHttpError(401, "Sessão inválida.");
   }
 }
-

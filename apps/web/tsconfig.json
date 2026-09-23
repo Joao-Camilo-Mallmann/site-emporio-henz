@@ -13,6 +13,7 @@
     "jsx": "preserve",
     "strict": true,
     "noUnusedLocals": true,
+    "types": ["bun"],
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {

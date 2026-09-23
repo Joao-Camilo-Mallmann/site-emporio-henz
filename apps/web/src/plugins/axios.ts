@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3001",
+  baseURL: `http://localhost:${import.meta.env.PORT}`,
   timeout: 30000,
   headers: {
     "Content-Type": "application/json",
@@ -31,8 +31,7 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
       if (
         typeof window !== "undefined" &&
-        !window.location.pathname.startsWith("/login") &&
-        !window.location.pathname.startsWith("/equipe/login")
+        !window.location.pathname.startsWith("/login")
       ) {
         window.location.href = "/login";
       }

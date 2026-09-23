@@ -1,0 +1,14 @@
+**/node_modules
+**/.turbo
+**/dist
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+logs
+*.log
+.agent
+.agents
+.claude
+.cursor

@@ -14,9 +14,11 @@ Atualmente, o site do Empório Henz possui links para "Sobre a loja" tanto na ba
 ## Capabilities
 
 ### New Capabilities
+
 - `pagina-sobre-a-loja`: Apresentação institucional da história, tradição de quase 50 anos, valores e fotos da equipe/loja física do Empório Henz, acessível via `/sobre-a-loja` tanto no desktop quanto no mobile.
 
 ### Modified Capabilities
+
 <!-- Nenhuma especificação anterior teve seus requisitos alterados -->
 
 ## Impact

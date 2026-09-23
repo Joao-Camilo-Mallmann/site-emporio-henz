@@ -5,6 +5,7 @@ O Empório Henz possui seu catálogo digital estruturado em Vue 3 + Tailwind CSS
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Criar a view `AboutView.vue` em `apps/web/src/views/AboutView.vue`.
 - Registrar a rota correspondente `/sobre-a-loja` no `src/router/index.ts` com título de página SEO amigável.
 - Atualizar os links de navegação em `AppNavbar.vue` (desktop e drawer mobile) e em `AppFooter.vue` para apontarem para `/sobre-a-loja`.
@@ -15,6 +16,7 @@ O Empório Henz possui seu catálogo digital estruturado em Vue 3 + Tailwind CSS
 - Respeitar 100% o Design System sem utilizar hexadecimais arbitrários inline (`#...`).
 
 **Non-Goals:**
+
 - Não há necessidade de alterações no Backend (`apps/backend`) ou migrações de banco (`packages/database`), uma vez que os dados são institucionais e estáticos da marca.
 - Não inclui edição de conteúdo via CMS no momento (o texto e imagens são fixos no frontend conforme o protótipo do Figma).
 
@@ -26,7 +28,7 @@ O Empório Henz possui seu catálogo digital estruturado em Vue 3 + Tailwind CSS
      - `AboutHero`: Seção do topo com imagem de fundo, overlay azul, selo de 50 anos e botão de voltar.
      - `AboutStory`: Seção editorial com o texto histórico e proposta de valor.
      - `AboutGallery`: Carrossel/slider interativo de imagens da loja e da equipe.
-   - *Alternativa considerada*: Colocar tudo em um único arquivo monolítico. Decidiu-se por manter o código modular e limpo, aproveitando a reutilização de tokens.
+   - _Alternativa considerada_: Colocar tudo em um único arquivo monolítico. Decidiu-se por manter o código modular e limpo, aproveitando a reutilização de tokens.
 
 2. **Gerenciamento de Imagens e Assets**:
    - Imagens institucionais da loja e equipe serão adicionadas em `apps/web/public/images/about/` ou diretamente em `public/images/`.

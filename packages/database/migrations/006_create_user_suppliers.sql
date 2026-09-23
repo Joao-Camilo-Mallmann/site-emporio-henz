@@ -1,5 +1,5 @@
 -- ==============================================================================
--- 2. USER_SUPPLIERS (Vínculo N:N entre Usuários/Vendedores e Fornecedores)
+-- 006. USER_SUPPLIERS (Vínculo N:N entre Vendedores e Fornecedores)
 -- ==============================================================================
 
 CREATE TABLE IF NOT EXISTS user_suppliers (

@@ -17,7 +17,7 @@
 >    - **Padrão de Histórias de Usuário**: Todas as tarefas/issues devem seguir rigorosamente o template e convenções do guia [docs/padrao-historias-tarefas.md](docs/padrao-historias-tarefas.md) e estar registradas no backlog [docs/user-stories-backlog.md](docs/user-stories-backlog.md).
 > 4. **DESIGN SYSTEM & PADRONIZAÇÃO DE CORES TAILWIND (OBRIGATÓRIO):**
 >    - **Proibição de Hexadecimais Arbitrários**: É terminantemente proibido utilizar classes com códigos hexadecimais arbitrários inline (`[#...]`) no código do frontend (`apps/web`).
->    - **Tokens Semânticos do Tailwind v4**: Utilize sempre as classes utilitárias semânticas padronizadas baseadas no Figma (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte a documentação completa em [docs/design-system-cores.md](docs/design-system-cores.md) e [apps/web/agents.md](apps/web/agents.md).
+>    - **Tokens Semânticos do Tailwind v4**: Utilize sempre as classes utilitárias semânticas padronizadas baseadas no Figma (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte a documentação completa em [docs/frontend/design-system-cores.md](docs/frontend/design-system-cores.md) e [apps/web/agents.md](apps/web/agents.md).
 
 ---
 
@@ -47,10 +47,14 @@ O projeto possui orquestração completa via [docker-compose.yml](docker-compose
 
 ### 1. Arquitetura dos Serviços Docker
 
-- **`postgres`** (`postgres:16-alpine`): Banco relacional em rede interna (`emporio_net`), com volume persistente `postgres_data` e healthcheck automático.
-- **`migration`** (Runner Bun one-shot): Executa `packages/database/src/migrate.ts` assim que o PostgreSQL estiver saudável, aplicando migrações pendentes de forma idempotente.
-- **`backend`** (`apps/backend`): API em Bun nativo compilada para produção, exposta internamente na porta `3001`.
-- **`nginx`** (`nginx:alpine`): Ponto único de entrada público (`PORT_HTTP`, padrão: `80`), serve os arquivos estáticos do frontend (`apps/web/dist`) e atua como proxy reverso para a API em `/api/*`.
+- **Compartilhados**:
+  - **`postgres`** (`postgres:16-alpine`): Banco relacional em rede interna (`emporio_net`), com volume persistente `postgres_data` e healthcheck automático. As migrações são executadas automaticamente no startup do container do backend (`bun run migrate`) assim que o PostgreSQL estiver saudável.
+- **Perfil de Desenvolvimento (`dev`)**:
+  - **`backend-dev`**: API em Bun nativo com live-reload (`bun --watch`) e volumes montados na porta `3001` (executa auto-migração antes de iniciar o watch).
+  - **`web-dev`**: Servidor de desenvolvimento Vite com HMR e Vue DevTools na porta `3000`, sem compilação estática.
+- **Perfil de Produção (`prod`)**:
+  - **`backend`** (`apps/backend`): API em Bun nativo compilada para produção, exposta internamente na porta `3001` (executa auto-migração antes de subir o servidor).
+  - **`nginx`** (`nginx:alpine`): Ponto único de entrada público (`PORT_HTTP`, padrão: `80`), serve os arquivos estáticos do frontend (`apps/web/dist`) e atua como proxy reverso para a API em `/api/*`.
 
 ### 2. Passo a Passo de Setup
 
@@ -63,18 +67,29 @@ O projeto possui orquestração completa via [docker-compose.yml](docker-compose
      # Windows (PowerShell)
      Copy-Item .env.example .env
      ```
-   - Em produção/VM, alterar as senhas de `POSTGRES_PASSWORD` e `DATABASE_URL`.
+   - O ambiente é controlado exclusivamente por `NODE_ENV` (`development` ou `production`), sem necessidade de `COMPOSE_PROFILES`.
 
-2. **Subir toda a stack com build**:
+2. **Subir a stack via Docker Compose**:
 
-   ```bash
-   docker compose up -d --build
-   ```
+   - **Desenvolvimento conteinerizado com Hot-Reload (recomendado para dev):**
+     ```bash
+     docker compose --profile dev up -d
+     ```
+   - **Produção compilada com Nginx (para testes de build ou deploy em VPS):**
+     ```bash
+     docker compose --profile prod up -d --build
+     ```
 
 3. **Executar migrações avulsas (se necessário)**:
 
+   As migrações são aplicadas automaticamente no startup do container backend. Se for necessário executá-las avulsas sem reiniciar os containers:
    ```bash
-   docker compose run --rm migration
+   # Dentro do container backend em execução:
+   docker compose exec backend bun run migrate      # prod
+   docker compose exec backend-dev bun run migrate  # dev
+
+   # Ou diretamente no host:
+   bun run migrate
    ```
 
 4. **Script de deploy automatizado (Linux/VM)**:
@@ -84,9 +99,9 @@ O projeto possui orquestração completa via [docker-compose.yml](docker-compose
 
 ### 3. Comandos Úteis do Docker
 
+- **Parar containers mantendo dados**: `docker compose --profile dev --profile prod down`
 - **Status dos containers**: `docker compose ps`
 - **Logs unificados em tempo real**: `docker compose logs -f`
-- **Logs do backend**: `docker compose logs -f backend`
-- **Parar containers mantendo dados**: `docker compose down`
-- **Parar e limpar banco (reset completo)**: `docker compose down -v`
-- **Acessar shell de um container**: `docker compose exec backend sh` ou `docker compose exec postgres psql -U postgres -d emporio_henz`
+- **Logs do backend**: `docker compose logs -f backend-dev` (em dev) ou `docker compose logs -f backend` (em prod)
+- **Parar e limpar banco (reset completo)**: `docker compose --profile dev --profile prod down -v`
+- **Acessar shell de um container**: `docker compose exec backend-dev sh` ou `docker compose exec postgres psql -U postgres -d emporio_henz`

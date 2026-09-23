@@ -47,23 +47,34 @@ copy .env.example .env
 ```
 
 > [!NOTE]
-> As configurações padrão contidas no [.env.example](.env.example) já funcionam imediatamente para execução local via Docker Compose (porta HTTP 80, banco PostgreSQL interno).
+> As configurações contidas no [.env.example](.env.example) utilizam `NODE_ENV=development`. O sistema detecta o ambiente e seleciona os serviços adequados sem exigir `COMPOSE_PROFILES`.
 
-#### 3. Subir os serviços com Docker Compose
+#### 3. Subir os serviços com Docker Compose (Nativo, sem precisar de Bun ou Node)
 
-Execute o comando para construir as imagens e iniciar os containers em segundo plano:
+Você pode subir a stack utilizando diretamente os comandos nativos do Docker Compose com os perfis configurados:
 
-```bash
-docker compose up -d --build
-```
+- **Modo Desenvolvimento com Live-Reload (Recomendado para programar):**
 
-O [docker-compose.yml](docker-compose.yml) cuidará automaticamente de:
+  ```bash
+  docker compose --profile dev up -d
+  ```
 
-1. Subir o container de banco de dados **PostgreSQL 16**.
-2. Aguardar o healthcheck do PostgreSQL ficar saudável.
-3. Executar o container de migração SQL nativo ([packages/database](packages/database)).
-4. Subir a API backend com **Bun.serve** ([apps/backend](apps/backend)).
-5. Subir o servidor **Nginx** servindo o frontend compilado ([apps/web](apps/web)) e roteando requisições de `/api` para o backend.
+  _Inicia: PostgreSQL, Migrations, `backend-dev` (com `bun --watch` e volumes mapeados na porta 3001) e `web-dev` (com Vite HMR e Vue DevTools na porta 3000)._
+  _Não executa compilação estática prévia nem build de produção._
+
+- **Modo Produção Compilado (Para testes de build ou deploy na VPS):**
+
+  ```bash
+  docker compose --profile prod up -d --build
+  ```
+
+  _Inicia: PostgreSQL, Migrations, `backend` (compilado para produção) e `nginx` (servindo o frontend estático e proxy na porta 80)._
+
+- **Parar todos os containers mantendo os dados:**
+
+  ```bash
+  docker compose --profile dev --profile prod down
+  ```
 
 ---
 
@@ -80,35 +91,45 @@ chmod +x deploy.sh
 
 ### 🌐 Endereços de Acesso
 
-Após iniciar os containers, acesse em seu navegador:
+Após iniciar os containers:
 
-- **Frontend (Aplicação Web)**: [http://localhost](http://localhost) (ou na porta configurada em `PORT_HTTP`)
-- **Backend API**: [http://localhost/api](http://localhost/api)
-- **Healthcheck da API**: [http://localhost/health](http://localhost/health)
+- **Modo Desenvolvimento (`--profile dev`):**
+  - **Frontend Web (Vite HMR)**: [http://localhost:3000](http://localhost:3000)
+  - **Backend API**: [http://localhost:3001](http://localhost:3001)
+  - **Healthcheck da API**: [http://localhost:3001/health](http://localhost:3001/health)
+
+- **Modo Produção (`--profile prod`):**
+  - **Frontend (Nginx Proxy)**: [http://localhost](http://localhost) (porta 80)
+  - **Backend API**: [http://localhost/api](http://localhost/api)
+  - **Healthcheck da API**: [http://localhost/health](http://localhost/health)
 
 ---
 
 ### 🛠️ Comandos Úteis do Docker
 
+- **Parar os containers mantendo os dados:**
+  ```bash
+  docker compose --profile dev --profile prod down
+  ```
 - **Acompanhar logs de todos os serviços em tempo real:**
   ```bash
   docker compose logs -f
   ```
-- **Acompanhar logs apenas do backend:**
+- **Acompanhar logs do backend:**
   ```bash
+  # Em desenvolvimento
+  docker compose logs -f backend-dev
+
+  # Em produção
   docker compose logs -f backend
   ```
 - **Executar migrações do banco manualmente:**
   ```bash
   docker compose run --rm migration
   ```
-- **Parar todos os containers mantendo os dados do banco:**
-  ```bash
-  docker compose down
-  ```
 - **Parar containers e apagar todos os volumes (resetar banco de dados):**
   ```bash
-  docker compose down -v
+  docker compose --profile dev --profile prod down -v
   ```
 
 ---

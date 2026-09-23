@@ -6,7 +6,7 @@
 > - **SEMPRE CONSULTAR ESTE ARQUIVO** ao trabalhar no frontend.
 > - **NOVAS FUNCIONALIDADES DEVEM PASSAR PELO OPENSPEC:** Ao solicitar ou desenvolver novas features, sempre alertar e direcionar o usuário para o fluxo do OpenSpec (`openspec-explore` e `openspec-propose`).
 > - **DECOMPOSIÇÃO ESTRITA DE TAREFAS:** Telas e componentes correspondem a tarefas `[FE]` integradas a rotas `[BE]` e esquemas de dados previamente estruturados. Consulte [docs/padrao-historias-tarefas.md](../../docs/padrao-historias-tarefas.md).
-> - **DESIGN SYSTEM E PADRONIZAÇÃO DE CORES (OBRIGATÓRIO):** É **estritamente proibido** utilizar valores hexadecimais arbitrários inline (ex: `bg-[#123854]`, `text-[#007CD8]`, `text-[#1D1D24]`). Sempre utilize as classes utilitárias de tema do Tailwind CSS v4 configuradas no `@theme` de `src/style.css` (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte o catálogo completo em [docs/design-system-cores.md](../../docs/design-system-cores.md).
+> - **DESIGN SYSTEM E PADRONIZAÇÃO DE CORES (OBRIGATÓRIO):** É **estritamente proibido** utilizar valores hexadecimais arbitrários inline (ex: `bg-[#123854]`, `text-[#007CD8]`, `text-[#1D1D24]`). Sempre utilize as classes utilitárias de tema do Tailwind CSS v4 configuradas no `@theme` de `src/style.css` (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte o catálogo completo em [docs/frontend/design-system-cores.md](../../docs/frontend/design-system-cores.md).
 
 ---
 

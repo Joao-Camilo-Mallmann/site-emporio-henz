@@ -1,6 +1,6 @@
 ## Why
 
-Atualmente, o frontend (`apps/web`) utiliza cores hexadecimais estáticas e arbitrárias inline (como `[#0C2340]`, `[#123854]`, `[#1D1D24]`, `[#007CD8]`, `[#FEFEFE]`, `[#D2E8F8]`) espalhadas pelas views e componentes (`App.vue`, `HomeView.vue`, etc.). 
+Atualmente, o frontend (`apps/web`) utiliza cores hexadecimais estáticas e arbitrárias inline (como `[#0C2340]`, `[#123854]`, `[#1D1D24]`, `[#007CD8]`, `[#FEFEFE]`, `[#D2E8F8]`) espalhadas pelas views e componentes (`App.vue`, `HomeView.vue`, etc.).
 
 Isso prejudica a manutenibilidade, dificulta o alinhamento consistente com o design oficial do Figma ([Catálogo digital - Empório Henz](https://www.figma.com/proto/nx4bJnz6Hj3seJHFAC5sHO/Cat%C3%A1logo-digital---Emp%C3%B3rio-Henz?node-id=38-2521)) e impede que agentes de IA e desenvolvedores adotem um vocabulário semântico e consistente de cores e design tokens via Tailwind CSS v4.
 
@@ -20,9 +20,11 @@ Padronizar as cores no Tailwind (`@theme`) e documentar as diretrizes em `docs/`
 ## Capabilities
 
 ### New Capabilities
+
 - `design-system-tokens`: Definição, configuração no Tailwind CSS v4 e documentação técnica e de agentes dos tokens de cores do projeto baseados no Figma.
 
 ### Modified Capabilities
+
 <!-- Nenhuma especificação de regra de negócio funcional ou capacidade existente teve seus requisitos funcionais alterados -->
 
 ## Impact

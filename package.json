@@ -7,9 +7,11 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "migrate": "bun packages/database/src/index.ts"
+    "migrate": "bun packages/database/src/index.ts",
+    "seed": "bun packages/database/src/seed.ts"
   },
   "devDependencies": {
+    "@types/bun": "^1.4.2",
     "prettier": "3.9.6",
     "turbo": "^2.11.2",
     "typescript": "^5.9.3"

@@ -33,10 +33,22 @@ for (const section of rawSections) {
   if (titleLine.includes("[US-DB-")) {
     labels = ["database", "Feature", "p1"];
     milestone = "Parcial 1 - Apresentacao (Auth, 2 CRUDs, Figma, README)";
-  } else if (titleLine.includes("[US-BE-01]") || titleLine.includes("[US-BE-02]") || titleLine.includes("[US-BE-03]") || titleLine.includes("[US-BE-04]") || titleLine.includes("[US-BE-05]")) {
+  } else if (
+    titleLine.includes("[US-BE-01]") ||
+    titleLine.includes("[US-BE-02]") ||
+    titleLine.includes("[US-BE-03]") ||
+    titleLine.includes("[US-BE-04]") ||
+    titleLine.includes("[US-BE-05]")
+  ) {
     labels = ["backend", "Feature", "p1"];
     milestone = "Parcial 1 - Apresentacao (Auth, 2 CRUDs, Figma, README)";
-  } else if (titleLine.includes("[US-FE-01]") || titleLine.includes("[US-FE-02]") || titleLine.includes("[US-FE-03]") || titleLine.includes("[US-FE-04]") || titleLine.includes("[US-FE-05]")) {
+  } else if (
+    titleLine.includes("[US-FE-01]") ||
+    titleLine.includes("[US-FE-02]") ||
+    titleLine.includes("[US-FE-03]") ||
+    titleLine.includes("[US-FE-04]") ||
+    titleLine.includes("[US-FE-05]")
+  ) {
     labels = ["frontend", "Feature", "p1"];
     milestone = "Parcial 1 - Apresentacao (Auth, 2 CRUDs, Figma, README)";
   } else if (titleLine.includes("[US-DOC-01]")) {
@@ -47,7 +59,8 @@ for (const section of rawSections) {
     milestone = "Parcial 1 - Apresentacao (Auth, 2 CRUDs, Figma, README)";
   } else {
     // Parcial 2
-    milestone = "Parcial 2 - Apresentacao Final (Permissoes, Catalogo, 3 Testes, VM)";
+    milestone =
+      "Parcial 2 - Apresentacao Final (Permissoes, Catalogo, 3 Testes, VM)";
     if (titleLine.includes("[US-BE-")) {
       labels = ["backend", "Feature", "p2"];
     } else if (titleLine.includes("[US-FE-")) {
@@ -78,23 +91,30 @@ async function createAllIssues() {
     console.log(`[${i + 1}/${issues.length}] Criando: ${item.title}...`);
 
     const labelArg = item.labels.join(",");
-    const res = spawnSync("gh", [
-      "issue",
-      "create",
-      "--repo",
-      "Joao-Camilo-Mallmann/site-emporio-henz",
-      "--title",
-      item.title,
-      "--body",
-      item.body,
-      "--label",
-      labelArg,
-      "--milestone",
-      item.milestone,
-    ], { encoding: "utf-8" });
+    const res = spawnSync(
+      "gh",
+      [
+        "issue",
+        "create",
+        "--repo",
+        "Joao-Camilo-Mallmann/site-emporio-henz",
+        "--title",
+        item.title,
+        "--body",
+        item.body,
+        "--label",
+        labelArg,
+        "--milestone",
+        item.milestone,
+      ],
+      { encoding: "utf-8" },
+    );
 
     if (res.error || res.status !== 0) {
-      console.error(`Erro ao criar issue "${item.title}":`, res.stderr || res.error);
+      console.error(
+        `Erro ao criar issue "${item.title}":`,
+        res.stderr || res.error,
+      );
     } else {
       console.log(`  -> Criada com sucesso: ${res.stdout.trim()}`);
     }

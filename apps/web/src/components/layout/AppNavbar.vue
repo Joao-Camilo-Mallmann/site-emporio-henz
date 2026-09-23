@@ -307,6 +307,16 @@ onUnmounted(() => {
             >
           </RouterLink>
 
+          <!-- Botão Painel Admin Desktop (Visível apenas para Vendedores e Administradores) -->
+          <RouterLink
+            v-if="authStore.isEquipe"
+            to="/admin"
+            class="bg-amber-500/15 text-amber-300 border border-amber-400/30 hover:bg-amber-500/25 px-3 py-1.5 rounded-xl font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+          >
+            <Icon icon="mdi:shield-account" class="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Painel Admin</span>
+          </RouterLink>
+
           <!-- Menu de Usuário Desktop -->
           <div id="user-menu-container" class="relative">
             <!-- Usuário Autenticado -->
@@ -427,24 +437,12 @@ onUnmounted(() => {
 
                 <RouterLink
                   v-if="authStore.isEquipe"
-                  to="/equipe/login"
+                  to="/admin"
                   @click="closeUserMenu"
                   class="flex items-center gap-2.5 px-4 py-2 hover:bg-amber-50 text-amber-900 transition-colors font-medium"
                 >
-                  <svg
-                    class="w-4 h-4 text-amber-700"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
-                  <span>Painel da Equipe</span>
+                  <Icon icon="mdi:shield-account" class="w-4 h-4 text-amber-700 shrink-0" />
+                  <span>Painel Admin</span>
                 </RouterLink>
               </div>
 
@@ -878,6 +876,17 @@ onUnmounted(() => {
                     />
                   </svg>
                   <span>Sobre a loja</span>
+                </RouterLink>
+
+                <!-- Painel Admin Mobile (Exclusivo para Equipe) -->
+                <RouterLink
+                  v-if="authStore.isEquipe"
+                  to="/admin"
+                  @click="closeDrawer"
+                  class="flex items-center gap-3 py-2.5 px-3 font-semibold text-amber-300 bg-amber-500/15 border border-amber-400/30 rounded-lg hover:bg-amber-500/25 transition-colors cursor-pointer shadow-xs my-1"
+                >
+                  <Icon icon="mdi:shield-account" class="w-5 h-5 text-amber-400 shrink-0" />
+                  <span>Painel Admin</span>
                 </RouterLink>
 
                 <!-- Minha conta -->

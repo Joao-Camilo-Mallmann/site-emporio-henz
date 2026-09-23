@@ -19,11 +19,13 @@ A aplicação frontend em Vue 3 da Empório Henz necessita de uma identidade vis
 ## Capabilities
 
 ### New Capabilities
+
 - `auth-store-and-interceptor`: Gerenciamento centralizado de sessão no Pinia e interceptores de requisição e resposta Bearer Token no Axios.
 - `auth-screens`: Telas dedicadas de login de clientes, autocadastro com validações e portal de acesso da equipe interna.
 - `home-main-layout`: Layout base com cabeçalho institucional, rodapé e página inicial fiéis ao padrão visual do Figma.
 
 ### Modified Capabilities
+
 <!-- None -->
 
 ## Impact
