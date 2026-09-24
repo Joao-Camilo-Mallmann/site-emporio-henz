@@ -1,0 +1,23 @@
+meta {
+  name: Cadastrar Fornecedor (Admin)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/suppliers
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Móveis Florença Ltda",
+    "contact": "(54) 3455-1200 / contato@florenca.com.br",
+    "active": true
+  }
+}

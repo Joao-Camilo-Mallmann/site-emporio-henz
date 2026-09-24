@@ -1,0 +1,26 @@
+meta {
+  name: Criar Usuário (Admin)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "email": "vendedor@emporiohenz.com.br",
+    "password": "senhaVendedor123",
+    "role": 2,
+    "fullName": "Carlos Eduardo",
+    "phone": "(51) 99888-7766",
+    "city": "Lajeado"
+  }
+}

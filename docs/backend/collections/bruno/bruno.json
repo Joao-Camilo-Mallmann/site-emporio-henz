@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Empório Henz API",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Autocadastro de Cliente
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "fullName": "Maria Silva",
+    "email": "maria.silva@exemplo.com",
+    "password": "senhaSegura123",
+    "phone": "(51) 98765-4321",
+    "city": "Lajeado"
+  }
+}
+
+script:post-response {
+  if (res.status === 201 && res.body.token) {
+    bru.setEnvVar("token", res.body.token);
+  }
+}

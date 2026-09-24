@@ -11,31 +11,64 @@ Conforme estabelecido em [agents.md](../../agents.md) e [apps/backend/agents.md]
 1. **Stack Técnica**:
    - **Runtime**: [Bun](https://bun.sh/) (1.4+) executando nativamente com `Bun.serve`.
    - **Linguagem**: TypeScript com modo estrito (`strict: true`).
-   - **Banco de Dados**: PostgreSQL 16 conectado via driver nativo/pool de conexões.
-   - **Testes**: `bun:test` para testes unitários e de integração.
+   - **Path Aliases**: Alias `@/` configurado para `apps/backend/src/*` e `@database/` para `packages/database/*`.
+   - **Banco de Dados**: PostgreSQL 16 conectado via driver nativo `SQL` do Bun em `packages/database`.
+   - **Criptografia e Segurança**: Argon2id nativo via `Bun.password` e JWT com HMAC-SHA256 via Web Crypto API nativa (`crypto.subtle`).
+   - **Testes**: `bun:test` para suíte completa de testes unitários e de integração (49+ testes automatizados).
 
-2. **Padrão de Respostas REST**:
-   - Rotas prefixadas por `/api/` (ou `/api/v1/`).
-   - Respostas estritamente em JSON com cabeçalhos HTTP semânticos:
+2. **Estrutura Modular em Camadas (`apps/backend/src`)**:
+   - `config/`: Configurações de ambiente (`env.ts`) e conexão de banco com health check (`database.ts`).
+   - `lib/`: Utilitários reutilizáveis de resposta HTTP (`response.ts`), roteador nativo (`router.ts`), senhas (`password.ts`), JWT (`jwt.ts`) e classes de erro de domínio (`errors.ts`).
+   - `middlewares/`: Interceptadores de segurança (`auth.ts` Bearer JWT, `role.ts` RBAC com bloqueio estrito `403 Forbidden` e `error.ts` para tratamento global de exceções).
+   - `modules/`: Módulos de domínio desacoplados contendo tipos, schemas de validação pura, repositórios SQL, serviços e controllers:
+     - `auth/`: Login, autocadastro de clientes e perfil de sessão (`/api/v1/auth`).
+     - `users/`: CRUD administrativo unificado entre tabelas `users` e `clients` com soft delete (`/api/v1/users`).
+     - `suppliers/`: CRUD de fornecedores e marcas parceiras com soft delete (`/api/v1/suppliers`).
+     - `user-suppliers/`: Gestão de vínculos N:N multi-empresa entre vendedores e fornecedores (`/api/v1/users/:userId/suppliers`).
+   - `routes/`: Montagem e versionamento canônico da árvore sob `/api/v1/`.
+
+3. **Padrão de Respostas REST e Tratamento de Erros**:
+   - Rotas de negócio canônicas sob `/api/v1/`.
+   - Formato padronizado de erro JSON:
+     ```json
+     {
+       "error": "NomeDoErro",
+       "message": "Descrição amigável da falha."
+     }
+     ```
+   - Status HTTP semânticos:
      - `200 OK` / `201 Created` / `204 No Content`
-     - `400 Bad Request` (validação de payload)
-     - `401 Unauthorized` (falta de token ou token inválido)
-     - `403 Forbidden` (permissão insuficiente ou violação de vínculo multi-empresa)
-     - `404 Not Found`
+     - `400 Bad Request` (validação de payload/query)
+     - `401 Unauthorized` (token ausente, inválido ou expirado)
+     - `403 Forbidden` (permissão insuficiente de perfil ou violação multi-empresa)
+     - `404 Not Found` (recurso ou rota não encontrada)
+     - `409 Conflict` (duplicidade cadastral de e-mail ou vínculo ativo)
      - `500 Internal Server Error`
 
-3. **Controle de Acesso e Isolamento Multi-empresa**:
-   - **Matriz de Perfis (RBAC)**: Administrador (`3`), Vendedor (`2`), Cliente (`1`).
-   - Vendedores só podem cadastrar, atualizar ou desativar produtos de fornecedores aos quais estão vinculados na tabela `user_suppliers`. Violações retornam `403 Forbidden`.
-   - Vendedores e Clientes são impedidos de manipular fornecedores/marcas parceiras (`403 Forbidden`).
+4. **Controle de Acesso e Isolamento Multi-empresa (RBAC)**:
+   - **Matriz de Perfis**: Administrador (`3`), Vendedor (`2`), Cliente (`1`).
+   - Vendedores só podem operar dados de fornecedores aos quais estão vinculados na tabela `user_suppliers`.
+   - Rotas de escrita em fornecedores e gestão de usuários são exclusivas do perfil Administrador (`3`).
 
 ---
 
 ## 📁 Arquivos e Artefatos do Diretório
 
-| Arquivo                                                                  | Descrição                                                                                                                 |
-| :----------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| Arquivo | Descrição |
+| :--- | :--- |
 | [diagrama_classes_emporio_henz.pdf](./diagrama_classes_emporio_henz.pdf) | Diagrama de classes UML formal detalhando entidades de domínio, atributos, tipos, métodos e relacionamentos associativos. |
+| [rotas-api-frontend.md](../rotas-api-frontend.md) | **Guia completo de exportação e integração de rotas da API V1 para o Front-end** (endpoints, payloads, responses, headers e tipagens TypeScript). |
+| [collections/bruno/](./collections/bruno/) | **Collection completa para Bruno** (requests de todas as rotas com ambientes Local e Docker e captura automática de token JWT). |
+
+---
+
+## 🧪 Testando com Bruno
+
+O repositório disponibiliza a collection pronta para testes no Bruno em [docs/backend/collections/bruno/](./collections/bruno/):
+
+- **Como abrir**: Abra o aplicativo Bruno e selecione a opção **"Open Collection"**, apontando para a pasta `docs/backend/collections/bruno`.
+- **Ambientes**: Alterne entre os environments `Local` (porta 3001) e `Docker` (porta 80).
+- **Autenticação Automática**: Ao disparar o endpoint `Auth/Login` (`admin@gmail.com` / `admin123`) ou `Auth/Register`, o token JWT gerado é salvo automaticamente no environment selecionado para uso imediato em todas as rotas protegidas (`Bearer {{token}}`).
 
 ---
 
@@ -54,7 +87,7 @@ Para detalhes sobre implementação de controladores, rotas, middlewares e inici
 - **Desenvolvimento com reload automático (porta 3001)**:
   ```bash
   bun run --filter backend dev
-  # ou na raiz
+  # ou na raiz do monorepo
   bun run dev
   ```
 - **Checagem de Tipos e Linter**:
@@ -65,4 +98,8 @@ Para detalhes sobre implementação de controladores, rotas, middlewares e inici
 - **Execução dos Testes Automatizados**:
   ```bash
   bun test
+  ```
+- **Build de Produção (Bun Bundle)**:
+  ```bash
+  bun run --filter backend build
   ```

@@ -1,0 +1,25 @@
+meta {
+  name: Vincular Fornecedor ao Vendedor (Admin)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/users/:userId/suppliers
+  body: json
+  auth: bearer
+}
+
+params:path {
+  userId: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "supplierId": "00000000-0000-0000-0000-000000000000"
+  }
+}
