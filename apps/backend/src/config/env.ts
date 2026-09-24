@@ -12,9 +12,8 @@ export const env: AppEnv = {
   JWT_SECRET:
     process.env.JWT_SECRET ||
     "emporio-henz-default-jwt-secret-at-least-32-chars-long",
-  JWT_EXPIRES_IN_SECONDS:
-    Number(process.env.JWT_EXPIRES_IN_SECONDS) || 60 * 60 * 24, // 24 horas
-  CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+  JWT_EXPIRES_IN_SECONDS: 60 * 60 * 336, // 336 horas
+  CORS_ORIGIN: "*",
 };
 
 export default env;

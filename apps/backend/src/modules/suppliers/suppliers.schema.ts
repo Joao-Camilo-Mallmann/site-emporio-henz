@@ -1,8 +1,9 @@
 import { CreateSupplierDto, UpdateSupplierDto } from "./suppliers.types";
 
-export function validateCreateSupplier(
-  body: unknown,
-): { error?: string; value?: CreateSupplierDto } {
+export function validateCreateSupplier(body: unknown): {
+  error?: string;
+  value?: CreateSupplierDto;
+} {
   if (!body || typeof body !== "object") {
     return { error: "O corpo da requisição deve ser um objeto JSON válido." };
   }
@@ -11,11 +12,16 @@ export function validateCreateSupplier(
 
   if (typeof name !== "string" || name.trim().length < 2) {
     return {
-      error: "O nome do fornecedor é obrigatório e deve ter no mínimo 2 caracteres.",
+      error:
+        "O nome do fornecedor é obrigatório e deve ter no mínimo 2 caracteres.",
     };
   }
 
-  if (contact !== undefined && contact !== null && typeof contact !== "string") {
+  if (
+    contact !== undefined &&
+    contact !== null &&
+    typeof contact !== "string"
+  ) {
     return { error: "O contato deve ser um texto válido." };
   }
 
@@ -32,9 +38,10 @@ export function validateCreateSupplier(
   };
 }
 
-export function validateUpdateSupplier(
-  body: unknown,
-): { error?: string; value?: UpdateSupplierDto } {
+export function validateUpdateSupplier(body: unknown): {
+  error?: string;
+  value?: UpdateSupplierDto;
+} {
   if (!body || typeof body !== "object") {
     return { error: "O corpo da requisição deve ser um objeto JSON válido." };
   }
@@ -55,7 +62,11 @@ export function validateUpdateSupplier(
     return { error: "O nome do fornecedor deve ter no mínimo 2 caracteres." };
   }
 
-  if (contact !== undefined && contact !== null && typeof contact !== "string") {
+  if (
+    contact !== undefined &&
+    contact !== null &&
+    typeof contact !== "string"
+  ) {
     return { error: "O contato deve ser um texto válido." };
   }
 

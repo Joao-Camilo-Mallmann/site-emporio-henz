@@ -1,8 +1,13 @@
 import { ConflictError, NotFoundError, UnauthorizedError } from "@/lib/errors";
-import { hashPassword, verifyPassword } from "@/lib/password";
 import { signJwt } from "@/lib/jwt";
+import { hashPassword, verifyPassword } from "@/lib/password";
 import { authRepository, AuthRepository } from "@/modules/auth/auth.repository";
-import { AuthResponse, AuthUserProfile, LoginDto, RegisterDto } from "@/modules/auth/auth.types";
+import {
+  AuthResponse,
+  AuthUserProfile,
+  LoginDto,
+  RegisterDto,
+} from "@/modules/auth/auth.types";
 
 export class AuthService {
   constructor(private repo: AuthRepository = authRepository) {}
