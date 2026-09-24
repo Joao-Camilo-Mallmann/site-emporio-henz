@@ -58,6 +58,17 @@ Conforme estabelecido em [agents.md](../../agents.md) e [apps/backend/agents.md]
 | :--- | :--- |
 | [diagrama_classes_emporio_henz.pdf](./diagrama_classes_emporio_henz.pdf) | Diagrama de classes UML formal detalhando entidades de domínio, atributos, tipos, métodos e relacionamentos associativos. |
 | [rotas-api-frontend.md](../rotas-api-frontend.md) | **Guia completo de exportação e integração de rotas da API V1 para o Front-end** (endpoints, payloads, responses, headers e tipagens TypeScript). |
+| [collections/bruno/](./collections/bruno/) | **Collection completa para Bruno** (requests de todas as rotas com ambientes Local e Docker e captura automática de token JWT). |
+
+---
+
+## 🧪 Testando com Bruno
+
+O repositório disponibiliza a collection pronta para testes no Bruno em [docs/backend/collections/bruno/](./collections/bruno/):
+
+- **Como abrir**: Abra o aplicativo Bruno e selecione a opção **"Open Collection"**, apontando para a pasta `docs/backend/collections/bruno`.
+- **Ambientes**: Alterne entre os environments `Local` (porta 3001) e `Docker` (porta 80).
+- **Autenticação Automática**: Ao disparar o endpoint `Auth/Login` (`admin@gmail.com` / `admin123`) ou `Auth/Register`, o token JWT gerado é salvo automaticamente no environment selecionado para uso imediato em todas as rotas protegidas (`Bearer {{token}}`).
 
 ---
 

@@ -6,6 +6,7 @@
 > - **SEMPRE CONSULTAR ESTE ARQUIVO** ao trabalhar no backend.
 > - **NOVAS FUNCIONALIDADES DEVEM PASSAR PELO OPENSPEC:** Ao solicitar ou desenvolver novos endpoints ou features, sempre alertar e direcionar o usuário para o fluxo do OpenSpec (`openspec-explore` e `openspec-propose`).
 > - **ESTRATÉGIA DATABASE FIRST:** Nenhuma rota ou lógica de servidor deve ser criada antes do esquema de dados no PostgreSQL estar validado. Consulte [docs/padrao-historias-tarefas.md](../../docs/padrao-historias-tarefas.md).
+> - **ATUALIZAÇÃO OBRIGATÓRIA DA COLLECTION BRUNO E CONTRATOS:** Ao criar, alterar ou remover qualquer rota, parâmetro ou payload, é OBRIGATÓRIO atualizar imediatamente a collection Bruno em [docs/backend/collections/bruno/](../../docs/backend/collections/bruno/) (arquivos `.bru`), além dos guias de contrato [docs/rotas-api-frontend.md](../../docs/rotas-api-frontend.md) e [docs/backend/README.md](../../docs/backend/README.md).
 
 ---
 
@@ -67,7 +68,18 @@ Consulte a documentação completa de contratos e tipos em [docs/rotas-api-front
 
 ---
 
-## 4. Comandos do Backend
+## 4. Collection de Teste de API (Bruno)
+
+O projeto mantém uma collection completa e versionada para o **Bruno** em [docs/backend/collections/bruno/](../../docs/backend/collections/bruno/):
+
+- **Organização**: Dividida por domínios (`Auth`, `Health`, `Users`, `Suppliers`, `User-Suppliers`).
+- **Ambientes**: Configurados em `environments/Local.bru` (`http://localhost:3001/api/v1`) e `environments/Docker.bru` (`http://localhost/api/v1`).
+- **Autenticação**: Script pós-resposta em `Auth/Login` (`admin@gmail.com` / `admin123`) e `Auth/Register` que salva automaticamente o JWT gerado na variável `token`.
+- **Regra de Manutenção**: Qualquer alteração em endpoints, parâmetros, schemas ou respostas DEVE ser imediatamente replicada nos arquivos `.bru` da collection.
+
+---
+
+## 5. Comandos do Backend
 
 ```bash
 bun dev          # Inicia servidor com hot-reload (bun --watch src/index.ts)

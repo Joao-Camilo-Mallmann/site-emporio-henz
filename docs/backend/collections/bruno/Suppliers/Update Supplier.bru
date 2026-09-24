@@ -1,0 +1,27 @@
+meta {
+  name: Atualizar Fornecedor
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/suppliers/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 1746918c-4f75-4c00-b414-922b72613388
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Móveis Florença Premium",
+    "contact": "(54) 3455-9999 / sac@florenca.com.br",
+    "active": false
+  }
+}

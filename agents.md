@@ -18,6 +18,8 @@
 > 4. **DESIGN SYSTEM & PADRONIZAÇÃO DE CORES TAILWIND (OBRIGATÓRIO):**
 >    - **Proibição de Hexadecimais Arbitrários**: É terminantemente proibido utilizar classes com códigos hexadecimais arbitrários inline (`[#...]`) no código do frontend (`apps/web`).
 >    - **Tokens Semânticos do Tailwind v4**: Utilize sempre as classes utilitárias semânticas padronizadas baseadas no Figma (`primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, `wood-*`). Consulte a documentação completa em [docs/frontend/design-system-cores.md](docs/frontend/design-system-cores.md) e [apps/web/agents.md](apps/web/agents.md).
+> 5. **DOCUMENTAÇÃO DE APIS E COLLECTIONS (OBRIGATÓRIO):**
+>    - **Sincronização Obrigatória**: Qualquer nova rota, modificação de parâmetros ou alteração de contrato na API (`apps/backend`) DEVE ser documentada e refletida imediatamente na collection Bruno do projeto em [docs/backend/collections/bruno/](docs/backend/collections/bruno/) (arquivos `.bru` versionáveis) e nos guias de contrato [docs/rotas-api-frontend.md](docs/rotas-api-frontend.md) e [docs/backend/README.md](docs/backend/README.md). Nenhuma tarefa de backend deve ser considerada finalizada sem essa sincronização.
 
 ---
 

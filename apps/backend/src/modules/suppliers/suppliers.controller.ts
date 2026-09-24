@@ -1,10 +1,13 @@
 import { badRequest, created, ok } from "@/lib/response";
 import { RequestContext } from "@/lib/router";
-import { suppliersService, SuppliersService } from "@/modules/suppliers/suppliers.service";
 import {
   validateCreateSupplier,
   validateUpdateSupplier,
 } from "@/modules/suppliers/suppliers.schema";
+import {
+  suppliersService,
+  SuppliersService,
+} from "@/modules/suppliers/suppliers.service";
 
 export class SuppliersController {
   constructor(private service: SuppliersService = suppliersService) {}
