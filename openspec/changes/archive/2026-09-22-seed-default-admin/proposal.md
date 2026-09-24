@@ -7,7 +7,7 @@ Para viabilizar testes de bancas avaliadoras, facilitar o desenvolvimento local 
 - Adição da migração SQL `007_seed_default_admin.sql` em `packages/database/migrations` para inserção idempotente do usuário administrador padrão com papel `role = 3` e senha criptografada com Argon2id.
 - Inserção correspondente do perfil cadastral em `clients` (`Administrador Geral` / `(51) 99999-9999`) associado ao usuário criado.
 - Criação de um script seeder dinâmico em TypeScript `packages/database/src/seed.ts` e inclusão do atalho `"seed": "bun packages/database/src/seed.ts"` no `package.json` raiz para semear ou resetar a senha do admin a qualquer momento.
-- Atualização do documento `docs/user-stories-backlog.md` formalizando a conclusão da história `US-DB-01` (Issue #11).
+- Atualização do documento `docs/planning/user-stories-backlog.md` formalizando a conclusão da história `US-DB-01` (Issue #11).
 
 ## Capabilities
 

@@ -12,4 +12,4 @@
 
 - [x] 3.1 Executar a validação do hash Argon2id garantindo correspondência com `admin123`
 - [x] 3.2 Executar checagem de tipos (`bun run check-types`) e lint (`bun run lint`)
-- [x] 3.3 Atualizar a história `US-DB-01` no documento `docs/user-stories-backlog.md`
+- [x] 3.3 Atualizar a história `US-DB-01` no documento `docs/planning/user-stories-backlog.md`

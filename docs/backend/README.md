@@ -57,8 +57,7 @@ Conforme estabelecido em [agents.md](../../agents.md) e [apps/backend/agents.md]
 | Arquivo | Descrição |
 | :--- | :--- |
 | [diagrama_classes_emporio_henz.pdf](./diagrama_classes_emporio_henz.pdf) | Diagrama de classes UML formal detalhando entidades de domínio, atributos, tipos, métodos e relacionamentos associativos. |
-| [rotas-api-frontend.md](../rotas-api-frontend.md) | **Guia completo de exportação e integração de rotas da API V1 para o Front-end** (endpoints, payloads, responses, headers e tipagens TypeScript). |
-| [collections/bruno/](./collections/bruno/) | **Collection completa para Bruno** (requests de todas as rotas com ambientes Local e Docker e captura automática de token JWT). |
+| [collections/bruno/](./collections/bruno/) | **Fonte de consulta da API V1**: requisições, payloads, ambientes Local e Docker e captura automática de token JWT. |
 
 ---
 

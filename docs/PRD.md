@@ -4,6 +4,9 @@ _Loja de móveis online e catálogo digital com solicitação de compra via What
 
 _Stack: Bun + TypeScript (back-end) · Vue 3 + Vite + Tailwind CSS (front-end) · PostgreSQL (banco de dados)_
 
+> [!IMPORTANT]
+> Este PRD é a **única fonte da verdade** para visão do produto, escopo, requisitos e regras de negócio. Toda regra nova, alterada ou descoberta deve ser incorporada aqui antes da atualização de backlog, OpenSpec, contratos, documentação técnica ou código.
+
 ---
 
 ## 1. Problema

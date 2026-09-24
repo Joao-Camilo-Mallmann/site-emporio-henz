@@ -2,7 +2,7 @@
 
 ## Portal Empório Henz · Banco de Dados First, Back-end e Front-end
 
-Este documento formaliza todas as histórias de usuário, requisitos técnicos, regras de negócio e critérios de aceitação para o desenvolvimento do portal da Empório Henz. Ele serve como fonte única da verdade (SSOT) para o projeto, alinhado ao [PRD.md](./PRD.md) e às rubricas de avaliação da disciplina.
+Este documento organiza a execução do portal da Empório Henz em histórias, requisitos técnicos e critérios de aceitação. Ele é derivado do [PRD](../PRD.md), que permanece como única fonte da verdade para produto e regras de negócio. Em caso de divergência, corrija primeiro o PRD e depois sincronize este backlog.
 
 ---
 
