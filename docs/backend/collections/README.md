@@ -1,6 +1,6 @@
 # Collection de Teste de API (Bruno) — Empório Henz
 
-Este diretório contém a collection oficial para teste e homologação da API REST V1 do Empório Henz no **[Bruno](https://www.usebruno.com/)** (ferramenta recomendada, git-friendly, offline e declarativa).
+Este diretório contém a **fonte de consulta da API REST V1** do Empório Henz: a collection oficial do **[Bruno](https://www.usebruno.com/)** (git-friendly, offline e declarativa). Não há documento paralelo de contrato; rotas, payloads e autenticação são lidos aqui.
 
 ---
 
@@ -69,4 +69,4 @@ O [Bruno](https://www.usebruno.com/) armazena as requisições em arquivos de te
 
 > [!IMPORTANT]
 > **REGRA DE ATUALIZAÇÃO OBRIGATÓRIA:**
-> Sempre que qualquer rota for adicionada, modificada ou removida em `apps/backend/src/`, a collection do Bruno em `docs/backend/collections/bruno/` e os arquivos de documentação (`docs/rotas-api-frontend.md` e `docs/backend/README.md`) **DEVEM ser atualizados imediatamente**.
+> Sempre que qualquer rota, parâmetro, payload, status ou resposta for adicionado, modificado ou removido em `apps/backend/src/`, a collection do Bruno em `docs/backend/collections/bruno/` **DEVE ser atualizada na mesma mudança**. Se houver impacto em regra de negócio, atualize primeiro `docs/PRD.md`.

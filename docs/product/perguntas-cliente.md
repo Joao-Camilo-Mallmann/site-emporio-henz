@@ -1,5 +1,8 @@
 # Perguntas para o Cliente — Empório Henz
 
+> [!NOTE]
+> Este arquivo reúne insumos de descoberta e não define regras de negócio. Toda resposta ou decisão confirmada deve ser consolidada no [PRD](../PRD.md), a única fonte da verdade do produto.
+
 ## 🔴 Perguntas prioritárias
 
 1. **Quando vocês falam em "salvamento em pastas compartilháveis", como vocês imaginam que isso funcionaria na prática? O cliente criará uma pasta para organizar produtos, como por exemplo, favoritos e desejos, e poderia compartilhar essa pasta com outras pessoas e com o vendedor?**

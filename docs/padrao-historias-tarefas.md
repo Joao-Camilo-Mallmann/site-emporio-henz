@@ -37,7 +37,7 @@ Toda e qualquer nova funcionalidade ou história de negócio que envolva persist
 flowchart TD
     A["1. Alinhamento & Exploração\n(openspec-explore / PRD)"] --> B["2. Proposta Formal OpenSpec\n(openspec-propose)"]
     B --> C["3. Decomposição da Feature\n([DB] -> [BE] -> [FE])"]
-    C --> D["4. Documentar no Backlog\n(docs/user-stories-backlog.md)"]
+    C --> D["4. Documentar no Backlog\n(docs/planning/user-stories-backlog.md)"]
     D --> E["5. Criar Issues no GitHub\n(gh issue create ou script)"]
     E --> F["6. Implementação Database First\nExecutar e validar [DB]"]
     F --> G["7. Implementação Back-end\nExecutar e testar [BE]"]
@@ -151,7 +151,7 @@ gh issue create \
 
 Para adicionar novas histórias em lote:
 
-1. Adicione a nova seção `### [US-...` no arquivo [docs/user-stories-backlog.md](./user-stories-backlog.md).
+1. Adicione a nova seção `### [US-...` no arquivo [docs/planning/user-stories-backlog.md](./planning/user-stories-backlog.md).
 2. Execute o script automatizado:
    ```bash
    bun scripts/create_issues.ts
