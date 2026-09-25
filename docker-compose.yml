@@ -17,17 +17,13 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
     ports:
-      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT}:5432"
 
     networks:
       - emporio_net
 
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
-        ]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -78,8 +74,8 @@ services:
     restart: unless-stopped
 
     ports:
-      - "${PORT_HTTP:-80}:80"
-      - "${PORT_HTTPS:-443}:443"
+      - "${PORT_HTTP}:80"
+      - "${PORT_HTTPS}:443"
 
     depends_on:
       - backend
