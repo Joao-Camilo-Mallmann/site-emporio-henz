@@ -38,7 +38,7 @@ else
     exit 1
 fi
 
-# 2. Garantir existência do arquivo .env
+# 2. Garantir existência e validar variáveis do arquivo .env
 if [ ! -f ".env" ]; then
     if [ -f ".env.example" ]; then
         echo -e "${YELLOW}Aviso: Arquivo .env não encontrado. Copiando .env.example para .env...${NC}"
@@ -48,6 +48,15 @@ if [ ! -f ".env" ]; then
         echo -e "${RED}Erro: Arquivo .env ou .env.example não encontrado!${NC}" >&2
         exit 1
     fi
+fi
+
+# Validar variáveis críticas de segurança
+if grep -q "altere_para_uma_senha_forte_e_segura" .env 2>/dev/null; then
+    echo -e "${YELLOW}[ATENÇÃO DE SEGURANÇA] POSTGRES_PASSWORD em .env contém a senha de exemplo padrão. Altere para uma senha forte!${NC}"
+fi
+
+if grep -q "emporio-henz-default-jwt-secret" .env 2>/dev/null; then
+    echo -e "${YELLOW}[ATENÇÃO DE SEGURANÇA] JWT_SECRET em .env contém o segredo de exemplo padrão. Altere para um segredo seguro (openssl rand -base64 32)!${NC}"
 fi
 
 # 3. Atualizar código do repositório Git (se for repositório git)
@@ -62,9 +71,9 @@ else
     echo -e "\n${YELLOW}[1/5] Repositório .git não detectado. Pulando git pull.${NC}"
 fi
 
-# 4. Construir imagens Docker atualizadas
-echo -e "\n${BLUE}[2/5] Construindo imagens Docker atualizadas...${NC}"
-$DOCKER_COMPOSE build
+# 4. Construir imagens Docker atualizadas para produção
+echo -e "\n${BLUE}[2/5] Construindo imagens Docker atualizadas (perfil prod)...${NC}"
+$DOCKER_COMPOSE --profile prod build
 
 # 5. Iniciar PostgreSQL e aguardar prontidão
 echo -e "\n${BLUE}[3/5] Iniciando PostgreSQL e aguardando inicialização...${NC}"
@@ -84,16 +93,24 @@ if [ $RETRIES -le 0 ]; then
 fi
 
 # 6. Iniciar Backend (que executa as migrações no startup) e Nginx
-echo -e "\n${BLUE}[4/4] Subindo serviços de aplicação (Backend + Nginx)...${NC}"
-$DOCKER_COMPOSE up -d --remove-orphans backend nginx
+echo -e "\n${BLUE}[4/5] Subindo serviços de aplicação em produção (Backend + Nginx)...${NC}"
+$DOCKER_COMPOSE --profile prod up -d --remove-orphans backend nginx
 
-# 8. Limpar imagens antigas sem tag para economizar disco na VM
-echo -e "\n${BLUE}Limpando imagens antigas e camadas órfãs...${NC}"
+# 7. Limpar imagens antigas sem tag para economizar disco na VM
+echo -e "\n${BLUE}[5/5] Limpando imagens antigas e camadas órfãs...${NC}"
 docker image prune -f >/dev/null 2>&1 || true
 
 echo -e "\n${GREEN}====================================================${NC}"
 echo -e "${GREEN}     Deploy concluído com sucesso!                   ${NC}"
 echo -e "${GREEN}====================================================${NC}"
 
-# Exibe status dos containers
-$DOCKER_COMPOSE ps
+# Informações de isolamento de portas e segurança
+echo -e "\n${BLUE}[Segurança e Isolamento de Rede em Produção]${NC}"
+echo -e " - ${GREEN}Nginx Proxy:${NC} Ponto único de entrada nas portas 80 (HTTP) e 443 (HTTPS)"
+echo -e " - ${GREEN}Backend API:${NC} Isolado na rede interna Docker 'emporio_net' (sem portas públicas)"
+echo -e " - ${GREEN}PostgreSQL:${NC}  Bind restrito ao loopback 127.0.0.1 (inacessível pela internet pública)"
+echo -e "   -> Para acesso remoto via túnel SSH: ssh -L 5432:localhost:5432 <usuario>@<ip-vm>"
+
+# Exibe status dos containers em produção
+echo -e "\n${BLUE}[Status dos Containers]:${NC}"
+$DOCKER_COMPOSE --profile prod ps

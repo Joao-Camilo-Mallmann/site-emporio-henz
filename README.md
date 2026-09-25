@@ -150,7 +150,7 @@ Caso deseje desenvolver diretamente na máquina host:
    bun install
    ```
 2. **Configurar variáveis de ambiente:**
-   Copie `.env.example` para `.env` e ajuste `DATABASE_URL` e `POSTGRES_HOST=localhost` com as credenciais do seu banco local.
+   Copie `.env.example` para `.env` e ajuste as credenciais do seu banco local (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_HOST=localhost`).
 3. **Executar as migrações no banco de dados:**
    ```bash
    bun run migrate

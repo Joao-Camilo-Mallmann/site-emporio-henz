@@ -9,15 +9,15 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-emporio_henz}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
 
     networks:
       - emporio_net
@@ -26,7 +26,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-emporio_henz}",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
         ]
       interval: 5s
       timeout: 5s
@@ -52,11 +52,13 @@ services:
 
     environment:
       PORT: 3001
-      NODE_ENV: ${NODE_ENV:-production}
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
-
-    ports:
-      - "${BACKEND_PORT:-3001}:3001"
+      NODE_ENV: ${NODE_ENV}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      JWT_SECRET: ${JWT_SECRET}
 
     networks:
       - emporio_net
@@ -77,6 +79,7 @@ services:
 
     ports:
       - "${PORT_HTTP:-80}:80"
+      - "${PORT_HTTPS:-443}:443"
 
     depends_on:
       - backend
@@ -109,10 +112,15 @@ services:
     environment:
       PORT: 3001
       NODE_ENV: ${NODE_ENV:-development}
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      JWT_SECRET: ${JWT_SECRET}
 
     ports:
-      - "${BACKEND_PORT:-3001}:3001"
+      - "${BACKEND_PORT}:3001"
 
     networks:
       - emporio_net
@@ -142,7 +150,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
 
     ports:
-      - "${PORT_HTTP:-3000}:3000"
+      - "${PORT_HTTP}:3000"
 
     networks:
       - emporio_net

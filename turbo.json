@@ -4,7 +4,6 @@
   "globalEnv": [
     "PORT",
     "NODE_ENV",
-    "DATABASE_URL",
     "POSTGRES_USER",
     "POSTGRES_PASSWORD",
     "POSTGRES_DB",
