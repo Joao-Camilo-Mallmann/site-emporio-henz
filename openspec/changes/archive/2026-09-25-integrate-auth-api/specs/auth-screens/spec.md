@@ -1,10 +1,4 @@
-# Authentication Screens
-
-## Purpose
-
-Define responsive authentication screens (unified login and customer self-registration) matching the Figma visual design standards.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Public Customer Login Screen
 

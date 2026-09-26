@@ -1,12 +1,18 @@
-export type UserRole = 1 | 2 | 3; // 1: Cliente, 2: Vendedor, 3: Administrador
+export enum UserRole {
+  Cliente = 1,
+  Vendedor = 2,
+  Administrador = 3,
+}
 
 export interface UserProfile {
   id: string;
   name: string;
+  fullName?: string;
   email: string;
   role: UserRole;
   roleName?: "cliente" | "vendedor" | "admin";
   phone?: string;
+  city?: string;
   avatarUrl?: string;
   createdAt?: string;
 }
@@ -17,10 +23,12 @@ export interface LoginCredentials {
 }
 
 export interface RegisterInput {
-  name: string;
+  fullName: string;
+  name?: string;
   email: string;
   password: string;
   phone: string;
+  city?: string;
 }
 
 export interface AuthResponse {

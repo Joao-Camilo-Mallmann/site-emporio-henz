@@ -1,9 +1,10 @@
+import { useAppStore } from "@/stores/app";
+import { useAuthStore } from "@/stores/auth";
+import { UserRole } from "@/types";
 import HomeView from "@/views/HomeView.vue";
 import LoginView from "@/views/auth/LoginView.vue";
 import RegisterView from "@/views/auth/RegisterView.vue";
-import { useAppStore } from "@/stores/app";
-import { useAuthStore } from "@/stores/auth";
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, RouterView } from "vue-router";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,14 +35,95 @@ const router = createRouter({
     },
     {
       path: "/admin",
-      name: "admin",
-      component: () => import("@/views/admin/AdminDashboardView.vue"),
+      component: RouterView,
       meta: {
-        title: "Painel Administrativo | Empório Henz",
         requiresAuth: true,
-        roles: [2, 3],
+        roles: [UserRole.Vendedor, UserRole.Administrador],
       },
+      children: [
+        {
+          path: "",
+          name: "admin",
+          component: () => import("@/views/admin/AdminDashboardView.vue"),
+          meta: {
+            title: "Painel Administrativo | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Vendedor, UserRole.Administrador],
+          },
+        },
+
+        // CRUD Fornecedores (List, New, Edit)
+        {
+          path: "fornecedores",
+          name: "admin-fornecedores",
+          component: () =>
+            import("@/views/admin/fornecedores/FornecedorListView.vue"),
+          meta: {
+            title: "Gestão de Fornecedores | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
+        {
+          path: "fornecedores/novo",
+          name: "admin-fornecedores-novo",
+          component: () =>
+            import("@/views/admin/fornecedores/FornecedorNewView.vue"),
+          meta: {
+            title: "Novo Fornecedor | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
+        {
+          path: "fornecedores/:id/editar",
+          name: "admin-fornecedores-editar",
+          component: () =>
+            import("@/views/admin/fornecedores/FornecedorEditView.vue"),
+          meta: {
+            title: "Editar Fornecedor | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
+
+        // CRUD Usuários (List, New, Edit)
+        {
+          path: "usuarios",
+          name: "admin-usuarios",
+          component: () =>
+            import("@/views/admin/usuarios/UsuarioListView.vue"),
+          meta: {
+            title: "Gestão de Usuários & Clientes | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
+        {
+          path: "usuarios/novo",
+          name: "admin-usuarios-novo",
+          component: () =>
+            import("@/views/admin/usuarios/UsuarioNewView.vue"),
+          meta: {
+            title: "Novo Usuário | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
+        {
+          path: "usuarios/:id/editar",
+          name: "admin-usuarios-editar",
+          component: () =>
+            import("@/views/admin/usuarios/UsuarioEditView.vue"),
+          meta: {
+            title: "Editar Usuário | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
+      ],
     },
+
     {
       path: "/sobre-a-loja",
       name: "sobre-a-loja",
@@ -78,10 +160,20 @@ router.beforeEach(async (to) => {
       };
     }
 
-    // Usuário autenticado mas sem cargo autorizado (ex: Cliente tentando acessar /admin)
+    // Usuário autenticado mas sem cargo autorizado (ex: Cliente tentando acessar /admin ou Vendedor tentando acessar fornecedores/usuarios)
     if (requiredRoles && !requiredRoles.includes(authStore.user.role)) {
+      if (authStore.user.role === UserRole.Vendedor) {
+        appStore.showAlert(
+          "Acesso restrito: este módulo requer permissões de Administrador.",
+          "warning",
+        );
+        return {
+          path: "/admin",
+        };
+      }
+
       appStore.showAlert(
-        "Acesso negado: o Painel Administrativo é exclusivo para a equipe de colaboradores e gestores.",
+        "Acesso negado: a área administrativa é exclusiva para a equipe autorizada.",
         "warning",
       );
       return {

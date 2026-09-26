@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
 import { reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -13,6 +14,7 @@ const form = reactive({
 });
 
 const showPassword = ref(false);
+const loading = ref(false);
 const formErrors = reactive({
   email: "",
   password: "",
@@ -44,11 +46,18 @@ function validate(): boolean {
 async function handleSubmit() {
   if (!validate()) return;
 
+  loading.value = true;
+  generalError.value = "";
+
   try {
-    await authStore.login({
+    const body = {
       email: form.email.trim(),
       password: form.password,
-    });
+    };
+
+    const response = await authApi.login(body);
+    authStore.setAuth(response);
+
     const redirectPath =
       typeof route.query.redirect === "string" &&
       route.query.redirect.startsWith("/")
@@ -56,18 +65,17 @@ async function handleSubmit() {
         : "/";
     router.push(redirectPath);
   } catch (err: unknown) {
-    const errorObj = err as Error;
+    const errorObj = err as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
     generalError.value =
-      errorObj.message || "Erro ao conectar. Verifique suas credenciais.";
+      errorObj.response?.data?.message ||
+      errorObj.message ||
+      "Falha ao realizar login.";
+  } finally {
+    loading.value = false;
   }
-}
-
-function fillTestAccount(email: string, pass: string) {
-  form.email = email;
-  form.password = pass;
-  formErrors.email = "";
-  formErrors.password = "";
-  generalError.value = "";
 }
 </script>
 
@@ -228,14 +236,14 @@ function fillTestAccount(email: string, pass: string) {
         <div class="pt-2">
           <button
             type="submit"
-            :disabled="authStore.loading"
+            :disabled="loading"
             class="w-full py-3.5 px-6 rounded-[10px] bg-secondary-hover hover:bg-primary text-white font-medium text-base shadow-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <span
-              v-if="authStore.loading"
+              v-if="loading"
               class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
             ></span>
-            <span>{{ authStore.loading ? "Entrando..." : "Entrar" }}</span>
+            <span>{{ loading ? "Entrando..." : "Entrar" }}</span>
           </button>
         </div>
 
@@ -264,38 +272,6 @@ function fillTestAccount(email: string, pass: string) {
           </RouterLink>
         </div>
       </form>
-
-      <!-- Atalho de Teste Rápido -->
-      <div
-        class="mt-8 pt-6 border-t border-dashed border-stone-200 text-xs text-stone-500 space-y-2"
-      >
-        <p class="font-semibold text-stone-700">
-          Atalhos rápidos para teste (Mock):
-        </p>
-        <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            @click="fillTestAccount('cliente@emporiohenz.com.br', '12345678')"
-            class="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium transition-colors cursor-pointer"
-          >
-            Cliente (Maria)
-          </button>
-          <button
-            type="button"
-            @click="fillTestAccount('vendedor@emporiohenz.com.br', '12345678')"
-            class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/60 font-medium transition-colors cursor-pointer"
-          >
-            Vendedor (Carlos)
-          </button>
-          <button
-            type="button"
-            @click="fillTestAccount('admin@emporiohenz.com.br', 'admin123')"
-            class="px-2.5 py-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-primary-dark border border-sky-200/60 font-medium transition-colors cursor-pointer"
-          >
-            Admin (João)
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>

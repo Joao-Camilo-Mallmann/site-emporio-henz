@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -16,6 +17,7 @@ const form = reactive({
 
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
+const loading = ref(false);
 const generalError = ref("");
 
 const formErrors = reactive({
@@ -96,17 +98,34 @@ function validate(): boolean {
 async function handleSubmit() {
   if (!validate()) return;
 
+  loading.value = true;
+  generalError.value = "";
+
   try {
-    await authStore.register({
+    const body = {
+      fullName: form.name.trim(),
       name: form.name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
       password: form.password,
-    });
+    };
+
+    const response = await authApi.register(body);
+
+    authStore.setAuth(response);
+
     router.push("/");
   } catch (err: unknown) {
-    const errorObj = err as Error;
-    generalError.value = errorObj.message || "Erro ao realizar cadastro.";
+    const errorObj = err as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    generalError.value =
+      errorObj.response?.data?.message ||
+      errorObj.message ||
+      "Falha ao realizar cadastro.";
+  } finally {
+    loading.value = false;
   }
 }
 </script>
@@ -376,15 +395,15 @@ async function handleSubmit() {
         <div class="pt-4">
           <button
             type="submit"
-            :disabled="authStore.loading"
+            :disabled="loading"
             class="w-full py-3.5 px-6 rounded-[10px] bg-secondary-hover hover:bg-primary text-white font-medium text-base shadow-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <span
-              v-if="authStore.loading"
+              v-if="loading"
               class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
             ></span>
             <span>{{
-              authStore.loading ? "Criando conta..." : "Criar minha conta"
+              loading ? "Criando conta..." : "Criar minha conta"
             }}</span>
           </button>
         </div>

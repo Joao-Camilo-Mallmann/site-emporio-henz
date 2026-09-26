@@ -1,10 +1,4 @@
-# Authentication Store and Interceptor
-
-## Purpose
-
-Manage authentication state, tokens, user session lifecycle with Pinia, and HTTP headers with Axios interceptors.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Centralized Pinia Authentication Store
 
@@ -38,6 +32,8 @@ The application SHALL configure Axios interceptors to automatically attach the a
 
 - **WHEN** any API endpoint responds with HTTP 401 Unauthorized
 - **THEN** the Axios response interceptor SHALL trigger `authStore.logout()` and redirect the browser to `/login`
+
+## ADDED Requirements
 
 ### Requirement: Backend Healthcheck and Axios Configuration
 

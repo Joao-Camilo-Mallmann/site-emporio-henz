@@ -311,10 +311,15 @@ onUnmounted(() => {
           <RouterLink
             v-if="authStore.isEquipe"
             to="/admin"
-            class="bg-amber-500/15 text-amber-300 border border-amber-400/30 hover:bg-amber-500/25 px-3 py-1.5 rounded-xl font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+            class="flex flex-col items-center justify-center gap-1 text-white hover:text-amber-200 hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer"
           >
-            <Icon icon="mdi:shield-account" class="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Painel Admin</span>
+            <Icon
+              icon="mdi:shield-account"
+              class="w-5 h-5 text-white transition-all duration-200 group-hover:scale-110 group-hover:text-amber-200"
+            />
+            <span class="text-xs font-semibold leading-tight tracking-tight"
+              >Painel Admin</span
+            >
           </RouterLink>
 
           <!-- Menu de Usuário Desktop -->
@@ -441,7 +446,10 @@ onUnmounted(() => {
                   @click="closeUserMenu"
                   class="flex items-center gap-2.5 px-4 py-2 hover:bg-amber-50 text-amber-900 transition-colors font-medium"
                 >
-                  <Icon icon="mdi:shield-account" class="w-4 h-4 text-amber-700 shrink-0" />
+                  <Icon
+                    icon="mdi:shield-account"
+                    class="w-4 h-4 text-amber-700 shrink-0"
+                  />
                   <span>Painel Admin</span>
                 </RouterLink>
               </div>
@@ -638,7 +646,7 @@ onUnmounted(() => {
           class="flex items-center justify-center gap-2 text-white font-medium select-none text-center w-full md:w-auto"
         >
           <Icon icon="mdi-truck" class="w-5 h-5 shrink-0" />
-          <span class="font-normal text-white ">
+          <span class="font-normal text-white">
             Entrega e montagem em todo Vale do Taquari
           </span>
         </div>
@@ -883,9 +891,12 @@ onUnmounted(() => {
                   v-if="authStore.isEquipe"
                   to="/admin"
                   @click="closeDrawer"
-                  class="flex items-center gap-3 py-2.5 px-3 font-semibold text-amber-300 bg-amber-500/15 border border-amber-400/30 rounded-lg hover:bg-amber-500/25 transition-colors cursor-pointer shadow-xs my-1"
+                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:text-amber-200 hover:bg-white/10 rounded-lg transition-colors cursor-pointer group"
                 >
-                  <Icon icon="mdi:shield-account" class="w-5 h-5 text-amber-400 shrink-0" />
+                  <Icon
+                    icon="mdi:shield-account"
+                    class="w-5 h-5 text-white shrink-0 transition-colors group-hover:text-amber-200"
+                  />
                   <span>Painel Admin</span>
                 </RouterLink>
 

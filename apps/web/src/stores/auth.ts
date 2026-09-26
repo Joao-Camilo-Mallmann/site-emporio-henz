@@ -1,7 +1,7 @@
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
 import { authApi } from "@/api";
-import type { UserProfile, LoginCredentials, RegisterInput } from "@/types";
+import { UserRole, type UserProfile } from "@/types";
+import { defineStore } from "pinia";
+import { computed, ref } from "vue";
 
 export const TOKEN_STORAGE_KEY = "token";
 
@@ -12,57 +12,18 @@ export const useAuthStore = defineStore("auth", () => {
   const error = ref<string | null>(null);
 
   const isAuthenticated = computed(() => !!token.value && !!user.value);
-  const isAdmin = computed(() => user.value?.role === 3);
-  const isVendedor = computed(() => user.value?.role === 2);
-  const isCliente = computed(() => user.value?.role === 1);
+  const isAdmin = computed(() => user.value?.role === UserRole.Administrador);
+  const isVendedor = computed(() => user.value?.role === UserRole.Vendedor);
+  const isCliente = computed(() => user.value?.role === UserRole.Cliente);
   const isEquipe = computed(() => isAdmin.value || isVendedor.value);
 
-  async function login(credentials: LoginCredentials): Promise<void> {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await authApi.login(credentials);
-      token.value = response.token;
-      user.value = response.user;
-      localStorage.setItem(TOKEN_STORAGE_KEY, response.token);
-    } catch (err: unknown) {
-      const errorObj = err as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const message =
-        errorObj.response?.data?.message ||
-        errorObj.message ||
-        "Falha ao realizar login.";
-      error.value = message;
-      throw new Error(message);
-    } finally {
-      loading.value = false;
-    }
-  }
-
-  async function register(input: RegisterInput): Promise<void> {
-    loading.value = true;
-    error.value = null;
-    try {
-      const response = await authApi.register(input);
-      token.value = response.token;
-      user.value = response.user;
-      localStorage.setItem(TOKEN_STORAGE_KEY, response.token);
-    } catch (err: unknown) {
-      const errorObj = err as {
-        response?: { data?: { message?: string } };
-        message?: string;
-      };
-      const message =
-        errorObj.response?.data?.message ||
-        errorObj.message ||
-        "Falha ao realizar cadastro.";
-      error.value = message;
-      throw new Error(message);
-    } finally {
-      loading.value = false;
-    }
+  function setAuth(response: { token: string; user: UserProfile }): void {
+    token.value = response.token;
+    user.value = {
+      ...response.user,
+      name: response.user.name || response.user.fullName || "",
+    };
+    localStorage.setItem(TOKEN_STORAGE_KEY, response.token);
   }
 
   async function fetchCurrentUser(): Promise<void> {
@@ -73,8 +34,11 @@ export const useAuthStore = defineStore("auth", () => {
 
     loading.value = true;
     try {
-      const profile = await authApi.me(token.value);
-      user.value = profile;
+      const profile = await authApi.me();
+      user.value = {
+        ...profile,
+        name: profile.name || profile.fullName || "",
+      };
     } catch {
       console.warn("Sessão expirada ou inválida, efetuando logout...");
       logout();
@@ -100,8 +64,7 @@ export const useAuthStore = defineStore("auth", () => {
     isVendedor,
     isCliente,
     isEquipe,
-    login,
-    register,
+    setAuth,
     fetchCurrentUser,
     logout,
   };

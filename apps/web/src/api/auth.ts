@@ -1,40 +1,32 @@
 import { api as axios } from "@/plugins/axios";
 import type {
+  AuthResponse,
   LoginCredentials,
   RegisterInput,
   UserProfile,
-  AuthResponse,
 } from "@/types";
-import { mockLogin, mockRegister, mockMe } from "@/utils/mocks/authMock";
 
-// Alternador entre simulação transparente e chamada real ao backend Bun
-const USE_MOCK = true;
-
-export default {
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    if (USE_MOCK) {
-      return await mockLogin(credentials);
-    }
-    const response = await axios.post<AuthResponse>(
-      "/api/auth/login",
-      credentials,
+export const authApi = {
+  async login(body: LoginCredentials): Promise<AuthResponse> {
+    const response = await axios.post<{ token: string; user: UserProfile }>(
+      "/auth/login",
+      body,
     );
     return response.data;
   },
 
-  async register(data: RegisterInput): Promise<AuthResponse> {
-    if (USE_MOCK) {
-      return await mockRegister(data);
-    }
-    const response = await axios.post<AuthResponse>("/api/auth/register", data);
+  async register(body: RegisterInput): Promise<AuthResponse> {
+    const response = await axios.post<{ token: string; user: UserProfile }>(
+      "/auth/register",
+      body,
+    );
     return response.data;
   },
 
-  async me(token?: string): Promise<UserProfile> {
-    if (USE_MOCK) {
-      return await mockMe(token || "");
-    }
-    const response = await axios.get<UserProfile>("/api/auth/me");
+  async me(): Promise<UserProfile> {
+    const response = await axios.get<UserProfile>("/auth/me");
     return response.data;
   },
 };
+
+export default authApi;
