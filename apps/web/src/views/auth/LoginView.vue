@@ -62,7 +62,7 @@ async function handleSubmit() {
       typeof route.query.redirect === "string" &&
       route.query.redirect.startsWith("/")
         ? route.query.redirect
-        : "/";
+        : "/admin";
     router.push(redirectPath);
   } catch (err: unknown) {
     const errorObj = err as {

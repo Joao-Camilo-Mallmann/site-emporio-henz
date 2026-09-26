@@ -1,7 +1,4 @@
-<script setup lang="ts">
-import UiFloatingActions from "@/components/UiFloatingActions.vue";
-import UiFloatingButton from "@/components/UiFloatingButton.vue";
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <footer

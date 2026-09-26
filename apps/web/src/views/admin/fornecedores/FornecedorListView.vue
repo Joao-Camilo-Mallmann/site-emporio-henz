@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { fornecedoresApi } from "@/api";
-import { useAppStore } from "@/stores/app";
+import { useToast } from "@/composables/useToast";
 import type { ISupplier } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 
-const appStore = useAppStore();
+const toast = useToast();
 
 // Estado da Listagem
 const suppliers = ref<ISupplier[]>([]);
@@ -78,18 +78,17 @@ async function confirmarExclusao() {
     if (index !== -1) {
       suppliers.value[index].active = false;
     }
-    appStore.showAlert("Fornecedor desativado com sucesso.", "info");
+    toast.info("Fornecedor desativado com sucesso.");
     fecharModalExclusao();
   } catch (err: unknown) {
     const errorObj = err as {
       response?: { data?: { message?: string } };
       message?: string;
     };
-    appStore.showAlert(
+    toast.error(
       errorObj.response?.data?.message ||
         errorObj.message ||
         "Erro ao desativar fornecedor.",
-      "error",
     );
   } finally {
     actionLoading.value = false;
@@ -305,51 +304,15 @@ onMounted(() => {
     </div>
 
     <!-- Modal Limpo de Confirmação de Exclusão Lógica -->
-    <div
-      v-if="isDeleteModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
+    <UiModal
+      :open="isDeleteModalOpen"
+      title="Desativar Fornecedor"
+      variant="danger"
+      :loading="actionLoading"
+      @close="fecharModalExclusao"
+      @confirm="confirmarExclusao"
     >
-      <div
-        class="bg-white rounded-xl w-full max-w-sm p-6 border border-stone-200 shadow-xl space-y-4"
-      >
-        <div class="flex items-start gap-3">
-          <div
-            class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0"
-          >
-            <Icon icon="mdi:alert-outline" class="w-5 h-5" />
-          </div>
-          <div>
-            <h3 class="text-sm font-semibold text-neutral-dark">
-              Desativar Fornecedor
-            </h3>
-            <p class="text-xs text-stone-500 mt-1 leading-relaxed">
-              Deseja desativar <strong class="text-neutral-dark">{{ supplierToDelete?.name }}</strong>? O histórico é mantido, mas o fornecedor não estará ativo para novos vínculos.
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-100">
-          <button
-            type="button"
-            @click="fecharModalExclusao"
-            class="px-3.5 py-1.5 rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50 font-medium text-xs transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            :disabled="actionLoading"
-            @click="confirmarExclusao"
-            class="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition-colors flex items-center gap-1.5 disabled:opacity-60 cursor-pointer"
-          >
-            <span
-              v-if="actionLoading"
-              class="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"
-            ></span>
-            <span>Confirmar</span>
-          </button>
-        </div>
-      </div>
-    </div>
+      Deseja desativar <strong class="text-neutral-dark">{{ supplierToDelete?.name }}</strong>? O histórico é mantido, mas o fornecedor não estará ativo para novos vínculos.
+    </UiModal>
   </div>
 </template>

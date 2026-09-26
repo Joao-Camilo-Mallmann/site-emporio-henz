@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usuariosApi } from "@/api";
-import { useAppStore } from "@/stores/app";
+import { useToast } from "@/composables/useToast";
 import type { IUser, UserCreateInput, UserUpdateInput } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
@@ -9,7 +9,7 @@ import UsuarioForm from "./UsuarioForm.vue";
 
 const route = useRoute();
 const router = useRouter();
-const appStore = useAppStore();
+const toast = useToast();
 
 const userId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
@@ -51,7 +51,7 @@ async function handleUpdate(payload: UserCreateInput | UserUpdateInput) {
 
   try {
     await usuariosApi.atualizar(userId.value, payload as UserUpdateInput);
-    appStore.showAlert("Usuário atualizado com sucesso!", "success");
+    toast.success("Usuário atualizado com sucesso!");
     router.push("/admin/usuarios");
   } catch (err: unknown) {
     const errorObj = err as {

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { fornecedoresApi } from "@/api";
-import { useAppStore } from "@/stores/app";
+import { useToast } from "@/composables/useToast";
 import type { SupplierCreateInput, SupplierUpdateInput } from "@/types";
 import { ref } from "vue";
 import { useRouter, RouterLink } from "vue-router";
 import FornecedorForm from "./FornecedorForm.vue";
 
 const router = useRouter();
-const appStore = useAppStore();
+const toast = useToast();
 
 const saving = ref(false);
 const errorMessage = ref<string | null>(null);
@@ -18,7 +18,7 @@ async function handleCreate(payload: SupplierCreateInput | SupplierUpdateInput) 
 
   try {
     await fornecedoresApi.criar(payload as SupplierCreateInput);
-    appStore.showAlert("Fornecedor cadastrado com sucesso!", "success");
+    toast.success("Fornecedor cadastrado com sucesso!");
     router.push("/admin/fornecedores");
   } catch (err: unknown) {
     const errorObj = err as {

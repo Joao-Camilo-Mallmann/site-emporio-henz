@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { usuariosApi } from "@/api";
-import { useAppStore } from "@/stores/app";
+import { useToast } from "@/composables/useToast";
 import type { UserCreateInput, UserUpdateInput } from "@/types";
 import { ref } from "vue";
 import { useRouter, RouterLink } from "vue-router";
 import UsuarioForm from "./UsuarioForm.vue";
 
 const router = useRouter();
-const appStore = useAppStore();
+const toast = useToast();
 
 const saving = ref(false);
 const errorMessage = ref<string | null>(null);
@@ -18,7 +18,7 @@ async function handleCreate(payload: UserCreateInput | UserUpdateInput) {
 
   try {
     await usuariosApi.criar(payload as UserCreateInput);
-    appStore.showAlert("Novo usuário cadastrado com sucesso!", "success");
+    toast.success("Novo usuário cadastrado com sucesso!");
     router.push("/admin/usuarios");
   } catch (err: unknown) {
     const errorObj = err as {

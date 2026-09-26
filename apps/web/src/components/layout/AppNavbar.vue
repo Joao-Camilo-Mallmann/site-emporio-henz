@@ -129,15 +129,61 @@ function toggleAccordion(slug: string) {
   activeAccordion.value = activeAccordion.value === slug ? null : slug;
 }
 
-function handleLogout() {
+const isLoggingOut = ref(false);
+const showLogoutToast = ref(false);
+const loggedOutUserName = ref("");
+let logoutToastTimer: ReturnType<typeof setTimeout> | null = null;
+
+function triggerLogoutToast(name: string) {
+  if (logoutToastTimer) {
+    clearTimeout(logoutToastTimer);
+    logoutToastTimer = null;
+  }
+  loggedOutUserName.value = name;
+  showLogoutToast.value = true;
+
+  logoutToastTimer = setTimeout(() => {
+    closeLogoutToast();
+  }, 3500);
+}
+
+function closeLogoutToast() {
+  if (logoutToastTimer) {
+    clearTimeout(logoutToastTimer);
+    logoutToastTimer = null;
+  }
+  showLogoutToast.value = false;
+}
+
+async function handleLogout() {
+  if (isLoggingOut.value) return;
+  isLoggingOut.value = true;
+  const firstName = authStore.user?.name?.split(" ")[0] || "Usuário";
+
+  // Pequeno delay para feedback visual claro no botão ("Desconectando...")
+  await new Promise((resolve) => setTimeout(resolve, 450));
+
   authStore.logout();
   closeUserMenu();
+  isLoggingOut.value = false;
+
+  triggerLogoutToast(firstName);
   router.push("/");
 }
 
-function handleLogoutDrawer() {
+async function handleLogoutDrawer() {
+  if (isLoggingOut.value) return;
+  isLoggingOut.value = true;
+  const firstName = authStore.user?.name?.split(" ")[0] || "Usuário";
+
+  // Pequeno delay para feedback visual claro no botão ("Desconectando...")
+  await new Promise((resolve) => setTimeout(resolve, 450));
+
   authStore.logout();
   closeDrawer();
+  isLoggingOut.value = false;
+
+  triggerLogoutToast(firstName);
   router.push("/");
 }
 
@@ -171,6 +217,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (dropdownTimer) clearTimeout(dropdownTimer);
+  if (logoutToastTimer) clearTimeout(logoutToastTimer);
   document.removeEventListener("click", handleClickOutside);
   window.removeEventListener("keydown", handleKeydown);
   document.body.style.overflow = "";
@@ -399,24 +446,19 @@ onUnmounted(() => {
 
               <div class="py-1">
                 <RouterLink
-                  to="/"
+                  :to="
+                    authStore.isAdmin
+                      ? `/admin/usuarios/${authStore.user.id}/editar`
+                      : '/'
+                  "
                   @click="closeUserMenu"
                   class="flex items-center gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors"
                 >
-                  <svg
-                    class="w-4 h-4 text-stone-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                  <span>Minha Conta</span>
+                  <Icon
+                    icon="mdi:account-edit-outline"
+                    class="w-4 h-4 text-stone-400 shrink-0"
+                  />
+                  <span>Editar Usuário</span>
                 </RouterLink>
 
                 <RouterLink
@@ -424,19 +466,10 @@ onUnmounted(() => {
                   @click="closeUserMenu"
                   class="flex items-center gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors"
                 >
-                  <svg
-                    class="w-4 h-4 text-stone-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
+                  <Icon
+                    icon="mdi:heart-outline"
+                    class="w-4 h-4 text-stone-400 shrink-0"
+                  />
                   <span>Móveis Salvos</span>
                 </RouterLink>
 
@@ -460,19 +493,10 @@ onUnmounted(() => {
                   @click="handleLogout"
                   class="w-full text-left flex items-center gap-2.5 px-4 py-2 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                 >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                  </svg>
+                  <Icon
+                    icon="mdi:logout"
+                    class="w-4 h-4 text-rose-600 shrink-0"
+                  />
                   <span>Sair da conta</span>
                 </button>
               </div>
@@ -636,6 +660,7 @@ onUnmounted(() => {
 
     <!-- Barra Secundária (#007CD8) com Dropdowns Desktop e Centralização Mobile -->
     <div
+      v-if="!router.currentRoute.value.path.includes('/admin')"
       class="bg-secondary text-white border-b border-sky-600 shadow-sm relative"
     >
       <div
@@ -833,19 +858,10 @@ onUnmounted(() => {
                   @click="closeDrawer"
                   class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                 >
-                  <svg
+                  <Icon
+                    icon="mdi:heart-outline"
                     class="w-5 h-5 text-white shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
+                  />
                   <span>Salvos</span>
                 </RouterLink>
 
@@ -900,29 +916,28 @@ onUnmounted(() => {
                   <span>Painel Admin</span>
                 </RouterLink>
 
-                <!-- Minha conta -->
+                <!-- Minha conta / Editar Usuário -->
                 <RouterLink
-                  :to="authStore.isAuthenticated ? '/' : '/login'"
+                  :to="
+                    authStore.isAuthenticated
+                      ? (authStore.isAdmin
+                        ? `/admin/usuarios/${authStore.user?.id}/editar`
+                        : '/')
+                      : '/login'
+                  "
                   @click="closeDrawer"
                   class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                 >
-                  <svg
+                  <Icon
+                    :icon="
+                      authStore.isAdmin
+                        ? 'mdi:account-edit-outline'
+                        : 'mdi:account-circle-outline'
+                    "
                     class="w-5 h-5 text-white shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                  >
-                    <circle cx="12" cy="12" r="9" />
-                    <circle cx="12" cy="10" r="3" />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.832 2.849"
-                    />
-                  </svg>
+                  />
                   <span v-if="authStore.isAuthenticated && authStore.user">
-                    Minha conta ({{ authStore.user.name.split(" ")[0] }})
+                    {{ authStore.isAdmin ? 'Editar Usuário' : 'Minha conta' }} ({{ authStore.user.name.split(" ")[0] }})
                   </span>
                   <span v-else>Minha conta</span>
                 </RouterLink>
@@ -934,19 +949,7 @@ onUnmounted(() => {
                   @click="handleLogoutDrawer"
                   class="w-full flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-left"
                 >
-                  <svg
-                    class="w-5 h-5 text-white shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                    />
-                  </svg>
+                  <Icon icon="mdi:logout" class="w-5 h-5 text-white shrink-0" />
                   <span>Sair</span>
                 </button>
 

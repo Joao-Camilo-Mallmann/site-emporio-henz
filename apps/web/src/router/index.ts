@@ -1,4 +1,4 @@
-import { useAppStore } from "@/stores/app";
+import { toast } from "vue3-toastify";
 import { useAuthStore } from "@/stores/auth";
 import { UserRole } from "@/types";
 import HomeView from "@/views/HomeView.vue";
@@ -137,7 +137,6 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore();
-  const appStore = useAppStore();
 
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   const requiredRoles = to.meta.roles as number[] | undefined;
@@ -163,18 +162,16 @@ router.beforeEach(async (to) => {
     // Usuário autenticado mas sem cargo autorizado (ex: Cliente tentando acessar /admin ou Vendedor tentando acessar fornecedores/usuarios)
     if (requiredRoles && !requiredRoles.includes(authStore.user.role)) {
       if (authStore.user.role === UserRole.Vendedor) {
-        appStore.showAlert(
+        toast.warning(
           "Acesso restrito: este módulo requer permissões de Administrador.",
-          "warning",
         );
         return {
           path: "/admin",
         };
       }
 
-      appStore.showAlert(
+      toast.warning(
         "Acesso negado: a área administrativa é exclusiva para a equipe autorizada.",
-        "warning",
       );
       return {
         path: "/",

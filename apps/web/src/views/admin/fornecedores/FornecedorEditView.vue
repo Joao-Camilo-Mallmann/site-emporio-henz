@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { fornecedoresApi } from "@/api";
-import { useAppStore } from "@/stores/app";
+import { useToast } from "@/composables/useToast";
 import type { ISupplier, SupplierCreateInput, SupplierUpdateInput } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
@@ -9,7 +9,7 @@ import FornecedorForm from "./FornecedorForm.vue";
 
 const route = useRoute();
 const router = useRouter();
-const appStore = useAppStore();
+const toast = useToast();
 
 const supplierId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
@@ -51,7 +51,7 @@ async function handleUpdate(payload: SupplierCreateInput | SupplierUpdateInput) 
 
   try {
     await fornecedoresApi.atualizar(supplierId.value, payload as SupplierUpdateInput);
-    appStore.showAlert("Fornecedor atualizado com sucesso!", "success");
+    toast.success("Fornecedor atualizado com sucesso!");
     router.push("/admin/fornecedores");
   } catch (err: unknown) {
     const errorObj = err as {

@@ -3,29 +3,11 @@ import { ref } from "vue";
 import { sistemaApi, produtosApi } from "@/api";
 import { Product, type BackendStatus } from "@/types";
 
-export interface SystemAlert {
-  message: string;
-  type: "warning" | "error" | "info" | "success";
-}
-
 export const useAppStore = defineStore("app", () => {
   const backendStatus = ref<BackendStatus>({
     online: false,
     loading: false,
   });
-
-  const systemAlert = ref<SystemAlert | null>(null);
-
-  function showAlert(
-    message: string,
-    type: SystemAlert["type"] = "warning",
-  ) {
-    systemAlert.value = { message, type };
-  }
-
-  function clearAlert() {
-    systemAlert.value = null;
-  }
 
   const produtos = ref<Product[]>([]);
   const produtosLoading = ref(false);
@@ -70,9 +52,6 @@ export const useAppStore = defineStore("app", () => {
     produtos,
     produtosLoading,
     produtosError,
-    systemAlert,
-    showAlert,
-    clearAlert,
     checkBackendHealth,
     carregarProdutos,
   };

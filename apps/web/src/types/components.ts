@@ -33,3 +33,27 @@ export interface UiFloatingActionsProps {
   showWhatsApp?: boolean;
   scrollThreshold?: number;
 }
+
+export type ModalVariant =
+  "danger" | "warning" | "info" | "primary" | "success";
+export type ModalMaxWidth = "sm" | "md" | "lg" | "xl" | "2xl";
+
+export interface UiModalProps {
+  open?: boolean;
+  modelValue?: boolean;
+  title?: string;
+  description?: string;
+  variant?: ModalVariant;
+  icon?: string;
+  showIcon?: boolean;
+  confirmText?: string;
+  cancelText?: string;
+  confirmVariant?: ModalVariant;
+  loading?: boolean;
+  maxWidth?: ModalMaxWidth;
+  showClose?: boolean;
+  showFooter?: boolean;
+  showCancel?: boolean;
+  closeOnBackdrop?: boolean;
+  closeOnEsc?: boolean;
+}

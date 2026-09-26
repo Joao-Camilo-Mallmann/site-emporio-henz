@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { usuariosApi } from "@/api";
-import { useAppStore } from "@/stores/app";
+import { useToast } from "@/composables/useToast";
 import { useAuthStore } from "@/stores/auth";
-import {
-  UserRole,
-  type IUser,
-  type UserFilterParams,
-} from "@/types";
+import { UserRole, type IUser, type UserFilterParams } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 
-const appStore = useAppStore();
+const toast = useToast();
 const authStore = useAuthStore();
 
 // Estado da Listagem
@@ -83,9 +79,8 @@ function handleRoleChange() {
 
 function abrirModalExclusao(user: IUser) {
   if (user.id === authStore.user?.id) {
-    appStore.showAlert(
+    toast.warning(
       "Você não pode desativar a sua própria conta de administrador.",
-      "warning",
     );
     return;
   }
@@ -104,7 +99,7 @@ async function confirmarExclusao() {
   actionLoading.value = true;
   try {
     await usuariosApi.deletar(userToDelete.value.id);
-    appStore.showAlert("Usuário desativado com sucesso.", "info");
+    toast.info("Usuário desativado com sucesso.");
     fecharModalExclusao();
     await carregarUsuarios(currentPage.value);
   } catch (err: unknown) {
@@ -112,11 +107,10 @@ async function confirmarExclusao() {
       response?: { data?: { message?: string } };
       message?: string;
     };
-    appStore.showAlert(
+    toast.error(
       errorObj.response?.data?.message ||
         errorObj.message ||
         "Erro ao desativar usuário.",
-      "error",
     );
   } finally {
     actionLoading.value = false;
@@ -162,10 +156,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8">
+  <div
+    class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
+  >
     <div class="max-w-5xl mx-auto space-y-6">
       <!-- Navegação Superior & Cabeçalho Limpo -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+      >
         <div>
           <RouterLink
             to="/admin"
@@ -192,7 +190,9 @@ onMounted(() => {
       </div>
 
       <!-- Barra de Filtros & Busca -->
-      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div
+        class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3"
+      >
         <div class="flex flex-1 items-center gap-2 max-w-lg">
           <div class="relative flex-1">
             <span
@@ -243,7 +243,10 @@ onMounted(() => {
         class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center justify-between gap-4"
       >
         <div class="flex items-center gap-2.5">
-          <Icon icon="mdi:alert-circle-outline" class="w-5 h-5 text-rose-500 shrink-0" />
+          <Icon
+            icon="mdi:alert-circle-outline"
+            class="w-5 h-5 text-rose-500 shrink-0"
+          />
           <span>{{ error }}</span>
         </div>
         <button
@@ -286,11 +289,15 @@ onMounted(() => {
 
       <!-- Tabela Clean de Usuários -->
       <div v-else class="space-y-4">
-        <div class="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-xs">
+        <div
+          class="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-xs"
+        >
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-stone-50 border-b border-stone-200 text-xs font-semibold text-stone-600 uppercase tracking-wider">
+                <tr
+                  class="bg-stone-50 border-b border-stone-200 text-xs font-semibold text-stone-600 uppercase tracking-wider"
+                >
                   <th class="py-3 px-4">Usuário</th>
                   <th class="py-3 px-4">Perfil</th>
                   <th class="py-3 px-4">Telefone</th>
@@ -316,7 +323,9 @@ onMounted(() => {
                         <div class="text-neutral-dark font-medium truncate">
                           {{ user.fullName }}
                         </div>
-                        <div class="text-xs text-stone-400 font-normal truncate">
+                        <div
+                          class="text-xs text-stone-400 font-normal truncate"
+                        >
                           {{ user.email }}
                         </div>
                       </div>
@@ -370,7 +379,8 @@ onMounted(() => {
           class="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500 px-1"
         >
           <span>
-            Página {{ currentPage }} de {{ totalPages }} ({{ totalUsers }} registros)
+            Página {{ currentPage }} de {{ totalPages }} ({{ totalUsers }}
+            registros)
           </span>
 
           <div class="flex items-center gap-2">
@@ -399,51 +409,18 @@ onMounted(() => {
     </div>
 
     <!-- Modal Limpo de Confirmação de Exclusão Lógica -->
-    <div
-      v-if="isDeleteModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
+    <UiModal
+      :open="isDeleteModalOpen"
+      title="Desativar Conta de Usuário"
+      variant="danger"
+      :loading="actionLoading"
+      @close="fecharModalExclusao"
+      @confirm="confirmarExclusao"
     >
-      <div
-        class="bg-white rounded-xl w-full max-w-sm p-6 border border-stone-200 shadow-xl space-y-4"
-      >
-        <div class="flex items-start gap-3">
-          <div
-            class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0"
-          >
-            <Icon icon="mdi:alert-outline" class="w-5 h-5" />
-          </div>
-          <div>
-            <h3 class="text-sm font-semibold text-neutral-dark">
-              Desativar Conta de Usuário
-            </h3>
-            <p class="text-xs text-stone-500 mt-1 leading-relaxed">
-              Deseja desativar o usuário <strong class="text-neutral-dark">{{ userToDelete?.fullName }}</strong> ({{ userToDelete?.email }})? O registro passará por exclusão lógica e a conta não poderá mais efetuar login.
-            </p>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-100">
-          <button
-            type="button"
-            @click="fecharModalExclusao"
-            class="px-3.5 py-1.5 rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50 font-medium text-xs transition-colors cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            :disabled="actionLoading"
-            @click="confirmarExclusao"
-            class="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition-colors flex items-center gap-1.5 disabled:opacity-60 cursor-pointer"
-          >
-            <span
-              v-if="actionLoading"
-              class="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"
-            ></span>
-            <span>Confirmar</span>
-          </button>
-        </div>
-      </div>
-    </div>
+      Deseja desativar o usuário
+      <strong class="text-neutral-dark">{{ userToDelete?.fullName }}</strong>
+      ({{ userToDelete?.email }})? O registro passará por exclusão lógica e a
+      conta não poderá mais efetuar login.
+    </UiModal>
   </div>
 </template>
