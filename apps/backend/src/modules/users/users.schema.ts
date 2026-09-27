@@ -22,8 +22,8 @@ export function validateCreateUser(
     return { error: "O e-mail informado é inválido." };
   }
 
-  if (typeof password !== "string" || password.length < 6) {
-    return { error: "A senha é obrigatória e deve ter pelo menos 6 caracteres." };
+  if (typeof password !== "string" || password.length < 8) {
+    return { error: "A senha é obrigatória e deve ter pelo menos 8 caracteres." };
   }
 
   if (typeof role !== "number" || !VALID_ROLES.includes(role)) {
@@ -104,9 +104,9 @@ export function validateUpdateUser(
 
   if (
     password !== undefined &&
-    (typeof password !== "string" || password.length < 6)
+    (typeof password !== "string" || password.length < 8)
   ) {
-    return { error: "A nova senha deve ter ao menos 6 caracteres." };
+    return { error: "A nova senha deve ter ao menos 8 caracteres." };
   }
 
   return {

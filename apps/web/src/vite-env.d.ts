@@ -6,3 +6,12 @@ declare module "*.vue" {
   const component: DefineComponent<{}, {}, any>;
   export default component;
 }
+
+declare module "vue" {
+  interface ComponentCustomProperties {
+    $toast: typeof import("vue3-toastify").toast;
+  }
+}
+
+export {};
+

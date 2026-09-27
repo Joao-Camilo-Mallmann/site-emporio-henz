@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
 import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
+const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -16,6 +18,7 @@ const form = reactive({
 
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
+const loading = ref(false);
 const generalError = ref("");
 
 const formErrors = reactive({
@@ -96,17 +99,40 @@ function validate(): boolean {
 async function handleSubmit() {
   if (!validate()) return;
 
+  loading.value = true;
+  generalError.value = "";
+
   try {
-    await authStore.register({
+    const body = {
+      fullName: form.name.trim(),
       name: form.name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
       password: form.password,
-    });
-    router.push("/");
+    };
+
+    const response = await authApi.register(body);
+
+    authStore.setAuth(response);
+
+    const redirect =
+      typeof route.query.redirect === "string" &&
+      route.query.redirect.startsWith("/")
+        ? route.query.redirect
+        : "";
+
+    router.push(redirect || "/");
   } catch (err: unknown) {
-    const errorObj = err as Error;
-    generalError.value = errorObj.message || "Erro ao realizar cadastro.";
+    const errorObj = err as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    generalError.value =
+      errorObj.response?.data?.message ||
+      errorObj.message ||
+      "Falha ao realizar cadastro.";
+  } finally {
+    loading.value = false;
   }
 }
 </script>
@@ -374,26 +400,31 @@ async function handleSubmit() {
 
         <!-- Botão Criar Conta -->
         <div class="pt-4">
-          <button
+          <UiButton
             type="submit"
-            :disabled="authStore.loading"
-            class="w-full py-3.5 px-6 rounded-[10px] bg-secondary-hover hover:bg-primary text-white font-medium text-base shadow-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            variant="primary"
+            :disabled="loading"
+            class="w-full !py-3.5 !text-base"
           >
             <span
-              v-if="authStore.loading"
+              v-if="loading"
               class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
             ></span>
             <span>{{
-              authStore.loading ? "Criando conta..." : "Criar minha conta"
+              loading ? "Criando conta..." : "Criar minha conta"
             }}</span>
-          </button>
+          </UiButton>
         </div>
 
         <!-- Link para Voltar ao Login -->
         <div class="text-center pt-2 text-sm text-stone-600">
           Já possui conta?
           <RouterLink
-            to="/login"
+            :to="
+              route.query.redirect
+                ? { path: '/login', query: { redirect: route.query.redirect } }
+                : '/login'
+            "
             class="font-bold text-stone-900 hover:text-secondary-hover transition-colors ml-1"
           >
             Entrar

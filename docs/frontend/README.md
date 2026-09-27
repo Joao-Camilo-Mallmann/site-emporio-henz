@@ -20,6 +20,14 @@ Conforme estabelecido nas regras do projeto ([agents.md](../../agents.md) e [app
    > É **terminantemente proibido** utilizar valores hexadecimais inline arbitrários (como `bg-[#123854]`, `text-[#007CD8]`, `border-[#D0D5DD]`).
    > Todas as cores do Figma possuem tokens semânticos oficiais mapeados no Tailwind.
 
+3. **Padronização de Botões com `<UiButton>` e Auto-import de Componentes**:
+   > [!IMPORTANT]
+   > - É **obrigatório** utilizar o componente `<UiButton>` para todos os botões e disparadores de ação na interface. Não utilize tags `<button>` nativas soltas com estilos ad-hoc. Variantes disponíveis: `primary`, `secondary` e `outline`.
+   > - O projeto utiliza `unplugin-vue-components`. Todo e qualquer componente criado em `apps/web/src/components/` é automaticamente importado nos templates e tem seus tipos TypeScript gerados em `apps/web/src/components.d.ts` sem necessidade de imports manuais ou registros com `app.component()`.
+
+4. **Sistema de Notificações Flutuantes (Toasts)**:
+   Notificações e feedbacks visuais transitórios utilizam a biblioteca `vue3-toastify` configurada no plugin global (tema `light`, posição `bottom-right`, `autoClose: 3500ms` e `clearOnUrlChange: false`). Devem ser acionadas idiomaticamente via composable `useToast()` (`apps/web/src/composables/useToast.ts`) na Composition API ou pela propriedade global de template `$toast`. O banner estático em `App.vue` e o estado `systemAlert` na store `useAppStore` foram descontinuados.
+
 ---
 
 ## 📁 Arquivos e Guias do Diretório

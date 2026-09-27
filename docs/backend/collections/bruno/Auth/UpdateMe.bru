@@ -1,0 +1,24 @@
+meta {
+  name: Atualizar Perfil Próprio (UpdateMe)
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/auth/me
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "fullName": "Maria Silva Atualizada",
+    "phone": "(51) 98765-4321",
+    "city": "Estrela",
+    "password": "NovaSenhaSegura@123"
+  }
+}

@@ -58,5 +58,6 @@ Toda funcionalidade com persistência, lógica de servidor e interface deve ser 
 - Modele e valide o banco antes do backend e do frontend.
 - Use soft delete e integridade conforme PRD e documentação de database.
 - Não use cores hexadecimais arbitrárias no frontend; use os tokens do design system.
+- No frontend (`apps/web`), use sempre o componente global `<UiButton>` para botões e ações da interface, nunca tags `<button>` nativas soltas.
 - Toda mudança de API deve atualizar, na mesma entrega, a collection Bruno em [`docs/backend/collections/bruno/`](docs/backend/collections/bruno/). Consultar a API é consultar essa collection.
 - Use Bun para instalar dependências e executar os comandos do monorepo.

@@ -24,3 +24,10 @@ export interface AuthResponse {
   token: string;
   user: AuthUserProfile;
 }
+
+export interface UpdateProfileDto {
+  fullName: string;
+  phone?: string;
+  city?: string;
+  password?: string;
+}

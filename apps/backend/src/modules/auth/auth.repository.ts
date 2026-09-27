@@ -1,5 +1,5 @@
 import { sql } from "@/config/database";
-import { AuthUserProfile } from "@/modules/auth/auth.types";
+import { AuthUserProfile, UpdateProfileDto } from "@/modules/auth/auth.types";
 
 export interface UserAuthRecord {
   id: string;
@@ -114,6 +114,78 @@ export class AuthRepository {
         role: user.role,
         fullName: client.full_name,
         phone: client.phone,
+        city: user.city,
+      };
+    });
+  }
+
+  async updateProfile(
+    userId: string,
+    data: UpdateProfileDto,
+    passwordHash?: string,
+  ): Promise<AuthUserProfile | null> {
+    return await sql.begin(async (tx) => {
+      const users = await tx<
+        { id: string; email: string; role: number; city: string | null }[]
+      >`
+        UPDATE users
+        SET 
+          city = CASE WHEN ${data.city !== undefined} THEN ${data.city ?? null} ELSE city END,
+          password_hash = COALESCE(${passwordHash ?? null}, password_hash),
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${userId} AND deleted_at IS NULL
+        RETURNING id, email, role, city
+      `;
+
+      if (users.length === 0) {
+        return null;
+      }
+
+      const user = users[0];
+
+      let clientFullName = data.fullName;
+      let clientPhone: string | null = data.phone ?? null;
+
+      const existingClients = await tx<
+        { id: string; full_name: string; phone: string | null }[]
+      >`
+        SELECT id, full_name, phone FROM clients 
+        WHERE user_id = ${userId} AND deleted_at IS NULL 
+        LIMIT 1
+      `;
+
+      if (existingClients.length > 0) {
+        const updatedClients = await tx<
+          { full_name: string; phone: string | null }[]
+        >`
+          UPDATE clients
+          SET 
+            full_name = ${data.fullName},
+            phone = CASE WHEN ${data.phone !== undefined} THEN ${data.phone ?? null} ELSE phone END,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE user_id = ${userId} AND deleted_at IS NULL
+          RETURNING full_name, phone
+        `;
+        clientFullName = updatedClients[0].full_name;
+        clientPhone = updatedClients[0].phone;
+      } else {
+        const insertedClients = await tx<
+          { full_name: string; phone: string | null }[]
+        >`
+          INSERT INTO clients (user_id, full_name, phone)
+          VALUES (${userId}, ${data.fullName}, ${data.phone ?? null})
+          RETURNING full_name, phone
+        `;
+        clientFullName = insertedClients[0].full_name;
+        clientPhone = insertedClients[0].phone;
+      }
+
+      return {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        fullName: clientFullName,
+        phone: clientPhone,
         city: user.city,
       };
     });

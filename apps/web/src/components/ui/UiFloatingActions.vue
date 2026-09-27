@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { UiFloatingActionsProps } from "@/types";
-import UiFloatingButton from "@/components/UiFloatingButton.vue";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
