@@ -7,6 +7,7 @@ import {
   AuthUserProfile,
   LoginDto,
   RegisterDto,
+  UpdateProfileDto,
 } from "@/modules/auth/auth.types";
 
 export class AuthService {
@@ -78,6 +79,23 @@ export class AuthService {
     }
 
     return profile;
+  }
+
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+  ): Promise<AuthUserProfile> {
+    let passwordHash: string | undefined;
+    if (dto.password) {
+      passwordHash = await hashPassword(dto.password);
+    }
+
+    const updated = await this.repo.updateProfile(userId, dto, passwordHash);
+    if (!updated) {
+      throw new NotFoundError("Usuário não encontrado.");
+    }
+
+    return updated;
   }
 }
 

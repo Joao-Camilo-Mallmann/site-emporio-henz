@@ -1,34 +1,43 @@
 <script setup lang="ts">
-import { usuariosApi } from "@/api";
+import { authApi } from "@/api";
 import { useToast } from "@/composables/useToast";
-import type { IUser, UserCreateInput, UserUpdateInput } from "@/types";
+import { useAuthStore } from "@/stores/auth";
+import type { IUser, UserCreateInput, UserUpdateInput, UserProfile } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
-import { RouterLink, useRoute, useRouter } from "vue-router";
-import UsuarioForm from "./UsuarioForm.vue";
+import { RouterLink, useRouter } from "vue-router";
+import UsuarioForm from "@/views/admin/usuarios/UsuarioForm.vue";
 
-const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+const authStore = useAuthStore();
 
-const userId = computed(() => {
-  return typeof route.params.id === "string" ? route.params.id : "";
-});
-
-const user = ref<IUser | null>(null);
+const userProfile = ref<UserProfile | null>(null);
+const formRef = ref<InstanceType<typeof UsuarioForm> | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
 const saving = ref(false);
 const errorMessage = ref<string | null>(null);
 
-async function carregarUsuario() {
-  if (!userId.value) return;
+const initialUserData = computed<Partial<IUser>>(() => {
+  if (!userProfile.value) return {};
+  return {
+    id: userProfile.value.id,
+    email: userProfile.value.email,
+    role: userProfile.value.role,
+    fullName: userProfile.value.fullName || userProfile.value.name || "",
+    phone: userProfile.value.phone || null,
+    city: userProfile.value.city || null,
+  };
+});
 
+async function carregarPerfil() {
   loading.value = true;
   initialError.value = null;
 
   try {
-    user.value = await usuariosApi.buscarPorId(userId.value);
+    const profile = await authApi.me();
+    userProfile.value = profile;
   } catch (err: unknown) {
     const errorObj = err as {
       response?: { data?: { message?: string } };
@@ -37,22 +46,29 @@ async function carregarUsuario() {
     initialError.value =
       errorObj.response?.data?.message ||
       errorObj.message ||
-      "Não foi possível carregar os dados do usuário.";
+      "Não foi possível carregar os dados do seu perfil.";
   } finally {
     loading.value = false;
   }
 }
 
 async function handleUpdate(payload: UserCreateInput | UserUpdateInput) {
-  if (!userId.value) return;
-
   saving.value = true;
   errorMessage.value = null;
 
   try {
-    await usuariosApi.atualizar(userId.value, payload as UserUpdateInput);
-    toast.success("Usuário atualizado com sucesso!");
-    router.push("/admin/usuarios");
+    const updateData = {
+      fullName: payload.fullName || "",
+      phone: payload.phone || undefined,
+      city: payload.city || undefined,
+      password: payload.password || undefined,
+    };
+
+    const updated = await authApi.atualizarPerfil(updateData);
+    userProfile.value = updated;
+    await authStore.fetchCurrentUser();
+    formRef.value?.resetPasswordFields();
+    toast.success("Perfil atualizado com sucesso!");
   } catch (err: unknown) {
     const errorObj = err as {
       response?: { data?: { message?: string } };
@@ -61,58 +77,44 @@ async function handleUpdate(payload: UserCreateInput | UserUpdateInput) {
     errorMessage.value =
       errorObj.response?.data?.message ||
       errorObj.message ||
-      "Ocorreu um erro ao atualizar o usuário.";
+      "Ocorreu um erro ao atualizar o seu perfil.";
   } finally {
     saving.value = false;
   }
 }
 
 function handleCancel() {
-  router.push("/admin/usuarios");
+  router.push("/");
 }
 
 onMounted(() => {
-  carregarUsuario();
+  carregarPerfil();
 });
 </script>
 
 <template>
-  <div
-    class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
-  >
+  <div class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-2xl mx-auto space-y-6">
-      <!-- Breadcrumbs e Cabeçalho Limpo -->
+      <!-- Breadcrumbs e Cabeçalho -->
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <RouterLink
-            to="/admin"
-            class="hover:text-neutral-dark transition-colors"
-          >
-            Painel
+          <RouterLink to="/" class="hover:text-neutral-dark transition-colors">
+            Início
           </RouterLink>
           <span>/</span>
-          <RouterLink
-            to="/admin/usuarios"
-            class="hover:text-neutral-dark transition-colors"
-          >
-            Usuários
-          </RouterLink>
-          <span>/</span>
-          <span class="text-neutral-dark font-medium">Editar Usuário</span>
+          <span class="text-neutral-dark font-medium">Meu Perfil</span>
         </div>
 
         <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-          Editar Usuário
+          Meu Perfil
         </h1>
         <p class="text-sm text-stone-500 mt-0.5">
-          Atualize as permissões de acesso ou redefina a senha da conta
+          Gerencie seus dados de contato e credenciais de acesso
         </p>
       </div>
 
       <!-- Container do Formulário -->
-      <div
-        class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs"
-      >
+      <div class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs">
         <!-- Estado de Carregamento Inicial -->
         <div
           v-if="loading"
@@ -121,7 +123,7 @@ onMounted(() => {
           <div
             class="w-6 h-6 border-2 border-secondary/30 border-t-secondary rounded-full animate-spin"
           ></div>
-          <span class="text-xs">Carregando dados do usuário...</span>
+          <span class="text-xs">Carregando dados do perfil...</span>
         </div>
 
         <!-- Estado de Erro Inicial -->
@@ -136,28 +138,23 @@ onMounted(() => {
             />
             <span>{{ initialError }}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <UiButton
-              type="button"
-              variant="primary"
-              class="!bg-rose-600 hover:!bg-rose-700 !text-xs !py-1.5 !px-3"
-              @click="carregarUsuario"
-            >
-              Tentar Novamente
-            </UiButton>
-            <RouterLink
-              to="/admin/usuarios"
-              class="px-3 py-1.5 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 font-medium text-xs transition-colors"
-            >
-              Voltar à Lista
-            </RouterLink>
-          </div>
+          <UiButton
+            type="button"
+            variant="primary"
+            class="!bg-rose-600 hover:!bg-rose-700 !text-xs !py-1.5 !px-3"
+            @click="carregarPerfil"
+          >
+            Tentar Novamente
+          </UiButton>
         </div>
 
+        <!-- Formulário com hide-role ativado -->
         <UsuarioForm
-          v-else-if="user"
-          :initial-data="user"
+          ref="formRef"
+          v-else-if="userProfile"
+          :initial-data="initialUserData"
           is-editing
+          hide-role
           :loading="saving"
           :error-message="errorMessage"
           @submit="handleUpdate"

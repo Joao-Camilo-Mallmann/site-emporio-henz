@@ -449,7 +449,7 @@ onUnmounted(() => {
                   :to="
                     authStore.isAdmin
                       ? `/admin/usuarios/${authStore.user.id}/editar`
-                      : '/'
+                      : '/perfil'
                   "
                   @click="closeUserMenu"
                   class="flex items-center gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors"
@@ -458,7 +458,7 @@ onUnmounted(() => {
                     icon="mdi:account-edit-outline"
                     class="w-4 h-4 text-stone-400 shrink-0"
                   />
-                  <span>Editar Usuário</span>
+                  <span>{{ authStore.isAdmin ? 'Editar Usuário' : 'Meu Perfil' }}</span>
                 </RouterLink>
 
                 <RouterLink
@@ -916,13 +916,13 @@ onUnmounted(() => {
                   <span>Painel Admin</span>
                 </RouterLink>
 
-                <!-- Minha conta / Editar Usuário -->
+                <!-- Minha conta / Editar Usuário / Meu Perfil -->
                 <RouterLink
                   :to="
                     authStore.isAuthenticated
                       ? (authStore.isAdmin
                         ? `/admin/usuarios/${authStore.user?.id}/editar`
-                        : '/')
+                        : '/perfil')
                       : '/login'
                   "
                   @click="closeDrawer"
@@ -937,7 +937,7 @@ onUnmounted(() => {
                     class="w-5 h-5 text-white shrink-0"
                   />
                   <span v-if="authStore.isAuthenticated && authStore.user">
-                    {{ authStore.isAdmin ? 'Editar Usuário' : 'Minha conta' }} ({{ authStore.user.name.split(" ")[0] }})
+                    {{ authStore.isAdmin ? 'Editar Usuário' : 'Meu Perfil' }} ({{ authStore.user.name.split(" ")[0] }})
                   </span>
                   <span v-else>Minha conta</span>
                 </RouterLink>

@@ -34,6 +34,15 @@ const router = createRouter({
       },
     },
     {
+      path: "/perfil",
+      name: "perfil",
+      component: () => import("@/views/profile/PerfilView.vue"),
+      meta: {
+        requiresAuth: true,
+        title: "Meu Perfil | Empório Henz",
+      },
+    },
+    {
       path: "/admin",
       component: RouterView,
       meta: {

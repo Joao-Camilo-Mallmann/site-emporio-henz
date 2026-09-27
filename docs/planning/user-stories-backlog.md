@@ -217,10 +217,11 @@ Atende aos requisitos **RF01** e **RF07**. O login confere e-mail e senha e reto
   - Retorno 400: Campos obrigatórios ausentes.
   - Retorno 401: Credenciais incorretas ou usuário inativo (`deleted_at IS NOT NULL`).
 - `POST /api/auth/register`:
-  - Payload: `{ "fullName": "string", "email": "string", "phone": "string", "password": "string" }`.
+  - Payload: `{ "fullName": "string", "email": "string", "phone": "string", "password": "string (mínimo 8 caracteres)" }`.
   - Regra: Verifica se o e-mail já existe ativo (`SELECT 1 FROM users WHERE email = :email AND deleted_at IS NULL`). Retorna `409 Conflict` se duplicado.
   - Inserção transacional no PostgreSQL em `users` e `clients`.
   - Retorno 201: Usuário criado com sucesso e token JWT inicializado.
+  - Retorno 400: Dados inválidos ou senha com menos de 8 caracteres.
 - `GET /api/auth/me`:
   - Rota protegida por autenticação Bearer.
   - Retorno 200: Dados atualizados do usuário e perfil cadastral.
@@ -228,7 +229,7 @@ Atende aos requisitos **RF01** e **RF07**. O login confere e-mail e senha e reto
 #### ✅ Critérios de Aceitação
 
 - [x] Login com credenciais válidas retorna status HTTP 200 e token JWT assinado.
-- [x] Autocadastro persiste dados corretamente em `users` e `clients` em transação SQL segura.
+- [x] Autocadastro persiste dados corretamente em `users` e `clients` em transação SQL segura com senha de no mínimo 8 caracteres.
 - [x] Tentativa de cadastro com e-mail já existente é rejeitada com status HTTP 409.
 - [x] Rota `/api/auth/me` recupera os dados corretos com base no token fornecido.
 

@@ -2,8 +2,9 @@
 import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
 import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
+const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -114,7 +115,13 @@ async function handleSubmit() {
 
     authStore.setAuth(response);
 
-    router.push("/");
+    const redirect =
+      typeof route.query.redirect === "string" &&
+      route.query.redirect.startsWith("/")
+        ? route.query.redirect
+        : "";
+
+    router.push(redirect || "/");
   } catch (err: unknown) {
     const errorObj = err as {
       response?: { data?: { message?: string } };
@@ -393,10 +400,11 @@ async function handleSubmit() {
 
         <!-- Botão Criar Conta -->
         <div class="pt-4">
-          <button
+          <UiButton
             type="submit"
+            variant="primary"
             :disabled="loading"
-            class="w-full py-3.5 px-6 rounded-[10px] bg-secondary-hover hover:bg-primary text-white font-medium text-base shadow-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            class="w-full !py-3.5 !text-base"
           >
             <span
               v-if="loading"
@@ -405,14 +413,18 @@ async function handleSubmit() {
             <span>{{
               loading ? "Criando conta..." : "Criar minha conta"
             }}</span>
-          </button>
+          </UiButton>
         </div>
 
         <!-- Link para Voltar ao Login -->
         <div class="text-center pt-2 text-sm text-stone-600">
           Já possui conta?
           <RouterLink
-            to="/login"
+            :to="
+              route.query.redirect
+                ? { path: '/login', query: { redirect: route.query.redirect } }
+                : '/login'
+            "
             class="font-bold text-stone-900 hover:text-secondary-hover transition-colors ml-1"
           >
             Entrar

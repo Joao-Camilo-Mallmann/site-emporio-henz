@@ -35,3 +35,10 @@ export interface AuthResponse {
   user: UserProfile;
   token: string;
 }
+
+export interface UpdateProfileInput {
+  fullName: string;
+  phone?: string;
+  city?: string;
+  password?: string;
+}

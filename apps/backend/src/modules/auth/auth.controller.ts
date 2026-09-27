@@ -1,7 +1,11 @@
 import { badRequest, created, ok, unauthorized } from "@/lib/response";
 import { RequestContext } from "@/lib/router";
 import { authService, AuthService } from "@/modules/auth/auth.service";
-import { validateLogin, validateRegister } from "@/modules/auth/auth.schema";
+import {
+  validateLogin,
+  validateRegister,
+  validateUpdateProfile,
+} from "@/modules/auth/auth.schema";
 
 export class AuthController {
   constructor(private service: AuthService = authService) {}
@@ -47,6 +51,27 @@ export class AuthController {
 
     const user = await this.service.getProfile(ctx.user.id);
     return ok(user);
+  }
+
+  async updateProfile(req: Request, ctx: RequestContext): Promise<Response> {
+    if (!ctx.user) {
+      return unauthorized("Usuário não autenticado.");
+    }
+
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      return badRequest("Corpo da requisição deve ser um JSON válido.");
+    }
+
+    const { error, value } = validateUpdateProfile(body);
+    if (error || !value) {
+      return badRequest(error || "Dados inválidos.");
+    }
+
+    const result = await this.service.updateProfile(ctx.user.id, value);
+    return ok(result);
   }
 }
 

@@ -58,12 +58,17 @@ async function handleSubmit() {
     const response = await authApi.login(body);
     authStore.setAuth(response);
 
-    const redirectPath =
+    const redirect =
       typeof route.query.redirect === "string" &&
       route.query.redirect.startsWith("/")
         ? route.query.redirect
-        : "/admin";
-    router.push(redirectPath);
+        : "";
+
+    if (authStore.isCliente) {
+      router.push(redirect || "/");
+    } else {
+      router.push(redirect || "/admin");
+    }
   } catch (err: unknown) {
     const errorObj = err as {
       response?: { data?: { message?: string } };
@@ -234,17 +239,18 @@ async function handleSubmit() {
 
         <!-- Botão Entrar -->
         <div class="pt-2">
-          <button
+          <UiButton
             type="submit"
+            variant="primary"
             :disabled="loading"
-            class="w-full py-3.5 px-6 rounded-[10px] bg-secondary-hover hover:bg-primary text-white font-medium text-base shadow-sm transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            class="w-full !py-3.5 !text-base"
           >
             <span
               v-if="loading"
               class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
             ></span>
             <span>{{ loading ? "Entrando..." : "Entrar" }}</span>
-          </button>
+          </UiButton>
         </div>
 
         <!-- Divisor Social -->
@@ -265,7 +271,11 @@ async function handleSubmit() {
         <div class="text-center pt-2 text-sm text-stone-600">
           Não tem cadastro?
           <RouterLink
-            to="/cadastro"
+            :to="
+              route.query.redirect
+                ? { path: '/cadastro', query: { redirect: route.query.redirect } }
+                : '/cadastro'
+            "
             class="font-bold text-stone-900 hover:text-secondary-hover transition-colors ml-1"
           >
             Cadastre-se
