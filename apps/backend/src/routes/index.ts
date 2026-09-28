@@ -2,6 +2,7 @@ import { ok } from "@/lib/response";
 import { Router } from "@/lib/router";
 
 import { authRoutes } from "@/modules/auth/auth.routes";
+import { productsRoutes } from "@/modules/products/products.routes";
 import { suppliersRoutes } from "@/modules/suppliers/suppliers.routes";
 import { userSuppliersRoutes } from "@/modules/user-suppliers/user-suppliers.routes";
 import { usersRoutes } from "@/modules/users/users.routes";
@@ -13,6 +14,7 @@ apiRouter.use("/auth", authRoutes);
 apiRouter.use("/users", usersRoutes);
 apiRouter.use("/users", userSuppliersRoutes);
 apiRouter.use("/suppliers", suppliersRoutes);
+apiRouter.use("/produtos", productsRoutes);
 
 // Health check padrão V1
 apiRouter.get("/health", () => {
