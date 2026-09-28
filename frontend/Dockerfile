@@ -38,12 +38,16 @@ STOPSIGNAL SIGQUIT
 CMD ["nginx", "-g", "daemon off;"]
 
 # ==============================================================================
-# ESTÁGIO 4: WEB-DEV — Servidor Vite em modo desenvolvimento com HMR
+# ESTÁGIO 4: FRONTEND-DEV — Servidor Vite em modo desenvolvimento com HMR
 # ==============================================================================
-FROM base AS web-dev
+FROM base AS frontend-dev
 WORKDIR /app
 ENV NODE_ENV=development
 EXPOSE 3000
 
 # Garante que dependências estejam sincronizadas no volume antes de iniciar o Vite
 CMD ["sh", "-c", "bun install && exec bun run dev --host 0.0.0.0"]
+
+# Alias para compatibilidade reversa
+FROM frontend-dev AS web-dev
+

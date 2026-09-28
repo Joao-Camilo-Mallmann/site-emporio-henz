@@ -118,17 +118,17 @@ services:
       - emporio_net
 
   # ============================================================================
-  # [DESENVOLVIMENTO] WEB
+  # [DESENVOLVIMENTO] FRONTEND
   # ============================================================================
 
-  web-dev:
+  frontend-dev:
     profiles: ["dev", "development"]
 
     build:
       context: ./frontend
-      target: web-dev
+      target: frontend-dev
 
-    container_name: emporio-henz-web-dev
+    container_name: emporio-henz-frontend-dev
     restart: unless-stopped
 
     depends_on:

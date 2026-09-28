@@ -59,7 +59,7 @@ Você pode subir a stack utilizando diretamente os comandos nativos do Docker Co
   docker compose --profile dev up -d
   ```
 
-  _Inicia: PostgreSQL com healthcheck, `backend-dev` (com migração automática e `bun --watch` na porta 3001) e `web-dev` (com Vite HMR na porta 3000)._
+  _Inicia: PostgreSQL com healthcheck, `backend-dev` (com migração automática e `bun --watch` na porta 3001) e `frontend-dev` (com Vite HMR na porta 3000)._
 
 - **Modo Produção Compilado (Para testes de build ou deploy na VPS):**
 

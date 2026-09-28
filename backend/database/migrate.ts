@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { sql } from "../src/config/database";
+import { sql } from "@/config/database";
 
 export async function runMigrations() {
   console.log("Iniciando runner de migrações...");

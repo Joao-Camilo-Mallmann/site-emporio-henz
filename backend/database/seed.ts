@@ -1,4 +1,4 @@
-import { sql } from "../src/config/database";
+import { sql } from "@/config/database";
 
 export async function seedAdmin() {
   console.log("🌱 Executando seeder do Administrador Padrão...");
