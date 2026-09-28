@@ -16,6 +16,8 @@ COPY . .
 # ==============================================================================
 FROM base AS frontend-builder
 WORKDIR /app
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 ENV NODE_ENV=production
 RUN bun run build
 
