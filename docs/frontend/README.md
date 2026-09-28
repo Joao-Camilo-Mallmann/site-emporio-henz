@@ -6,7 +6,7 @@ Este diretório concentra as diretrizes visuais, catálogo do Design System e es
 
 ## 🎨 Diretrizes Arquiteturais (Front-end)
 
-Conforme estabelecido nas regras do projeto ([agents.md](../../agents.md) e [apps/web/agents.md](../../apps/web/agents.md)):
+Conforme estabelecido nas regras do projeto ([agents.md](../../agents.md) e [frontend/agents.md](../../frontend/agents.md)):
 
 1. **Stack Técnica**:
    - **Framework**: [Vue 3](https://vuejs.org/) (Composition API com `<script setup lang="ts">`).
@@ -23,10 +23,10 @@ Conforme estabelecido nas regras do projeto ([agents.md](../../agents.md) e [app
 3. **Padronização de Botões com `<UiButton>` e Auto-import de Componentes**:
    > [!IMPORTANT]
    > - É **obrigatório** utilizar o componente `<UiButton>` para todos os botões e disparadores de ação na interface. Não utilize tags `<button>` nativas soltas com estilos ad-hoc. Variantes disponíveis: `primary`, `secondary` e `outline`.
-   > - O projeto utiliza `unplugin-vue-components`. Todo e qualquer componente criado em `apps/web/src/components/` é automaticamente importado nos templates e tem seus tipos TypeScript gerados em `apps/web/src/components.d.ts` sem necessidade de imports manuais ou registros com `app.component()`.
+   > - O projeto utiliza `unplugin-vue-components`. Todo e qualquer componente criado em `frontend/src/components/` é automaticamente importado nos templates e tem seus tipos TypeScript gerados em `frontend/src/components.d.ts` sem necessidade de imports manuais ou registros com `app.component()`.
 
 4. **Sistema de Notificações Flutuantes (Toasts)**:
-   Notificações e feedbacks visuais transitórios utilizam a biblioteca `vue3-toastify` configurada no plugin global (tema `light`, posição `bottom-right`, `autoClose: 3500ms` e `clearOnUrlChange: false`). Devem ser acionadas idiomaticamente via composable `useToast()` (`apps/web/src/composables/useToast.ts`) na Composition API ou pela propriedade global de template `$toast`. O banner estático em `App.vue` e o estado `systemAlert` na store `useAppStore` foram descontinuados.
+   Notificações e feedbacks visuais transitórios utilizam a biblioteca `vue3-toastify` configurada no plugin global (tema `light`, posição `bottom-right`, `autoClose: 3500ms` e `clearOnUrlChange: false`). Devem ser acionadas idiomaticamente via composable `useToast()` (`frontend/src/composables/useToast.ts`) na Composition API ou pela propriedade global de template `$toast`. O banner estático em `App.vue` e o estado `systemAlert` na store `useAppStore` foram descontinuados.
 
 ---
 
@@ -39,12 +39,12 @@ Conforme estabelecido nas regras do projeto ([agents.md](../../agents.md) e [app
 
 ---
 
-## 🖥️ Aplicação Web (`apps/web`)
+## 🖥️ Aplicação Web (`frontend`)
 
 Para detalhes de desenvolvimento, estrutura de componentes, views e regras específicas do cliente web, consulte:
 
-- Diretório da aplicação: [apps/web](../../apps/web)
-- Regras para agentes e desenvolvedores: [apps/web/agents.md](../../apps/web/agents.md)
+- Diretório da aplicação: [frontend](../../frontend)
+- Regras para agentes e desenvolvedores: [frontend/agents.md](../../frontend/agents.md)
 
 ---
 
@@ -52,16 +52,17 @@ Para detalhes de desenvolvimento, estrutura de componentes, views e regras espec
 
 - **Desenvolvimento (porta 3000)**:
   ```bash
-  bun run --filter web dev
-  # ou na raiz
+  cd frontend
   bun run dev
   ```
 - **Checagem de Tipos e Lint**:
   ```bash
+  cd frontend
   bun run check-types
   bun run lint
   ```
 - **Build de Produção**:
   ```bash
+  cd frontend
   bun run build
   ```

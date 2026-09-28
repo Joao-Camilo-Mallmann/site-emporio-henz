@@ -1,6 +1,6 @@
-# Empório Henz — Monorepo
+# Empório Henz
 
-Repositório oficial do sistema e e-commerce **Empório Henz**, estruturado como um monorepo gerenciado com [Turborepo](https://turbo.build/) e [Bun](https://bun.sh/).
+Repositório oficial do sistema e e-commerce **Empório Henz**, composto pelas aplicações autônomas **Backend** (Bun nativo) e **Frontend** (Vue 3 + Vite + Tailwind CSS v4), orquestradas via **Docker Compose**.
 
 ---
 
@@ -47,9 +47,9 @@ copy .env.example .env
 ```
 
 > [!NOTE]
-> As configurações contidas no [.env.example](.env.example) utilizam `NODE_ENV=development`. O sistema detecta o ambiente e seleciona os serviços adequados sem exigir `COMPOSE_PROFILES`.
+> As configurações contidas no [.env.example](.env.example) utilizam `NODE_ENV=development`. O sistema detecta o ambiente e seleciona os serviços adequados.
 
-#### 3. Subir os serviços com Docker Compose (Nativo, sem precisar de Bun ou Node)
+#### 3. Subir os serviços com Docker Compose
 
 Você pode subir a stack utilizando diretamente os comandos nativos do Docker Compose com os perfis configurados:
 
@@ -59,8 +59,7 @@ Você pode subir a stack utilizando diretamente os comandos nativos do Docker Co
   docker compose --profile dev up -d
   ```
 
-  _Inicia: PostgreSQL, Migrations, `backend-dev` (com `bun --watch` e volumes mapeados na porta 3001) e `web-dev` (com Vite HMR e Vue DevTools na porta 3000)._
-  _Não executa compilação estática prévia nem build de produção._
+  _Inicia: PostgreSQL com healthcheck, `backend-dev` (com migração automática e `bun --watch` na porta 3001) e `web-dev` (com Vite HMR na porta 3000)._
 
 - **Modo Produção Compilado (Para testes de build ou deploy na VPS):**
 
@@ -68,7 +67,7 @@ Você pode subir a stack utilizando diretamente os comandos nativos do Docker Co
   docker compose --profile prod up -d --build
   ```
 
-  _Inicia: PostgreSQL, Migrations, `backend` (compilado para produção) e `nginx` (servindo o frontend estático e proxy na porta 80)._
+  _Inicia: PostgreSQL, `backend` (compilado para produção com auto-migração) e `nginx` (servindo o frontend estático e proxy reverso na porta 80)._
 
 - **Parar todos os containers mantendo os dados:**
 
@@ -80,7 +79,7 @@ Você pode subir a stack utilizando diretamente os comandos nativos do Docker Co
 
 ### Alternativa: Script Automatizado de Deploy Local (`deploy.sh`)
 
-Em ambientes Linux / WSL / Git Bash, você também pode utilizar o script [deploy.sh](deploy.sh), que realiza a verificação de `.env`, build, migrações e limpeza de imagens antigas:
+Em ambientes Linux / WSL / Git Bash, você também pode utilizar o script [deploy.sh](deploy.sh), que realiza a verificação de `.env`, build com perfil de produção, migrações e limpeza de imagens antigas:
 
 ```bash
 chmod +x deploy.sh
@@ -123,11 +122,7 @@ Após iniciar os containers:
   # Em produção
   docker compose logs -f backend
   ```
-- **Executar migrações do banco manualmente:**
-  ```bash
-  docker compose run --rm migration
-  ```
-- **Parar containers e apagar todos os volumes (resetar banco de dados):**
+- **Parar containers e apagar volumes (resetar banco de dados):**
   ```bash
   docker compose --profile dev --profile prod down -v
   ```
@@ -143,59 +138,69 @@ Caso deseje desenvolver diretamente na máquina host:
 - [Bun](https://bun.sh/) 1.4+
 - [PostgreSQL](https://www.postgresql.org/) 16 ativo localmente
 
-### Passo a Passo
+### 1. Backend & Banco de Dados
 
-1. **Instalar dependências do monorepo:**
-   ```bash
-   bun install
-   ```
-2. **Configurar variáveis de ambiente:**
-   Copie `.env.example` para `.env` e ajuste `DATABASE_URL` e `POSTGRES_HOST=localhost` com as credenciais do seu banco local.
-3. **Executar as migrações no banco de dados:**
-   ```bash
-   bun run migrate
-   ```
-4. **Iniciar o ambiente de desenvolvimento (com hot-reload):**
-   ```bash
-   bun dev
-   ```
-   - Frontend Vite: [http://localhost:3000](http://localhost:3000)
-   - Backend Bun: [http://localhost:3001](http://localhost:3001)
+```bash
+cd backend
+bun install
+
+# Executar migrações e seeder
+bun run migrate
+bun run seed
+
+# Iniciar servidor em desenvolvimento (porta 3001)
+bun run dev
+```
+
+### 2. Frontend
+
+Em outro terminal:
+
+```bash
+cd frontend
+bun install
+
+# Iniciar servidor Vite (porta 3000)
+bun run dev
+```
 
 ---
 
-## 📦 Estrutura do Monorepo
+## 📦 Estrutura do Projeto
 
-- [**`apps/web`**](apps/web): Frontend em **Vue 3**, **Vite**, **Tailwind CSS v4**, **Vue Router** e **Pinia**.
-- [**`apps/backend`**](apps/backend): Backend em **Bun nativo** utilizando `Bun.serve` e conexão com PostgreSQL.
-- [**`packages/database`**](packages/database): Scripts e migrações SQL nativas idempotentes.
-- [**`nginx.conf`**](nginx.conf): Configuração do proxy reverso e servidor de arquivos estáticos para produção.
-- [**`Dockerfile`**](Dockerfile): Build multi-stage otimizado para as aplicações e migração.
-- [**`docker-compose.yml`**](docker-compose.yml): Orquestração de containers para produção e testes locais.
+- [**`backend/`**](backend): Aplicação de API em **Bun nativo** utilizando `Bun.serve`, regras de negócio, testes unitários e diretório de migrações e sementes em `backend/database/`.
+- [**`frontend/`**](frontend): Aplicação web em **Vue 3**, **Vite**, **Tailwind CSS v4**, **Vue Router** e **Pinia**.
+- [**`backend/Dockerfile`**](backend/Dockerfile): Container Docker multi-stage do backend (dev e prod).
+- [**`frontend/Dockerfile`**](frontend/Dockerfile): Container Docker multi-stage do frontend (dev HMR e Nginx de prod).
+- [**`docker-compose.yml`**](docker-compose.yml): Orquestração unificada dos serviços PostgreSQL, Backend e Frontend.
+- [**`deploy.sh`**](deploy.sh): Script de automação de build e deploy na máquina host/VM.
+- [**`docs/`**](docs): Documentação oficial do projeto (PRD, backlog, DER, diretrizes de frontend e coleções Bruno).
 
 ---
 
 ## 📋 Padrões de Execução e Qualidade
 
-- **Checagem de Tipos (TypeScript):**
-  ```bash
-  bun run check-types
-  ```
-- **Linting (ESLint):**
-  ```bash
-  bun run lint
-  ```
-- **Formatação (Prettier):**
-  ```bash
-  bun run format
-  ```
-- **Build de Produção:**
-  ```bash
-  bun run build
-  ```
+### Backend (`backend/`)
+
+```bash
+cd backend
+bun run check-types  # Checagem de tipos (tsc --noEmit)
+bun run lint         # Verificação de lint (ESLint)
+bun test             # Suíte de testes automatizados (bun:test)
+bun run build        # Bundle de produção
+```
+
+### Frontend (`frontend/`)
+
+```bash
+cd frontend
+bun run check-types  # Checagem de tipos (vue-tsc --noEmit)
+bun run lint         # Verificação de lint (ESLint)
+bun run build        # Build estático para produção
+```
 
 ---
 
 ## 📖 Diretrizes e Desenvolvimento de Novas Features
 
-Consulte o arquivo [agents.md](agents.md) para as regras de desenvolvimento e arquitetura do projeto. O ciclo de vida de novas features deve seguir o fluxo **OpenSpec** (`openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-archive-change`).
+Consulte o arquivo [agents.md](agents.md) para as regras de governança e arquitetura do projeto. O ciclo de vida de novas features deve seguir o fluxo **OpenSpec** (`openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-archive-change`).

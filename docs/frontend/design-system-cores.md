@@ -3,14 +3,14 @@
 > [!IMPORTANT]
 > **REGRA MANDATÓRIA PARA DESENVOLVEDORES E AGENTES DE IA:**
 > É **estritamente proibido** utilizar valores hexadecimais arbitrários inline (como `bg-[#123854]`, `text-[#007CD8]`, `text-[#1D1D24]`, etc.) na estilização do frontend.
-> **SEMPRE** utilize as classes utilitárias semânticas geradas a partir da diretiva `@theme` em `apps/web/src/style.css`.
+> **SEMPRE** utilize as classes utilitárias semânticas geradas a partir da diretiva `@theme` em `frontend/src/style.css`.
 
 ---
 
 ## 1. Referência Oficial do Figma
 
 - **Arquivo Oficial do Figma**: [Catálogo digital - Empório Henz](https://www.figma.com/proto/nx4bJnz6Hj3seJHFAC5sHO/Cat%C3%A1logo-digital---Emp%C3%B3rio-Henz?node-id=38-2521)
-- **Tecnologia de Configuração**: Tailwind CSS v4 via `@theme` no arquivo `apps/web/src/style.css`.
+- **Tecnologia de Configuração**: Tailwind CSS v4 via `@theme` no arquivo `frontend/src/style.css`.
 
 ---
 

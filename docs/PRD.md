@@ -503,6 +503,7 @@ erDiagram
 
 ## 9. Decisões de implementação
 
+- **Arquitetura Autônoma e Modular (Sem Monorepo)**: O repositório organiza o sistema em duas aplicações independentes na raiz (`backend/` e `frontend/`), cada qual com seu próprio `package.json` e `bun.lock` isolados, eliminando ferramentas de monorepo como Turborepo. As migrações e scripts de banco de dados residem diretamente em `backend/database/`.
 - **Back-end em Bun nativo com TypeScript**: utiliza `Bun.serve` para alta performance, rotas modulares e tipagem estrita com TypeScript, mantendo a arquitetura limpa e sem dependências pesadas de frameworks externos.
 - **Front-end em Vue 3 + Vite + Tailwind CSS**: arquitetura com Single File Components (SFCs), gerenciamento de estado com Pinia (autenticação, listas e filtros do catálogo) e roteamento limpo com Vue Router.
 - **Banco de Dados Relacional PostgreSQL**: utilizado para garantir integridade referencial estrita, transações e relacionamento entre clientes, listas e produtos.

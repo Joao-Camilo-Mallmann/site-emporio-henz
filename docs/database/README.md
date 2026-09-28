@@ -11,7 +11,7 @@ Conforme definido em [docs/padrao-historias-tarefas.md](../padrao-historias-tare
 1. **Database First**: Toda funcionalidade nova tem suas tabelas, migrações e índices definidos e validados no PostgreSQL antes de qualquer implementação em back-end ou front-end.
 2. **Soft Delete**: Nenhuma exclusão física (`DELETE`) em entidades de negócio. Sempre utilizar exclusão lógica através da coluna `deleted_at TIMESTAMP WITH TIME ZONE NULL`.
 3. **Índices Parciais Únicos**: Campos com unicidade (como slugs ou emails de cadastros ativos) utilizam índices parciais com `WHERE deleted_at IS NULL`.
-4. **Idempotência**: Todas as migrações SQL em `packages/database/src/migrations/` devem ser idempotentes (`CREATE TABLE IF NOT EXISTS`, etc.).
+4. **Idempotência**: Todas as migrações SQL em `backend/database/migrations/` devem ser idempotentes (`CREATE TABLE IF NOT EXISTS`, etc.).
 
 ---
 
@@ -43,10 +43,14 @@ Conforme definido em [docs/padrao-historias-tarefas.md](../padrao-historias-tare
 
 - **Localmente com Bun**:
   ```bash
+  cd backend
   bun run migrate
   ```
-- **Via Docker Compose**:
+- **Seeder de Administrador / Dados Iniciais**:
   ```bash
-  docker compose run --rm migration
+  cd backend
+  bun run seed
   ```
-- **Código-fonte das migrações**: consulte o pacote [packages/database](../../packages/database).
+- **Via Docker Compose**:
+  As migrações são executadas automaticamente no startup dos containers `backend` e `backend-dev`.
+- **Código-fonte das migrações**: consulte o diretório [backend/database](../../backend/database).

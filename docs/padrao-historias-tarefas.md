@@ -23,9 +23,9 @@ Este documento estabelece o **padrão oficial e obrigatório** para o planejamen
 
 Toda e qualquer nova funcionalidade ou história de negócio que envolva persistência, lógica de servidor e interface com o usuário **DEVE ser dividida obrigatoriamente em tarefas (issues) separadas e independentes**:
 
-1. **`[DB]` Banco de Dados** (`packages/database`): Tabelas, migrações `.sql`, chaves, constraints, soft delete e queries.
-2. **`[BE]` Back-end** (`apps/backend`): Rotas em Bun nativo, middlewares, validação de payload, regras de negócio e códigos HTTP semânticos.
-3. **`[FE]` Front-end** (`apps/web`): Telas Vue 3, SFCs, componentes, stores do Pinia, serviços em `src/api/` e estilização Figma.
+1. **`[DB]` Banco de Dados** (`backend/database`): Tabelas, migrações `.sql`, chaves, constraints, soft delete e queries.
+2. **`[BE]` Back-end** (`backend`): Rotas em Bun nativo, middlewares, validação de payload, regras de negócio e códigos HTTP semânticos.
+3. **`[FE]` Front-end** (`frontend`): Telas Vue 3, SFCs, componentes, stores do Pinia, serviços em `src/api/` e estilização Figma.
 4. **`[TEST]` Testes Automatizados** (quando aplicável): Casos de teste de integração e segurança com `bun:test`.
 5. **`[INFRA]` Infraestrutura e Deploy** (quando aplicável): Docker Compose, proxy Nginx e scripts operacionais na VM.
 
@@ -74,7 +74,7 @@ Ao criar uma nova tarefa, utilize exatamente a estrutura abaixo:
 
 <!-- SE FOR [DB]: -->
 
-#### 🗄️ Banco de Dados (`packages/database`)
+#### 🗄️ Banco de Dados (`backend/database`)
 
 - **Tabelas / Migração**: Nome do arquivo `.sql` sequencial (ex.: `004_create_xyz.sql`).
 - **Campos & Tipos**: Definição exata de colunas, tipos e valores default.
@@ -83,7 +83,7 @@ Ao criar uma nova tarefa, utilize exatamente a estrutura abaixo:
 
 <!-- SE FOR [BE]: -->
 
-#### ⚙️ Back-end (`apps/backend` - Bun nativo)
+#### ⚙️ Back-end (`backend` - Bun nativo)
 
 - **Rotas & Métodos**: Endpoint exato (`GET /api/...`, `POST /api/...`).
 - **Middlewares**: Autenticação Bearer JWT, verificação de papéis (RBAC).
@@ -91,7 +91,7 @@ Ao criar uma nova tarefa, utilize exatamente a estrutura abaixo:
 
 <!-- SE FOR [FE]: -->
 
-#### 🎨 Front-end (`apps/web` - Vue 3 + Tailwind CSS v4)
+#### 🎨 Front-end (`frontend` - Vue 3 + Tailwind CSS v4)
 
 - **Views & Componentes**: `src/views/...` e `src/components/...`.
 - **Camada de Dados**: Módulo em `src/api/...` e store em `src/stores/...`.

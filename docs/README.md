@@ -43,7 +43,7 @@ docs/
 
 ## Responsabilidade por domínio
 
-- **[database/](./database/README.md)**: persistência PostgreSQL, migrações, integridade e diagramas.
+- **[database/](./database/README.md)**: persistência PostgreSQL, migrações, integridade e diagramas (código em `backend/database/`).
 - **[backend/](./backend/README.md)**: arquitetura de servidor, segurança e implementação da API.
 - **[backend/collections/](./backend/collections/README.md)**: fonte de consulta da API. Toda alteração de rota, payload, status ou resposta atualiza a collection Bruno na mesma mudança.
 - **[frontend/](./frontend/README.md)**: arquitetura Vue, integração, estado e UI.

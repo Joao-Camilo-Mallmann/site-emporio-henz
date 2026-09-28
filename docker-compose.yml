@@ -40,7 +40,7 @@ services:
     profiles: ["prod", "production"]
 
     build:
-      context: .
+      context: ./backend
       target: backend
 
     container_name: emporio-henz-backend
@@ -69,7 +69,7 @@ services:
     profiles: ["prod", "production"]
 
     build:
-      context: .
+      context: ./frontend
       target: nginx
 
     container_name: emporio-henz-nginx
@@ -92,7 +92,7 @@ services:
     profiles: ["dev", "development"]
 
     build:
-      context: .
+      context: ./backend
       target: backend-dev
 
     container_name: emporio-henz-backend-dev
@@ -103,8 +103,8 @@ services:
         condition: service_healthy
 
     volumes:
-      - ./apps/backend:/app/apps/backend
-      - ./packages:/app/packages
+      - ./backend:/app
+      - /app/node_modules
 
     environment:
       PORT: 3001
@@ -125,7 +125,7 @@ services:
     profiles: ["dev", "development"]
 
     build:
-      context: .
+      context: ./frontend
       target: web-dev
 
     container_name: emporio-henz-web-dev
@@ -135,8 +135,8 @@ services:
       - backend-dev
 
     volumes:
-      - ./apps/web:/app/apps/web
-      - /app/apps/web/node_modules
+      - ./frontend:/app
+      - /app/node_modules
 
     environment:
       NODE_ENV: ${NODE_ENV:-development}

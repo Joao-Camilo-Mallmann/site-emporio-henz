@@ -6,17 +6,17 @@ Este diretório concentra a documentação de arquitetura de servidor, rotas da 
 
 ## ⚙️ Diretrizes Arquiteturais (Back-end)
 
-Conforme estabelecido em [agents.md](../../agents.md) e [apps/backend/agents.md](../../apps/backend/agents.md):
+Conforme estabelecido em [agents.md](../../agents.md) e [backend/agents.md](../../backend/agents.md):
 
 1. **Stack Técnica**:
    - **Runtime**: [Bun](https://bun.sh/) (1.4+) executando nativamente com `Bun.serve`.
    - **Linguagem**: TypeScript com modo estrito (`strict: true`).
-   - **Path Aliases**: Alias `@/` configurado para `apps/backend/src/*` e `@database/` para `packages/database/*`.
-   - **Banco de Dados**: PostgreSQL 16 conectado via driver nativo `SQL` do Bun em `packages/database`.
+   - **Path Aliases**: Alias `@/` configurado para `backend/src/*`.
+   - **Banco de Dados**: PostgreSQL 16 conectado via driver nativo `SQL` do Bun em `backend/src/config/database.ts` e migrações em `backend/database/`.
    - **Criptografia e Segurança**: Argon2id nativo via `Bun.password` e JWT com HMAC-SHA256 via Web Crypto API nativa (`crypto.subtle`).
-   - **Testes**: `bun:test` para suíte completa de testes unitários e de integração (49+ testes automatizados).
+   - **Testes**: `bun:test` para suíte completa de testes unitários e de integração (57 testes automatizados).
 
-2. **Estrutura Modular em Camadas (`apps/backend/src`)**:
+2. **Estrutura Modular em Camadas (`backend/src`)**:
    - `config/`: Configurações de ambiente (`env.ts`) e conexão de banco com health check (`database.ts`).
    - `lib/`: Utilitários reutilizáveis de resposta HTTP (`response.ts`), roteador nativo (`router.ts`), senhas (`password.ts`), JWT (`jwt.ts`) e classes de erro de domínio (`errors.ts`).
    - `middlewares/`: Interceptadores de segurança (`auth.ts` Bearer JWT, `role.ts` RBAC com bloqueio estrito `403 Forbidden` e `error.ts` para tratamento global de exceções).
@@ -71,13 +71,13 @@ O repositório disponibiliza a collection pronta para testes no Bruno em [docs/b
 
 ---
 
-## 💻 Aplicação Backend (`apps/backend`)
+## 💻 Aplicação Backend (`backend`)
 
 Para detalhes sobre implementação de controladores, rotas, middlewares e inicialização do servidor:
 
-- Diretório do projeto: [apps/backend](../../apps/backend)
-- Regras de desenvolvimento para agentes: [apps/backend/agents.md](../../apps/backend/agents.md)
-- README do serviço: [apps/backend/README.md](../../apps/backend/README.md)
+- Diretório do projeto: [backend](../../backend)
+- Regras de desenvolvimento para agentes: [backend/agents.md](../../backend/agents.md)
+- README do serviço: [backend/README.md](../../backend/README.md)
 
 ---
 
@@ -85,20 +85,28 @@ Para detalhes sobre implementação de controladores, rotas, middlewares e inici
 
 - **Desenvolvimento com reload automático (porta 3001)**:
   ```bash
-  bun run --filter backend dev
-  # ou na raiz do monorepo
+  cd backend
   bun run dev
   ```
 - **Checagem de Tipos e Linter**:
   ```bash
+  cd backend
   bun run check-types
   bun run lint
   ```
 - **Execução dos Testes Automatizados**:
   ```bash
+  cd backend
   bun test
+  ```
+- **Migrações e Seeder**:
+  ```bash
+  cd backend
+  bun run migrate
+  bun run seed
   ```
 - **Build de Produção (Bun Bundle)**:
   ```bash
-  bun run --filter backend build
+  cd backend
+  bun run build
   ```

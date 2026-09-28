@@ -23,9 +23,6 @@ backups/
 # Testing
 coverage
 
-# Turbo
-.turbo
-
 # Vercel
 .vercel
 

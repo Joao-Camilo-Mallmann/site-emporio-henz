@@ -69,4 +69,4 @@ O [Bruno](https://www.usebruno.com/) armazena as requisições em arquivos de te
 
 > [!IMPORTANT]
 > **REGRA DE ATUALIZAÇÃO OBRIGATÓRIA:**
-> Sempre que qualquer rota, parâmetro, payload, status ou resposta for adicionado, modificado ou removido em `apps/backend/src/`, a collection do Bruno em `docs/backend/collections/bruno/` **DEVE ser atualizada na mesma mudança**. Se houver impacto em regra de negócio, atualize primeiro `docs/PRD.md`.
+> Sempre que qualquer rota, parâmetro, payload, status ou resposta for adicionado, modificado ou removido em `backend/src/`, a collection do Bruno em `docs/backend/collections/bruno/` **DEVE ser atualizada na mesma mudança**. Se houver impacto em regra de negócio, atualize primeiro `docs/PRD.md`.

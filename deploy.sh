@@ -64,7 +64,7 @@ fi
 
 # 4. Construir imagens Docker atualizadas
 echo -e "\n${BLUE}[2/5] Construindo imagens Docker atualizadas...${NC}"
-$DOCKER_COMPOSE build
+$DOCKER_COMPOSE --profile prod build
 
 # 5. Iniciar PostgreSQL e aguardar prontidão
 echo -e "\n${BLUE}[3/5] Iniciando PostgreSQL e aguardando inicialização...${NC}"
@@ -85,7 +85,7 @@ fi
 
 # 6. Iniciar Backend (que executa as migrações no startup) e Nginx
 echo -e "\n${BLUE}[4/4] Subindo serviços de aplicação (Backend + Nginx)...${NC}"
-$DOCKER_COMPOSE up -d --remove-orphans backend nginx
+$DOCKER_COMPOSE --profile prod up -d --remove-orphans backend nginx
 
 # 8. Limpar imagens antigas sem tag para economizar disco na VM
 echo -e "\n${BLUE}Limpando imagens antigas e camadas órfãs...${NC}"
@@ -96,4 +96,4 @@ echo -e "${GREEN}     Deploy concluído com sucesso!                   ${NC}"
 echo -e "${GREEN}====================================================${NC}"
 
 # Exibe status dos containers
-$DOCKER_COMPOSE ps
+$DOCKER_COMPOSE --profile prod ps
