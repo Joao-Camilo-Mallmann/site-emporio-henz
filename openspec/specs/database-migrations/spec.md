@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Centralizar migrações de banco de dados PostgreSQL com script runner idempotente em Bun nativo no pacote `packages/database`.
+Centralizar migrações de banco de dados PostgreSQL com script runner idempotente em Bun nativo no diretório `backend/database`.
 
 ## Requirements
 
 ### Requirement: Gerenciamento de Migrações em Pacote Próprio
 
-The monorepo MUST maintain an isolated `packages/database` package to centralize SQL migration files and Bun execution runner.
+The backend MUST maintain a dedicated `backend/database` directory to centralize SQL migration files and the Bun execution runner, eliminating external packages.
 
 #### Scenario: Execução em ambiente limpo
 
@@ -54,7 +54,7 @@ The database migration files MUST create exclusively the domain tables required 
 
 #### Scenario: Modularidade das migrações
 
-- **WHEN** os arquivos do diretório `packages/database/migrations` forem listados
+- **WHEN** os arquivos do diretório `backend/database/migrations` forem listados
 - **THEN** cada entidade de domínio DEVE possuir seu próprio arquivo SQL atômico (`001_setup_extensions.sql`, `002_create_roles.sql`, `003_create_users.sql`, `004_create_clients.sql`, `005_create_suppliers.sql`, `006_create_user_suppliers.sql`), executados em ordem de dependência estrita
 
 #### Scenario: Idempotência das migrações do PR 1

@@ -18,11 +18,11 @@ The backend application SHALL boot using `Bun.serve` on the configured `PORT` an
 - **THEN** the server SHALL respond with HTTP status 204 and standard CORS headers allowing origins and methods
 
 ### Requirement: Database Connection Integration
-The backend SHALL establish a persistent connection with the PostgreSQL database using the shared client exported by `packages/database/src/db.ts`.
+The backend SHALL establish a persistent connection with the PostgreSQL database using the internal database configuration module `backend/src/config/db.ts`, without relying on external shared packages.
 
 #### Scenario: Database ping on startup
 - **WHEN** the backend application boots
-- **THEN** it SHALL verify database reachability by executing a query through the shared `sql` client without throwing unhandled exceptions
+- **THEN** it SHALL verify database reachability by executing a query through the internal `sql` client without throwing unhandled exceptions
 
 ### Requirement: Standardized Error and Response Format
 The application SHALL format all successful and error HTTP responses uniformly with appropriate JSON headers and status codes.
