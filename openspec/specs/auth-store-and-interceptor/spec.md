@@ -46,7 +46,7 @@ The application SHALL configure the Axios instance to communicate with the Bun b
 #### Scenario: Axios instance initialization
 
 - **WHEN** the Axios client is instantiated in `src/plugins/axios.ts`
-- **THEN** it SHALL set `baseURL` to `import.meta.env.VITE_API_URL` or fallback to `http://localhost:3001/api/v1`
+- **THEN** it SHALL set `baseURL` to `import.meta.env.VITE_API_URL` or fallback to `/api/v1` to ensure Same-Origin requests without CORS failures in production
 
 #### Scenario: Healthcheck request
 

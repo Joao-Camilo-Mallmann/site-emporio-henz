@@ -71,6 +71,8 @@ services:
     build:
       context: ./frontend
       target: nginx
+      args:
+        VITE_API_URL: ${VITE_API_URL}
 
     container_name: emporio-henz-nginx
     restart: unless-stopped
@@ -140,6 +142,7 @@ services:
 
     environment:
       NODE_ENV: ${NODE_ENV:-development}
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3001}
 
     ports:
       - "${PORT_HTTP:-3000}:3000"
