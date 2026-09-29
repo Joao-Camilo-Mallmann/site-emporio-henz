@@ -41,7 +41,7 @@
 - **O que falar:**
   > *"Aqui vemos a nossa **Vitrine Digital**. Desenvolvemos a aplicação em **Vue 3 com Composition API** e **Tailwind CSS v4**, respeitando rigorosamente o protótipo do Figma e os tokens do nosso Design System oficial.*  
   > *A vitrine conta com Hero Banner em azul suave (`#D2E8F8`), tipografia requintada em Plus Jakarta Sans, busca inteligente e navegação completa por categorias de móveis (Quarto, Sala de Estar, Cozinha e Escritório)."*
-- **Prints a destacar:** `01-home.png`.
+- **Prints a destacar:** `01-home-completa.png` (página inteira). No slide seguinte, `28-figma-topo.png` ao lado de `01-home-topo.png`. Depois, `01-home-final.png` com destaques, recomendações e rodapé.
 
 ---
 
@@ -49,7 +49,7 @@
 - **O que falar:**
   > *"Na página **Sobre a Loja**, traduzimos diretamente os requisitos levantados com o cliente: a trajetória de fundação familiar há 50 anos e o relato de resiliência e reconstrução pós-enchente histórica no Vale do Taquari.*  
   > *A página traz a história institucional, fotos do showroom e reforça a conexão da marca com a comunidade local."*
-- **Prints a destacar:** `02-sobre-a-loja.png`.
+- **Prints a destacar:** `02-sobre-completa.png` (página inteira: história, como funciona, visita e mapa).
 
 ---
 
@@ -66,8 +66,8 @@
 - **O que falar:**
   > *"Completando o fluxo de sessão:*  
   > *À esquerda, a tela de **Autocadastro de Clientes**, com máscara dinâmica de telefone `(51) 99999-9999` e verificação de senha forte. A gravação é atômica no banco, inserindo simultaneamente em `users` e `clients`.*  
-  > *À direita, vemos a **Home Autenticada**: a store Pinia (`useAuthStore`) salva o JWT no `localStorage`, altera o cabeçalho para exibir o nome do usuário logado, links para Perfil, Logout e acesso direto ao Painel Administrativo. Nosso interceptor Axios anexa o cabeçalho `Authorization: Bearer <token>` em todas as requisições privadas."*
-- **Prints a destacar:** `05-cadastro.png` e `06-home-autenticada.png`.
+  > *À direita, a sessão já está ativa: o cabeçalho mostra o administrador logado e a tela **Meu Perfil** carrega nome, e-mail e telefone. A store Pinia (`useAuthStore`) guarda o JWT no `localStorage` e o interceptor Axios anexa `Authorization: Bearer <token>` nas requisições privadas."*
+- **Prints a destacar:** `05-cadastro.png` e `07-perfil.png`.
 
 ---
 
@@ -105,7 +105,7 @@
 - **O que falar:**
   > *"Passando agora para o **CRUD 2 de Fornecedores & Fábricas Parceiras** (requisitos RF04 e RF18):*  
   > - *À esquerda, o administrador cadastra a razão social da fábrica parceira ('Estofados Nobres') e o canal de contato comercial.*  
-  > - *À direita, ao submeter via `POST /api/fornecedores`, a persistência no PostgreSQL é imediata e o usuário recebe feedback visual instantâneo através de uma **notificação toast verde no canto inferior direito** via biblioteca `vue3-toastify`, com a nova linha já visível na tabela com status Ativo!"*
+  > - *À direita, ao submeter via `POST /api/fornecedores`, a persistência no PostgreSQL é imediata: **Estofados Nobres** aparece na listagem com status Ativo, sem recarregar a página. O feedback de sucesso também usa toast via `vue3-toastify`."*
 - **Prints a destacar:** `crud/fornecedores/03-novo-preenchido.png` e `crud/fornecedores/04-lista-apos-cadastro.png`.
 
 ---

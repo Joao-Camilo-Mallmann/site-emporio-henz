@@ -34,11 +34,65 @@ style: |
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
   .grid-2-asym { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 16px; align-items: center; }
   img.screenshot {
+    display: block;
+    width: 100%;
+    height: 292px;
     border-radius: 6px;
     border: 1px solid #cbd5e1;
     box-shadow: none !important;
-    max-height: 430px;
+    object-fit: cover;
+    object-position: top center;
+    background: #ffffff;
+    margin: 0 0 8px 0;
+  }
+  img.screenshot.shot-compare {
+    height: 340px;
     object-fit: contain;
+    object-position: center top;
+    background: #ffffff;
+  }
+  img.screenshot.shot-bottom {
+    width: auto;
+    max-width: 72%;
+    height: 520px;
+    margin: 0 auto;
+    object-fit: contain;
+    object-position: top center;
+  }
+  img.screenshot.shot-page {
+    width: auto;
+    max-width: 100%;
+    height: 600px;
+    margin: 0 auto;
+    object-fit: contain;
+    object-position: center top;
+  }
+  section.page-proof {
+    padding-top: 18px;
+    padding-bottom: 28px;
+  }
+  section.page-proof h2 {
+    margin-bottom: 8px;
+  }
+  img.screenshot.shot-form {
+    height: 318px;
+    object-position: center 28%;
+  }
+  img.screenshot.shot-signup {
+    height: 340px;
+    object-position: center 62%;
+  }
+  img.screenshot.shot-panel {
+    height: 318px;
+    object-position: top center;
+  }
+  img.screenshot.shot-modal {
+    height: 318px;
+    object-position: center 42%;
+  }
+  img.screenshot.shot-github {
+    height: 360px;
+    object-position: center 18%;
   }
   .caption {
     font-size: 12px;
@@ -175,6 +229,7 @@ style: |
     color: #ffffff !important;
   }
   section.brand-cover p, section.brand-cover span,
+  section.live-vps p, section.live-vps span, section.live-vps li,
   section.brand-closing p, section.brand-closing span {
     color: #e2e8f0;
   }
@@ -362,19 +417,44 @@ Cauã Primon · Airton Costa Junior
 
 ---
 
-## Vitrine Digital · <span>Fidelidade aos Protótipos do Figma</span>
+<!-- _class: page-proof -->
 
-![center width:980px screenshot](../prints/parcial1/01-home.png)
+## Vitrine Digital · <span>Página inteira, fiel ao Figma</span>
 
-**Interface Web:** Vue 3 + Tailwind CSS v4, identidade visual refinada, categorias de catálogo e homenagem aos 50 anos de história.
+<img class="screenshot shot-page" src="../prints/parcial1/01-home-completa.png" alt="Home completa" />
 
 ---
 
-## Página Institucional · <span>Homenagem aos 50 Anos e a Reconstrução</span>
+## Figma e a página final · <span>Mesmo enquadramento, lado a lado</span>
 
-![center width:980px screenshot](../prints/parcial1/02-sobre-a-loja.png)
+<div class="grid-2">
+<div>
 
-**História de Superação:** Trajetória da família Henz pós-enchente histórica no Vale do Taquari, alinhada aos requisitos levantados com o cliente.
+<img class="screenshot shot-compare" src="../prints/parcial1/28-figma-topo.png" alt="Layout no Figma" />
+<div class="caption">Layout no Figma: hero, benefícios e categorias.</div>
+
+</div>
+<div>
+
+<img class="screenshot shot-compare" src="../prints/parcial1/01-home-topo.png" alt="Home implementada" />
+<div class="caption">Página final: a mesma faixa, já no site publicado.</div>
+
+</div>
+</div>
+
+---
+
+## Final da home · <span>Destaques, recomendações e rodapé</span>
+
+<img class="screenshot shot-bottom" src="../prints/parcial1/01-home-final.png" alt="Final da home implementada" />
+
+---
+
+<!-- _class: page-proof -->
+
+## Página Institucional · <span>Sobre a loja, página inteira</span>
+
+<img class="screenshot shot-page" src="../prints/parcial1/02-sobre-completa.png" alt="Sobre a loja completa" />
 
 ---
 
@@ -383,13 +463,13 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2">
 <div>
 
-![width:560px screenshot](../prints/parcial1/03-login.png)
+<img class="screenshot shot-form" src="../prints/parcial1/03-login.png" alt="Formulário de login" />
 <div class="caption">1. Formulário de login com validação reativa e alternância de visibilidade.</div>
 
 </div>
 <div>
 
-![width:560px screenshot](../prints/parcial1/04-login-erro.png)
+<img class="screenshot shot-form" src="../prints/parcial1/04-login-erro.png" alt="Erro de login" />
 <div class="caption">2. Tratamento amigável de credenciais inválidas (HTTP 401 sem reload).</div>
 
 </div>
@@ -404,14 +484,14 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2">
 <div>
 
-![width:560px screenshot](../prints/parcial1/05-cadastro.png)
+<img class="screenshot shot-signup" src="../prints/parcial1/05-cadastro.png" alt="Autocadastro" />
 <div class="caption">1. Autocadastro com máscara dinâmica (51) 99999-9999 e validação de senha.</div>
 
 </div>
 <div>
 
-![width:560px screenshot](../prints/parcial1/06-home-autenticada.png)
-<div class="caption">2. Home autenticada reconhecendo o usuário e expondo painel de gestão.</div>
+<img class="screenshot shot-form" src="../prints/parcial1/07-perfil.png" alt="Perfil autenticado" />
+<div class="caption">2. Sessão ativa: cabeçalho com o administrador e dados em Meu Perfil.</div>
 
 </div>
 </div>
@@ -425,7 +505,7 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2-asym">
 <div>
 
-![width:560px screenshot](../prints/parcial1/08-admin.png)
+<img class="screenshot shot-panel" src="../prints/parcial1/08-admin.png" alt="Painel administrativo" />
 <div class="caption">Painel Administrativo: Hub central dividindo a gestão operacional da loja.</div>
 
 </div>
@@ -457,13 +537,13 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2">
 <div>
 
-![width:560px screenshot](../prints/parcial1/crud/usuarios/03-novo-preenchido.png)
+<img class="screenshot shot-form" src="../prints/parcial1/crud/usuarios/03-novo-preenchido.png" alt="Novo usuário" />
 <div class="caption">1. Formulário preenchido com validação de senha forte (POST /api/clientes).</div>
 
 </div>
 <div>
 
-![width:560px screenshot](../prints/parcial1/crud/usuarios/04-lista-apos-cadastro.png)
+<img class="screenshot shot-panel" src="../prints/parcial1/crud/usuarios/04-lista-apos-cadastro.png" alt="Lista de usuários" />
 <div class="caption">2. Novo usuário persistido na listagem em tempo real (Ana Teste Parcial).</div>
 
 </div>
@@ -482,13 +562,13 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2">
 <div>
 
-![width:560px screenshot](../prints/parcial1/crud/usuarios/05-editar.png)
+<img class="screenshot shot-form" src="../prints/parcial1/crud/usuarios/05-editar.png" alt="Editar usuário" />
 <div class="caption">1. Modal de edição de dados cadastrais (telefone, cidade e permissão).</div>
 
 </div>
 <div>
 
-![width:560px screenshot](../prints/parcial1/crud/usuarios/07-modal-desativar.png)
+<img class="screenshot shot-modal" src="../prints/parcial1/crud/usuarios/07-modal-desativar.png" alt="Desativar usuário" />
 <div class="caption">2. Modal de confirmação de exclusão lógica (Soft Delete RNF08).</div>
 
 </div>
@@ -507,14 +587,14 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2">
 <div>
 
-![width:560px screenshot](../prints/parcial1/crud/fornecedores/03-novo-preenchido.png)
+<img class="screenshot shot-form" src="../prints/parcial1/crud/fornecedores/03-novo-preenchido.png" alt="Novo fornecedor" />
 <div class="caption">1. Formulário preenchido com razão social e contato da fábrica parceira.</div>
 
 </div>
 <div>
 
-![width:560px screenshot](../prints/parcial1/crud/fornecedores/04-lista-apos-cadastro.png)
-<div class="caption">2. Fornecedor persistido com notificação toast verde de sucesso no canto inferior.</div>
+<img class="screenshot shot-panel" src="../prints/parcial1/crud/fornecedores/04-lista-apos-cadastro.png" alt="Lista de fornecedores" />
+<div class="caption">2. Estofados Nobres já na listagem, com status Ativo, sem recarregar a tela.</div>
 
 </div>
 </div>
@@ -532,13 +612,13 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2">
 <div>
 
-![width:560px screenshot](../prints/parcial1/crud/fornecedores/05-editar.png)
+<img class="screenshot shot-form" src="../prints/parcial1/crud/fornecedores/05-editar.png" alt="Editar fornecedor" />
 <div class="caption">1. Edição de contatos comerciais, representantes e dados da marca parceira.</div>
 
 </div>
 <div>
 
-![width:560px screenshot](../prints/parcial1/crud/fornecedores/07-modal-desativar.png)
+<img class="screenshot shot-modal" src="../prints/parcial1/crud/fornecedores/07-modal-desativar.png" alt="Desativar fornecedor" />
 <div class="caption">2. Modal de confirmação de desativação lógica preservando o histórico.</div>
 
 </div>
@@ -555,13 +635,13 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2">
 <div>
 
-![width:560px screenshot](../prints/parcial1/27-github-kanban-task.png)
+<img class="screenshot shot-github" src="../prints/parcial1/27-github-kanban-task.png" alt="Kanban no GitHub" />
 <div class="caption">Quadro Kanban da Sprint no GitHub Projects.</div>
 
 </div>
 <div>
 
-![width:560px screenshot](../prints/parcial1/24-issue-github.png)
+<img class="screenshot shot-github" src="../prints/parcial1/24-issue-github.png" alt="Issue no GitHub" />
 <div class="caption">Issue formal com critérios de aceitação e camada técnica.</div>
 
 </div>
@@ -576,13 +656,13 @@ Cauã Primon · Airton Costa Junior
 <div class="grid-2">
 <div>
 
-![width:560px screenshot](../prints/parcial1/16-github-commits.png)
+<img class="screenshot shot-github" src="../prints/parcial1/16-github-commits.png" alt="Commits no GitHub" />
 <div class="caption">Histórico de Conventional Commits (feat:, fix:).</div>
 
 </div>
 <div>
 
-![width:560px screenshot](../prints/parcial1/19-github-network.png)
+<img class="screenshot shot-github" src="../prints/parcial1/19-github-network.png" alt="Network do GitHub" />
 <div class="caption">Network Graph de branches convergentes.</div>
 
 </div>
@@ -622,13 +702,13 @@ docker compose --profile prod up -d --build
 http://177.44.248.90/
 </div>
 
-<p style="font-size: 16px; color: #e0f2fe; margin-top: 8px; max-width: 860px; line-height: 1.5;">
-Nossa plataforma inteira já está <b>compilada, implantada e operando ao vivo</b> na VPS pública na nuvem! Podem acessar pelo navegador ou smartphone agora mesmo durante a apresentação.
+<p style="font-size: 16px; color: #e0f2fe; margin-top: 8px; max-width: 860px; line-height: 1.45;">
+A plataforma está <b>compilada e no ar</b>. Abram o endereço no navegador durante a apresentação.
 </p>
 
 <div class="tech-pills">
 <div>Docker Compose Produção</div>
-<div>Nginx Proxy Reverso (Porta 80)</div>
+<div>Nginx · porta 80</div>
 <div>PostgreSQL 16 Nativo</div>
 <div>Bun Nativo + Vue 3 SPA</div>
 </div>
