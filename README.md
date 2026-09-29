@@ -1,6 +1,20 @@
-# Empório Henz
+<p align="center">
+  <img src="frontend/public/favicon.svg" alt="Logo Empório Henz" width="80" />
+</p>
 
-Repositório oficial do sistema e e-commerce **Empório Henz**, composto pelas aplicações autônomas **Backend** (Bun nativo) e **Frontend** (Vue 3 + Vite + Tailwind CSS v4), orquestradas via **Docker Compose**.
+<h1 align="center">Empório Henz</h1>
+
+<p align="center">
+  Repositório oficial do sistema e e-commerce <strong>Empório Henz</strong>, composto pelas aplicações autônomas <strong>Backend</strong> (Bun nativo) e <strong>Frontend</strong> (Vue 3 + Vite + Tailwind CSS v4), orquestradas via <strong>Docker Compose</strong>.
+</p>
+
+<p align="center">
+  <a href="http://177.44.248.90/">http://177.44.248.90/</a>
+</p>
+
+<p align="center">
+  <img src="docs/prints/home.png" alt="Página inicial do Empório Henz" width="900" />
+</p>
 
 ---
 

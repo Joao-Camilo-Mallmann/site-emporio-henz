@@ -7,6 +7,12 @@
       "skillPath": "skills/engineering/code-review/SKILL.md",
       "computedHash": "caa9a086baaf9e0f7cd71f64edfa83da6821c05e826b083221f3d02e3d6a1905"
     },
+    "geo-magazine-slides-cn": {
+      "source": "haomingz/kimi-skills",
+      "sourceType": "github",
+      "skillPath": "skills/geo-magazine-slides-cn/SKILL.md",
+      "computedHash": "7cc672dd9164dbe0cf20acbf5d808ff2f41042b8680638917027538c61d444a3"
+    },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
