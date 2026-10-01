@@ -1,59 +1,73 @@
-# Documentação do projeto — Empório Henz
+# Documentação — Empório Henz
 
-Este índice orienta pessoas e agentes de IA para a fonte correta, sem duplicar regras entre documentos.
+Este diretório reúne a documentação de produto, planejamento e implementação do portal. Use este arquivo como ponto de entrada; cada assunto possui uma fonte canônica para evitar informações duplicadas ou contraditórias.
+
+## Por onde começar
+
+| Objetivo | Documento |
+| --- | --- |
+| Entender o produto e as regras de negócio | [PRD](./PRD.md) |
+| Consultar o andamento das histórias | [Backlog de histórias](./planning/user-stories-backlog.md) |
+| Criar histórias, tarefas e issues | [Padrão de histórias e tarefas](./padrao-historias-tarefas.md) |
+| Entender o banco e as migrações | [Banco de dados](./database/README.md) |
+| Desenvolver ou consultar a API | [Back-end](./backend/README.md) |
+| Testar endpoints | [Collection Bruno](./backend/collections/README.md) |
+| Desenvolver interfaces | [Front-end](./frontend/README.md) |
+| Consultar cores e tokens visuais | [Design system](./frontend/design-system-cores.md) |
+| Operar Docker, deploy ou backups | [Infraestrutura](./infra/README.md) |
+| Consultar materiais da apresentação | [Apresentação da Parcial 1](./slides/apresentacao-parcial-1.md) |
 
 ## Ordem de autoridade
 
-1. **[PRD.md](./PRD.md)** — única fonte da verdade para visão, escopo, requisitos e regras de negócio.
-2. **[padrao-historias-tarefas.md](./padrao-historias-tarefas.md)** — fonte normativa para planejamento, decomposição e execução.
-3. **Documentação técnica por domínio** — descreve como cada camada implementa o PRD.
-4. **[planning/user-stories-backlog.md](./planning/user-stories-backlog.md)** — visão de execução derivada do PRD.
-5. **[product/perguntas-cliente.md](./product/perguntas-cliente.md)** — material de descoberta; decisões confirmadas devem ser incorporadas ao PRD.
+1. [PRD](./PRD.md): fonte da verdade para visão, escopo, requisitos e regras de negócio.
+2. [Padrão de histórias e tarefas](./padrao-historias-tarefas.md): processo oficial de planejamento e execução.
+3. Documentação técnica de cada domínio: explica como o sistema implementa o PRD.
+4. [Backlog](./planning/user-stories-backlog.md): registra a execução derivada do PRD.
+5. [Perguntas para o cliente](./product/perguntas-cliente.md): reúne insumos de descoberta ainda não normativos.
 
-Se uma regra de negócio surgir ou mudar, atualize primeiro o PRD. Nenhum README, backlog, OpenSpec, issue, collection Bruno ou código pode estabelecer sozinho uma regra de produto.
+Se uma regra de negócio surgir ou mudar, atualize primeiro o PRD. READMEs, backlog, OpenSpec, issues, collection Bruno e código não devem estabelecer isoladamente uma regra de produto.
 
-## Mapa da documentação
+## Estrutura
 
 ```text
 docs/
-├── README.md
-├── PRD.md                          # SSOT de produto e regras de negócio
-├── padrao-historias-tarefas.md     # Processo oficial de histórias e tarefas
+├── README.md                       # Índice da documentação
+├── PRD.md                          # Produto e regras de negócio
+├── padrao-historias-tarefas.md     # Processo de planejamento e execução
 ├── product/
-│   └── perguntas-cliente.md        # Insumos de descoberta ainda não normativos
+│   └── perguntas-cliente.md        # Insumos de descoberta
 ├── planning/
-│   └── user-stories-backlog.md     # Execução derivada do PRD
+│   └── user-stories-backlog.md     # Histórias e critérios de aceitação
 ├── database/
-│   ├── README.md
-│   ├── diagram.png
-│   └── der_emporio_henz.pdf
+│   └── README.md                   # Persistência e migrações
 ├── backend/
-│   ├── README.md
-│   ├── diagrama_classes_emporio_henz.pdf
+│   ├── README.md                   # Arquitetura e execução da API
 │   └── collections/
-│       ├── README.md
-│       └── bruno/                  # Fonte de consulta da API (executável e versionada)
+│       ├── README.md               # Uso da collection
+│       └── bruno/                  # Contrato executável da API
 ├── frontend/
-│   ├── README.md
-│   └── design-system-cores.md
-└── infra/
-    ├── README.md
-    └── backup-restore-guide.md
+│   ├── README.md                   # Arquitetura e execução da interface
+│   └── design-system-cores.md      # Tokens visuais
+├── infra/
+│   ├── README.md                   # Docker, deploy e operação
+│   └── backup-restore-guide.md     # Backup e restauração
+├── slides/                         # Apresentação e roteiro
+└── prints/                         # Evidências visuais da aplicação
 ```
 
-## Responsabilidade por domínio
+## Responsabilidade de cada domínio
 
-- **[database/](./database/README.md)**: persistência PostgreSQL, migrações, integridade e diagramas (código em `backend/database/`).
-- **[backend/](./backend/README.md)**: arquitetura de servidor, segurança e implementação da API.
-- **[backend/collections/](./backend/collections/README.md)**: fonte de consulta da API. Toda alteração de rota, payload, status ou resposta atualiza a collection Bruno na mesma mudança.
-- **[frontend/](./frontend/README.md)**: arquitetura Vue, integração, estado e UI.
-- **[frontend/design-system-cores.md](./frontend/design-system-cores.md)**: tokens visuais canônicos.
-- **[infra/](./infra/README.md)**: Docker, deploy, backup e operação.
+- [Banco de dados](./database/README.md): esquema PostgreSQL, migrações e integridade. O código fica em `backend/database/`.
+- [Back-end](./backend/README.md): arquitetura do servidor, segurança e implementação da API.
+- [Collection Bruno](./backend/collections/README.md): contrato executável de rotas, payloads, status e respostas.
+- [Front-end](./frontend/README.md): arquitetura Vue, integração com a API, estado e interface.
+- [Infraestrutura](./infra/README.md): Docker Compose, Nginx, deploy, backup e restauração.
 
-## Checklist de manutenção
+## Manutenção
 
-- Regra de produto alterada: PRD atualizado primeiro.
-- Tarefa criada ou alterada: padrão respeitado e backlog sincronizado.
-- API alterada: collection Bruno sincronizada.
-- Decisão técnica alterada: README do domínio atualizado.
-- Referência movida: links internos revisados.
+- Regra, requisito ou escopo de produto: atualizar o PRD primeiro.
+- História, tarefa ou critério de aceite: sincronizar o padrão e o backlog.
+- Endpoint, payload, status ou resposta: atualizar a collection Bruno na mesma entrega.
+- Decisão técnica: atualizar o README do domínio afetado.
+- Tarefa concluída: marcar os critérios atendidos no backlog e no `tasks.md` do OpenSpec, quando existir.
+- Arquivo movido ou renomeado: revisar todos os links internos.

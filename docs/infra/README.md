@@ -1,90 +1,73 @@
-# Documentação de Infraestrutura e DevOps — Empório Henz
+# Infraestrutura e operação
 
-Este diretório concentra as diretrizes operacionais de infraestrutura, conteinerização Docker, proxy reverso Nginx, rotinas de salvaguarda (backup/restauração) e automação de deploy na VM do Portal Empório Henz.
+Guia de Docker Compose, Nginx, deploy e proteção dos dados do Empório Henz.
 
----
+## Referências
 
-## 🏗️ Arquitetura dos Serviços (Docker Compose)
+- [Docker Compose](../../docker-compose.yml)
+- [Dockerfile do back-end](../../backend/Dockerfile)
+- [Dockerfile do front-end](../../frontend/Dockerfile)
+- [Guia de backup e restauração](./backup-restore-guide.md)
+- [Script de deploy](../../deploy.sh)
 
-A infraestrutura completa roda de forma orquestrada em rede interna isolada (`emporio_net`), definida em [docker-compose.yml](../../docker-compose.yml) e nos Dockerfiles autônomos [backend/Dockerfile](../../backend/Dockerfile) e [frontend/Dockerfile](../../frontend/Dockerfile):
+## Serviços
 
+| Perfil | Serviço | Função | Porta padrão |
+| --- | --- | --- | ---: |
+| Todos | `postgres` | PostgreSQL 16 e volume `postgres_data` | `5432` |
+| `dev` | `backend-dev` | API Bun com reload | `3001` |
+| `dev` | `frontend-dev` | Vite com HMR | `3000` |
+| `prod` | `backend` | API Bun compilada | `3001` |
+| `prod` | `nginx` | Front-end estático e proxy reverso | `80` |
+
+Todos os serviços compartilham a rede Docker `emporio_net`. O healthcheck do PostgreSQL controla a inicialização do back-end. Os Dockerfiles executam as migrações antes de iniciar a API.
+
+> [!IMPORTANT]
+> O Compose atual publica a porta do PostgreSQL no host. Em uma VM de produção, restrinja essa porta por firewall ou remova o mapeamento antes do deploy público.
+
+## Desenvolvimento
+
+```bash
+docker compose --profile dev up -d --build
+docker compose --profile dev logs -f
 ```
-       [ Usuário / Navegador ]
-                 │
-                 ▼ Porta 80
-      ┌──────────────────────┐
-      │   Nginx (Reverse     │
-      │   Proxy & Estáticos) │
-      └──────────┬───────────┘
-                 │
-        ┌────────┴────────┐
-        │ /api/*          │ /*
-        ▼                 ▼
- ┌─────────────┐   ┌─────────────┐
- │   Backend   │   │  Frontend   │
- │ (Bun.serve) │   │ (Vue3 Dist) │
- └──────┬──────┘   └─────────────┘
-        │ (Auto-migrações
-        │  no startup)
-        ▼ Porta 5432
- ┌─────────────┐
- │  PostgreSQL │
- │     16      │
- └─────────────┘
+
+Aplicações padrão:
+
+- Front-end: `http://localhost:3000`
+- API: `http://localhost:3001/api/v1`
+- Healthcheck: `http://localhost:3001/api/v1/health`
+
+## Produção
+
+```bash
+docker compose --profile prod up -d --build
+docker compose --profile prod logs -f
 ```
 
-1. **`postgres` (`postgres:16-alpine`)**:
-   - Persistência garantida através do volume de dados nomeado `postgres_data`.
-   - Healthcheck nativo (`pg_isready`) monitorando integridade para liberação dos serviços dependentes.
+O Nginx atende a aplicação na porta `80` e encaminha as requisições da API ao serviço `backend`.
 
-2. **`backend` / `backend-dev` (Bun API — `backend/Dockerfile`)**:
-   - Executa migrações SQL idempotentes automaticamente na inicialização (`bun run migrate`) antes de subir a API.
-   - Em produção (`backend`): executa o bundle compilado com Bun na porta interna `3001`.
-   - Em desenvolvimento (`backend-dev`): sincroniza dependências, roda migrações e sobe com live-reload (`bun --watch`).
+## Parar ou recriar
 
-3. **`nginx` / `frontend-dev` (Frontend Vue 3 — `frontend/Dockerfile`)**:
-   - Em produção (`nginx`): container Nginx servindo os arquivos estáticos compilados do Vue 3 (`frontend/dist`) e atuando como proxy reverso para `/api/*` e `/health` na porta `80` com repasse de cabeçalhos (`X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`).
-   - Em desenvolvimento (`frontend-dev`): servidor Vite com Hot Module Replacement (HMR) rodando na porta `3000`.
+Parar os serviços sem apagar o banco:
 
----
+```bash
+docker compose --profile dev --profile prod down
+```
 
-## 📁 Arquivos e Guias do Diretório
+Apagar também os volumes e recriar o banco do zero:
 
-| Arquivo                                              | Descrição                                                                                                                                                           |
-| :--------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [backup-restore-guide.md](./backup-restore-guide.md) | Guia operacional completo para rotinas manuais e automáticas de backup com compressão `.sql.gz`, restauração com flag `--force` e agendamento via Cron na VM Linux. |
+```bash
+docker compose --profile dev --profile prod down -v
+```
 
----
+O segundo comando é destrutivo e deve ser usado somente quando a perda dos dados locais for intencional.
 
-## 🛠️ Scripts Operacionais da Raiz
+## Operação
 
-- [deploy.sh](../../deploy.sh): Script de deploy automatizado para ambiente Linux/VM com validação de `.env`, build com Docker Compose e remoção de imagens órfãs.
-- [scripts/backup.sh](../../scripts/backup.sh): Script utilitário para geração de dump PostgreSQL compactado com rotação de retenção (30 dias).
-- [scripts/restore.sh](../../scripts/restore.sh): Script utilitário para restauração segura de base a partir de dump compactado.
-
----
-
-## 🚀 Comandos Rápidos de Infraestrutura
-
-- **Subir ambiente de desenvolvimento (PostgreSQL, backend-dev e frontend-dev)**:
-  ```bash
-  docker compose --profile dev up -d
-  ```
-- **Subir ambiente de produção compilado (PostgreSQL, backend e nginx)**:
-  ```bash
-  docker compose --profile prod up -d --build
-  ```
-- **Acompanhar logs unificados em tempo real**:
-  ```bash
-  docker compose --profile dev logs -f
-  # ou para produção:
-  docker compose --profile prod logs -f
-  ```
-- **Parar containers mantendo o banco de dados**:
-  ```bash
-  docker compose --profile dev --profile prod down
-  ```
-- **Reset total (apagar volumes e recriar banco do zero)**:
-  ```bash
-  docker compose --profile dev --profile prod down -v
-  ```
+| Recurso | Uso |
+| --- | --- |
+| [`deploy.sh`](../../deploy.sh) | Build e atualização da stack na VM |
+| [`scripts/backup.sh`](../../scripts/backup.sh) | Dump compactado com retenção |
+| [`scripts/restore.sh`](../../scripts/restore.sh) | Restauração de dump |
+| [Guia de backup](./backup-restore-guide.md) | Procedimento manual, automação com cron e cópia externa |

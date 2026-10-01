@@ -39,6 +39,14 @@ Em caso de divergência, prevalece o documento de maior prioridade.
 
 Toda funcionalidade com persistência, lógica de servidor e interface deve ser separada por camada. Testes e infraestrutura recebem tarefas próprias quando aplicável.
 
+## Conclusão de tarefas
+
+Ao terminar uma tarefa ou história de usuário, marque-a como concluída na mesma entrega, antes de encerrar o trabalho:
+
+- Em [`docs/planning/user-stories-backlog.md`](docs/planning/user-stories-backlog.md), troque os critérios de aceitação atendidos de `- [ ]` para `- [x]`.
+- Se a tarefa estiver em um `tasks.md` do OpenSpec, marque o item correspondente como concluído nesse arquivo também.
+- Marque somente o que foi de fato implementado e validado. Critérios ainda pendentes permanecem em aberto.
+
 ## Matriz de manutenção documental
 
 | Mudança                                              | Atualizações obrigatórias                                     |

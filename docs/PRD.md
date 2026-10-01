@@ -335,21 +335,15 @@ Exceções:
 
 ## 8. Modelagem
 
-A modelagem de dados e arquitetura conceitual do sistema foi dividida entre a visão orientada a objetos (Diagrama de Classes) e a visão relacional de persistência física (Diagrama Entidade-Relacionamento - DER para PostgreSQL).
-
-Devido à extensão e ao detalhamento técnico dos modelos, ambos os diagramas foram formalizados e exportados em arquivos PDF dedicados, disponíveis nos seguintes documentos anexos:
+A modelagem de dados e a arquitetura conceitual do sistema são apresentadas pela visão das entidades de domínio e pelo Diagrama Entidade-Relacionamento (DER) integrado nesta seção.
 
 ### 8.1 Diagrama de Classes
 
-Contempla as entidades centrais do sistema (`User`, `UserSupplier`, `Client`, `Category`, `ProductSubtype`, `Supplier`, `Product`, `ProductImage`, `ProductVariation`, `ProductList`, `ListItem`), suas responsabilidades, visibilidade de atributos e métodos de negócio. A associação entre `User` (Vendedor) e `Supplier` é modelada através da classe associativa `UserSupplier`, permitindo que um vendedor represente uma ou mais marcas parceiras simultaneamente com isolamento estrito de catálogo.
-
-- **Arquivo anexo**: [diagrama_classes_emporio_henz.pdf](./backend/diagrama_classes_emporio_henz.pdf)
+Contempla as entidades centrais do sistema (`User`, `UserSupplier`, `Client`, `Category`, `ProductSubtype`, `Supplier`, `Product`, `ProductImage`, `ProductVariation`, `ProductList`, `ListItem`), suas responsabilidades e relacionamentos. A associação entre `User` (Vendedor) e `Supplier` é modelada através da classe associativa `UserSupplier`, permitindo que um vendedor represente uma ou mais marcas parceiras simultaneamente com isolamento estrito de catálogo.
 
 ### 8.2 Modelo de Dados (DER Relacional para PostgreSQL)
 
 Define o esquema físico e relacional de tabelas, chaves primárias (`UUID`), chaves estrangeiras (`FK`), índices de unicidade (`UNIQUE`), campos para controle de concorrência/auditoria e colunas de suporte à estratégia obrigatória de exclusão lógica (`deleted_at timestamp`, soft delete).
-
-- **Arquivo anexo atualizado**: [der_emporio_henz.pdf](./database/der_emporio_henz.pdf) · [diagram.png](./database/diagram.png)
 
 #### Diagrama Entidade-Relacionamento Integrado:
 

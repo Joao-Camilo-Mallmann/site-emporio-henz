@@ -110,9 +110,9 @@ O RNF08 do PRD estabelece que nenhuma exclusão física (`DELETE`) pode ocorrer 
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Todas as 11 tabelas possuem coluna `deleted_at` com valor default `NULL`.
-- [ ] Inserir um registro, preencher seu `deleted_at` e reinserir com o mesmo e-mail/slug funciona perfeitamente sem violação de unicidade.
-- [ ] Não existem restrições `ON DELETE CASCADE` físico que possam apagar dados históricos inadvertidamente.
+- [x] Todas as 11 tabelas possuem coluna `deleted_at` com valor default `NULL`.
+- [x] Inserir um registro, preencher seu `deleted_at` e reinserir com o mesmo e-mail/slug funciona perfeitamente sem violação de unicidade.
+- [x] Não existem restrições `ON DELETE CASCADE` físico que possam apagar dados históricos inadvertidamente.
 
 ---
 
@@ -134,9 +134,9 @@ O serviço `migration` no `docker-compose.yml` executa como um runner one-shot a
 
 #### ✅ Critérios de Aceitação
 
-- [ ] O comando `docker compose run --rm migration` executa e aplica todas as migrações ordenadas (`001`, `002`, `003`).
-- [ ] A tabela `_migrations` registra com sucesso cada arquivo executado com seu respectivo timestamp.
-- [ ] Uma segunda execução consecutiva reconhece que não há migrações pendentes e encerra sem erros em milissegundos.
+- [x] O comando `docker compose run --rm migration` executa e aplica todas as migrações ordenadas (`001`, `002`, `003`).
+- [x] A tabela `_migrations` registra com sucesso cada arquivo executado com seu respectivo timestamp.
+- [x] Uma segunda execução consecutiva reconhece que não há migrações pendentes e encerra sem erros em milissegundos.
 
 ---
 
@@ -262,10 +262,10 @@ O estado de autenticação deve ser persistente entre abas e recarregamentos (`l
 
 #### ✅ Critérios de Aceitação
 
-- [ ] O token JWT é armazenado com sucesso no `localStorage` após login bem-sucedido.
-- [ ] Requisições disparadas pelo Axios incluem automaticamente o header `Authorization`.
-- [ ] Ao clicar em Logout, a store e o `localStorage` são limpos instantaneamente.
-- [ ] Erros 401 desconectam o usuário e redirecionam para a rota `/login`.
+- [x] O token JWT é armazenado com sucesso no `localStorage` após login bem-sucedido.
+- [x] Requisições disparadas pelo Axios incluem automaticamente o header `Authorization`.
+- [x] Ao clicar em Logout, a store e o `localStorage` são limpos instantaneamente.
+- [x] Erros 401 desconectam o usuário e redirecionam para a rota `/login`.
 
 ---
 
@@ -293,10 +293,10 @@ As interfaces de login e registro devem seguir a estética refinada do Empório 
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Formulário de login valida campos obrigatórios e exibe mensagens de erro claras da API.
-- [ ] Formulário de cadastro valida formato de e-mail, máscara de telefone e tamanho mínimo de senha.
-- [ ] Layout perfeitamente responsivo (otimizado para smartphones, tablets e desktop).
-- [ ] Redirecionamento automático após autenticação com sucesso.
+- [x] Formulário de login valida campos obrigatórios e exibe mensagens de erro claras da API.
+- [x] Formulário de cadastro valida formato de e-mail, máscara de telefone e tamanho mínimo de senha.
+- [x] Layout perfeitamente responsivo (otimizado para smartphones, tablets e desktop).
+- [x] Redirecionamento automático após autenticação com sucesso.
 
 ---
 
@@ -360,10 +360,10 @@ Tela restrita ao perfil Administrador. Deve oferecer uma tabela responsiva com p
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Tabela lista os clientes cadastrados com dados em tempo real vindos do backend.
-- [ ] Campo de pesquisa filtra a listagem por nome ou e-mail sem recarregar a página.
-- [ ] Edição de dados atualiza o registro na tabela e no PostgreSQL.
-- [ ] Ação de excluir dispara o soft delete e remove o item da listagem ativa com feedback de sucesso.
+- [x] Tabela lista os clientes cadastrados com dados em tempo real vindos do backend.
+- [x] Campo de pesquisa filtra a listagem por nome ou e-mail sem recarregar a página.
+- [x] Edição de dados atualiza o registro na tabela e no PostgreSQL.
+- [x] Ação de excluir dispara o soft delete e remove o item da listagem ativa com feedback de sucesso.
 
 ---
 
@@ -428,10 +428,10 @@ Tela no painel administrativo permitindo visualizar cartões ou listagem das emp
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Listagem de fornecedores carrega os dados reais persistidos no banco PostgreSQL.
-- [ ] Cadastro de novo fornecedor adiciona a linha imediatamente à tabela após salvar.
-- [ ] Edição reflete as alterações sem erros.
-- [ ] Desativação do fornecedor aciona a confirmação visual e atualiza a interface.
+- [x] Listagem de fornecedores carrega os dados reais persistidos no banco PostgreSQL.
+- [x] Cadastro de novo fornecedor adiciona a linha imediatamente à tabela após salvar.
+- [x] Edição reflete as alterações sem erros.
+- [x] Desativação do fornecedor aciona a confirmação visual e atualiza a interface.
 
 ---
 
@@ -463,10 +463,10 @@ O RNF05 exige fidelidade aos padrões de design da Empório Henz. A identidade v
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Cabeçalho reativo adapta os botões de acordo com o estado logado/deslogado.
-- [ ] Layout 100% responsivo com menu mobile em tela cheia/gaveta em smartphones.
-- [ ] Paleta visual consistente com Tailwind CSS v4 sem quebras de layout.
-- [ ] Navegação entre rotas fluida com Vue Router sem recarregamento de página.
+- [x] Cabeçalho reativo adapta os botões de acordo com o estado logado/deslogado.
+- [x] Layout 100% responsivo com menu mobile em tela cheia/gaveta em smartphones.
+- [x] Paleta visual consistente com Tailwind CSS v4 sem quebras de layout.
+- [x] Navegação entre rotas fluida com Vue Router sem recarregamento de página.
 
 ---
 
@@ -523,10 +523,10 @@ Conforme as regras obrigatórias de governança (`AGENTS.md`), as implementaçõ
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Proposta formal da Parcial 1 documentada no OpenSpec.
-- [ ] `bun run check-types` executa com saída de sucesso em todos os pacotes.
-- [ ] `bun run lint` executa sem nenhum erro.
-- [ ] `bun run build` gera a pasta `dist` de produção perfeitamente.
+- [x] Proposta formal da Parcial 1 documentada no OpenSpec.
+- [x] `bun run check-types` executa com saída de sucesso em todos os pacotes.
+- [x] `bun run lint` executa sem nenhum erro.
+- [x] `bun run build` gera a pasta `dist` de produção perfeitamente.
 
 ---
 
