@@ -1,56 +1,46 @@
-# Documentação de Banco de Dados — Empório Henz
+# Banco de dados
 
-Este diretório concentra os artefatos de modelagem, diagramas conceituais e lógicos, e especificações da camada de persistência do Portal Empório Henz.
+Documentação da persistência PostgreSQL do Empório Henz. O modelo conceitual completo está na seção de [modelagem do PRD](../PRD.md#8-modelagem); as migrações executáveis ficam em [`backend/database/`](../../backend/database/).
 
----
+## Referências
 
-## 🏛️ Diretrizes Arquiteturais (Database First)
+- [PRD](../PRD.md)
+- [Padrão de histórias e tarefas](../padrao-historias-tarefas.md)
+- [Migrações e seed](../../backend/database/)
+- [Documentação do back-end](../backend/README.md)
 
-Conforme definido em [docs/padrao-historias-tarefas.md](../padrao-historias-tarefas.md) e no [PRD.md](../PRD.md):
+## Princípios
 
-1. **Database First**: Toda funcionalidade nova tem suas tabelas, migrações e índices definidos e validados no PostgreSQL antes de qualquer implementação em back-end ou front-end.
-2. **Soft Delete**: Nenhuma exclusão física (`DELETE`) em entidades de negócio. Sempre utilizar exclusão lógica através da coluna `deleted_at TIMESTAMP WITH TIME ZONE NULL`.
-3. **Índices Parciais Únicos**: Campos com unicidade (como slugs ou emails de cadastros ativos) utilizam índices parciais com `WHERE deleted_at IS NULL`.
-4. **Idempotência**: Todas as migrações SQL em `backend/database/migrations/` devem ser idempotentes (`CREATE TABLE IF NOT EXISTS`, etc.).
+1. **Database First:** modelar e validar tabelas, restrições e índices antes das camadas de API e interface.
+2. **Soft delete:** entidades de negócio usam `deleted_at`; não se executa `DELETE` físico nesses registros.
+3. **Unicidade ativa:** campos únicos sujeitos a reuso usam índices parciais com `WHERE deleted_at IS NULL`.
+4. **Migrações ordenadas:** arquivos SQL recebem prefixos numéricos e são aplicados pelo runner em ordem.
+5. **Idempotência:** uma migração já aplicada não deve ser executada novamente.
 
----
+## Estrutura
 
-## 📁 Arquivos e Artefatos do Diretório
+```text
+backend/database/
+├── migrate.ts       # Runner de migrações
+├── seed.ts          # Dados iniciais
+└── migrations/      # Arquivos SQL versionados
+```
 
-| Arquivo                                        | Descrição                                                                               |
-| :--------------------------------------------- | :-------------------------------------------------------------------------------------- |
-| [diagram.png](./diagram.png)                   | Renderização gráfica em alta resolução do Diagrama Entidade-Relacionamento (DER).       |
-| [der_emporio_henz.pdf](./der_emporio_henz.pdf) | Versão em PDF para documentação formal e submissão acadêmica/avaliação.                 |
+As tabelas atualmente implementadas são `roles`, `users`, `clients`, `suppliers` e `user_suppliers`. O modelo planejado no PRD também contempla categorias, produtos, variações, imagens e listas.
 
----
+## Executar
 
-## 📊 Entidades Principais e Relacionamentos
+```bash
+cd backend
+bun run migrate
+bun run seed
+```
 
-- **`roles`**: Perfis de acesso do sistema (`1`: Cliente, `2`: Vendedor, `3`: Administrador).
-- **`users`**: Contas de acesso autenticadas (e-mail único ativo e senha com hash seguro).
-- **`clients`**: Dados complementares do perfil de cliente (1:1 com `users`).
-- **`suppliers`**: Marcas e indústrias parceiras de móveis da loja física.
-- **`user_suppliers`**: Tabela associativa que vincula vendedores a fornecedores autorizados (isolamento multi-empresa).
-- **`categories`** & **`product_subtypes`**: Taxonomia hierárquica do catálogo de móveis.
-- **`products`**: Catálogo de móveis com disponibilidade (pronta entrega / encomenda), preço e soft delete.
-- **`product_images`**: Galeria de imagens em Base64 / paths de imagens dos produtos.
-- **`product_variations`**: Opções de acabamento, cores e tecidos.
-- **`lists`** & **`list_items`**: Listas públicas/privadas de clientes (Favoritos, Desejos, Presentes) com link público via UUID.
+Nos containers `backend` e `backend-dev`, o Dockerfile executa as migrações antes de iniciar a API.
 
----
+## Validar
 
-## 🚀 Como Executar as Migrações
-
-- **Localmente com Bun**:
-  ```bash
-  cd backend
-  bun run migrate
-  ```
-- **Seeder de Administrador / Dados Iniciais**:
-  ```bash
-  cd backend
-  bun run seed
-  ```
-- **Via Docker Compose**:
-  As migrações são executadas automaticamente no startup dos containers `backend` e `backend-dev`.
-- **Código-fonte das migrações**: consulte o diretório [backend/database](../../backend/database).
+- Execute as migrações em um banco vazio.
+- Execute novamente para confirmar que não existem migrações pendentes.
+- Verifique soft delete e índices parciais para registros ativos.
+- Mantenha o PRD sincronizado quando uma alteração de persistência afetar o produto.

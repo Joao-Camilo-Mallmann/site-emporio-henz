@@ -19,15 +19,17 @@ O painel administrativo (`/admin`) da Empório Henz precisa operacionalizar a ge
 ## Capabilities
 
 ### New Capabilities
+
 - `admin-gestao-fornecedores`: Interface de listagem, busca, criação, edição e desativação lógica (soft delete) de fornecedores e marcas parceiras no painel administrativo, integrada à API `/suppliers` no formato list/edit/new/form.
 - `admin-gestao-usuarios`: Interface de listagem paginada, busca, filtragem por papel, criação, atualização e soft delete de usuários e clientes no painel administrativo, integrada à API `/users` no formato list/edit/new/form.
 
 ### Modified Capabilities
+
 - `admin-access-and-guard`: Reforço da proteção de rotas no Vue Router para abranger o dashboard e todas as sub-telas administrativas (`/admin`, `/admin/fornecedores*`, `/admin/usuarios*`), exigindo autenticação ativa e bloqueando perfis não autorizados.
 
 ## Impact
 
-- **Frontend (`apps/web`)**:
+- **Frontend (`frontend`)**:
   - `src/views/admin/AdminDashboardView.vue`: Layout limpo e moderno com 2 botões de ação principais.
   - `src/views/admin/fornecedores/FornecedoresView.vue`: View de listagem de fornecedores.
   - `src/views/admin/fornecedores/FornecedorFormView.vue`: Nova view de formulário dedicado (novo/edição) de fornecedor.

@@ -72,7 +72,7 @@ O sistema é estruturado em partes evolutivas na ordem abaixo. Cada etapa estabe
 | RF17 | O sistema permite ao **Vendedor** desativar produtos do catálogo através de exclusão lógica (**Soft Delete**, preenchendo `deleted_at`) **exclusivamente das empresas às quais está ativamente vinculado**. O Administrador mantém permissão global para gerenciar e desativar produtos de qualquer fornecedor.                                                                                                                                                                                                                              |
 | RF18 | O sistema restringe o cadastro, edição e desativação de empresas/fornecedores **exclusivamente ao perfil Administrador**. Vendedores e Clientes não possuem permissão para cadastrar nem alterar empresas/fornecedores.                                                                                                                                                                                                                                                                                                                      |
 | RF19 | O sistema valida rigorosamente no **backend** a matriz de permissões e isolamento multi-empresa: tentativas de um Vendedor cadastrar, editar, desativar ou consultar privadamente produtos de uma empresa à qual não está vinculado retornam status HTTP `403 Forbidden`. Da mesma forma, tentativas de Vendedor ou Cliente cadastrar/alterar empresas/fornecedores retornam obrigatoriamente HTTP `403 Forbidden`. Vendedores sem empresa vinculada são impedidos de cadastrar produtos (`403 Forbidden`).                                  |
-| RF20 | O sistema disponibiliza para os usuários autenticados (Cliente e Vendedor) uma tela de perfil próprio (`/perfil`), permitindo atualizar nome completo, telefone/WhatsApp, cidade e redefinir a senha de acesso (com validação dos critérios de segurança). O sistema veda a alteração de e-mail e de cargo (`role`) por usuários não administradores. O acesso à rota administrativa de gerenciamento e edição de usuários (`/admin/usuarios/:id/editar`) e aos endpoints correspondentes (`PUT /api/v1/users/:id`) permanece estritamente restrito ao perfil Administrador (`403 Forbidden`). |
+| RF20 | O sistema disponibiliza para os usuários autenticados (Cliente e Vendedor) uma tela de perfil próprio (`/perfil`), permitindo atualizar nome completo, telefone/WhatsApp, cidade e redefinir a senha de acesso (com validação dos critérios de segurança). O sistema veda a alteração de e-mail e de cargo (`role`) por usuários não administradores. Em `PUT /api/v1/auth/me`, o registro alterado é sempre o do usuário autenticado, identificado pelo `id` do JWT verificado no middleware. Um `id` enviado no corpo da requisição não seleciona outro usuário. O acesso à rota administrativa de gerenciamento e edição de usuários (`/admin/usuarios/:id/editar`) e aos endpoints correspondentes (`PUT /api/v1/users/:id`) permanece estritamente restrito ao perfil Administrador (`403 Forbidden`). |
 
 ## 5. Requisitos não funcionais
 
@@ -87,8 +87,9 @@ O sistema é estruturado em partes evolutivas na ordem abaixo. Cada etapa estabe
 | RNF07 | A API do backend em Bun é estruturada em rotas REST versionadas (`/api/v1/...`) respondendo em formato JSON com códigos de status HTTP semânticos (200, 201, 400, 401, 403, 404, 500)                                                                                                                                                                                                                                                                                                                                                                              | Inspeção das respostas e testes de integração com ferramentas HTTP/cURL                                                                                                                                                          |
 | RNF08 | O banco de dados relacional PostgreSQL adota estratégia estrita de **Soft Delete** (`deleted_at timestamp`, nulo para registros ativos e preenchido na exclusão lógica) em todas as entidades (produtos, categorias, fornecedores, listas), assegurando integridade histórica e de auditoria, sem nunca executar exclusão física (`DELETE`) de registros                                                                                                                                                                                                           | Tentativa de exclusão de produto/registro pelo painel e verificação no PostgreSQL de que a linha permanece persistida com `deleted_at` preenchido e que as consultas públicas filtram automaticamente `WHERE deleted_at IS NULL` |
 | RNF09 | **Segurança e Autorização em Níveis no Backend**: A matriz de autorização (Admin global, Vendedor restrito às empresas vinculadas, Cliente apenas consumidor) deve ser validada estritamente no backend (`Bun.serve`), nunca dependendo de ocultação na UI. Tentativas de acesso ou mutação não autorizadas (ex.: vendedor tentando criar produtos de fornecedor não vinculado, ou clientes/vendedores tentando cadastrar empresas) devem retornar invariavelmente HTTP `403 Forbidden` com payload JSON padronizado `{ "error": "Forbidden", "message": "..." }`. | Tentativa de requisições diretas via API com tokens de vendedor/cliente simulando envio de payload com `supplier_id` não autorizado ou rotas de fornecedor, comprovando bloqueio com código HTTP `403 Forbidden`                 |
+| RNF10 | **Sessão em cookie HttpOnly**: o JWT de sessão não pode ser lido pelo JavaScript da página. `POST /api/v1/auth/login` e `POST /api/v1/auth/register` enviam o token em `Set-Cookie` e o JSON traz somente o usuário, sem o campo `token`. O cookie se chama `token`, com `HttpOnly`, `SameSite=Lax`, `Path=/` e `Max-Age` igual a `JWT_EXPIRES_IN_SECONDS`. `Secure` entra somente em HTTPS. `POST /api/v1/auth/logout` apaga o cookie. O middleware autentica lendo esse cookie e verificando a assinatura do JWT. O header `Authorization: Bearer` deixa de autenticar. O frontend não grava o token em `localStorage`. O front chama a API na mesma origem (`/api/v1`), com proxy do Vite em desenvolvimento e do Nginx em produção, para que `SameSite=Lax` envie o cookie sem token CSRF. | Inspecionar `Set-Cookie` no login, a ausência de `token` no JSON e no `localStorage`, `401` em rota protegida sem cookie e `401` quando a requisição traz só o header Bearer |
 
-O **RNF04** e o **RNF09** são requisitos críticos de segurança do sistema: asseguram respectivamente a estrita privacidade dos projetos/listas dos clientes e o isolamento seguro de produtos e governança exclusiva de empresas parceiras na plataforma.
+O **RNF04**, o **RNF09** e o **RNF10** são requisitos críticos de segurança do sistema: privacidade das listas dos clientes, autorização conferida no backend e sessão fora do alcance do JavaScript.
 
 ## 6. Histórias de usuário
 
@@ -103,7 +104,8 @@ O **RNF04** e o **RNF09** são requisitos críticos de segurança do sistema: as
 9. **Como administradora da loja**, quero desativar do catálogo produtos descontinuados via exclusão lógica (soft delete), para evitar que clientes comprem itens que não podem mais ser fabricados sem perder o histórico do produto no banco.
 10. **Como vendedor vinculado a múltiplas empresas**, quero cadastrar e gerenciar produtos selecionando apenas entre as empresas parceiras às quais possuo permissão concedida pela administração, para manter o portfólio dessas marcas atualizado com agilidade sem ter acesso indevido nem interferir em produtos de empresas concorrentes.
 11. **Como administradora da loja**, quero cadastrar empresas/fornecedores parceiros com exclusividade e vincular quais vendedores têm permissão de representar cada empresa, garantindo governança total, integridade de dados e centralização do controle de acesso.
-12. **Como cliente ou vendedor da plataforma**, quero acessar uma tela dedicada de edição do meu próprio perfil (`/perfil`) para atualizar meus dados de contato (nome, telefone, cidade) e redefinir minha senha com segurança, sem expor dados confidenciais nem poder alterar meu perfil de acesso ou e-mail.
+12. **Como cliente ou vendedor da plataforma**, quero acessar uma tela dedicada de edição do meu próprio perfil (`/perfil`) para atualizar meus dados de contato (nome, telefone, cidade) e redefinir minha senha com segurança, sem expor dados confidenciais nem poder alterar meu perfil de acesso ou e-mail. A alteração vale só para a conta da sessão: um `id` de outra pessoa no corpo de `PUT /api/v1/auth/me` não muda o outro usuário.
+13. **Como usuário autenticado**, quero que a sessão fique num cookie que o JavaScript da página não consegue ler, para que um script não copie o meu token.
 
 ## 7. Casos de uso
 
@@ -315,7 +317,7 @@ Pós-condição: Os vínculos de autorização N:N entre o vendedor e os fornece
 | Ator principal     | Cliente ou Vendedor                                                                            |
 | Pré-condição       | Usuário autenticado no portal com perfil Cliente ou Vendedor                                   |
 | Disparo            | O usuário clica em "Editar Usuário" / "Meu Perfil" no menu de usuário ou acessa a rota `/perfil` |
-| Requisitos ligados | RF01, RF20, RNF09                                                                              |
+| Requisitos ligados | RF01, RF20, RNF09, RNF10                                                                       |
 
 Fluxo principal:
 
@@ -324,7 +326,7 @@ Fluxo principal:
 3. O formulário é renderizado na tela de perfil do cliente com os campos Nome Completo, E-mail (bloqueado para edição), Telefone/WhatsApp, Cidade e campos opcionais de redefinição de senha com indicador de força. O campo "Perfil de Acesso" não é exibido.
 4. O usuário altera os dados cadastrais e clica em "Salvar Alterações".
 5. O sistema envia requisição `PUT /api/v1/auth/me`.
-6. O backend valida os dados, ignora e bloqueia qualquer tentativa de manipulação de `role` ou `email`, e persiste as alterações no PostgreSQL usando a identificação segura do token (`ctx.user.id`).
+6. O backend valida os dados, ignora `id`, `email` e `role` enviados no corpo, e persiste as alterações no PostgreSQL usando exclusivamente o `id` do JWT verificado pelo middleware (`ctx.user.id`). Um `id` de outra pessoa no JSON não altera esse outro usuário.
 7. O sistema exibe notificação de confirmação e atualiza o estado da sessão do usuário.
 
 Exceções:
@@ -333,21 +335,15 @@ Exceções:
 
 ## 8. Modelagem
 
-A modelagem de dados e arquitetura conceitual do sistema foi dividida entre a visão orientada a objetos (Diagrama de Classes) e a visão relacional de persistência física (Diagrama Entidade-Relacionamento - DER para PostgreSQL).
-
-Devido à extensão e ao detalhamento técnico dos modelos, ambos os diagramas foram formalizados e exportados em arquivos PDF dedicados, disponíveis nos seguintes documentos anexos:
+A modelagem de dados e a arquitetura conceitual do sistema são apresentadas pela visão das entidades de domínio e pelo Diagrama Entidade-Relacionamento (DER) integrado nesta seção.
 
 ### 8.1 Diagrama de Classes
 
-Contempla as entidades centrais do sistema (`User`, `UserSupplier`, `Client`, `Category`, `ProductSubtype`, `Supplier`, `Product`, `ProductImage`, `ProductVariation`, `ProductList`, `ListItem`), suas responsabilidades, visibilidade de atributos e métodos de negócio. A associação entre `User` (Vendedor) e `Supplier` é modelada através da classe associativa `UserSupplier`, permitindo que um vendedor represente uma ou mais marcas parceiras simultaneamente com isolamento estrito de catálogo.
-
-- **Arquivo anexo**: [diagrama_classes_emporio_henz.pdf](./backend/diagrama_classes_emporio_henz.pdf)
+Contempla as entidades centrais do sistema (`User`, `UserSupplier`, `Client`, `Category`, `ProductSubtype`, `Supplier`, `Product`, `ProductImage`, `ProductVariation`, `ProductList`, `ListItem`), suas responsabilidades e relacionamentos. A associação entre `User` (Vendedor) e `Supplier` é modelada através da classe associativa `UserSupplier`, permitindo que um vendedor represente uma ou mais marcas parceiras simultaneamente com isolamento estrito de catálogo.
 
 ### 8.2 Modelo de Dados (DER Relacional para PostgreSQL)
 
 Define o esquema físico e relacional de tabelas, chaves primárias (`UUID`), chaves estrangeiras (`FK`), índices de unicidade (`UNIQUE`), campos para controle de concorrência/auditoria e colunas de suporte à estratégia obrigatória de exclusão lógica (`deleted_at timestamp`, soft delete).
-
-- **Arquivo anexo atualizado**: [der_emporio_henz.pdf](./database/der_emporio_henz.pdf) · [diagram.png](./database/diagram.png)
 
 #### Diagrama Entidade-Relacionamento Integrado:
 
@@ -530,6 +526,7 @@ erDiagram
 - **Compartilhamento por Link Público Seguro (UUID)**: o compartilhamento de listas gera uma URL contendo um UUID randômico (`share_slug`). O visitante com o link acessa a lista em modo somente-leitura sem expor dados confidenciais do proprietário da pasta.
 - **Integração Descomplicada com WhatsApp**: sem necessidade de APIs pagas ou aprovação de templates da Meta; o sistema gera links padronizados (`https://wa.me/55...`) com payload codificado contendo os dados do produto ou da lista selecionada.
 - **Segurança e Controle de Acesso no Servidor**: toda validação de autorização (quem pode criar produtos, quem pode visualizar listas privadas) é rigorosamente conferida no backend; esconder botões no frontend é apenas UX e nunca é considerado camada de segurança.
+- **Sessão em cookie HttpOnly (RNF10)**: o JWT sai do `localStorage` e do header `Authorization: Bearer`. Login e cadastro gravam o token num cookie `HttpOnly` (`SameSite=Lax`, `Secure` só em HTTPS). O JSON não devolve o token. O middleware lê o cookie. A API é consumida na mesma origem, sem token CSRF. `PUT /api/v1/auth/me` grava só no `id` desse JWT. `PUT /api/v1/users/:id` continua exclusivo do administrador.
 - **Governança em 3 Níveis e Isolamento Multi-empresa N:N no Backend**:
   - **Administrador**: possui privilégio global para cadastrar empresas/fornecedores parceiros, gerenciar categorias e controlar produtos de qualquer fabricante.
   - **Vendedor**: não cadastra nem edita empresas. Pode estar vinculado a 1 ou N empresas através da tabela associativa `user_suppliers`. Ao cadastrar ou editar produtos, o backend valida estritamente se o `supplier_id` do produto consta nos vínculos ativos do vendedor autenticado (`SELECT 1 FROM user_suppliers WHERE user_id = :authUserId AND supplier_id = :targetSupplierId AND deleted_at IS NULL`). Caso não conste, a requisição é rejeitada com status HTTP `403 Forbidden` e payload JSON descritivo.
@@ -553,6 +550,13 @@ Os testes automatizados e manuais cobrem os comportamentos essenciais do sistema
 - **Geração da Mensagem do WhatsApp (RF12)**: testar a formação correta da URL `wa.me`, verificando caracteres especiais, presença do nome do produto, variação selecionada e preço de referência.
 - **Limite de Imagens em Base64 (RNF02)**: testar o envio de imagens maiores que 2 MB e verificar se a API rejeita a operação com status `400 Bad Request` e mensagem orientando a compressão.
 - **Validação de Hash de Senhas (RNF03)**: inspecionar que nenhuma senha é salva sem hash no banco de dados.
+- **Sessão em cookie HttpOnly (RNF10)**: login e cadastro devolvem `Set-Cookie` e não devolvem `token` no JSON; rota protegida sem cookie responde `401`; requisição só com `Authorization: Bearer` responde `401`; o frontend não persiste o token em `localStorage`.
+- **Travas de autorização já vigentes (RF18, RF20, RNF09)**, sem mudança de regra neste pacote:
+  - Cliente ou vendedor em `POST`, `PUT` ou `DELETE` de `/api/v1/users` e `/api/v1/suppliers` recebe `403 Forbidden`. O administrador não recebe `403` nessas rotas.
+  - `GET /api/v1/suppliers` do vendedor continua `200`.
+  - `PUT /api/v1/auth/me` com o `id` de outro usuário no JSON altera só o perfil de quem está logado. E-mail e cargo não mudam. O outro usuário permanece intacto.
+  - `PUT /api/v1/users/:id` continua só com administrador.
+- A escrita de produto restrita ao fornecedor vinculado (`RF16`, `RF17`, `RF19`) permanece requisito do CRUD de produto e fica fora do pacote de sessão. As queries atuais já usam parâmetros no cliente SQL do Bun; não há task de correção de injeção de SQL.
 
 ## 11. Fora de escopo
 

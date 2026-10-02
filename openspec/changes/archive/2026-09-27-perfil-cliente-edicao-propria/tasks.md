@@ -9,9 +9,9 @@
 
 ## 2. Front-end: Tela de Perfil e Navegação [FE]
 
-- [x] 2.1 Adicionar método `atualizarPerfil` no serviço `apps/web/src/api/auth.ts` consumindo `PUT /auth/me`
-- [x] 2.2 Atualizar o componente `apps/web/src/views/admin/usuarios/UsuarioForm.vue` para aceitar prop `hideRole?: boolean` e ocultar a seleção de "Perfil de Acesso"
-- [x] 2.3 Criar a view `apps/web/src/views/profile/PerfilView.vue` carregando dados via `authApi.me()`, renderizando o formulário adaptado e salvando via `authApi.atualizarPerfil()`
-- [x] 2.4 Registrar a rota `/perfil` em `apps/web/src/router/index.ts` com `meta: { requiresAuth: true, title: 'Meu Perfil | Empório Henz' }`
-- [x] 2.5 Atualizar o componente `apps/web/src/components/layout/AppNavbar.vue` nos menus desktop e mobile para direcionar Admin para `/admin/usuarios/${user.id}/editar` e Cliente/Vendedor para `/perfil`
+- [x] 2.1 Adicionar método `atualizarPerfil` no serviço `frontend/src/api/auth.ts` consumindo `PUT /auth/me`
+- [x] 2.2 Atualizar o componente `frontend/src/views/admin/usuarios/UsuarioForm.vue` para aceitar prop `hideRole?: boolean` e ocultar a seleção de "Perfil de Acesso"
+- [x] 2.3 Criar a view `frontend/src/views/profile/PerfilView.vue` carregando dados via `authApi.me()`, renderizando o formulário adaptado e salvando via `authApi.atualizarPerfil()`
+- [x] 2.4 Registrar a rota `/perfil` em `frontend/src/router/index.ts` com `meta: { requiresAuth: true, title: 'Meu Perfil | Empório Henz' }`
+- [x] 2.5 Atualizar o componente `frontend/src/components/layout/AppNavbar.vue` nos menus desktop e mobile para direcionar Admin para `/admin/usuarios/${user.id}/editar` e Cliente/Vendedor para `/perfil`
 - [x] 2.6 Executar build e validação de types no front (`bun run typecheck` / `bun run build`) e conferir o redirecionamento com toasts

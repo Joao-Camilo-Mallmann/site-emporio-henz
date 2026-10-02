@@ -1,10 +1,11 @@
 ## Context
 
-O backend Bun nativo já disponibiliza todos os endpoints e regras de negócio para `/suppliers` e `/users`, com autenticação Bearer JWT, validações semânticas, soft delete (`deleted_at TIMESTAMP`) e controle de acesso restrito a administradores. No frontend (`apps/web`), o usuário precisa de interfaces visuais no painel administrativo para operar essas duas entidades. Além disso, a tela inicial do painel admin (`AdminDashboardView.vue`) possui métricas estáticas e atalhos fictícios que devem ser substituídos por dois botões de ação primários de grande destaque ("Gestão de Fornecedores" e "Gestão de Usuários e Clientes"). O guard de navegação (`router/index.ts`) e o formulário de login (`LoginView.vue`) também exigem ajustes para que a autenticação por token seja rigorosamente conferida e mantida. Em vez de modais flutuantes para cadastro/edição, adota-se o padrão clássico de CRUD com rotas dedicadas de formulário (`list/edit/new/form`).
+O backend Bun nativo já disponibiliza todos os endpoints e regras de negócio para `/suppliers` e `/users`, com autenticação Bearer JWT, validações semânticas, soft delete (`deleted_at TIMESTAMP`) e controle de acesso restrito a administradores. No frontend (`frontend`), o usuário precisa de interfaces visuais no painel administrativo para operar essas duas entidades. Além disso, a tela inicial do painel admin (`AdminDashboardView.vue`) possui métricas estáticas e atalhos fictícios que devem ser substituídos por dois botões de ação primários de grande destaque ("Gestão de Fornecedores" e "Gestão de Usuários e Clientes"). O guard de navegação (`router/index.ts`) e o formulário de login (`LoginView.vue`) também exigem ajustes para que a autenticação por token seja rigorosamente conferida e mantida. Em vez de modais flutuantes para cadastro/edição, adota-se o padrão clássico de CRUD com rotas dedicadas de formulário (`list/edit/new/form`).
 
 ## Goals / Non-Goals
 
 **Goals:**
+
 - Simplificar `AdminDashboardView.vue` para apresentar apenas os dois botões/cards grandes de destaque para os módulos ativos.
 - Criar a arquitetura completa de CRUD para Fornecedores no formato list/edit/new/form:
   - `fornecedores/FornecedorListView.vue`: Listagem, busca em tempo real e soft delete.
@@ -21,12 +22,14 @@ O backend Bun nativo já disponibiliza todos os endpoints e regras de negócio p
 - Corrigir a gravação de sessão no `LoginView.vue` (`authStore.setAuth(response)`).
 
 **Non-Goals:**
+
 - Alterações no backend ou esquema de banco de dados (as camadas `[DB]` e `[BE]` já estão implementadas e validadas).
 - Módulos administrativos de catálogo de produtos, orçamentos ou categorias (serão desenvolvidos em etapas subsequentes).
 
 ## Decisions
 
 ### 1. Separação de Módulos e Rotas de CRUD (List / Edit / New / Form)
+
 - **Decisão**: Em vez de modais para inclusão e edição de dados, criar telas dedicadas conectadas como `children` de `/admin` no Vue Router, organizadas nas subpastas `src/views/admin/fornecedores/` e `src/views/admin/usuarios/`:
   - `/admin`: `AdminDashboardView.vue` (visão geral simplificada com 2 botões grandes).
   - `/admin/fornecedores`: `fornecedores/FornecedorListView.vue` (listagem e ações).
@@ -38,15 +41,18 @@ O backend Bun nativo já disponibiliza todos os endpoints e regras de negócio p
 - **Justificativa**: A abordagem com telas e rotas dedicadas melhora a usabilidade em telas menores/tablets, permite compartilhamento de links de edição, previne perda acidental de dados ao clicar fora de um modal e atende à preferência explícita da arquitetura CRUD.
 
 ### 2. Guard Centralizado de Rotas com Validação Estrita de Token e Papéis
+
 - **Decisão**: No `beforeEach` do Vue Router, inspecionar `record.meta.requiresAuth` e `record.meta.roles`.
   - Se a rota requer autenticação e não há token salvo nem usuário autenticado, redirecionar imediatamente para `/login?redirect=...`.
   - Se a rota requer cargos (`roles`) e o usuário autenticado não possui o papel correspondente (como `role = 1` de Cliente tentando acessar `/admin`), bloquear o acesso, emitir alerta de acesso negado via `appStore.showAlert` e redirecionar para a vitrine Home (`/`).
   - Vendedor (`role = 2`) tentando acessar rotas restritas de fornecedores/usuários é redirecionado para `/admin` com alerta.
 
 ### 3. Comunicação HTTP via Axios Padronizado
+
 - **Decisão**: Módulos dedicados `src/api/fornecedores.ts` e `src/api/usuarios.ts` utilizando a instância configurada em `src/plugins/axios.ts`, que já injeta o cabeçalho `Authorization: Bearer <token>` automaticamente.
 
 ### 4. Estilização Estrita com Tokens do Design System
+
 - **Decisão**: Utilizar unicamente os tokens `@theme` do Tailwind CSS v4 (`bg-primary`, `bg-primary-dark`, `bg-secondary`, `bg-secondary-hover`, `text-neutral-dark`, `bg-surface-light`, etc.).
 
 ## Risks / Trade-offs

@@ -19,14 +19,16 @@ Esta mudança unifica a autenticação em uma única tela (`/login`), redirecion
 ## Capabilities
 
 ### New Capabilities
+
 - `admin-access-and-guard`: Rota protegida `/admin` acessível exclusivamente para Vendedores (`role: 2`) e Administradores (`role: 3`), com controle de navegação e botão no cabeçalho ao lado de "Minha conta".
 
 ### Modified Capabilities
+
 - `auth-screens`: Unificação do login em `/login` para todos os perfis (Cliente, Vendedor e Admin) com redirecionamento pós-login para a Home (`/`), atalhos de teste unificados e descontinuação da tela `/equipe/login`.
 
 ## Impact
 
-- **Frontend (`apps/web`)**:
+- **Frontend (`frontend`)**:
   - `src/views/auth/LoginView.vue`: inclusão dos 3 atalhos de perfil e garantia de redirecionamento para `/` ou parâmetro `redirect`.
   - `src/views/auth/EquipeLoginView.vue`: exclusão do arquivo.
   - `src/views/admin/AdminDashboardView.vue`: nova tela base para a área administrativa.

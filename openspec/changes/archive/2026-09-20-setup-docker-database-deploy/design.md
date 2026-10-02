@@ -1,6 +1,6 @@
 ## Context
 
-O projeto Empório Henz é estruturado como um monorepo gerenciado por Turborepo e Bun, contendo as aplicações `apps/web` (Vue 3 + Vite + Tailwind CSS v4) e `apps/backend` (Bun nativo com `Bun.serve`). Atualmente, os produtos no backend utilizam dados mockados em memória e não há infraestrutura de persistência relacional nem configuração de conteinerização configurada.
+O projeto Empório Henz é estruturado como um monorepo gerenciado por Turborepo e Bun, contendo as aplicações `frontend` (Vue 3 + Vite + Tailwind CSS v4) e `apps/backend` (Bun nativo com `Bun.serve`). Atualmente, os produtos no backend utilizam dados mockados em memória e não há infraestrutura de persistência relacional nem configuração de conteinerização configurada.
 
 O objetivo desta mudança é estruturar o módulo de banco de dados (`packages/database`) utilizando SQL puro e o cliente nativo de PostgreSQL do Bun, além de fornecer toda a infraestrutura Docker multi-stage, orquestração via Docker Compose, proxy reverso Nginx e automação de deploy local via script (`deploy.sh`) voltado para execução direta em VM simples sem pipelines de CI/CD ou ORMs.
 

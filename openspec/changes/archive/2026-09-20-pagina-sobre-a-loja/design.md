@@ -6,7 +6,7 @@ O Empório Henz possui seu catálogo digital estruturado em Vue 3 + Tailwind CSS
 
 **Goals:**
 
-- Criar a view `AboutView.vue` em `apps/web/src/views/AboutView.vue`.
+- Criar a view `AboutView.vue` em `frontend/src/views/AboutView.vue`.
 - Registrar a rota correspondente `/sobre-a-loja` no `src/router/index.ts` com título de página SEO amigável.
 - Atualizar os links de navegação em `AppNavbar.vue` (desktop e drawer mobile) e em `AppFooter.vue` para apontarem para `/sobre-a-loja`.
 - Implementar o Hero institucional com overlay azul-marinho (`primary`), logo branca e o selo "Há quase 50 ANOS CONSTRUINDO HISTÓRIAS" e botão de retorno.
@@ -31,7 +31,7 @@ O Empório Henz possui seu catálogo digital estruturado em Vue 3 + Tailwind CSS
    - _Alternativa considerada_: Colocar tudo em um único arquivo monolítico. Decidiu-se por manter o código modular e limpo, aproveitando a reutilização de tokens.
 
 2. **Gerenciamento de Imagens e Assets**:
-   - Imagens institucionais da loja e equipe serão adicionadas em `apps/web/public/images/about/` ou diretamente em `public/images/`.
+   - Imagens institucionais da loja e equipe serão adicionadas em `frontend/public/images/about/` ou diretamente em `public/images/`.
    - Assegurar formatos otimizados (WebP/PNG comprimidos) com dimensões adequadas.
 
 3. **Carrossel Interativo**:

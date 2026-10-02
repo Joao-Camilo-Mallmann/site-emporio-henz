@@ -1,112 +1,80 @@
-# Documentação de Back-end — Empório Henz
+# Back-end
 
-Este diretório concentra a documentação de arquitetura de servidor, rotas da API, modelagem orientada a objetos (diagrama de classes) e regras de negócio do Portal Empório Henz.
+Documentação técnica da API do Empório Henz. Regras de negócio pertencem ao [PRD](../PRD.md); este guia descreve a implementação no serviço `backend/`.
 
----
+## Referências
 
-## ⚙️ Diretrizes Arquiteturais (Back-end)
+- [Código do serviço](../../backend/)
+- [README operacional do serviço](../../backend/README.md)
+- [Regras do back-end](../../backend/agents.md)
+- [Collection Bruno](./collections/README.md)
+- [Banco de dados](../database/README.md)
 
-Conforme estabelecido em [agents.md](../../agents.md) e [backend/agents.md](../../backend/agents.md):
+## Stack e convenções
 
-1. **Stack Técnica**:
-   - **Runtime**: [Bun](https://bun.sh/) (1.4+) executando nativamente com `Bun.serve`.
-   - **Linguagem**: TypeScript com modo estrito (`strict: true`).
-   - **Path Aliases**: Alias `@/` configurado para `backend/src/*`.
-   - **Banco de Dados**: PostgreSQL 16 conectado via driver nativo `SQL` do Bun em `backend/src/config/database.ts` e migrações em `backend/database/`.
-   - **Criptografia e Segurança**: Argon2id nativo via `Bun.password` e JWT com HMAC-SHA256 via Web Crypto API nativa (`crypto.subtle`).
-   - **Testes**: `bun:test` para suíte completa de testes unitários e de integração (57 testes automatizados).
+- Bun com `Bun.serve` e TypeScript estrito.
+- PostgreSQL 16 com driver SQL nativo do Bun.
+- API versionada sob `/api/v1`.
+- Senhas protegidas com Argon2id e sessões com JWT.
+- Testes unitários e de integração com `bun:test`.
+- Exclusão lógica por `deleted_at` nas entidades de negócio.
 
-2. **Estrutura Modular em Camadas (`backend/src`)**:
-   - `config/`: Configurações de ambiente (`env.ts`) e conexão de banco com health check (`database.ts`).
-   - `lib/`: Utilitários reutilizáveis de resposta HTTP (`response.ts`), roteador nativo (`router.ts`), senhas (`password.ts`), JWT (`jwt.ts`) e classes de erro de domínio (`errors.ts`).
-   - `middlewares/`: Interceptadores de segurança (`auth.ts` Bearer JWT, `role.ts` RBAC com bloqueio estrito `403 Forbidden` e `error.ts` para tratamento global de exceções).
-   - `modules/`: Módulos de domínio desacoplados contendo tipos, schemas de validação pura, repositórios SQL, serviços e controllers:
-     - `auth/`: Login, autocadastro de clientes e perfil de sessão (`/api/v1/auth`).
-     - `users/`: CRUD administrativo unificado entre tabelas `users` e `clients` com soft delete (`/api/v1/users`).
-     - `suppliers/`: CRUD de fornecedores e marcas parceiras com soft delete (`/api/v1/suppliers`).
-     - `user-suppliers/`: Gestão de vínculos N:N multi-empresa entre vendedores e fornecedores (`/api/v1/users/:userId/suppliers`).
-   - `routes/`: Montagem e versionamento canônico da árvore sob `/api/v1/`.
+## Estrutura do código
 
-3. **Padrão de Respostas REST e Tratamento de Erros**:
-   - Rotas de negócio canônicas sob `/api/v1/`.
-   - Formato padronizado de erro JSON:
-     ```json
-     {
-       "error": "NomeDoErro",
-       "message": "Descrição amigável da falha."
-     }
-     ```
-   - Status HTTP semânticos:
-     - `200 OK` / `201 Created` / `204 No Content`
-     - `400 Bad Request` (validação de payload/query)
-     - `401 Unauthorized` (token ausente, inválido ou expirado)
-     - `403 Forbidden` (permissão insuficiente de perfil ou violação multi-empresa)
-     - `404 Not Found` (recurso ou rota não encontrada)
-     - `409 Conflict` (duplicidade cadastral de e-mail ou vínculo ativo)
-     - `500 Internal Server Error`
+| Diretório | Responsabilidade |
+| --- | --- |
+| `backend/src/config/` | Ambiente e conexão com o banco |
+| `backend/src/lib/` | Roteador, respostas HTTP, JWT, senhas e erros |
+| `backend/src/middlewares/` | Autenticação, RBAC e tratamento de erros |
+| `backend/src/modules/` | Controllers, serviços, repositórios, schemas e tipos por domínio |
+| `backend/src/routes/` | Composição das rotas da API V1 |
+| `backend/database/` | Migrações e dados iniciais |
+| `backend/tests/` | Testes automatizados |
 
-4. **Controle de Acesso e Isolamento Multi-empresa (RBAC)**:
-   - **Matriz de Perfis**: Administrador (`3`), Vendedor (`2`), Cliente (`1`).
-   - Vendedores só podem operar dados de fornecedores aos quais estão vinculados na tabela `user_suppliers`.
-   - Rotas de escrita em fornecedores e gestão de usuários são exclusivas do perfil Administrador (`3`).
+Módulos atualmente registrados: autenticação, usuários, fornecedores, vínculos entre usuários e fornecedores e produtos.
 
----
+## Contrato HTTP
 
-## 📁 Arquivos e Artefatos do Diretório
+Erros seguem o formato:
 
-| Arquivo | Descrição |
-| :--- | :--- |
-| [diagrama_classes_emporio_henz.pdf](./diagrama_classes_emporio_henz.pdf) | Diagrama de classes UML formal detalhando entidades de domínio, atributos, tipos, métodos e relacionamentos associativos. |
-| [collections/bruno/](./collections/bruno/) | **Fonte de consulta da API V1**: requisições, payloads, ambientes Local e Docker e captura automática de token JWT. |
+```json
+{
+  "error": "NomeDoErro",
+  "message": "Descrição amigável da falha."
+}
+```
 
----
+Status utilizados: `200`, `201`, `204`, `400`, `401`, `403`, `404`, `409` e `500`.
 
-## 🧪 Testando com Bruno
+Papéis de acesso:
 
-O repositório disponibiliza a collection pronta para testes no Bruno em [docs/backend/collections/bruno/](./collections/bruno/):
+| Papel | Valor |
+| --- | ---: |
+| Cliente | `1` |
+| Vendedor | `2` |
+| Administrador | `3` |
 
-- **Como abrir**: Abra o aplicativo Bruno e selecione a opção **"Open Collection"**, apontando para a pasta `docs/backend/collections/bruno`.
-- **Ambientes**: Alterne entre os environments `Local` (porta 3001) e `Docker` (porta 80).
-- **Autenticação Automática**: Ao disparar o endpoint `Auth/Login` (`admin@gmail.com` / `admin123`) ou `Auth/Register`, o token JWT gerado é salvo automaticamente no environment selecionado para uso imediato em todas as rotas protegidas (`Bearer {{token}}`).
+O servidor aplica as permissões; ocultar ações no front-end não substitui a validação RBAC.
 
----
+## Executar
 
-## 💻 Aplicação Backend (`backend`)
+```bash
+cd backend
+bun install
+bun run migrate
+bun run dev
+```
 
-Para detalhes sobre implementação de controladores, rotas, middlewares e inicialização do servidor:
+A API fica disponível em `http://localhost:3001/api/v1` e o healthcheck em `GET /api/v1/health`.
 
-- Diretório do projeto: [backend](../../backend)
-- Regras de desenvolvimento para agentes: [backend/agents.md](../../backend/agents.md)
-- README do serviço: [backend/README.md](../../backend/README.md)
+## Validar
 
----
+```bash
+cd backend
+bun run check-types
+bun run lint
+bun test
+bun run build
+```
 
-## 🚀 Como Executar o Back-end
-
-- **Desenvolvimento com reload automático (porta 3001)**:
-  ```bash
-  cd backend
-  bun run dev
-  ```
-- **Checagem de Tipos e Linter**:
-  ```bash
-  cd backend
-  bun run check-types
-  bun run lint
-  ```
-- **Execução dos Testes Automatizados**:
-  ```bash
-  cd backend
-  bun test
-  ```
-- **Migrações e Seeder**:
-  ```bash
-  cd backend
-  bun run migrate
-  bun run seed
-  ```
-- **Build de Produção (Bun Bundle)**:
-  ```bash
-  cd backend
-  bun run build
-  ```
+Para testar os contratos manualmente, abra `docs/backend/collections/bruno` no Bruno. Alterações de rota, parâmetro, payload, status ou resposta devem atualizar essa collection na mesma entrega.

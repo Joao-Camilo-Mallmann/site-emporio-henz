@@ -30,8 +30,8 @@ A experiência atual do frontend foi desenvolvida com foco no layout desktop. Co
 
 ## Impact
 
-- `apps/web/src/components/layout/AppNavbar.vue`: Refatoração estrutural com Tailwind responsivo para acomodar linha de busca mobile e gaveta lateral de navegação.
-- `apps/web/src/components/home/HeroBannerDesktop.vue`: Novo componente extraído do `HomeView.vue`.
-- `apps/web/src/components/home/HeroBannerMobile.vue`: Novo componente para o banner mobile.
-- `apps/web/src/views/HomeView.vue`: Importação e orquestração responsiva dos banners e ajuste nas margens das categorias.
-- `apps/web/public/images/`: Adição do asset visual para o banner mobile.
+- `frontend/src/components/layout/AppNavbar.vue`: Refatoração estrutural com Tailwind responsivo para acomodar linha de busca mobile e gaveta lateral de navegação.
+- `frontend/src/components/home/HeroBannerDesktop.vue`: Novo componente extraído do `HomeView.vue`.
+- `frontend/src/components/home/HeroBannerMobile.vue`: Novo componente para o banner mobile.
+- `frontend/src/views/HomeView.vue`: Importação e orquestração responsiva dos banners e ajuste nas margens das categorias.
+- `frontend/public/images/`: Adição do asset visual para o banner mobile.

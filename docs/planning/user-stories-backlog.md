@@ -26,6 +26,7 @@ Este documento organiza a execução do portal da Empório Henz em histórias, r
   - [Site Inteiro Navegável: Listas, WhatsApp e Tablet (2,0 pts)](#site-inteiro-navegável-listas-whatsapp-e-tablet-20-pts)
   - [Sistema Publicado na VM (1,0 pt)](#sistema-publicado-na-vm-10-pt)
   - [Processo e Robustez Final (2,0 pts)](#processo-e-robustez-final-20-pts)
+- [Segurança: sessão em cookie e travas de autorização](#segurança-sessão-em-cookie-e-travas-de-autorização)
 
 ---
 
@@ -109,9 +110,9 @@ O RNF08 do PRD estabelece que nenhuma exclusão física (`DELETE`) pode ocorrer 
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Todas as 11 tabelas possuem coluna `deleted_at` com valor default `NULL`.
-- [ ] Inserir um registro, preencher seu `deleted_at` e reinserir com o mesmo e-mail/slug funciona perfeitamente sem violação de unicidade.
-- [ ] Não existem restrições `ON DELETE CASCADE` físico que possam apagar dados históricos inadvertidamente.
+- [x] Todas as 11 tabelas possuem coluna `deleted_at` com valor default `NULL`.
+- [x] Inserir um registro, preencher seu `deleted_at` e reinserir com o mesmo e-mail/slug funciona perfeitamente sem violação de unicidade.
+- [x] Não existem restrições `ON DELETE CASCADE` físico que possam apagar dados históricos inadvertidamente.
 
 ---
 
@@ -133,9 +134,9 @@ O serviço `migration` no `docker-compose.yml` executa como um runner one-shot a
 
 #### ✅ Critérios de Aceitação
 
-- [ ] O comando `docker compose run --rm migration` executa e aplica todas as migrações ordenadas (`001`, `002`, `003`).
-- [ ] A tabela `_migrations` registra com sucesso cada arquivo executado com seu respectivo timestamp.
-- [ ] Uma segunda execução consecutiva reconhece que não há migrações pendentes e encerra sem erros em milissegundos.
+- [x] O comando `docker compose run --rm migration` executa e aplica todas as migrações ordenadas (`001`, `002`, `003`).
+- [x] A tabela `_migrations` registra com sucesso cada arquivo executado com seu respectivo timestamp.
+- [x] Uma segunda execução consecutiva reconhece que não há migrações pendentes e encerra sem erros em milissegundos.
 
 ---
 
@@ -175,6 +176,8 @@ O RNF03 do PRD exige que todas as senhas de usuários sejam criptografadas com h
 ---
 
 ### [US-BE-02] Middleware de Autenticação JWT Bearer
+
+> O transporte do token descrito aqui (header `Authorization: Bearer`) registra a entrega da parcial 1. A sessão passa a ser o cookie `HttpOnly` de [US-BE-16](#us-be-16-sessão-jwt-em-cookie-httponly).
 
 **Como** Desenvolvedor Backend,  
 **Quero** criar um middleware interceptor de autenticação no `Bun.serve`,  
@@ -237,6 +240,8 @@ Atende aos requisitos **RF01** e **RF07**. O login confere e-mail e senha e reto
 
 ### [US-FE-01] Store Pinia de Autenticação e Interceptor Axios para Bearer Token
 
+> O `localStorage` e o header `Bearer` descritos aqui registram a entrega da parcial 1. A store passa a usar só o cookie de sessão em [US-FE-14](#us-fe-14-front-sem-token-no-localstorage).
+
 **Como** Desenvolvedor Frontend,  
 **Quero** centralizar o gerenciamento de autenticação no Pinia e configurar o Axios para anexar o token automaticamente,  
 **Para que** todo o frontend Vue 3 consuma a API de forma autenticada e reativa.
@@ -257,10 +262,10 @@ O estado de autenticação deve ser persistente entre abas e recarregamentos (`l
 
 #### ✅ Critérios de Aceitação
 
-- [ ] O token JWT é armazenado com sucesso no `localStorage` após login bem-sucedido.
-- [ ] Requisições disparadas pelo Axios incluem automaticamente o header `Authorization`.
-- [ ] Ao clicar em Logout, a store e o `localStorage` são limpos instantaneamente.
-- [ ] Erros 401 desconectam o usuário e redirecionam para a rota `/login`.
+- [x] O token JWT é armazenado com sucesso no `localStorage` após login bem-sucedido.
+- [x] Requisições disparadas pelo Axios incluem automaticamente o header `Authorization`.
+- [x] Ao clicar em Logout, a store e o `localStorage` são limpos instantaneamente.
+- [x] Erros 401 desconectam o usuário e redirecionam para a rota `/login`.
 
 ---
 
@@ -288,10 +293,10 @@ As interfaces de login e registro devem seguir a estética refinada do Empório 
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Formulário de login valida campos obrigatórios e exibe mensagens de erro claras da API.
-- [ ] Formulário de cadastro valida formato de e-mail, máscara de telefone e tamanho mínimo de senha.
-- [ ] Layout perfeitamente responsivo (otimizado para smartphones, tablets e desktop).
-- [ ] Redirecionamento automático após autenticação com sucesso.
+- [x] Formulário de login valida campos obrigatórios e exibe mensagens de erro claras da API.
+- [x] Formulário de cadastro valida formato de e-mail, máscara de telefone e tamanho mínimo de senha.
+- [x] Layout perfeitamente responsivo (otimizado para smartphones, tablets e desktop).
+- [x] Redirecionamento automático após autenticação com sucesso.
 
 ---
 
@@ -355,10 +360,10 @@ Tela restrita ao perfil Administrador. Deve oferecer uma tabela responsiva com p
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Tabela lista os clientes cadastrados com dados em tempo real vindos do backend.
-- [ ] Campo de pesquisa filtra a listagem por nome ou e-mail sem recarregar a página.
-- [ ] Edição de dados atualiza o registro na tabela e no PostgreSQL.
-- [ ] Ação de excluir dispara o soft delete e remove o item da listagem ativa com feedback de sucesso.
+- [x] Tabela lista os clientes cadastrados com dados em tempo real vindos do backend.
+- [x] Campo de pesquisa filtra a listagem por nome ou e-mail sem recarregar a página.
+- [x] Edição de dados atualiza o registro na tabela e no PostgreSQL.
+- [x] Ação de excluir dispara o soft delete e remove o item da listagem ativa com feedback de sucesso.
 
 ---
 
@@ -423,10 +428,10 @@ Tela no painel administrativo permitindo visualizar cartões ou listagem das emp
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Listagem de fornecedores carrega os dados reais persistidos no banco PostgreSQL.
-- [ ] Cadastro de novo fornecedor adiciona a linha imediatamente à tabela após salvar.
-- [ ] Edição reflete as alterações sem erros.
-- [ ] Desativação do fornecedor aciona a confirmação visual e atualiza a interface.
+- [x] Listagem de fornecedores carrega os dados reais persistidos no banco PostgreSQL.
+- [x] Cadastro de novo fornecedor adiciona a linha imediatamente à tabela após salvar.
+- [x] Edição reflete as alterações sem erros.
+- [x] Desativação do fornecedor aciona a confirmação visual e atualiza a interface.
 
 ---
 
@@ -458,10 +463,10 @@ O RNF05 exige fidelidade aos padrões de design da Empório Henz. A identidade v
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Cabeçalho reativo adapta os botões de acordo com o estado logado/deslogado.
-- [ ] Layout 100% responsivo com menu mobile em tela cheia/gaveta em smartphones.
-- [ ] Paleta visual consistente com Tailwind CSS v4 sem quebras de layout.
-- [ ] Navegação entre rotas fluida com Vue Router sem recarregamento de página.
+- [x] Cabeçalho reativo adapta os botões de acordo com o estado logado/deslogado.
+- [x] Layout 100% responsivo com menu mobile em tela cheia/gaveta em smartphones.
+- [x] Paleta visual consistente com Tailwind CSS v4 sem quebras de layout.
+- [x] Navegação entre rotas fluida com Vue Router sem recarregamento de página.
 
 ---
 
@@ -518,10 +523,10 @@ Conforme as regras obrigatórias de governança (`AGENTS.md`), as implementaçõ
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Proposta formal da Parcial 1 documentada no OpenSpec.
-- [ ] `bun run check-types` executa com saída de sucesso em todos os pacotes.
-- [ ] `bun run lint` executa sem nenhum erro.
-- [ ] `bun run build` gera a pasta `dist` de produção perfeitamente.
+- [x] Proposta formal da Parcial 1 documentada no OpenSpec.
+- [x] `bun run check-types` executa com saída de sucesso em todos os pacotes.
+- [x] `bun run lint` executa sem nenhum erro.
+- [x] `bun run build` gera a pasta `dist` de produção perfeitamente.
 
 ---
 
@@ -1167,3 +1172,126 @@ Verificação final de toda a suíte de testes (`bun test`), compilação sem er
 - [ ] Todos os testes automatizados executam e passam com sucesso.
 - [ ] Monorepo compila com sucesso em modo de produção.
 - [ ] Propostas arquivadas no OpenSpec com histórico documentado.
+
+---
+
+# Segurança: sessão em cookie e travas de autorização
+
+Pacote definido a partir do [RNF10](../PRD.md) e das regras já vigentes de [RF18](../PRD.md), [RF20](../PRD.md) e [RNF09](../PRD.md). São duas entregas: a troca da sessão para cookie `HttpOnly`, e testes que registram autorização que o código já aplica. Nenhuma dessas tasks muda a matriz de papéis.
+
+Ficam fora deste pacote: correção de injeção de SQL (os repositórios já enviam valores como parâmetros do cliente `SQL` do Bun) e o CRUD de produto. A regra de o vendedor só criar e editar produto dos fornecedores ligados em `user_suppliers` continua em [US-BE-09](#us-be-09-endpoints-rest-do-crud-de-produtos-com-escopo-por-fornecedor) e [US-TEST-01](#us-test-01-teste-automatizado-1-matriz-de-autorização-rbac-e-bloqueio-403-rnf09).
+
+---
+
+### [US-BE-16] Sessão JWT em cookie HttpOnly
+
+**Como** Desenvolvedor Backend,  
+**Quero** gravar o JWT de sessão num cookie que o JavaScript não lê,  
+**Para que** um script na página não consiga copiar o token.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RNF10**. Hoje `POST /api/v1/auth/login` e `POST /api/v1/auth/register` devolvem `{ token, user }`, e o middleware em `backend/src/middlewares/auth.ts` só aceita `Authorization: Bearer`. O token precisa sair do JSON e ir para `Set-Cookie`. Não há token CSRF: a mesma origem fica em [US-INFRA-02](#us-infra-02-api-na-mesma-origem-para-o-cookie-de-sessão) e o cookie usa `SameSite=Lax`.
+
+#### ⚙️ Especificação Técnica (`backend`)
+
+- `POST /api/v1/auth/login` responde `200` com `Set-Cookie` e JSON `{ "user": { ... } }`, sem o campo `token`.
+- `POST /api/v1/auth/register` responde `201` do mesmo modo.
+- Cookie `token`: `HttpOnly`, `SameSite=Lax`, `Path=/`, `Max-Age` igual a `JWT_EXPIRES_IN_SECONDS` (336 horas). `Secure` somente quando a requisição chega por HTTPS (`X-Forwarded-Proto: https` ou URL `https`).
+- `POST /api/v1/auth/logout` responde `200` e envia o mesmo cookie com `Max-Age=0`. Não exige JWT válido, para uma sessão expirada ainda poder apagar o cookie.
+- O middleware lê o cookie `token`, verifica a assinatura do JWT e preenche `ctx.user` com `id`, `email` e `role`. Sem cookie, ou com JWT inválido ou expirado, a rota protegida responde `401`. Header `Authorization: Bearer` não autentica.
+- `GET` e `PUT /api/v1/auth/me` continuam usando o `id` desse contexto. Esta história não muda o alvo do update; isso é travado em [US-TEST-04](#us-test-04-travas-de-autorização-já-vigentes).
+
+#### ✅ Critérios de Aceitação
+
+- [ ] Login válido responde `200`, envia `Set-Cookie` com `HttpOnly` e o JSON não contém `token`.
+- [ ] Cadastro válido responde `201` com o mesmo contrato de cookie.
+- [ ] Logout apaga o cookie.
+- [ ] Rota protegida sem cookie responde `401`.
+- [ ] Requisição só com `Authorization: Bearer` responde `401`.
+- [ ] Cookie com JWT válido preenche `ctx.user`.
+
+---
+
+### [US-FE-14] Front sem token no localStorage
+
+**Como** Desenvolvedor Frontend,  
+**Quero** tirar o JWT da store e do `localStorage`,  
+**Para que** o browser envie a sessão sozinho no cookie.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RNF10** e depende de [US-BE-16](#us-be-16-sessão-jwt-em-cookie-httponly). Hoje `frontend/src/stores/auth.ts` grava `localStorage["token"]` e `frontend/src/plugins/axios.ts` manda `Authorization: Bearer`. O JavaScript passa a não ler o token. A sessão é restaurada com `GET /api/v1/auth/me`.
+
+#### 🎨 Especificação Técnica (`frontend`)
+
+- A store guarda só o usuário. `isAuthenticated` passa a ser a presença desse usuário. Some a chave `token` do `localStorage`.
+- Login e cadastro chamam `setSession` com o `user` do JSON. Não leem `token`.
+- Axios usa `withCredentials: true` e `baseURL` `/api/v1` quando `VITE_API_URL` é relativa.
+- Ao abrir o app, o guard do router chama `GET /auth/me` uma vez. `200` restaura o usuário. `401` nessa chamada deixa o visitante anônimo e não redireciona a vitrine para `/login`.
+- Logout chama `POST /auth/logout` e zera o usuário na store.
+- Um `401` numa rota que não seja a sonda de sessão limpa o estado e redireciona para `/login`.
+
+#### ✅ Critérios de Aceitação
+
+- [ ] Depois do login, `localStorage` não contém `token`.
+- [ ] As requisições não enviam `Authorization`.
+- [ ] Recarregar a página com o cookie válido restaura o usuário via `GET /auth/me`.
+- [ ] Visitante sem cookie navega a vitrine sem ser jogado para `/login`.
+- [ ] Logout chama `POST /auth/logout` e o menu volta ao estado de visitante.
+
+---
+
+### [US-INFRA-02] API na mesma origem para o cookie de sessão
+
+**Como** Desenvolvedor de Infraestrutura,  
+**Quero** que o browser chame a API na mesma origem do front,  
+**Para que** o cookie `SameSite=Lax` seja enviado sem token CSRF.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RNF10**. Hoje `VITE_API_URL` aponta para `http://localhost:3001` e o Vite não faz proxy de `/api`. Cookie `SameSite=Lax` não vai nessa chamada entre portas. Em produção o Nginx já encaminha `/api/` para o backend.
+
+#### 🛠️ Especificação Técnica
+
+- `VITE_API_URL=/api/v1` no `.env.example` e como padrão do build do Nginx.
+- `frontend/vite.config.ts` encaminha `/api` para o backend (`http://localhost:3001` na máquina; `http://backend-dev:3001` no Compose de desenvolvimento).
+- O serviço `frontend-dev` do `docker-compose.yml` deixa de publicar a URL absoluta da API para o browser.
+
+#### ✅ Critérios de Aceitação
+
+- [ ] No navegador, login e `GET /auth/me` aparecem como chamadas a `/api/v1/...` na mesma origem do front.
+- [ ] O cookie `token` é armazenado e reenviado nessas chamadas.
+- [ ] O build de produção continua servindo o front e a API pelo Nginx, na mesma origem.
+
+---
+
+### [US-TEST-04] Travas de autorização já vigentes
+
+**Como** Engenheiro de Software,  
+**Quero** testes automatizados das regras de usuário, fornecedor e perfil que o backend já aplica,  
+**Para que** uma mudança futura quebre o teste em vez de abrir a rota.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende a **RF18**, **RF20** e **RNF09**. Esta história não altera handler, middleware nem rota. O teste só observa o comportamento atual.
+
+- Cliente ou vendedor em `POST`, `PUT` ou `DELETE` de `/api/v1/users` e `/api/v1/suppliers` recebe `403`. O administrador não recebe `403` (a requisição segue para a validação do corpo).
+- `GET /api/v1/suppliers` e `GET /api/v1/suppliers/:id` continuam `200` para o vendedor. A listagem não é filtrada por `user_suppliers`.
+- Cadastrar, editar e excluir fornecedor, usuário e vínculo (`/api/v1/users/:userId/suppliers`) continuam só com administrador.
+- `PUT /api/v1/auth/me` usa o `id` do middleware. Usuário A envia o `id` do usuário B no JSON: o perfil do A muda, o B permanece intacto, e e-mail e cargo do A não mudam.
+- `PUT /api/v1/users/:id` continua só com administrador, inclusive quando o administrador edita outra pessoa.
+
+#### ⚙️ Especificação Técnica (`backend/tests`)
+
+- Suíte `bun:test` contra os handlers reais.
+- Papéis emitidos com JWT de cliente (`1`), vendedor (`2`) e administrador (`3`).
+- Nenhuma assertion deste arquivo exige regra nova de produto ou de injeção de SQL.
+
+#### ✅ Critérios de Aceitação
+
+- [ ] Vendedor e cliente recebem `403` ao cadastrar, editar ou excluir usuário e fornecedor.
+- [ ] Administrador não recebe `403` nessas mesmas rotas.
+- [ ] Vendedor recebe `200` na listagem de fornecedores.
+- [ ] `PUT /auth/me` do usuário A com o `id` do B altera só o A.
+- [ ] A suíte passa sem modificar o código de autorização já existente.

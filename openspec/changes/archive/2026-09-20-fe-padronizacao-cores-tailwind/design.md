@@ -1,6 +1,6 @@
 ## Context
 
-O projeto `site-emporio-henz` utiliza Tailwind CSS v4 no pacote `apps/web`, integrado via `@tailwindcss/vite` e `@import "tailwindcss";` em `src/style.css`.
+O projeto `site-emporio-henz` utiliza Tailwind CSS v4 no pacote `frontend`, integrado via `@tailwindcss/vite` e `@import "tailwindcss";` em `src/style.css`.
 Atualmente, as telas (`App.vue`, `HomeView.vue`, entre outras) utilizam valores hexadecimais arbitrários inline (como `bg-[#D2E8F8]`, `bg-[#123854]`, `text-[#123854]`, `text-[#1D1D24]`, `text-[#007CD8]`, `bg-[#FEFEFE]`).
 
 As cores oficiais do projeto foram definidas no Figma ([Catálogo digital - Empório Henz](https://www.figma.com/proto/nx4bJnz6Hj3seJHFAC5sHO/Cat%C3%A1logo-digital---Emp%C3%B3rio-Henz?node-id=38-2521)), onde estão catalogadas variáveis globais de preenchimento e estilos.
@@ -9,10 +9,10 @@ As cores oficiais do projeto foram definidas no Figma ([Catálogo digital - Emp�
 
 **Goals:**
 
-- Configurar formalmente a paleta de cores do Figma no Tailwind CSS v4 utilizando a diretiva `@theme` em `apps/web/src/style.css`.
+- Configurar formalmente a paleta de cores do Figma no Tailwind CSS v4 utilizando a diretiva `@theme` em `frontend/src/style.css`.
 - Estabelecer uma nomenclatura semântica clara: `primary`, `primary-dark`, `secondary`, `secondary-hover`, `neutral-dark`, `surface-light`, `surface-tint`, além de tokens para acabamentos de madeira (`wood-*`).
 - Criar a documentação completa do Design System em `docs/design-system-cores.md`.
-- Atualizar as regras em `apps/web/agents.md` e `AGENTS.md`, instruindo agentes de IA e desenvolvedores a nunca usarem classes hexadecimais inline (`[#...]`), mas sim os utilitários de tema padronizados.
+- Atualizar as regras em `frontend/agents.md` e `AGENTS.md`, instruindo agentes de IA e desenvolvedores a nunca usarem classes hexadecimais inline (`[#...]`), mas sim os utilitários de tema padronizados.
 - Refatorar os arquivos existentes no frontend (`App.vue`, `HomeView.vue`, `AppNavbar.vue`, etc.) substituindo os hexadecimais pelas novas classes utilitárias.
 - Garantir que a verificação de tipos e o build continuem executando com 100% de sucesso.
 
@@ -25,7 +25,7 @@ As cores oficiais do projeto foram definidas no Figma ([Catálogo digital - Emp�
 
 ### 1. Utilização da diretiva `@theme` nativa do Tailwind CSS v4
 
-- **Decisão**: Declarar as cores no bloco `@theme` em `apps/web/src/style.css`.
+- **Decisão**: Declarar as cores no bloco `@theme` em `frontend/src/style.css`.
 - **Alternativas consideradas**:
   - `tailwind.config.js`: Descontinuado como padrão no Tailwind CSS v4, que adota configuração CSS-first.
   - Variáveis CSS nativas avulsas sem `@theme`: Não integrariam automaticamente com os utilitários de opacidade e classes do Tailwind (`bg-primary/80`, `text-secondary`, etc.).
@@ -61,7 +61,7 @@ As cores oficiais do projeto foram definidas no Figma ([Catálogo digital - Emp�
 
 ### 3. Duplo Nível de Documentação (Humanos e Agentes)
 
-- **Decisão**: Criar `docs/design-system-cores.md` com a tabela visual de referência e atualizar `apps/web/agents.md` e `AGENTS.md` com diretrizes imperativas para agentes.
+- **Decisão**: Criar `docs/design-system-cores.md` com a tabela visual de referência e atualizar `frontend/agents.md` e `AGENTS.md` com diretrizes imperativas para agentes.
 - **Justificativa**: Agentes de IA consultam primordialmente os arquivos `agents.md` do repositório antes de realizar tarefas; documentar ali garante que futuras gerações de componentes respeitem o padrão automaticamente.
 
 ## Risks / Trade-offs

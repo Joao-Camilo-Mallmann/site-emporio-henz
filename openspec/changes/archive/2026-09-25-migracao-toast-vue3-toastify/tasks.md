@@ -2,16 +2,16 @@
 
 ## 1. Instalação e Configuração Global do Toast
 
-- [x] 1.1 [FE] Instalar o pacote `vue3-toastify` na aplicação web (`apps/web`) via Bun
-- [x] 1.2 [FE] Registrar o plugin `Vue3Toastify` em `apps/web/src/plugins/index.ts` com configurações padrão (posição `bottom-right`, tema `light`, `autoClose: 3500`, `clearOnUrlChange: false`) e importação do CSS correspondente
-- [x] 1.3 [FE] Expor `$toast` em `app.config.globalProperties.$toast` e estender a tipagem de `ComponentCustomProperties` em `apps/web/src/vite-env.d.ts` para suporte tipado em templates
-- [x] 1.4 [FE] Criar o composable `apps/web/src/composables/useToast.ts` exportando métodos tipados (`success`, `error`, `warning`, `info`, `clear`) e a instância original
+- [x] 1.1 [FE] Instalar o pacote `vue3-toastify` na aplicação web (`frontend`) via Bun
+- [x] 1.2 [FE] Registrar o plugin `Vue3Toastify` em `frontend/src/plugins/index.ts` com configurações padrão (posição `bottom-right`, tema `light`, `autoClose: 3500`, `clearOnUrlChange: false`) e importação do CSS correspondente
+- [x] 1.3 [FE] Expor `$toast` em `app.config.globalProperties.$toast` e estender a tipagem de `ComponentCustomProperties` em `frontend/src/vite-env.d.ts` para suporte tipado em templates
+- [x] 1.4 [FE] Criar o composable `frontend/src/composables/useToast.ts` exportando métodos tipados (`success`, `error`, `warning`, `info`, `clear`) e a instância original
 
 ## 2. Remoção do Sistema Legado de Alertas
 
-- [x] 2.1 [FE] Remover `SystemAlert`, `systemAlert`, `showAlert` e `clearAlert` de `apps/web/src/stores/app.ts`
-- [x] 2.2 [FE] Remover o container do banner estático de notificação e seu botão fechar em `apps/web/src/App.vue`
-- [x] 2.3 [FE] Atualizar os guards de autenticação e autorização em `apps/web/src/router/index.ts` para disparar toasts via `useToast` ou `toast`
+- [x] 2.1 [FE] Remover `SystemAlert`, `systemAlert`, `showAlert` e `clearAlert` de `frontend/src/stores/app.ts`
+- [x] 2.2 [FE] Remover o container do banner estático de notificação e seu botão fechar em `frontend/src/App.vue`
+- [x] 2.3 [FE] Atualizar os guards de autenticação e autorização em `frontend/src/router/index.ts` para disparar toasts via `useToast` ou `toast`
 
 ## 3. Migração das Views e Verificação de Qualidade
 

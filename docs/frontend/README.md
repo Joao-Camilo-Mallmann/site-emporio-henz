@@ -1,68 +1,59 @@
-# Documentação de Front-end — Empório Henz
+# Front-end
 
-Este diretório concentra as diretrizes visuais, catálogo do Design System e especificações de interface e experiência de usuário (UI/UX) do Portal Empório Henz.
+Documentação técnica da aplicação Vue do Empório Henz. Regras de produto pertencem ao [PRD](../PRD.md); este guia descreve a implementação no diretório `frontend/`.
 
----
+## Referências
 
-## 🎨 Diretrizes Arquiteturais (Front-end)
+- [Código da aplicação](../../frontend/)
+- [README operacional](../../frontend/README.md)
+- [Regras do front-end](../../frontend/agents.md)
+- [Cores e tokens oficiais](./design-system-cores.md)
+- [Contrato da API](../backend/collections/README.md)
 
-Conforme estabelecido nas regras do projeto ([agents.md](../../agents.md) e [frontend/agents.md](../../frontend/agents.md)):
+## Stack
 
-1. **Stack Técnica**:
-   - **Framework**: [Vue 3](https://vuejs.org/) (Composition API com `<script setup lang="ts">`).
-   - **Build Tool**: [Vite](https://vitejs.dev/).
-   - **Estilização**: [Tailwind CSS v4](https://tailwindcss.com/) com tokens semânticos centralizados no `@theme` (`src/style.css`).
-   - **Gerenciamento de Estado**: [Pinia](https://pinia.vuejs.org/).
-   - **Roteamento**: [Vue Router 4](https://router.vuejs.org/).
+- Vue 3 com Composition API e `<script setup lang="ts">`.
+- Vite para desenvolvimento e build.
+- Tailwind CSS v4 para estilos.
+- Pinia para estado global.
+- Vue Router para navegação.
+- Axios para comunicação com a API.
 
-2. **Regra de Ouro do Design System (Proibição de Hexadecimais Arbitrários)**:
-   > [!IMPORTANT]
-   > É **terminantemente proibido** utilizar valores hexadecimais inline arbitrários (como `bg-[#123854]`, `text-[#007CD8]`, `border-[#D0D5DD]`).
-   > Todas as cores do Figma possuem tokens semânticos oficiais mapeados no Tailwind.
+## Estrutura do código
 
-3. **Padronização de Botões com `<UiButton>` e Auto-import de Componentes**:
-   > [!IMPORTANT]
-   > - É **obrigatório** utilizar o componente `<UiButton>` para todos os botões e disparadores de ação na interface. Não utilize tags `<button>` nativas soltas com estilos ad-hoc. Variantes disponíveis: `primary`, `secondary` e `outline`.
-   > - O projeto utiliza `unplugin-vue-components`. Todo e qualquer componente criado em `frontend/src/components/` é automaticamente importado nos templates e tem seus tipos TypeScript gerados em `frontend/src/components.d.ts` sem necessidade de imports manuais ou registros com `app.component()`.
+| Diretório | Responsabilidade |
+| --- | --- |
+| `frontend/src/api/` | Clientes HTTP por domínio |
+| `frontend/src/components/` | Componentes reutilizáveis e layout |
+| `frontend/src/composables/` | Comportamentos reutilizáveis |
+| `frontend/src/plugins/` | Axios, Pinia e integrações globais |
+| `frontend/src/router/` | Rotas e guards de navegação |
+| `frontend/src/stores/` | Estado global |
+| `frontend/src/views/` | Páginas públicas, autenticadas e administrativas |
 
-4. **Sistema de Notificações Flutuantes (Toasts)**:
-   Notificações e feedbacks visuais transitórios utilizam a biblioteca `vue3-toastify` configurada no plugin global (tema `light`, posição `bottom-right`, `autoClose: 3500ms` e `clearOnUrlChange: false`). Devem ser acionadas idiomaticamente via composable `useToast()` (`frontend/src/composables/useToast.ts`) na Composition API ou pela propriedade global de template `$toast`. O banner estático em `App.vue` e o estado `systemAlert` na store `useAppStore` foram descontinuados.
+## Convenções de interface
 
----
+- Use somente os tokens semânticos definidos no design system; não adicione cores hexadecimais arbitrárias aos componentes.
+- Use `<UiButton>` para botões e disparadores de ação.
+- Componentes em `src/components/` são importados automaticamente por `unplugin-vue-components`.
+- Feedbacks transitórios usam `useToast()` e `vue3-toastify`.
+- Estados de carregamento, erro, vazio e sucesso devem ser explícitos.
 
-## 📁 Arquivos e Guias do Diretório
+## Executar
 
-| Arquivo                                            | Descrição                                                                                                                                                                        |
-| :------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [design-system-cores.md](./design-system-cores.md) | Catálogo completo de cores oficiais do Figma, tokens semânticos do Tailwind v4 (`primary`, `secondary`, `neutral-dark`, `wood-*`, `surface-*`), códigos HEX e diretrizes de uso. |
-| [backend/collections/bruno/](../backend/collections/bruno/) | Fonte de consulta da API V1 para integração do front-end: rotas, payloads, autenticação Bearer e ambientes. |
+```bash
+cd frontend
+bun install
+bun run dev
+```
 
----
+A aplicação fica disponível em `http://localhost:3000`. A URL da API é configurada por `VITE_API_URL`.
 
-## 🖥️ Aplicação Web (`frontend`)
+## Validar
 
-Para detalhes de desenvolvimento, estrutura de componentes, views e regras específicas do cliente web, consulte:
-
-- Diretório da aplicação: [frontend](../../frontend)
-- Regras para agentes e desenvolvedores: [frontend/agents.md](../../frontend/agents.md)
-
----
-
-## 🚀 Como Executar o Front-end
-
-- **Desenvolvimento (porta 3000)**:
-  ```bash
-  cd frontend
-  bun run dev
-  ```
-- **Checagem de Tipos e Lint**:
-  ```bash
-  cd frontend
-  bun run check-types
-  bun run lint
-  ```
-- **Build de Produção**:
-  ```bash
-  cd frontend
-  bun run build
-  ```
+```bash
+cd frontend
+bun run check-types
+bun run lint
+bun run build
+```
