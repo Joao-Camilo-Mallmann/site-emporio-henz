@@ -9,7 +9,7 @@
 
 ## 2. Reestruturação do Frontend
 
-- [x] 2.1 Mover `apps/web` para a raiz `frontend/` e remover o diretório obsoleto `apps/`
+- [x] 2.1 Mover `frontend` para a raiz `frontend/` e remover o diretório obsoleto `apps/`
 - [x] 2.2 Gerar lockfile isolado no frontend executando `bun install` dentro de `frontend/`
 - [x] 2.3 Validar compilação e checagem de tipos do frontend executando `bun run build` e `bun run check-types` dentro de `frontend/`
 

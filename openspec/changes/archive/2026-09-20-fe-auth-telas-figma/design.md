@@ -1,6 +1,6 @@
 ## Context
 
-O frontend da Empório Henz (`apps/web`) utiliza Vue 3 (Composition API com `<script setup lang="ts">`), Vite 6, Tailwind CSS v4, Vue Router 4 e Pinia. O layout geral do sistema foi concebido no Figma com foco no público de móveis nobres e alta decoração (Cruzeiro do Sul - RS).
+O frontend da Empório Henz (`frontend`) utiliza Vue 3 (Composition API com `<script setup lang="ts">`), Vite 6, Tailwind CSS v4, Vue Router 4 e Pinia. O layout geral do sistema foi concebido no Figma com foco no público de móveis nobres e alta decoração (Cruzeiro do Sul - RS).
 
 Enquanto a persistência em PostgreSQL e as rotas nativas no Bun (`apps/backend`) serão integradas na sequência, o desenvolvimento atual estabelece a infraestrutura completa de autenticação no frontend (Store Pinia, Interceptors Axios, Telas de Login/Registro e Home/Navbar/Footer do Figma) com uma arquitetura de serviços desacoplada pronta para chavear entre dados simulados (mock) e chamadas HTTP reais.
 

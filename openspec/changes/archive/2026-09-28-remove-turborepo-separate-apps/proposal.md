@@ -12,7 +12,7 @@ Separar o backend e o frontend em dois projetos totalmente independentes (sem `p
 - **Eliminação do `package.json` e `bun.lock` na raiz**: O repositório deixa de ser um monorepo gerenciado por workspace raiz; o backend e o frontend tornam-se aplicações autônomas.
 - **Isolamento de Diretórios de Aplicação**:
   - `apps/backend/` passa a ser `backend/` na raiz.
-  - `apps/web/` passa a ser `frontend/` na raiz.
+  - `frontend/` passa a ser `frontend/` na raiz.
   - Remoção do diretório `apps/`.
 - **Consolidação do Banco de Dados no Backend**:
   - `packages/database/` é eliminado.
@@ -31,9 +31,11 @@ Separar o backend e o frontend em dois projetos totalmente independentes (sem `p
 ## Capabilities
 
 ### New Capabilities
+
 None.
 
 ### Modified Capabilities
+
 - `database-migrations`: Altera a localização canônica dos arquivos de migração e runners de `packages/database` para `backend/database/`.
 - `backend-foundation-infra`: Altera a referência de conexão do banco para a configuração interna do backend (`backend/src/config/db.ts`), eliminando a dependência do pacote compartilhado `packages/database`.
 - `containerized-deployment`: Altera a estratégia conteinerizada para utilizar Dockerfiles específicos por aplicação (`backend/Dockerfile` e `frontend/Dockerfile`) e remove referências a scripts de monorepo na raiz.

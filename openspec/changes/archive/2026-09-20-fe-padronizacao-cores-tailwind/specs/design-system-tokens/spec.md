@@ -2,7 +2,7 @@
 
 ### Requirement: Figma-based Color Tokens Configuration in Tailwind CSS
 
-The frontend application (`apps/web`) SHALL define centralized color design tokens in `apps/web/src/style.css` using the Tailwind CSS v4 `@theme` directive, strictly reflecting the color palette extracted from the official Figma project (`nx4bJnz6Hj3seJHFAC5sHO`).
+The frontend application (`frontend`) SHALL define centralized color design tokens in `frontend/src/style.css` using the Tailwind CSS v4 `@theme` directive, strictly reflecting the color palette extracted from the official Figma project (`nx4bJnz6Hj3seJHFAC5sHO`).
 
 #### Scenario: Tailwind utility classes generate theme color tokens
 
@@ -16,12 +16,12 @@ The frontend application (`apps/web`) SHALL define centralized color design toke
 
 ### Requirement: Agent and Project Color Guidelines Documentation
 
-The project SHALL provide comprehensive documentation in `docs/design-system-cores.md` and enforce rules in `apps/web/agents.md` and `AGENTS.md` forbidding arbitrary inline hex colors (`[#...]`) in favor of the standardized Tailwind tokens.
+The project SHALL provide comprehensive documentation in `docs/design-system-cores.md` and enforce rules in `frontend/agents.md` and `AGENTS.md` forbidding arbitrary inline hex colors (`[#...]`) in favor of the standardized Tailwind tokens.
 
 #### Scenario: Developer or AI agent consults design token guide
 
 - **WHEN** a developer or AI agent builds or edits a frontend view or component
-- **THEN** they SHALL find the complete reference table mapping Figma colors to Tailwind classes and usage guidelines in `docs/design-system-cores.md` and summarized instructions in `apps/web/agents.md`
+- **THEN** they SHALL find the complete reference table mapping Figma colors to Tailwind classes and usage guidelines in `docs/design-system-cores.md` and summarized instructions in `frontend/agents.md`
 
 #### Scenario: Prohibition of arbitrary inline hex values
 

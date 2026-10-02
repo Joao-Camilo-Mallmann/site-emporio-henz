@@ -40,7 +40,7 @@ O frontend da Empório Henz possui seu layout principal centrado no uso desktop 
 
 ### Decisão 2: Segregação dos Banners em `HeroBannerDesktop.vue` e `HeroBannerMobile.vue`
 
-- **Escolha**: Separar fisicamente os dois banners em componentes dedicados em `apps/web/src/components/home/`.
+- **Escolha**: Separar fisicamente os dois banners em componentes dedicados em `frontend/src/components/home/`.
 - **Alternativa Considerada**: Usar um único componente com dezenas de classes condicionais `hidden lg:flex`.
 - **Justificativa**: O layout do banner mobile difere estruturalmente do desktop: a cena fotográfica é outra (poltrona vs sofá), a hierarquia tipográfica muda e o card de benefícios não existe no mobile. A separação física garante zero risco de regressão no desktop e simplifica a manutenção de código.
 
@@ -75,7 +75,7 @@ O frontend da Empório Henz possui seu layout principal centrado no uso desktop 
 
 ### Decisão 4: Asset Visual do Banner Mobile
 
-- **Escolha**: Extrair e otimizar o recorte da poltrona com mesa lateral, abajur e tapete para `apps/web/public/images/hero-banner-mobile.png`.
+- **Escolha**: Extrair e otimizar o recorte da poltrona com mesa lateral, abajur e tapete para `frontend/public/images/hero-banner-mobile.png`.
 - **Justificativa**: O Figma e o protótipo usam essa cena recortada com fundo transparente e um blob azul marinho em vetor, proporcionando nitidez perfeita em telas de alta densidade (Retina/OLED).
 
 ## Risks / Trade-offs

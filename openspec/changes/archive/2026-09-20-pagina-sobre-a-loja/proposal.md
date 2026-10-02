@@ -5,7 +5,7 @@ Atualmente, o site do Empório Henz possui links para "Sobre a loja" tanto na ba
 ## What Changes
 
 - Criação da nova view institucional `AboutView.vue` correspondente à rota `/sobre-a-loja`.
-- Registro da rota `/sobre-a-loja` no roteador do Vue (`apps/web/src/router/index.ts`).
+- Registro da rota `/sobre-a-loja` no roteador do Vue (`frontend/src/router/index.ts`).
 - Atualização dos links de "Sobre a loja" na Navbar (Desktop e Mobile Drawer) e no Footer para apontar para `/sobre-a-loja`.
 - Implementação da seção Hero institucional com imagem de fundo, overlay azul marinho, logo branca e o selo "Há quase 50 ANOS CONSTRUINDO HISTÓRIAS" com botão de retorno/navegação.
 - Implementação da seção de história e proposta de valor "Empório Henz: Onde a sua história encontra o seu lugar" com carrossel/slider de fotos da loja e equipe familiar.
@@ -23,7 +23,7 @@ Atualmente, o site do Empório Henz possui links para "Sobre a loja" tanto na ba
 
 ## Impact
 
-- **Frontend (`apps/web`)**:
+- **Frontend (`frontend`)**:
   - Nova rota `/sobre-a-loja` em `src/router/index.ts`.
   - Nova página `src/views/AboutView.vue` (ou `src/views/about/AboutView.vue`).
   - Atualização dos links em `src/components/layout/AppNavbar.vue` e `src/components/layout/AppFooter.vue`.

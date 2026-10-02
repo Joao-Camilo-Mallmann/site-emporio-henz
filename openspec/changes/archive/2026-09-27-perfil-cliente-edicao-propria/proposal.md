@@ -16,9 +16,11 @@ Essa mudança resolve essa lacuna ao criar o endpoint `PUT /api/v1/auth/me` para
 ## Capabilities
 
 ### New Capabilities
+
 - `client-profile-screen`: Interface web dedicada na rota `/perfil` para clientes e vendedores atualizarem dados cadastrais e senha, integrada ao formulário existente e com feedback via toast.
 
 ### Modified Capabilities
+
 - `backend-auth`: Adiciona a capacidade de atualização do perfil próprio do usuário logado via `PUT /api/v1/auth/me` com validação estrita de payload e rejeição de elevação de privilégio.
 
 ## Impact
@@ -30,8 +32,8 @@ Essa mudança resolve essa lacuna ao criar o endpoint `PUT /api/v1/auth/me` para
   - `apps/backend/src/modules/auth/auth.service.ts`: implementa `updateProfile`.
   - `docs/backend/collections/bruno/Auth/UpdateMe.bru`: nova requisição documentada na collection.
 - **Frontend**:
-  - `apps/web/src/router/index.ts`: registra rota `/perfil` com `meta: { requiresAuth: true }`.
-  - `apps/web/src/views/profile/PerfilView.vue`: nova tela de perfil.
-  - `apps/web/src/views/admin/usuarios/UsuarioForm.vue`: prop para ocultar seleção de cargo.
-  - `apps/web/src/components/layout/AppNavbar.vue`: atualiza links de "Editar Usuário / Meu Perfil" (desktop e mobile).
-  - `apps/web/src/api/auth.ts`: adiciona método `atualizarPerfil(dados)`.
+  - `frontend/src/router/index.ts`: registra rota `/perfil` com `meta: { requiresAuth: true }`.
+  - `frontend/src/views/profile/PerfilView.vue`: nova tela de perfil.
+  - `frontend/src/views/admin/usuarios/UsuarioForm.vue`: prop para ocultar seleção de cargo.
+  - `frontend/src/components/layout/AppNavbar.vue`: atualiza links de "Editar Usuário / Meu Perfil" (desktop e mobile).
+  - `frontend/src/api/auth.ts`: adiciona método `atualizarPerfil(dados)`.

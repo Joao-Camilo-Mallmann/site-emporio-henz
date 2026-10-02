@@ -30,7 +30,7 @@ A aplicação frontend em Vue 3 da Empório Henz necessita de uma identidade vis
 
 ## Impact
 
-- **Frontend (`apps/web`)**:
+- **Frontend (`frontend`)**:
   - `src/router/index.ts`: Novas rotas `/login`, `/cadastro`, `/equipe/login`.
   - `src/stores/auth.ts`: Nova store Pinia.
   - `src/plugins/axios.ts`: Atualização dos interceptors.

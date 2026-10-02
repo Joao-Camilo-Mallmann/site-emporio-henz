@@ -35,9 +35,9 @@ Ao rodar `docker compose up -d`, o desenvolvedor se deparava com o frontend comp
 
 ### Decisão 3: Preservação de node_modules no container durante montagem de volumes
 
-- **Escolha**: Configurar volume anônimo `/app/apps/web/node_modules` no serviço `web-dev` para evitar que a pasta local do host Windows sobrescreva as dependências compiladas/instaladas na imagem Linux.
+- **Escolha**: Configurar volume anônimo `/app/frontend/node_modules` no serviço `web-dev` para evitar que a pasta local do host Windows sobrescreva as dependências compiladas/instaladas na imagem Linux.
 
 ## Risks / Trade-offs
 
-- **[Hot-Reload através de volumes em Windows/WSL2]** → O Vite no `apps/web/vite.config.ts` foi configurado com `host: "0.0.0.0"`. Caso o sistema de arquivos do Windows não emita eventos de inotify confiáveis, pode-se ativar `server.watch.usePolling`.
+- **[Hot-Reload através de volumes em Windows/WSL2]** → O Vite no `frontend/vite.config.ts` foi configurado com `host: "0.0.0.0"`. Caso o sistema de arquivos do Windows não emita eventos de inotify confiáveis, pode-se ativar `server.watch.usePolling`.
 - **[Conflito de portas se rodar local e docker simultaneamente]** → Documentar que para rodar via Docker deve-se usar as portas mapeadas, ou parar os containers antes de rodar `bun run dev` nativamente.

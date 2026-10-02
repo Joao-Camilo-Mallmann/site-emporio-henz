@@ -2,7 +2,8 @@
 
 ## Why
 
-Atualmente, o frontend Vue 3 (`apps/web`) opera com autenticação simulada em memória (`USE_MOCK = true` em `src/api/auth.ts`) e configurações de rede incompatíveis com o backend Bun (`apps/backend`):
+Atualmente, o frontend Vue 3 (`frontend`) opera com autenticação simulada em memória (`USE_MOCK = true` em `src/api/auth.ts`) e configurações de rede incompatíveis com o backend Bun (`apps/backend`):
+
 1. A `baseURL` do Axios referencia `import.meta.env.PORT`, indisponível no cliente Vite (resolvendo como `undefined`).
 2. As rotas chamam caminhos duplicados (`/api/auth/login` em vez de `/auth/login` sobre o prefixo `/api/v1`).
 3. O formulário de autocadastro envia `name` em vez de `fullName`, violando o schema do backend.
@@ -23,15 +24,17 @@ Esta mudança conecta o frontend diretamente à API real em Bun e à persistênc
 ## Capabilities
 
 ### New Capabilities
-*(Nenhuma nova capacidade necessária; as capacidades de autenticação já foram concebidas e agora recebem a integração de rede real).*
+
+_(Nenhuma nova capacidade necessária; as capacidades de autenticação já foram concebidas e agora recebem a integração de rede real)._
 
 ### Modified Capabilities
+
 - `auth-store-and-interceptor`: Conectar o cliente Axios diretamente aos endpoints REST `/auth/login`, `/auth/register`, `/auth/me` e `/health` do backend Bun, desativando o mock em memória e assegurando a persistência e renovação do JWT.
 - `auth-screens`: Adaptar os formulários de login e autocadastro aos contratos reais da API (campo `fullName`, credenciais de teste do seed PostgreSQL `admin@gmail.com`).
 
 ## Impact
 
-- **Frontend (`apps/web`)**:
+- **Frontend (`frontend`)**:
   - `src/plugins/axios.ts`: Ajuste da URL base para `http://localhost:3001/api/v1`.
   - `src/api/auth.ts`: Remoção do desvio para mock e correção dos endpoints.
   - `src/api/sistema.ts`: Mapeamento correto do healthcheck da API.

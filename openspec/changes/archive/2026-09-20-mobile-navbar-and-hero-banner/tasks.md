@@ -1,13 +1,13 @@
 ## 1. Preparação de Assets Visuais
 
 - [x] 1.1 [FE] Recortar e preparar o asset da composição do banner mobile (`hero-banner-mobile.png`) a partir do protótipo/referência do Figma
-- [x] 1.2 [FE] Verificar dimensões, transparência e nitidez do asset em `apps/web/public/images/hero-banner-mobile.png`
+- [x] 1.2 [FE] Verificar dimensões, transparência e nitidez do asset em `frontend/public/images/hero-banner-mobile.png`
 
 ## 2. Segregação do Hero Banner da Home
 
-- [x] 2.1 [FE] Extrair o banner desktop para `apps/web/src/components/home/HeroBannerDesktop.vue`, preservando a composição larga, sofá de 3 lugares e o card de 3 benefícios
-- [x] 2.2 [FE] Criar `apps/web/src/components/home/HeroBannerMobile.vue` com tipografia em 26px, cena da poltrona azul, fundo orgânico marinho e sem os cards de benefícios conforme Figma
-- [x] 2.3 [FE] Integrar ambos os banners em `apps/web/src/views/HomeView.vue` com alternância responsiva (`hidden md:block` e `block md:hidden`) e ajustar a margem superior do grid de categorias (`mt-4 sm:mt-6 lg:-mt-24`)
+- [x] 2.1 [FE] Extrair o banner desktop para `frontend/src/components/home/HeroBannerDesktop.vue`, preservando a composição larga, sofá de 3 lugares e o card de 3 benefícios
+- [x] 2.2 [FE] Criar `frontend/src/components/home/HeroBannerMobile.vue` com tipografia em 26px, cena da poltrona azul, fundo orgânico marinho e sem os cards de benefícios conforme Figma
+- [x] 2.3 [FE] Integrar ambos os banners em `frontend/src/views/HomeView.vue` com alternância responsiva (`hidden md:block` e `block md:hidden`) e ajustar a margem superior do grid de categorias (`mt-4 sm:mt-6 lg:-mt-24`)
 
 ## 3. Reorganização do Cabeçalho e Linha de Busca no Mobile
 
