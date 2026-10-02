@@ -1,13 +1,13 @@
 ## Why
 
-Atualmente, o deploy na máquina de produção (VM) depende de intervenção manual: conectar via terminal SSH, rodar `git pull` e disparar o `./deploy.sh`. Isso aumenta o atrito nas entregas, abre margem para esquecimento de atualização e dificulta a rastreabilidade do que está em execução no servidor. Implementar uma esteira de entrega contínua (CD) via GitHub Actions automatiza o processo a cada merge na branch `main` e permite acionamento manual sob demanda.
+Atualmente, o deploy na máquina de produção (VM) depende de intervenção manual: conectar via terminal SSH local, rodar `git pull` e disparar o `./deploy.sh`. Isso aumenta o atrito nas entregas e dificulta a rastreabilidade do que está em execução no servidor. Implementar um workflow no GitHub Actions permite acionar o deploy via SSH com um único clique no botão da interface web sob demanda (`workflow_dispatch`), sem necessidade de conexões de terminal locais.
 
 ## What Changes
 
-- Criação de workflow do GitHub Actions (`.github/workflows/deploy.yml`) para orquestrar o deploy na VM via SSH (`appleboy/ssh-action`).
+- Criação de workflow do GitHub Actions (`.github/workflows/deploy.yml`) para orquestrar o deploy na VM via SSH (`appleboy/ssh-action`) acionado sob demanda via `workflow_dispatch`.
 - Execução remota segura que atualiza a branch `main` (`git pull`), garante permissões e dispara o script canônico [`deploy.sh`](../../deploy.sh).
 - Documentação clara em [`docs/infra/README.md`](../../docs/infra/README.md) sobre o provisionamento de credenciais via GitHub Secrets (`SSH_HOST`, `SSH_USER`, `SSH_PASSWORD` ou `SSH_KEY`), grupo do Docker (`docker`) e segregação do arquivo `.env` na VM.
-- Suporte a gatilho manual (`workflow_dispatch`) no GitHub Actions para permitir re-deploys sem commits adicionais.
+- Acionamento manual sob demanda (`workflow_dispatch`) no GitHub Actions evitando deploys automáticos involuntários a cada commit.
 
 ## Capabilities
 

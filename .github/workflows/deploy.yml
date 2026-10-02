@@ -1,9 +1,6 @@
 name: Deploy na VM via SSH
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:

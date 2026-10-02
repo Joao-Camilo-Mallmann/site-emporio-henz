@@ -1,12 +1,12 @@
 ## Context
 
 O projeto Empório Henz possui um script [`deploy.sh`](../../deploy.sh) testado e funcional na raiz do repositório, que executa o fluxo completo de atualização da aplicação via Docker Compose na VM (build multi-stage, checagem do `.env`, espera do healthcheck do PostgreSQL, subida do backend com migrações automáticas e subida do Nginx).
-No entanto, a execução desse script dependia de acesso manual via SSH por parte do desenvolvedor. Para garantir integração e entrega contínua (CI/CD), é necessário configurar um pipeline no GitHub Actions que conecte na VM via SSH e acione essa esteira de deploy sempre que houver novos commits na branch `main` ou quando disparado manualmente.
+No entanto, a execução desse script dependia de acesso manual via SSH por parte do desenvolvedor diretamente do terminal local. Para garantir controle, facilidade e rastreabilidade, é necessário configurar um pipeline no GitHub Actions que conecte na VM via SSH e acione essa esteira de deploy sob demanda através de acionamento manual (`workflow_dispatch`).
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Configurar workflow do GitHub Actions em `.github/workflows/deploy.yml` acionado em `push` na branch `main` e via `workflow_dispatch`.
+- Configurar workflow do GitHub Actions em `.github/workflows/deploy.yml` acionado manualmente sob demanda via `workflow_dispatch`.
 - Utilizar a action `appleboy/ssh-action` para executar de forma remota e não interativa o comando de atualização e deploy.
 - Garantir a execução da sequência `cd <caminho> && git checkout main && git pull origin main && chmod +x deploy.sh && ./deploy.sh`.
 - Isolar segredos e credenciais de acesso (`SSH_HOST`, `SSH_USER`, `SSH_PASSWORD` ou `SSH_KEY`, `SSH_PORT`) em GitHub Secrets.

@@ -78,10 +78,9 @@ O segundo comando é destrutivo e deve ser usado somente quando a perda dos dado
 
 O pipeline em [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml) conecta na VM de produção via SSH e executa a atualização automática do projeto e dos containers Docker.
 
-### Gatilhos
+### Gatilho
 
-- **Automático**: A cada `push` ou merge na branch `main`.
-- **Manual**: Via interface do GitHub em **Actions** > **Deploy na VM via SSH** > **Run workflow** (`workflow_dispatch`).
+- **Manual (Sob Demanda)**: Acionado exclusivamente pelo botão na interface do GitHub em **Actions** > **Deploy na VM via SSH** > **Run workflow** (`workflow_dispatch`). Não dispara automaticamente em commits/pushes para evitar deploys não supervisionados.
 
 ### Fluxo Remoto de Execução
 
