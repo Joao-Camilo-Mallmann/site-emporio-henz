@@ -1,0 +1,29 @@
+name: Deploy na VM via SSH
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy em Produção
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Executar deploy via SSH na VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            cd ~/site-emporio-henz
+            git checkout main
+            git pull origin main
+            chmod +x deploy.sh
+            ./deploy.sh
