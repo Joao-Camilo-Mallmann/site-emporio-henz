@@ -9,6 +9,7 @@ Guia de Docker Compose, Nginx, deploy e proteção dos dados do Empório Henz.
 - [Dockerfile do front-end](../../frontend/Dockerfile)
 - [Guia de backup e restauração](./backup-restore-guide.md)
 - [Script de deploy](../../deploy.sh)
+- [Workflow de CI/CD](../../.github/workflows/deploy.yml)
 
 ## Serviços
 
@@ -68,6 +69,55 @@ O segundo comando é destrutivo e deve ser usado somente quando a perda dos dado
 | Recurso | Uso |
 | --- | --- |
 | [`deploy.sh`](../../deploy.sh) | Build e atualização da stack na VM |
+| [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml) | Automação de deploy contínuo (CI/CD) via SSH |
 | [`scripts/backup.sh`](../../scripts/backup.sh) | Dump compactado com retenção |
 | [`scripts/restore.sh`](../../scripts/restore.sh) | Restauração de dump |
 | [Guia de backup](./backup-restore-guide.md) | Procedimento manual, automação com cron e cópia externa |
+
+## Deploy Contínuo (CI/CD via GitHub Actions)
+
+O pipeline em [`.github/workflows/deploy.yml`](../../.github/workflows/deploy.yml) conecta na VM de produção via SSH e executa a atualização automática do projeto e dos containers Docker.
+
+### Gatilho
+
+- **Manual (Sob Demanda)**: Acionado exclusivamente pelo botão na interface do GitHub em **Actions** > **Deploy na VM via SSH** > **Run workflow** (`workflow_dispatch`). Não dispara automaticamente em commits/pushes para evitar deploys não supervisionados.
+
+### Fluxo Remoto de Execução
+
+No servidor remoto, o pipeline executa a sequência garantindo interrupção imediata em caso de falha (`script_stop: true`):
+
+```bash
+cd ~/site-emporio-henz
+git checkout main
+git pull origin main
+chmod +x deploy.sh
+./deploy.sh
+```
+
+### GitHub Secrets Obrigatórios
+
+Configure em **Settings** > **Secrets and variables** > **Actions** do repositório no GitHub:
+
+| Secret | Descrição | Exemplo |
+| :--- | :--- | :--- |
+| `SSH_HOST` | Endereço IP ou hostname da VM | `177.44.248.90` |
+| `SSH_USER` | Usuário Linux para a sessão SSH | `univates` |
+| `SSH_PASSWORD` | Senha de autenticação do usuário SSH (se não usar chave) | `SuaSenhaAqui` |
+| `SSH_KEY` | Chave privada SSH (se usar autenticação por par de chaves) | Conteúdo de `~/.ssh/id_ed25519` |
+| `SSH_PORT` | Porta SSH da máquina (opcional, padrão 22) | `22` |
+
+> [!NOTE]
+> Variáveis de aplicação e segredos de banco de dados (`POSTGRES_PASSWORD`, etc.) **não devem** ser colocadas nos secrets do GitHub; elas residem unicamente no arquivo `.env` da VM.
+
+### Pré-requisitos na Máquina Virtual (VM)
+
+1. **Permissão Docker sem `sudo`**: O usuário do SSH precisa pertencer ao grupo `docker`:
+   ```bash
+   sudo usermod -aG docker $USER
+   ```
+   *(Depois de rodar, reinicie a sessão SSH e teste com `docker ps` sem sudo).*
+
+2. **Arquivo `.env`**: Deve existir previamente em `~/site-emporio-henz/.env` preenchido com as variáveis de produção.
+
+3. **Workspace Git Limpo**: O repositório clonado na VM não deve conter alterações manuais não commitadas para evitar falhas de conflito durante o `git pull`.
+

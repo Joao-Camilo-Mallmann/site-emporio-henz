@@ -1295,3 +1295,46 @@ Atende a **RF18**, **RF20** e **RNF09**. Esta história não altera handler, mid
 - [ ] Vendedor recebe `200` na listagem de fornecedores.
 - [ ] `PUT /auth/me` do usuário A com o `id` do B altera só o A.
 - [ ] A suíte passa sem modificar o código de autorização já existente.
+
+---
+
+### [US-INFRA-03] Pipeline de CI/CD no GitHub Actions para Deploy Contínuo via SSH na VM ([#64](https://github.com/Joao-Camilo-Mallmann/site-emporio-henz/issues/64))
+
+**Como** Desenvolvedor e Operador de Infraestrutura,  
+**Quero** um pipeline de CI/CD no GitHub Actions disparado sob demanda através de botão manual,  
+**Para que** a versão mais recente da aplicação seja atualizada e implantada na VM de produção via SSH sob controle explícito do operador.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atualmente, o processo de deploy na máquina virtual (VM) de produção necessita de intervenção manual: conectar via cliente SSH no terminal pessoal, navegar até o diretório do projeto, atualizar a branch `main` e disparar o script `deploy.sh`. 
+
+Essa esteira automatizada resolve esse atrito operacional integrando o repositório GitHub à VM através de uma conexão SSH criptografada e não interativa via GitHub Actions (`appleboy/ssh-action@v1.0.3`), com acionamento manual sob demanda.
+
+- **Gatilho**: A automação é disparada exclusivamente sob demanda através do gatilho manual `workflow_dispatch` (botão "Run workflow" no GitHub Actions), garantindo controle total sobre o momento em que o deploy na VM de produção ocorre.
+- **Segurança de Credenciais**: As credenciais de acesso SSH (`SSH_HOST`, `SSH_USER`, `SSH_PASSWORD` ou `SSH_KEY`, `SSH_PORT`) devem ser lidas exclusivamente a partir dos Secrets do GitHub. Nenhuma credencial deve ser versionada em código.
+- **Segregação de Variáveis**: O arquivo `.env` contendo as credenciais de banco e chaves de aplicação reside de forma protegida diretamente na VM e não é trafegado pelo GitHub Actions.
+- **Integridade da Execução**: A esteira deve garantir a sincronização do repositório (`git pull origin main`), aplicar permissão executável ao `deploy.sh` e rodar a subida dos containers com `script_stop: true` para interrupção imediata em caso de falha.
+- **Permissões na VM**: O usuário de login da VM deve pertencer ao grupo `docker` para que os comandos do Docker Compose executem sem bloqueio de prompt de `sudo`.
+
+#### 🛠️ Especificação Técnica (`infra`)
+
+- **Workflow**: Criação de `.github/workflows/deploy.yml` configurado com `runs-on: ubuntu-latest` e acionamento `workflow_dispatch`.
+- **Action de Terceiros**: Uso de `appleboy/ssh-action@v1.0.3` com mapeamento dos secrets `SSH_HOST`, `SSH_USER`, `SSH_PASSWORD`, `SSH_PORT`.
+- **Script Remoto**:
+  ```bash
+  cd ~/site-emporio-henz
+  git checkout main
+  git pull origin main
+  chmod +x deploy.sh
+  ./deploy.sh
+  ```
+- **Documentação**: Atualização de `docs/infra/README.md` com instruções detalhadas sobre a esteira de CD, configuração de GitHub Secrets e pré-requisitos da VM.
+
+#### ✅ Critérios de Aceitação
+
+- [x] Arquivo `.github/workflows/deploy.yml` criado e versionado com suporte a acionamento manual sob demanda (`workflow_dispatch`).
+- [x] Execução remota configurada com `script_stop: true` para reportar falha em caso de erro no build ou subida dos containers.
+- [x] Conexão SSH finaliza e fecha automaticamente após a conclusão do script de deploy.
+- [x] Documentação em `docs/infra/README.md` atualizada detalhando as variáveis necessárias em GitHub Secrets e a preparação do usuário no grupo `docker`.
+
+
