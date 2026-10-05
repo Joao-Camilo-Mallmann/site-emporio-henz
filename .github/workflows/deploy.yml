@@ -10,7 +10,8 @@ jobs:
     steps:
       - name: Deploy
         run: |
-          cd ~/site-emporio-henz
+          cd /var/www/html/site-emporio-henz
+          git status
           git checkout main
           git pull origin main
           chmod +x deploy.sh
