@@ -23,8 +23,11 @@ backups/
 # Testing
 coverage
 
-# Vercel
+# Vercel 
 .vercel
+
+# GitHub Actions
+.actions-runner
 
 # Build Outputs
 .next/
