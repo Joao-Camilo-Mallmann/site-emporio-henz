@@ -7,12 +7,8 @@ Este arquivo funciona como roteador. Regras mutáveis devem viver em sua fonte c
 Consulte nesta ordem:
 
 1. [`docs/PRD.md`](docs/PRD.md) — **única fonte da verdade (SSOT)** para visão, escopo, requisitos e regras de negócio.
-2. [`docs/padrao-historias-tarefas.md`](docs/padrao-historias-tarefas.md) — fonte normativa do processo de planejamento, decomposição e execução.
-3. Documentação técnica do domínio afetado em [`docs/`](docs/README.md).
-4. O `agents.md` da aplicação afetada.
-5. [`docs/planning/user-stories-backlog.md`](docs/planning/user-stories-backlog.md) — visão de execução derivada do PRD.
-
-Em caso de divergência, prevalece o documento de maior prioridade.
+2. Documentação técnica do domínio afetado em [`docs/`](docs/README.md).
+3. O `agents.md` da aplicação afetada.
 
 ## Fonte da verdade
 
@@ -49,15 +45,14 @@ Ao terminar uma tarefa ou história de usuário, marque-a como concluída na mes
 
 ## Matriz de manutenção documental
 
-| Mudança                                              | Atualizações obrigatórias                                     |
-| ---------------------------------------------------- | ------------------------------------------------------------- |
-| Regra, requisito, escopo ou comportamento do produto | `docs/PRD.md`                                                 |
-| História, tarefa ou critério de aceite               | padrão de histórias + `docs/planning/user-stories-backlog.md` |
-| Modelo conceitual ou persistência                    | PRD, quando afetar o produto, + `docs/database/README.md`     |
-| Endpoint, payload, parâmetro, status ou resposta     | collection Bruno em `docs/backend/collections/bruno/`         |
-| Fluxo, arquitetura ou integração do frontend         | `docs/frontend/README.md`                                     |
-| Token ou regra visual                                | `docs/frontend/design-system-cores.md`                        |
-| Docker, deploy, backup ou operação                   | `docs/infra/`                                                 |
+| Mudança                                              | Atualizações obrigatórias                                 |
+| ---------------------------------------------------- | --------------------------------------------------------- |
+| Regra, requisito, escopo ou comportamento do produto | `docs/PRD.md`                                             |
+| Modelo conceitual ou persistência                    | PRD, quando afetar o produto, + `docs/database/README.md` |
+| Endpoint, payload, parâmetro, status ou resposta     | collection Bruno em `docs/backend/collections/bruno/`     |
+| Fluxo, arquitetura ou integração do frontend         | `docs/frontend/README.md`                                 |
+| Token ou regra visual                                | `docs/frontend/design-system-cores.md`                    |
+| Docker, deploy, backup ou operação                   | `docs/infra/`                                             |
 
 ## Regras transversais
 
@@ -66,6 +61,5 @@ Ao terminar uma tarefa ou história de usuário, marque-a como concluída na mes
 - Modele e valide o banco antes do backend e do frontend.
 - Use soft delete e integridade conforme PRD e documentação de database.
 - Não use cores hexadecimais arbitrárias no frontend; use os tokens do design system.
-- No frontend (`frontend`), use sempre o componente global `<UiButton>` para botões e ações da interface, nunca tags `<button>` nativas soltas.
 - Toda mudança de API deve atualizar, na mesma entrega, a collection Bruno em [`docs/backend/collections/bruno/`](docs/backend/collections/bruno/). Consultar a API é consultar essa collection.
 - Use Bun para instalar dependências e executar os comandos em cada diretório (`backend/` e `frontend/`).
