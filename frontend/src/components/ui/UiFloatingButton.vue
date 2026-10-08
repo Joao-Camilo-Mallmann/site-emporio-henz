@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import type { UiFloatingButtonProps } from "@/types";
 import { Icon } from "@iconify/vue";
+import { computed, defineEmits, defineProps, withDefaults } from "vue";
 
 const props = withDefaults(defineProps<UiFloatingButtonProps>(), {
   variant: "primary",
@@ -75,7 +75,10 @@ const commonClasses = computed(() => [
       <Icon
         v-if="props.icon"
         :icon="props.icon"
-        :class="['text-current transition-transform duration-200', iconSizeClasses]"
+        :class="[
+          'text-current transition-transform duration-200',
+          iconSizeClasses,
+        ]"
       />
     </slot>
   </a>
@@ -93,7 +96,10 @@ const commonClasses = computed(() => [
       <Icon
         v-if="props.icon"
         :icon="props.icon"
-        :class="['text-current transition-transform duration-200', iconSizeClasses]"
+        :class="[
+          'text-current transition-transform duration-200',
+          iconSizeClasses,
+        ]"
       />
     </slot>
   </RouterLink>
@@ -111,7 +117,10 @@ const commonClasses = computed(() => [
       <Icon
         v-if="props.icon"
         :icon="props.icon"
-        :class="['text-current transition-transform duration-200', iconSizeClasses]"
+        :class="[
+          'text-current transition-transform duration-200',
+          iconSizeClasses,
+        ]"
       />
     </slot>
   </button>

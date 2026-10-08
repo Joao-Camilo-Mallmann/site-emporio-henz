@@ -145,12 +145,13 @@ onMounted(() => {
             >
               Tentar Novamente
             </UiButton>
-            <RouterLink
-              to="/admin/usuarios"
-              class="px-3 py-1.5 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 font-medium text-xs transition-colors"
+            <UiButton
+              variant="outline"
+              size="sm"
+              @click="$router.push('/admin/usuarios')"
             >
               Voltar à Lista
-            </RouterLink>
+            </UiButton>
           </div>
         </div>
 

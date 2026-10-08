@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
-import { RouterLink } from "vue-router";
 
 const adminModules = [
   {
@@ -62,21 +61,25 @@ const adminModules = [
           </div>
 
           <div class="pt-5 mt-5 border-t border-stone-100 flex items-center justify-between text-xs sm:text-sm">
-            <RouterLink
-              :to="module.to"
-              class="font-medium text-secondary hover:text-secondary-hover inline-flex items-center gap-1 transition-colors"
+            <UiButton
+              variant="link"
+              size="none"
+              class="inline-flex items-center gap-1 text-xs sm:text-sm font-medium"
+              @click="$router.push(module.to)"
             >
               <span>Gerenciar listagem</span>
               <Icon icon="mdi:arrow-right" class="w-4 h-4" />
-            </RouterLink>
+            </UiButton>
 
-            <RouterLink
-              :to="module.newTo"
-              class="text-stone-500 hover:text-neutral-dark font-medium inline-flex items-center gap-1 transition-colors"
+            <UiButton
+              variant="ghost"
+              size="sm"
+              class="text-stone-500 hover:text-neutral-dark font-medium text-xs gap-1 px-2.5"
+              @click="$router.push(module.newTo)"
             >
               <Icon icon="mdi:plus" class="w-3.5 h-3.5" />
               <span>{{ module.newLabel }}</span>
-            </RouterLink>
+            </UiButton>
           </div>
         </div>
       </div>
