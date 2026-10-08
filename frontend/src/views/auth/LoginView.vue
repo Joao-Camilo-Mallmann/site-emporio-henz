@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
-import { reactive, ref } from "vue";
+import { reactive, ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
@@ -20,6 +20,13 @@ const formErrors = reactive({
   password: "",
 });
 const generalError = ref("");
+
+onMounted(() => {
+  if (typeof navigator !== "undefined" && navigator.cookieEnabled === false) {
+    generalError.value =
+      "Os cookies estão desabilitados no seu navegador. Para entrar, por favor habilite os cookies nas configurações.";
+  }
+});
 
 function validate(): boolean {
   let valid = true;
@@ -44,6 +51,12 @@ function validate(): boolean {
 }
 
 async function handleSubmit() {
+  if (typeof navigator !== "undefined" && navigator.cookieEnabled === false) {
+    generalError.value =
+      "Os cookies estão desabilitados no seu navegador. Habilite os cookies para entrar.";
+    return;
+  }
+
   if (!validate()) return;
 
   loading.value = true;

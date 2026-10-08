@@ -1,12 +1,13 @@
 import { authApi } from "@/api";
 import { UserRole, type UserProfile } from "@/types";
+import { getAuthToken, removeAuthToken, setAuthToken } from "@/utils/cookie";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
 export const TOKEN_STORAGE_KEY = "token";
 
 export const useAuthStore = defineStore("auth", () => {
-  const token = ref<string | null>(localStorage.getItem(TOKEN_STORAGE_KEY));
+  const token = ref<string | null>(null);
   const user = ref<UserProfile | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -18,26 +19,38 @@ export const useAuthStore = defineStore("auth", () => {
   const isEquipe = computed(() => isAdmin.value || isVendedor.value);
 
   function setAuth(response: { token: string; user: UserProfile }): void {
+    const persisted = setAuthToken(response.token);
+    if (!persisted) {
+      throw new Error(
+        "Não foi possível salvar a sessão. Verifique se os cookies estão habilitados no navegador.",
+      );
+    }
+
     token.value = response.token;
+    const normalizedName = response.user.name || response.user.fullName || "";
     user.value = {
       ...response.user,
-      name: response.user.name || response.user.fullName || "",
+      name: normalizedName,
+      fullName: response.user.fullName || normalizedName,
     };
-    localStorage.setItem(TOKEN_STORAGE_KEY, response.token);
   }
 
   async function fetchCurrentUser(): Promise<void> {
-    if (!token.value) {
-      user.value = null;
+    const validToken = getAuthToken();
+    if (!validToken) {
+      await logout();
       return;
     }
 
+    token.value = validToken;
     loading.value = true;
     try {
       const profile = await authApi.me();
+      const normalizedName = profile.name || profile.fullName || "";
       user.value = {
         ...profile,
-        name: profile.name || profile.fullName || "",
+        name: normalizedName,
+        fullName: profile.fullName || normalizedName,
       };
     } catch {
       console.warn("Sessão expirada ou inválida, efetuando logout...");
@@ -51,7 +64,7 @@ export const useAuthStore = defineStore("auth", () => {
     user.value = null;
     token.value = null;
     error.value = null;
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    removeAuthToken();
   }
 
   return {
@@ -69,3 +82,5 @@ export const useAuthStore = defineStore("auth", () => {
     logout,
   };
 });
+
+export default useAuthStore;
