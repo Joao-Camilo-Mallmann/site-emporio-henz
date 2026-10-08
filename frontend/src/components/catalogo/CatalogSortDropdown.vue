@@ -54,19 +54,10 @@ function handleSelectChange(event: Event) {
         aria-hidden="true"
       >
         <!-- Ícone de setinhas verticais ⇅ / chevron duplo -->
-        <svg
+        <Icon
+          icon="mdi:unfold-more-horizontal"
           class="w-3.5 h-3.5 sm:w-4 sm:h-4"
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-        >
-          <path
-            d="M7 7l3-3 3 3M7 13l3 3 3-3"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
+        />
       </div>
     </div>
   </div>
