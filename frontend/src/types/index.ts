@@ -4,4 +4,5 @@ export * from "./components";
 export * from "./models";
 export * from "./suppliers";
 export * from "./users";
+export * from "./catalogo";
 

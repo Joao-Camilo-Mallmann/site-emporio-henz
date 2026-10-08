@@ -180,13 +180,15 @@ onMounted(() => {
           </p>
         </div>
 
-        <RouterLink
-          to="/admin/usuarios/novo"
-          class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary-hover text-white font-medium text-sm transition-colors shadow-xs shrink-0"
+        <UiButton
+          size="xl"
+          variant="secondary"
+          class="flex items-center gap-1.5 px-4 py-2 rounded-lg shadow-xs text-white font-medium text-sm transition-colors"
+          @click="$router.push('/admin/usuarios/novo')"
         >
           <Icon icon="mdi:account-plus" class="w-4 h-4" />
           <span>Novo Usuário</span>
-        </RouterLink>
+        </UiButton>
       </div>
 
       <!-- Barra de Filtros & Busca -->

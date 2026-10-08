@@ -818,7 +818,7 @@ Apresenta o catálogo público da Empório Henz conforme o layout do Figma. Poss
 
 #### ✅ Critérios de Aceitação
 
-- [ ] A alteração de filtros atualiza a listagem de produtos dinamicamente.
+- [x] A alteração de filtros atualiza a listagem de produtos dinamicamente.
 - [ ] Cards destacam com clareza a disponibilidade (Pronta Entrega na Loja ou Sob Encomenda).
 - [ ] Clique no card redireciona para a página de detalhe do produto selecionado.
 

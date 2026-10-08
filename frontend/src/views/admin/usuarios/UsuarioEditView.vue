@@ -139,8 +139,8 @@ onMounted(() => {
           <div class="flex items-center gap-2">
             <UiButton
               type="button"
-              variant="primary"
-              class="!bg-rose-600 hover:!bg-rose-700 !text-xs !py-1.5 !px-3"
+              variant="danger"
+              size="sm"
               @click="carregarUsuario"
             >
               Tentar Novamente

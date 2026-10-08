@@ -45,6 +45,7 @@ function handleCancel() {
       <!-- Breadcrumbs e Cabeçalho Limpo -->
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
+         
           <RouterLink to="/admin" class="hover:text-neutral-dark transition-colors">
             Painel
           </RouterLink>

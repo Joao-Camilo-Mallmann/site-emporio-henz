@@ -49,11 +49,15 @@ const comoFuncionaItems = [
       aria-label="Hero institucional Empório Henz"
     >
       <!-- Imagem de fundo do showroom com overlay escuro -->
-      <img
-        src="/images/about/showroom-loja.png"
-        alt="Showroom da Empório Henz"
-        class="absolute inset-0 w-full h-full object-cover object-center"
-      />
+      <picture class="absolute inset-0 w-full h-full">
+        <source srcset="/images/about/showroom-loja.webp" type="image/webp" />
+        <img
+          src="/images/about/showroom-loja.png"
+          alt="Showroom da Empório Henz"
+          class="w-full h-full object-cover object-center"
+          fetchpriority="high"
+        />
+      </picture>
       <div class="absolute inset-0 bg-primary/80 backdrop-blur-[1px]"></div>
 
       <!-- Botão Voltar (SPA) posicionado no topo esquerdo do Hero -->
@@ -154,11 +158,16 @@ const comoFuncionaItems = [
           <div
             class="w-full rounded-2xl overflow-hidden shadow-sm border border-stone-200/80"
           >
-            <img
-              src="/images/about/equipe-henz-alta.png"
-              alt="Fundadoras e Equipe Empório Henz"
-              class="w-full h-auto object-cover"
-            />
+            <picture>
+              <source srcset="/images/about/equipe-henz-alta.webp" type="image/webp" />
+              <img
+                src="/images/about/equipe-henz-alta.png"
+                alt="Fundadoras e Equipe Empório Henz"
+                class="w-full h-auto object-cover"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </div>
         </div>
       </section>

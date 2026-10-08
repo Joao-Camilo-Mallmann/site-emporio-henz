@@ -239,12 +239,7 @@ async function handleSubmit() {
 
         <!-- Botão Entrar -->
         <div class="pt-2">
-          <UiButton
-            type="submit"
-            variant="primary"
-            :disabled="loading"
-            class="w-full !py-3.5 !text-base"
-          >
+          <UiButton type="submit" block variant="primary" :disabled="loading">
             <span
               v-if="loading"
               class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
@@ -270,16 +265,12 @@ async function handleSubmit() {
         <!-- Link para Cadastro -->
         <div class="text-center pt-2 text-sm text-stone-600">
           Não tem cadastro?
-          <RouterLink
-            :to="
-              route.query.redirect
-                ? { path: '/cadastro', query: { redirect: route.query.redirect } }
-                : '/cadastro'
-            "
-            class="font-bold text-stone-900 hover:text-secondary-hover transition-colors ml-1"
-          >
-            Cadastre-se
-          </RouterLink>
+          <UiButton
+            variant="ghost"
+            size="sm"
+            block
+            @click="$router.push('/cadastro')"
+          />
         </div>
       </form>
     </div>

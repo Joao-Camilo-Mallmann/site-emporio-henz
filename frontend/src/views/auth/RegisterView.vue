@@ -403,8 +403,9 @@ async function handleSubmit() {
           <UiButton
             type="submit"
             variant="primary"
+            size="lg"
+            block
             :disabled="loading"
-            class="w-full !py-3.5 !text-base"
           >
             <span
               v-if="loading"
@@ -419,16 +420,7 @@ async function handleSubmit() {
         <!-- Link para Voltar ao Login -->
         <div class="text-center pt-2 text-sm text-stone-600">
           Já possui conta?
-          <RouterLink
-            :to="
-              route.query.redirect
-                ? { path: '/login', query: { redirect: route.query.redirect } }
-                : '/login'
-            "
-            class="font-bold text-stone-900 hover:text-secondary-hover transition-colors ml-1"
-          >
-            Entrar
-          </RouterLink>
+          <UiButton variant="ghost" size="sm" @click="$router.push('/login')" />
         </div>
       </form>
     </div>
