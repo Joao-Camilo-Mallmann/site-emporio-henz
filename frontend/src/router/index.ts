@@ -18,6 +18,14 @@ const router = createRouter({
       },
     },
     {
+      path: "/catalogo",
+      name: "catalogo",
+      component: () => import("@/views/CatalogoView.vue"),
+      meta: {
+        title: "Catálogo de Móveis | Empório Henz",
+      },
+    },
+    {
       path: "/login",
       name: "login",
       component: LoginView,

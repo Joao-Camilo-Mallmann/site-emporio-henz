@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { fornecedoresApi } from "@/api";
 import { useToast } from "@/composables/useToast";
-import type { ISupplier, SupplierCreateInput, SupplierUpdateInput } from "@/types";
+import type {
+  ISupplier,
+  SupplierCreateInput,
+  SupplierUpdateInput,
+} from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
-import { useRoute, useRouter, RouterLink } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 import FornecedorForm from "./FornecedorForm.vue";
 
 const route = useRoute();
@@ -43,14 +47,19 @@ async function carregarFornecedor() {
   }
 }
 
-async function handleUpdate(payload: SupplierCreateInput | SupplierUpdateInput) {
+async function handleUpdate(
+  payload: SupplierCreateInput | SupplierUpdateInput,
+) {
   if (!supplierId.value) return;
 
   saving.value = true;
   errorMessage.value = null;
 
   try {
-    await fornecedoresApi.atualizar(supplierId.value, payload as SupplierUpdateInput);
+    await fornecedoresApi.atualizar(
+      supplierId.value,
+      payload as SupplierUpdateInput,
+    );
     toast.success("Fornecedor atualizado com sucesso!");
     router.push("/admin/fornecedores");
   } catch (err: unknown) {
@@ -77,16 +86,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8">
+  <div
+    class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
+  >
     <div class="max-w-2xl mx-auto space-y-6">
       <!-- Breadcrumbs e Cabeçalho Limpo -->
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <RouterLink to="/admin" class="hover:text-neutral-dark transition-colors">
+          <RouterLink
+            to="/admin"
+            class="hover:text-neutral-dark transition-colors"
+          >
             Painel
           </RouterLink>
           <span>/</span>
-          <RouterLink to="/admin/fornecedores" class="hover:text-neutral-dark transition-colors">
+          <RouterLink
+            to="/admin/fornecedores"
+            class="hover:text-neutral-dark transition-colors"
+          >
             Fornecedores
           </RouterLink>
           <span>/</span>
@@ -102,7 +119,9 @@ onMounted(() => {
       </div>
 
       <!-- Container do Formulário -->
-      <div class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs">
+      <div
+        class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs"
+      >
         <!-- Estado de Carregamento Inicial -->
         <div
           v-if="loading"
@@ -120,23 +139,28 @@ onMounted(() => {
           class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center justify-between gap-4"
         >
           <div class="flex items-center gap-2.5">
-            <Icon icon="mdi:alert-circle-outline" class="w-5 h-5 text-rose-500 shrink-0" />
+            <Icon
+              icon="mdi:alert-circle-outline"
+              class="w-5 h-5 text-rose-500 shrink-0"
+            />
             <span>{{ initialError }}</span>
           </div>
           <div class="flex items-center gap-2">
-            <button
+            <UiButton
               type="button"
+              variant="danger"
+              size="sm"
               @click="carregarFornecedor"
-              class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition-colors cursor-pointer"
             >
               Tentar Novamente
-            </button>
-            <RouterLink
-              to="/admin/fornecedores"
-              class="px-3 py-1.5 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 font-medium text-xs transition-colors"
+            </UiButton>
+            <UiButton
+              variant="outline"
+              size="sm"
+              @click="$router.push('/admin/fornecedores')"
             >
               Voltar à Lista
-            </RouterLink>
+            </UiButton>
           </div>
         </div>
 

@@ -188,8 +188,11 @@ async function handleLogoutDrawer() {
 }
 
 function handleSearch() {
-  if (!searchQuery.value.trim()) return;
-  router.push({ path: "/", query: { q: searchQuery.value.trim() } });
+  if (!searchQuery.value.trim()) {
+    router.push("/catalogo");
+    return;
+  }
+  router.push({ path: "/catalogo", query: { name: searchQuery.value.trim() } });
 }
 
 function handleClickOutside(event: MouseEvent) {
@@ -274,19 +277,10 @@ onUnmounted(() => {
               class="absolute right-0 top-0 h-full px-3.5 flex items-center justify-center text-stone-400 hover:text-secondary hover:scale-110 transition-all cursor-pointer"
               aria-label="Buscar"
             >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <Icon
+                icon="mdi:magnify"
+                class="w-5 h-5 transition-transform duration-200"
+              />
             </button>
           </form>
         </div>
@@ -458,7 +452,9 @@ onUnmounted(() => {
                     icon="mdi:account-edit-outline"
                     class="w-4 h-4 text-stone-400 shrink-0"
                   />
-                  <span>{{ authStore.isAdmin ? 'Editar Usuário' : 'Meu Perfil' }}</span>
+                  <span>{{
+                    authStore.isAdmin ? "Editar Usuário" : "Meu Perfil"
+                  }}</span>
                 </RouterLink>
 
                 <RouterLink
@@ -542,19 +538,7 @@ onUnmounted(() => {
             @click="openDrawer"
             aria-label="Abrir menu de navegação"
           >
-            <svg
-              class="w-6 h-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+            <Icon icon="mdi:menu" class="w-5 h-5"></Icon>
           </button>
 
           <!-- Logo Centralizada (Figma node #3094:1333) -->
@@ -687,7 +671,7 @@ onUnmounted(() => {
           >
             <!-- Botão da Categoria -->
             <RouterLink
-              to="/"
+              :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
               class="flex items-center gap-1 font-medium text-white hover:bg-white/15 px-1 lg:px-3 py-1 rounded-md transition-all cursor-pointer"
             >
               <span>{{ cat.name }}</span>
@@ -719,7 +703,10 @@ onUnmounted(() => {
                 <RouterLink
                   v-for="sub in cat.subcategories"
                   :key="sub"
-                  to="/"
+                  :to="{
+                    path: '/catalogo',
+                    query: { categoria: cat.slug, subcategoria: sub },
+                  }"
                   @click="handleSubcategoryClick"
                   class="flex items-center justify-between px-3 py-1.5 text-xs text-stone-700 hover:bg-sky-50 hover:text-secondary rounded-lg transition-colors cursor-pointer group/item"
                 >
@@ -794,19 +781,7 @@ onUnmounted(() => {
                 class="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                 aria-label="Fechar menu"
               >
-                <svg
-                  class="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <Icon icon="mdi:close" class="w-5 h-5"></Icon>
               </button>
             </div>
 
@@ -839,9 +814,19 @@ onUnmounted(() => {
                   class="pb-3 pl-3 space-y-1 animate-in fade-in duration-200"
                 >
                   <RouterLink
+                    :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
+                    @click="closeDrawer"
+                    class="block py-1.5 px-2.5 text-xs font-semibold text-sky-200 hover:text-white hover:bg-white/15 rounded-md transition-colors"
+                  >
+                    Ver todos em {{ cat.name }} →
+                  </RouterLink>
+                  <RouterLink
                     v-for="sub in cat.subcategories"
                     :key="sub"
-                    to="/"
+                    :to="{
+                      path: '/catalogo',
+                      query: { categoria: cat.slug, subcategoria: sub },
+                    }"
                     @click="closeDrawer"
                     class="block py-1.5 px-2.5 text-sm text-white/90 hover:text-white hover:bg-white/15 rounded-md transition-colors"
                   >
@@ -920,9 +905,9 @@ onUnmounted(() => {
                 <RouterLink
                   :to="
                     authStore.isAuthenticated
-                      ? (authStore.isAdmin
+                      ? authStore.isAdmin
                         ? `/admin/usuarios/${authStore.user?.id}/editar`
-                        : '/perfil')
+                        : '/perfil'
                       : '/login'
                   "
                   @click="closeDrawer"
@@ -937,7 +922,8 @@ onUnmounted(() => {
                     class="w-5 h-5 text-white shrink-0"
                   />
                   <span v-if="authStore.isAuthenticated && authStore.user">
-                    {{ authStore.isAdmin ? 'Editar Usuário' : 'Meu Perfil' }} ({{ authStore.user.name.split(" ")[0] }})
+                    {{ authStore.isAdmin ? "Editar Usuário" : "Meu Perfil" }}
+                    ({{ authStore.user.name.split(" ")[0] }})
                   </span>
                   <span v-else>Minha conta</span>
                 </RouterLink>
@@ -959,19 +945,7 @@ onUnmounted(() => {
                   @click="closeDrawer"
                   class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
                 >
-                  <svg
-                    class="w-5 h-5 text-white shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                    />
-                  </svg>
+                  <Icon icon="mdi:login" class="w-5 h-5 text-white shrink-0" />
                   <span>Entrar</span>
                 </RouterLink>
               </div>

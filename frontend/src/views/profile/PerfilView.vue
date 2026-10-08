@@ -140,8 +140,8 @@ onMounted(() => {
           </div>
           <UiButton
             type="button"
-            variant="primary"
-            class="!bg-rose-600 hover:!bg-rose-700 !text-xs !py-1.5 !px-3"
+            variant="danger"
+            size="sm"
             @click="carregarPerfil"
           >
             Tentar Novamente

@@ -622,6 +622,7 @@ defineExpose({
       <UiButton
         variant="outline"
         type="button"
+        size="md"
         @click="emit('cancel')"
       >
         Cancelar
@@ -630,15 +631,11 @@ defineExpose({
       <UiButton
         variant="primary"
         type="submit"
+        size="md"
+        :loading="loading"
         :disabled="loading"
       >
-        <span
-          v-if="loading"
-          class="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"
-        ></span>
-        <span>
-          {{ isEditing ? "Salvar Alterações" : "Cadastrar Usuário" }}
-        </span>
+        {{ isEditing ? "Salvar Alterações" : "Cadastrar Usuário" }}
       </UiButton>
     </div>
   </form>

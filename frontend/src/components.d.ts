@@ -13,8 +13,13 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./components/layout/AppFooter.vue')['default']
     AppNavbar: typeof import('./components/layout/AppNavbar.vue')['default']
+    CatalogFilterSidebar: typeof import('./components/catalogo/CatalogFilterSidebar.vue')['default']
+    CatalogPagination: typeof import('./components/catalogo/CatalogPagination.vue')['default']
+    CatalogProductCard: typeof import('./components/catalogo/CatalogProductCard.vue')['default']
+    CatalogSortDropdown: typeof import('./components/catalogo/CatalogSortDropdown.vue')['default']
     HeroBannerDesktop: typeof import('./components/home/HeroBannerDesktop.vue')['default']
     HeroBannerMobile: typeof import('./components/home/HeroBannerMobile.vue')['default']
+    Icon: typeof import('@iconify/vue')['Icon']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UiButton: typeof import('./components/ui/UiButton.vue')['default']

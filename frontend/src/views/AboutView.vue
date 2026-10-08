@@ -49,11 +49,15 @@ const comoFuncionaItems = [
       aria-label="Hero institucional Empório Henz"
     >
       <!-- Imagem de fundo do showroom com overlay escuro -->
-      <img
-        src="/images/about/showroom-loja.png"
-        alt="Showroom da Empório Henz"
-        class="absolute inset-0 w-full h-full object-cover object-center"
-      />
+      <picture class="absolute inset-0 w-full h-full">
+        <source srcset="/images/about/showroom-loja.webp" type="image/webp" />
+        <img
+          src="/images/about/showroom-loja.png"
+          alt="Showroom da Empório Henz"
+          class="w-full h-full object-cover object-center"
+          fetchpriority="high"
+        />
+      </picture>
       <div class="absolute inset-0 bg-primary/80 backdrop-blur-[1px]"></div>
 
       <!-- Botão Voltar (SPA) posicionado no topo esquerdo do Hero -->
@@ -64,19 +68,7 @@ const comoFuncionaItems = [
           class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 backdrop-blur-xs cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-white/40"
           aria-label="Voltar para a página anterior"
         >
-          <svg
-            class="w-5 h-5 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2.2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-            />
-          </svg>
+          <Icon icon="mdi:arrow-left" class="w-5 h-5 text-white" />
         </button>
       </div>
 
@@ -154,11 +146,16 @@ const comoFuncionaItems = [
           <div
             class="w-full rounded-2xl overflow-hidden shadow-sm border border-stone-200/80"
           >
-            <img
-              src="/images/about/equipe-henz-alta.png"
-              alt="Fundadoras e Equipe Empório Henz"
-              class="w-full h-auto object-cover"
-            />
+            <picture>
+              <source srcset="/images/about/equipe-henz-alta.webp" type="image/webp" />
+              <img
+                src="/images/about/equipe-henz-alta.png"
+                alt="Fundadoras e Equipe Empório Henz"
+                class="w-full h-auto object-cover"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </div>
         </div>
       </section>

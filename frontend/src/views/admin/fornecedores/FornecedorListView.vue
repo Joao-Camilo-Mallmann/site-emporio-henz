@@ -134,13 +134,15 @@ onMounted(() => {
           </p>
         </div>
 
-        <RouterLink
-          to="/admin/fornecedores/novo"
-          class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary-hover text-white font-medium text-sm transition-colors shadow-xs shrink-0"
+        <UiButton
+          variant="secondary"
+          size="md"
+          class="shrink-0"
+          @click="$router.push('/admin/fornecedores/novo')"
         >
           <Icon icon="mdi:plus" class="w-4 h-4" />
           <span>Novo Fornecedor</span>
-        </RouterLink>
+        </UiButton>
       </div>
 
       <!-- Barra de Busca & Totais -->
@@ -186,13 +188,14 @@ onMounted(() => {
           <Icon icon="mdi:alert-circle-outline" class="w-5 h-5 text-rose-500 shrink-0" />
           <span>{{ error }}</span>
         </div>
-        <button
-          type="button"
+        <UiButton
+          variant="danger"
+          size="sm"
+          class="shrink-0"
           @click="carregarFornecedores"
-          class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition-colors shrink-0 cursor-pointer"
         >
           Tentar Novamente
-        </button>
+        </UiButton>
       </div>
 
       <!-- Estado Vazio -->
@@ -215,14 +218,16 @@ onMounted(() => {
               : "Ainda não há fornecedores parceiros cadastrados."
           }}
         </p>
-        <RouterLink
+        <UiButton
           v-if="!searchTerm"
-          to="/admin/fornecedores/novo"
-          class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-secondary text-white font-medium text-xs hover:bg-secondary-hover transition-colors"
+          variant="secondary"
+          size="sm"
+          class="mt-3.5"
+          @click="$router.push('/admin/fornecedores/novo')"
         >
           <Icon icon="mdi:plus" class="w-3.5 h-3.5" />
           <span>Cadastrar Primeiro Fornecedor</span>
-        </RouterLink>
+        </UiButton>
       </div>
 
       <!-- Tabela Clean de Fornecedores -->
@@ -278,22 +283,27 @@ onMounted(() => {
                 </td>
                 <td class="py-3 px-4 text-right">
                   <div class="inline-flex items-center gap-1">
-                    <RouterLink
-                      :to="`/admin/fornecedores/${supplier.id}/editar`"
-                      class="p-1.5 rounded-md text-stone-400 hover:text-secondary hover:bg-sky-50 transition-colors"
+                    <UiButton
+                      variant="ghost"
+                      size="icon"
+                      class="h-8 w-8 text-stone-400 hover:text-secondary hover:bg-sky-50"
                       title="Editar Fornecedor"
+                      aria-label="Editar Fornecedor"
+                      @click="$router.push(`/admin/fornecedores/${supplier.id}/editar`)"
                     >
                       <Icon icon="mdi:pencil-outline" class="w-4 h-4" />
-                    </RouterLink>
-                    <button
+                    </UiButton>
+                    <UiButton
                       v-if="supplier.active"
-                      type="button"
-                      @click="abrirModalExclusao(supplier)"
-                      class="p-1.5 rounded-md text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      variant="ghost"
+                      size="icon"
+                      class="h-8 w-8 text-stone-400 hover:text-rose-600 hover:bg-rose-50"
                       title="Desativar Fornecedor"
+                      aria-label="Desativar Fornecedor"
+                      @click="abrirModalExclusao(supplier)"
                     >
                       <Icon icon="mdi:trash-can-outline" class="w-4 h-4" />
-                    </button>
+                    </UiButton>
                   </div>
                 </td>
               </tr>

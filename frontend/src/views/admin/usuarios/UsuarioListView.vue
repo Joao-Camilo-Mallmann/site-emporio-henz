@@ -180,13 +180,15 @@ onMounted(() => {
           </p>
         </div>
 
-        <RouterLink
-          to="/admin/usuarios/novo"
-          class="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary-hover text-white font-medium text-sm transition-colors shadow-xs shrink-0"
+        <UiButton
+          size="md"
+          variant="secondary"
+          class="shrink-0"
+          @click="$router.push('/admin/usuarios/novo')"
         >
           <Icon icon="mdi:account-plus" class="w-4 h-4" />
           <span>Novo Usuário</span>
-        </RouterLink>
+        </UiButton>
       </div>
 
       <!-- Barra de Filtros & Busca -->
@@ -350,22 +352,27 @@ onMounted(() => {
                   </td>
                   <td class="py-3 px-4 text-right">
                     <div class="inline-flex items-center gap-1">
-                      <RouterLink
-                        :to="`/admin/usuarios/${user.id}/editar`"
-                        class="p-1.5 rounded-md text-stone-400 hover:text-secondary hover:bg-sky-50 transition-colors"
+                      <UiButton
+                        variant="ghost"
+                        size="icon"
+                        class="h-8 w-8 text-stone-400 hover:text-secondary hover:bg-sky-50"
                         title="Editar Usuário"
+                        aria-label="Editar Usuário"
+                        @click="$router.push(`/admin/usuarios/${user.id}/editar`)"
                       >
                         <Icon icon="mdi:pencil-outline" class="w-4 h-4" />
-                      </RouterLink>
-                      <button
+                      </UiButton>
+                      <UiButton
                         v-if="user.id !== authStore.user?.id"
-                        type="button"
-                        @click="abrirModalExclusao(user)"
-                        class="p-1.5 rounded-md text-stone-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        variant="ghost"
+                        size="icon"
+                        class="h-8 w-8 text-stone-400 hover:text-rose-600 hover:bg-rose-50"
                         title="Desativar Usuário"
+                        aria-label="Desativar Usuário"
+                        @click="abrirModalExclusao(user)"
                       >
                         <Icon icon="mdi:trash-can-outline" class="w-4 h-4" />
-                      </button>
+                      </UiButton>
                     </div>
                   </td>
                 </tr>
@@ -384,25 +391,27 @@ onMounted(() => {
           </span>
 
           <div class="flex items-center gap-2">
-            <button
-              type="button"
+            <UiButton
+              variant="outline"
+              size="sm"
               :disabled="currentPage <= 1 || loading"
+              aria-label="Página anterior"
               @click="carregarUsuarios(currentPage - 1)"
-              class="px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-1 cursor-pointer"
             >
               <Icon icon="mdi:chevron-left" class="w-3.5 h-3.5" />
               <span>Anterior</span>
-            </button>
+            </UiButton>
 
-            <button
-              type="button"
+            <UiButton
+              variant="outline"
+              size="sm"
               :disabled="currentPage >= totalPages || loading"
+              aria-label="Próxima página"
               @click="carregarUsuarios(currentPage + 1)"
-              class="px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-1 cursor-pointer"
             >
               <span>Próxima</span>
               <Icon icon="mdi:chevron-right" class="w-3.5 h-3.5" />
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>

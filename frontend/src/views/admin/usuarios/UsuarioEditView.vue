@@ -139,18 +139,19 @@ onMounted(() => {
           <div class="flex items-center gap-2">
             <UiButton
               type="button"
-              variant="primary"
-              class="!bg-rose-600 hover:!bg-rose-700 !text-xs !py-1.5 !px-3"
+              variant="danger"
+              size="sm"
               @click="carregarUsuario"
             >
               Tentar Novamente
             </UiButton>
-            <RouterLink
-              to="/admin/usuarios"
-              class="px-3 py-1.5 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 font-medium text-xs transition-colors"
+            <UiButton
+              variant="outline"
+              size="sm"
+              @click="$router.push('/admin/usuarios')"
             >
               Voltar à Lista
-            </RouterLink>
+            </UiButton>
           </div>
         </div>
 

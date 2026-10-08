@@ -160,31 +160,28 @@ function handleSubmit() {
       </label>
     </div>
 
-    <!-- Barra de Ações -->
+    <!-- Barra de Ações com UiButton -->
     <div
       class="pt-5 border-t border-stone-100 flex items-center justify-end gap-3"
     >
-      <button
+      <UiButton
+        variant="outline"
         type="button"
+        size="md"
         @click="emit('cancel')"
-        class="px-4 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-50 font-medium text-sm transition-colors cursor-pointer"
       >
         Cancelar
-      </button>
+      </UiButton>
 
-      <button
+      <UiButton
+        variant="primary"
         type="submit"
+        size="md"
+        :loading="loading"
         :disabled="loading"
-        class="px-5 py-2 rounded-lg bg-secondary hover:bg-secondary-hover text-white font-medium text-sm shadow-xs transition-colors flex items-center gap-2 disabled:opacity-60 cursor-pointer"
       >
-        <span
-          v-if="loading"
-          class="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"
-        ></span>
-        <span>
-          {{ isEditing ? "Salvar Alterações" : "Cadastrar Fornecedor" }}
-        </span>
-      </button>
+        {{ isEditing ? "Salvar Alterações" : "Cadastrar Fornecedor" }}
+      </UiButton>
     </div>
   </form>
 </template>
