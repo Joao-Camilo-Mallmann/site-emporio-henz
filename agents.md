@@ -4,7 +4,7 @@ Este arquivo funciona como roteador. Regras mutáveis devem viver em sua fonte c
 
 ## Hierarquia documental obrigatória
 
-Consulte nesta ordem:
+Consulte nesta ordem (QUANDO FOR NECESSÁRIO) para alinhar regras, requisitos e escopo da tarefa ou história de usuário:
 
 1. [`docs/PRD.md`](docs/PRD.md) — **única fonte da verdade (SSOT)** para visão, escopo, requisitos e regras de negócio.
 2. [`docs/padrao-historias-tarefas.md`](docs/padrao-historias-tarefas.md) — fonte normativa do processo de planejamento, decomposição e execução.

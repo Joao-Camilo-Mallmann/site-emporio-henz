@@ -239,12 +239,14 @@ async function handleSubmit() {
 
         <!-- Botão Entrar -->
         <div class="pt-2">
-          <UiButton type="submit" block variant="primary" :disabled="loading">
-            <span
-              v-if="loading"
-              class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
-            ></span>
-            <span>{{ loading ? "Entrando..." : "Entrar" }}</span>
+          <UiButton
+            type="submit"
+            size="lg"
+            variant="primary"
+            block
+            :loading="loading"
+          >
+            {{ loading ? "Entrando..." : "Entrar" }}
           </UiButton>
         </div>
 
@@ -263,14 +265,18 @@ async function handleSubmit() {
         </div>
 
         <!-- Link para Cadastro -->
-        <div class="text-center pt-2 text-sm text-stone-600">
-          Não tem cadastro?
+        <div
+          class="text-center pt-2 text-sm text-stone-600 flex items-center justify-center gap-1.5"
+        >
+          <span>Não tem cadastro?</span>
           <UiButton
-            variant="ghost"
-            size="sm"
-            block
+            variant="link"
+            size="none"
+            class="ml-1"
             @click="$router.push('/cadastro')"
-          />
+          >
+            Criar conta
+          </UiButton>
         </div>
       </form>
     </div>

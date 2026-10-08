@@ -2,7 +2,8 @@
 import UiButton from "@/components/ui/UiButton.vue";
 import type { CatalogFilterParams } from "@/types";
 import { Icon } from "@iconify/vue";
-import { computed, defineEmits, defineProps, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+
 
 const props = defineProps<{
   filters: CatalogFilterParams;
@@ -152,6 +153,7 @@ function toggleCategory(slug: string) {
     localSubcategoria.value = "";
   }
   emitFilterChange();
+  emit("apply");
 }
 
 function toggleSubcategory(sub: string) {
@@ -161,7 +163,9 @@ function toggleSubcategory(sub: string) {
     localSubcategoria.value = sub;
   }
   emitFilterChange();
+  emit("apply");
 }
+
 
 function toggleMaterial(mat: string) {
   const index = localMateriais.value.indexOf(mat);

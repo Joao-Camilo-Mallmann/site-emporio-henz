@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Rota Pública e Acesso Livre ao Catálogo
-O sistema DEVE disponibilizar a rota `/catalogo` como rota pública no Vue Router, acessível por qualquer visitante sem necessidade de autenticação, cookie de sessão ou login prévio.
+The system MUST provide the public route `/catalogo` in Vue Router, accessible by any visitor without requiring authentication, session cookies, or prior login.
 
 #### Scenario: Visitante anônimo acessa o catálogo diretamente
 - **WHEN** um visitante sem login navega para `/catalogo`
@@ -14,7 +14,7 @@ O sistema DEVE disponibilizar a rota `/catalogo` como rota pública no Vue Route
 ---
 
 ### Requirement: Integração com a Busca e Categorias da Navbar
-A barra de navegação global (`AppNavbar.vue`) DEVE direcionar as pesquisas textuais e os cliques em categorias para a página de catálogo `/catalogo`, passando os parâmetros apropriados na URL.
+The global navigation bar (`AppNavbar.vue`) MUST redirect textual searches and category navigation to the catalog page `/catalogo`, passing the corresponding query parameters in the URL.
 
 #### Scenario: Usuário digita na busca da navbar e pressiona enter
 - **WHEN** o usuário digita "Roupeiro" no campo de busca da navbar e submete o formulário
@@ -27,7 +27,7 @@ A barra de navegação global (`AppNavbar.vue`) DEVE direcionar as pesquisas tex
 ---
 
 ### Requirement: Barra Lateral de Filtros Reativa
-A tela de catálogo DEVE exibir uma barra lateral de filtros estruturada e segmentada por: Categoria, Subcategoria, Material, Cor/Acabamento, Marca e Faixa de Preço, conforme especificado no Figma nó `96:6513`.
+The catalog page MUST display a structured reactive filter sidebar segmented by Category, Subcategory, Material, Color/Finish, Brand, and Price Range, conforming to Figma node `96:6513`.
 
 #### Scenario: Seleção e remoção de chips de categoria e subcategoria
 - **WHEN** o usuário clica no chip "Quarto" e depois no chip "Roupeiros"
@@ -50,7 +50,7 @@ A tela de catálogo DEVE exibir uma barra lateral de filtros estruturada e segme
 ---
 
 ### Requirement: Grid de Produtos e Card com Indicador de Acabamentos
-O catálogo DEVE renderizar os produtos em um grid responsivo (3 colunas em desktop), utilizando cards fiéis ao Figma (`#12:2374`) com foto 1:1, badge de acabamentos/cores sobreposta, nome do móvel, preço em destaque e condição de parcelamento.
+The catalog MUST render products in a responsive grid using cards conforming to Figma `#12:2374` with 1:1 image, finishes badge, furniture name, price in highlight, and installment condition.
 
 #### Scenario: Exibição correta do card de produto
 - **WHEN** o grid renderiza um produto com múltiplas variações de acabamento
@@ -59,7 +59,7 @@ O catálogo DEVE renderizar os produtos em um grid responsivo (3 colunas em desk
 ---
 
 ### Requirement: Ordenação e Resumo dos Resultados
-A tela de catálogo DEVE apresentar o resumo da consulta atual ("Exibindo resultados para ...") e um dropdown seletor de ordenação.
+The catalog page MUST present a search results summary ("Exibindo resultados para ...") and a sort order dropdown selector.
 
 #### Scenario: Alteração da ordem de exibição
 - **WHEN** o usuário altera a ordenação de "Relevância" para "Menor Preço"
@@ -68,11 +68,15 @@ A tela de catálogo DEVE apresentar o resumo da consulta atual ("Exibindo result
 ---
 
 ### Requirement: Desacoplamento para Parâmetros GET e Paginação Futura
-O componente e as estruturas de dados DEVEM ser desacoplados através de tipos e contratos TypeScript (`CatalogFilterParams`, `CatalogProductItem`, `CatalogPaginationMeta`), permitindo a injeção de parâmetros de consulta `GET` e paginação sem acoplamento a regras duras de backend no estado inicial.
+The system MUST decouple component data structures using TypeScript contracts (`CatalogFilterParams`, `CatalogProductItem`, `CatalogPaginationMeta`, `CatalogResponse`) and dispatch GET requests with query parameters without client-side in-memory filtering.
 
 #### Scenario: Estrutura preparada para parâmetros GET
 - **WHEN** o componente inicializa ou atualiza seus filtros
 - **THEN** o estado é estruturado em um formato serializável pronto para query string de requisição `GET` (`q`, `categoria`, `subcategoria`, `material`, `cor`, `marca`, `minPreco`, `maxPreco`, `ordem`, `page`, `limit`)
+
+#### Scenario: Despacho de requisição GET sem filtragem em memória no cliente
+- **WHEN** o usuário seleciona ou altera qualquer filtro no catálogo
+- **THEN** a view despacha a requisição `GET` com os parâmetros serializados via cliente de API, sem executar filtragem ou ordenação em memória via `computed`, renderizando os produtos recebidos e utilizando fallback estático mockado para desenvolvimento
 
 #### Scenario: Navegação de paginação modular
 - **WHEN** o componente de paginação recebe a página atual e o total de páginas
@@ -81,8 +85,9 @@ O componente e as estruturas de dados DEVEM ser desacoplados através de tipos e
 ---
 
 ### Requirement: Conformidade com Design System e Componente UiButton
-Todos os botões de ação na barra de filtros, paginação e cabeçalho do catálogo DEVEM utilizar o componente global `<UiButton>` nas variantes semânticas do tema Tailwind (`style.css`), sendo vedado o uso de tags `<button>` nativas soltas.
+All interactive action buttons in the filter sidebar, pagination, and catalog header MUST use the global `<UiButton>` component in semantic theme variants without raw `<button>` tags.
 
 #### Scenario: Renderização de botões de ação com UiButton
 - **WHEN** a barra lateral de filtros renderiza as ações "Filtrar" e "Limpar filtros"
 - **THEN** os elementos utilizam `<UiButton variant="primary">` e `<UiButton variant="outline">` respectivamente
+

@@ -44,3 +44,9 @@ export interface CatalogPaginationMeta {
   totalItems: number;
   itemsPerPage: number;
 }
+
+export interface CatalogResponse {
+  items: CatalogProductItem[];
+  meta: CatalogPaginationMeta;
+}
+

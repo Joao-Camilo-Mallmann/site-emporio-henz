@@ -418,9 +418,16 @@ async function handleSubmit() {
         </div>
 
         <!-- Link para Voltar ao Login -->
-        <div class="text-center pt-2 text-sm text-stone-600">
-          Já possui conta?
-          <UiButton variant="ghost" size="sm" @click="$router.push('/login')" />
+        <div class="text-center pt-2 text-sm text-stone-600 flex items-center justify-center gap-1.5">
+          <span>Já possui conta?</span>
+          <UiButton
+            variant="link"
+            size="none"
+            class="ml-1"
+            @click="$router.push('/login')"
+          >
+            Fazer login
+          </UiButton>
         </div>
       </form>
     </div>

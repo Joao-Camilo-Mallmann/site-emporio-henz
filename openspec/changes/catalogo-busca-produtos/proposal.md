@@ -22,9 +22,12 @@ Esta mudança implementa a página de catálogo e busca pública conforme o Figm
 - **Barra de Ordenação e Resumo da Busca**:
   - Indicador do termo pesquisado (`Exibindo resultados para "..."`).
   - Dropdown de ordenação com opções: Relevância, Menor Preço, Maior Preço, Mais Recentes.
-- **Preparação de Contratos de Dados e Paginação**:
-  - Criação de tipos TypeScript estruturados (`CatalogFilterParams`, `CatalogProductItem`, `CatalogPaginationMeta`) desacoplados, prontos para plugar a requisição `GET` da API no futuro.
-  - Componente de paginação modular (`CatalogPagination.vue`) preparado para receber página atual e contagem total.
+- **Preparação de Contratos de Dados, API REST e Mock Estático**:
+  - Criação de tipos TypeScript estruturados (`CatalogFilterParams`, `CatalogProductItem`, `CatalogPaginationMeta`, `CatalogResponse`) desacoplados.
+  - Implementação de cliente de API `src/api/catalogo.ts` e massa estática `src/mocks/catalogo.ts` para envio de requisições `GET` com os parâmetros de consulta e fallback mockado para desenvolvimento/testes.
+  - Remoção de qualquer lógica de filtragem em memória no cliente (`computed`), delegando a responsabilidade de filtro para a API REST.
+  - Componente de paginação modular (`CatalogPagination.vue`) preparado para receber página atual e contagem total diretamente da resposta da API.
+
 
 ## Capabilities
 

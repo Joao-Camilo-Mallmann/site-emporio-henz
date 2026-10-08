@@ -4,6 +4,7 @@ import CatalogPagination from "@/components/catalogo/CatalogPagination.vue";
 import CatalogProductCard from "@/components/catalogo/CatalogProductCard.vue";
 import CatalogSortDropdown from "@/components/catalogo/CatalogSortDropdown.vue";
 import UiButton from "@/components/ui/UiButton.vue";
+import { catalogoApi } from "@/api/catalogo";
 import type {
   CatalogFilterParams,
   CatalogPaginationMeta,
@@ -19,8 +20,9 @@ const router = useRouter();
 
 // Drawer mobile de filtros
 const isMobileFiltersOpen = ref(false);
+const isLoading = ref(false);
 
-// Filtros principais reativos
+// Filtros principais reativos sincronizados com a rota e enviados na requisição GET da API REST
 const filters = ref<CatalogFilterParams>({
   name: "",
   categoria: "",
@@ -35,205 +37,36 @@ const filters = ref<CatalogFilterParams>({
   limit: 9,
 });
 
-// Banco de dados em memória desacoplado (pronto para ser substituído por GET /api/v1/catalogo)
-const allProducts: CatalogProductItem[] = [
-  {
-    id: "p-1",
-    name: "Roupeiro Roma",
-    slug: "roupeiro-roma",
-    price: 4850,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-veneza.png",
-    category: "quarto",
-    subcategory: "Roupeiros",
-    material: "MDF",
-    brand: "Móveis primavera",
-    finishes: [
-      { color: "#4A3024", label: "Imbuia Escura" },
-      { color: "#A58D63", label: "Carvalho Claro" },
-    ],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-2",
-    name: "Roupeiro Veneza",
-    slug: "roupeiro-veneza",
-    price: 7300,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-veneza.png",
-    category: "quarto",
-    subcategory: "Roupeiros",
-    material: "Madeira maciça",
-    brand: "DJ Móveis",
-    finishes: [
-      { color: "#4A3024", label: "Madeira Nobre" },
-      { color: "#A58D63", label: "Champagne" },
-    ],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-3",
-    name: "Guarda-roupa Nest",
-    slug: "guarda-roupa-nest",
-    price: 4000,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-milano.png",
-    category: "quarto",
-    subcategory: "Roupeiros",
-    material: "MDF",
-    brand: "HB",
-    finishes: [],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-4",
-    name: "Roupeiro Milano",
-    slug: "roupeiro-milano",
-    price: 4900,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-milano.png",
-    category: "quarto",
-    subcategory: "Roupeiros",
-    material: "MDF",
-    brand: "DJ Móveis",
-    finishes: [
-      { color: "#4A3024", label: "Freijó Âmbar" },
-      { color: "#A58D63", label: "Carvalho Claro" },
-    ],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-5",
-    name: "Guarda-roupa Topázio",
-    slug: "guarda-roupa-topazio",
-    price: 5100,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-comoda-italia.png",
-    category: "quarto",
-    subcategory: "Roupeiros",
-    material: "MDP",
-    brand: "Patrimar",
-    finishes: [],
-    availability: "ON_DEMAND",
-  },
-  {
-    id: "p-6",
-    name: "Guarda-roupa Ouro",
-    slug: "guarda-roupa-ouro",
-    price: 7300,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-cristaleira.png",
-    category: "quarto",
-    subcategory: "Roupeiros",
-    material: "Madeira maciça",
-    brand: "Móveis primavera",
-    finishes: [],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-7",
-    name: "Cabeceira Itália",
-    slug: "cabeceira-italia",
-    price: 550,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-cabeceira-italia.png",
-    category: "quarto",
-    subcategory: "Cabeceiras",
-    material: "MDF",
-    brand: "DJ Móveis",
-    finishes: [
-      { color: "#A58D63", label: "Linho Areia" },
-      { color: "#2B2B2B", label: "Cinza Chumbo" },
-    ],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-8",
-    name: "Cômoda Itália",
-    slug: "comoda-italia",
-    price: 1500,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-comoda-italia.png",
-    category: "quarto",
-    subcategory: "Cômodas",
-    material: "MDP",
-    brand: "HB",
-    finishes: [
-      { color: "#4A3024", label: "Carvalho Escuro" },
-      { color: "#A58D63", label: "Freijó Claro" },
-    ],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-9",
-    name: "Mesa de Centro Pétala",
-    slug: "mesa-de-centro-petala",
-    price: 720,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-mesa-petala.png",
-    category: "sala-de-estar",
-    subcategory: "Mesas de Centro",
-    material: "Madeira maciça",
-    brand: "Patrimar",
-    finishes: [
-      { color: "#C97C49", label: "Cerejeira" },
-      { color: "#EFC171", label: "Mel" },
-      { color: "#D7D5CF", label: "Off White" },
-    ],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-10",
-    name: "Home Ripado Supremo",
-    slug: "home-ripado-supremo",
-    price: 1550,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-home-ripado.png",
-    category: "sala-de-estar",
-    subcategory: "Racks e Painéis",
-    material: "MDF",
-    brand: "Móveis primavera",
-    finishes: [
-      { color: "#A58D63", label: "Nogueira" },
-      { color: "#4A3024", label: "Imbuia Escura" },
-    ],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-11",
-    name: "Poltrona Tissi",
-    slug: "poltrona-tissi",
-    price: 2370,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-poltrona-tissi.png",
-    category: "sala-de-estar",
-    subcategory: "Poltronas",
-    material: "Madeira maciça",
-    brand: "DJ Móveis",
-    finishes: [
-      { color: "#4A3024", label: "Madeira Nobre" },
-      { color: "#A58D63", label: "Linho Bege" },
-      { color: "#2B2B2B", label: "Couro Preto" },
-    ],
-    availability: "IN_STOCK",
-  },
-  {
-    id: "p-12",
-    name: "Cristaleira Liara",
-    slug: "cristaleira-liara",
-    price: 1900,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-cristaleira.png",
-    category: "sala-de-jantar",
-    subcategory: "Cristaleiras",
-    material: "MDF",
-    brand: "HB",
-    finishes: [],
-    availability: "IN_STOCK",
-  },
-];
+// Lista de produtos e metadados de paginação recebidos da resposta da API REST (sem filtragem no front)
+const products = ref<CatalogProductItem[]>([]);
+const paginationMeta = ref<CatalogPaginationMeta>({
+  currentPage: 1,
+  totalPages: 1,
+  totalItems: 0,
+  itemsPerPage: 9,
+});
 
-// Sincroniza estado de filtros a partir da rota
+// Dispara requisição GET com parâmetros para a API REST
+async function fetchProducts() {
+  isLoading.value = true;
+  try {
+    const response = await catalogoApi.buscarProdutos(filters.value);
+    products.value = response.items;
+    paginationMeta.value = response.meta;
+  } catch {
+    products.value = [];
+    paginationMeta.value = {
+      currentPage: filters.value.page || 1,
+      totalPages: 1,
+      totalItems: 0,
+      itemsPerPage: 9,
+    };
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+// Sincroniza estado de filtros a partir dos parâmetros de consulta da rota (query GET)
 function syncFiltersFromRoute() {
   const name =
     typeof route.query.name === "string"
@@ -247,153 +80,74 @@ function syncFiltersFromRoute() {
     typeof route.query.subcategoria === "string"
       ? route.query.subcategoria
       : "";
+  const materiais =
+    typeof route.query.materiais === "string"
+      ? route.query.materiais.split(",").filter(Boolean)
+      : [];
+  const cores =
+    typeof route.query.cores === "string"
+      ? route.query.cores.split(",").filter(Boolean)
+      : [];
+  const marcas =
+    typeof route.query.marcas === "string"
+      ? route.query.marcas.split(",").filter(Boolean)
+      : [];
+  const minPreco =
+    typeof route.query.minPreco === "string"
+      ? parseFloat(route.query.minPreco)
+      : undefined;
+  const maxPreco =
+    typeof route.query.maxPreco === "string"
+      ? parseFloat(route.query.maxPreco)
+      : undefined;
   const ordem = (route.query.ordem as CatalogSortOption) || "relevancia";
   const page = route.query.page ? parseInt(route.query.page as string, 10) : 1;
 
   filters.value = {
-    ...filters.value,
     name: name || undefined,
     categoria: categoria || undefined,
     subcategoria: subcategoria || undefined,
+    materiais,
+    cores,
+    marcas,
+    minPreco: isNaN(minPreco as number) ? undefined : minPreco,
+    maxPreco: isNaN(maxPreco as number) ? undefined : maxPreco,
     ordem,
     page: isNaN(page) ? 1 : page,
+    limit: 9,
   };
 }
 
 onMounted(() => {
   syncFiltersFromRoute();
+  fetchProducts();
 });
 
 watch(
   () => route.query,
   () => {
     syncFiltersFromRoute();
+    fetchProducts();
   },
 );
 
-// Produtos filtrados e ordenados reativamente
-const filteredProducts = computed(() => {
-  return allProducts
-    .filter((product) => {
-      // 1. Busca textual por nome, subcategoria ou categoria
-      if (filters.value.name && filters.value.name.trim()) {
-        const q = filters.value.name.toLowerCase().trim();
-        const matchName = product.name.toLowerCase().includes(q);
-        const matchSub = product.subcategory?.toLowerCase().includes(q);
-        const matchCat = product.category.toLowerCase().includes(q);
-        if (!matchName && !matchSub && !matchCat) return false;
-      }
-
-      // 2. Filtro de Categoria
-      if (
-        filters.value.categoria &&
-        product.category.toLowerCase() !== filters.value.categoria.toLowerCase()
-      ) {
-        return false;
-      }
-
-      // 3. Filtro de Subcategoria
-      if (
-        filters.value.subcategoria &&
-        product.subcategory?.toLowerCase() !==
-          filters.value.subcategoria.toLowerCase()
-      ) {
-        return false;
-      }
-
-      // 4. Filtro de Materiais
-      if (
-        filters.value.materiais &&
-        filters.value.materiais.length > 0 &&
-        (!product.material ||
-          !filters.value.materiais.includes(product.material))
-      ) {
-        return false;
-      }
-
-      // 5. Filtro de Cores
-      if (
-        filters.value.cores &&
-        filters.value.cores.length > 0 &&
-        !product.finishes.some(
-          (f) => f.color && filters.value.cores!.includes(f.color),
-        )
-      ) {
-        return false;
-      }
-
-      // 6. Filtro de Marcas
-      if (
-        filters.value.marcas &&
-        filters.value.marcas.length > 0 &&
-        (!product.brand || !filters.value.marcas.includes(product.brand))
-      ) {
-        return false;
-      }
-
-      // 7. Faixa de Preço
-      if (
-        typeof filters.value.minPreco === "number" &&
-        !isNaN(filters.value.minPreco) &&
-        product.price < filters.value.minPreco
-      ) {
-        return false;
-      }
-      if (
-        typeof filters.value.maxPreco === "number" &&
-        !isNaN(filters.value.maxPreco) &&
-        product.price > filters.value.maxPreco
-      ) {
-        return false;
-      }
-
-      return true;
-    })
-    .sort((a, b) => {
-      if (filters.value.ordem === "menor-preco") {
-        return a.price - b.price;
-      }
-      if (filters.value.ordem === "maior-preco") {
-        return b.price - a.price;
-      }
-      if (filters.value.ordem === "recentes") {
-        return b.id.localeCompare(a.id);
-      }
-      return 0;
-    });
-});
-
-// Paginação sobre os produtos filtrados
-const itemsPerPage = 9;
-const totalPages = computed(() => {
-  return Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage));
-});
-
-const paginatedProducts = computed(() => {
-  const current = filters.value.page || 1;
-  const start = (current - 1) * itemsPerPage;
-  return filteredProducts.value.slice(start, start + itemsPerPage);
-});
-
-const paginationMeta = computed<CatalogPaginationMeta>(() => ({
-  currentPage: filters.value.page || 1,
-  totalPages: totalPages.value,
-  totalItems: filteredProducts.value.length,
-  itemsPerPage,
-}));
-
 function handlePageChange(newPage: number) {
   filters.value.page = newPage;
+  updateRouteQuery();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function handleSortChange(newSort: CatalogSortOption) {
   filters.value.ordem = newSort;
   filters.value.page = 1;
+  updateRouteQuery();
 }
 
 function handleFiltersUpdate(updated: CatalogFilterParams) {
   filters.value = { ...updated, page: 1 };
+}
+
+function handleApplyFilters() {
   updateRouteQuery();
 }
 
@@ -403,6 +157,18 @@ function updateRouteQuery() {
   if (filters.value.categoria) query.categoria = filters.value.categoria;
   if (filters.value.subcategoria)
     query.subcategoria = filters.value.subcategoria;
+  if (filters.value.materiais?.length)
+    query.materiais = filters.value.materiais.join(",");
+  if (filters.value.cores?.length)
+    query.cores = filters.value.cores.join(",");
+  if (filters.value.marcas?.length)
+    query.marcas = filters.value.marcas.join(",");
+  if (filters.value.minPreco !== undefined && !isNaN(filters.value.minPreco)) {
+    query.minPreco = String(filters.value.minPreco);
+  }
+  if (filters.value.maxPreco !== undefined && !isNaN(filters.value.maxPreco)) {
+    query.maxPreco = String(filters.value.maxPreco);
+  }
   if (filters.value.ordem && filters.value.ordem !== "relevancia") {
     query.ordem = filters.value.ordem;
   }
@@ -520,7 +286,7 @@ const activeFiltersCount = computed(() => {
           <CatalogFilterSidebar
             :filters="filters"
             @update:filters="handleFiltersUpdate"
-            @apply="updateRouteQuery"
+            @apply="handleApplyFilters"
             @reset="handleResetFilters"
           />
         </div>
@@ -564,13 +330,29 @@ const activeFiltersCount = computed(() => {
             </div>
           </div>
 
+          <!-- Estado de Carregamento (Skeleton) -->
+          <div
+            v-if="isLoading"
+            class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"
+          >
+            <div
+              v-for="n in 6"
+              :key="n"
+              class="bg-stone-50 rounded-2xl p-4 animate-pulse h-80 flex flex-col justify-between border border-stone-100"
+            >
+              <div class="w-full h-48 bg-stone-200 rounded-xl"></div>
+              <div class="h-4 bg-stone-200 rounded w-3/4 mt-4"></div>
+              <div class="h-6 bg-stone-200 rounded w-1/2 mt-2"></div>
+            </div>
+          </div>
+
           <!-- Grid de Produtos Responsivo (2 colunas no mobile, 3 no desktop) -->
           <div
-            v-if="paginatedProducts.length > 0"
+            v-else-if="products.length > 0"
             class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"
           >
             <CatalogProductCard
-              v-for="prod in paginatedProducts"
+              v-for="prod in products"
               :key="prod.id"
               :product="prod"
             />
@@ -605,7 +387,7 @@ const activeFiltersCount = computed(() => {
           </div>
 
           <!-- Paginação -->
-          <div v-if="paginatedProducts.length > 0" class="mt-8">
+          <div v-if="products.length > 0 && !isLoading" class="mt-8">
             <CatalogPagination
               :meta="paginationMeta"
               @change-page="handlePageChange"
@@ -641,7 +423,7 @@ const activeFiltersCount = computed(() => {
             :filters="filters"
             @update:filters="handleFiltersUpdate"
             @apply="
-              updateRouteQuery();
+              handleApplyFilters();
               isMobileFiltersOpen = false;
             "
             @reset="
@@ -652,5 +434,6 @@ const activeFiltersCount = computed(() => {
         </div>
       </div>
     </Teleport>
+
   </main>
 </template>

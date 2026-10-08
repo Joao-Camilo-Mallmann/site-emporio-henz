@@ -1,5 +1,11 @@
 export type ButtonVariant =
-  "primary" | "secondary" | "outline" | "ghost" | "danger" | "custom";
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "danger"
+  | "link"
+  | "custom";
 export type ButtonType = "button" | "submit" | "reset";
 
 export interface UiButtonProps {

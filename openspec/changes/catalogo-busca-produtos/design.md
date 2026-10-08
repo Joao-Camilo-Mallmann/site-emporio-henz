@@ -53,6 +53,13 @@ O usuário solicitou que a tela seja pública (livre de tokens ou requisitos de 
 
 - **Decisão**: Usar `<UiButton>` para todos os botões da sidebar (_"Filtrar"_ com `variant="primary"` e _"Limpar filtros"_ com `variant="outline"`) e botões de paginação, conforme diretriz mandatória de `frontend/agents.md`.
 
+### 5. Filtragem Delegada ao Backend via Parâmetros GET (Sem Filtragem Local no Cliente)
+
+- **Decisão**: A filtragem e ordenação dos produtos é responsabilidade da camada REST. O frontend (`CatalogoView.vue`) não realiza processamento em memória com `computed(() => allProducts.filter(...))`; ele apenas despacha a chamada `GET` através do cliente `catalogoApi.buscarProdutos(filters)` com os parâmetros serializados (`name`/`q`, `categoria`, `subcategoria`, `materiais`, `cores`, `marcas`, `minPreco`, `maxPreco`, `ordem`, `page`, `limit`). Para manter a aplicação plenamente visualizável e desacoplada de persistência real nesta etapa, o serviço implementa fallback estático mockado em `src/mocks/catalogo.ts`.
+- **Alternativas consideradas**:
+  - Filtragem local em memória no frontend com `allProducts.filter(...)`: Descartado, pois viola o padrão de consumo REST, ignora os parâmetros no backend e impede paginação real do servidor.
+
+
 ## Risks / Trade-offs
 
 - **[Risco] Incompatibilidade com contratos futuros da API do backend** → **Mitigação**: O contrato `CatalogFilterParams` foi desenhado seguindo exatamente as especificações do PRD (RF05, RNF01) e do DER (nomes das tabelas `categories`, `product_subtypes`, `suppliers`, etc.).

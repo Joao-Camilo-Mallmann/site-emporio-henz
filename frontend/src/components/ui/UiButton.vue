@@ -22,36 +22,38 @@ const emit = defineEmits<{
     :disabled="props.disabled || props.loading"
     :aria-busy="props.loading"
     :class="[
-      // Base estrutural e alinhamento
-      'items-center justify-center font-medium transition-all duration-150 ease-out select-none',
+      // Alinhamento, transição e layout estrutural
+      'items-center justify-center font-medium transition-all duration-150 ease-out select-none text-center',
       'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
       'disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none disabled:transform-none',
-      props.block ? 'flex w-full' : 'inline-flex',
+      props.block ? 'w-full flex' : 'inline-flex',
       props.loading ? 'cursor-wait' : 'cursor-pointer active:scale-[0.98]',
 
-      // Escala dinâmica de tamanhos
-      props.size === 'xs' &&
-        'h-7 px-2.5 rounded-md text-xs gap-1.5 tracking-tight',
-      props.size === 'sm' && 'h-8.5 px-3.5 rounded-lg text-xs gap-2',
-      props.size === 'md' && 'h-10 px-4.5 rounded-lg text-sm gap-2',
+      // Escala limpa e padronizada de tamanhos com cantos mais arredondados e padding proporcional
+      props.size === 'xs' && 'h-8 px-3 rounded-lg text-xs gap-1.5',
+      props.size === 'sm' && 'h-9 px-4 rounded-xl text-xs sm:text-sm gap-2',
+      props.size === 'md' && 'h-11 px-5 rounded-xl text-sm gap-2.5',
       props.size === 'lg' &&
-        'h-11.5 px-5.5 rounded-xl text-base gap-2.5 font-medium',
+        'h-12 px-6 rounded-2xl text-base gap-3 font-medium',
       props.size === 'xl' &&
-        'h-13 px-6.5 rounded-xl text-base sm:text-lg gap-3 font-semibold',
+        'h-14 px-8 rounded-2xl text-base sm:text-lg gap-3.5 font-semibold',
       props.size === 'icon' &&
-        'h-10 w-10 p-0 rounded-lg text-sm aspect-square shrink-0',
+        'h-11 w-11 p-0 rounded-xl text-sm aspect-square shrink-0',
+      props.size === 'none' && 'p-0 rounded-none',
 
-      // Variantes de cores e superfícies alinhadas ao Design System
+      // Variantes refinadas de superfícies, bordas e cores
       props.variant === 'primary' &&
-        'bg-primary text-white hover:bg-primary-dark active:bg-primary-dark/95 shadow-xs hover:shadow-sm focus-visible:ring-primary',
+        'bg-primary text-white border border-transparent hover:bg-primary-dark active:bg-primary-dark/95 shadow-xs hover:shadow-sm focus-visible:ring-primary',
       props.variant === 'secondary' &&
-        'bg-secondary text-white hover:bg-secondary-hover active:bg-secondary-hover/95 shadow-xs hover:shadow-sm focus-visible:ring-secondary',
+        'bg-secondary text-white border border-transparent hover:bg-secondary-hover active:bg-secondary-hover/95 shadow-xs hover:shadow-sm focus-visible:ring-secondary',
       props.variant === 'outline' &&
-        'border border-stone-300 bg-white text-stone-800 hover:bg-stone-50 hover:border-stone-400 active:bg-stone-100 shadow-2xs hover:shadow-xs focus-visible:ring-stone-400',
+        'border border-stone-300 bg-white text-stone-700 hover:border-secondary hover:text-secondary hover:bg-stone-50 active:bg-stone-100 shadow-2xs hover:shadow-xs focus-visible:ring-secondary',
       props.variant === 'ghost' &&
-        'bg-transparent text-stone-600 hover:text-stone-900 hover:bg-stone-100/70 active:bg-stone-200/60 focus-visible:ring-stone-300',
+        'border border-transparent bg-transparent text-stone-700 hover:text-stone-900 hover:bg-stone-100/80 active:bg-stone-200/70 focus-visible:ring-stone-400',
       props.variant === 'danger' &&
-        'bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 shadow-xs hover:shadow-sm focus-visible:ring-rose-500',
+        'bg-rose-600 text-white border border-transparent hover:bg-rose-700 active:bg-rose-800 shadow-xs hover:shadow-sm focus-visible:ring-rose-500',
+      props.variant === 'link' &&
+        'border-none bg-transparent text-secondary hover:text-secondary-hover underline-offset-4 hover:underline p-0 h-auto font-semibold focus-visible:ring-secondary',
       props.variant === 'custom' && 'focus-visible:ring-secondary',
     ]"
     @click="(e) => emit('click', e)"

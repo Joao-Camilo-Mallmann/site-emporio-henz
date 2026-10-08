@@ -1,7 +1,8 @@
 ## 1. Contratos de Dados e Tipos TypeScript (`[FE]`)
 
-- [x] 1.1 Criar `src/types/catalogo.ts` com interfaces tipadas `CatalogFilterParams`, `CatalogProductItem`, `CatalogVariationBadge` e `CatalogPaginationMeta`, desacopladas e prontas para requisições GET futuras
+- [x] 1.1 Criar `src/types/catalogo.ts` com interfaces tipadas `CatalogFilterParams`, `CatalogProductItem`, `CatalogVariationBadge`, `CatalogPaginationMeta` e `CatalogResponse`
 - [x] 1.2 Exportar os novos contratos no barrel `src/types/index.ts`
+- [x] 1.3 Criar massa estática `src/mocks/catalogo.ts` e cliente `src/api/catalogo.ts` integrado ao `src/api/index.ts` para despachar requisições GET com parâmetros e fallback mockado
 
 ## 2. Componentes Especializados do Catálogo (`[FE]`)
 
@@ -12,9 +13,10 @@
 
 ## 3. View Principal e Integração de Rotas (`[FE]`)
 
-- [x] 3.1 Criar `src/views/CatalogoView.vue` com layout em 2 colunas desktop (`1536px`), drawer de filtros para mobile, estado reativo desacoplado e grid de produtos
+- [x] 3.1 Criar `src/views/CatalogoView.vue` consumindo `catalogoApi.buscarProdutos` com parâmetros GET (sem filtragem client-side por `computed`), skeleton de carregamento, layout desktop e drawer mobile
 - [x] 3.2 Registrar a rota pública `/catalogo` em `src/router/index.ts` sem restrição de autenticação
 - [x] 3.3 Atualizar `src/components/layout/AppNavbar.vue` para redirecionar as pesquisas do formulário de busca e os links de categorias para a rota `/catalogo` com parâmetros de consulta
+
 
 ## 4. Validação e Qualidade (`[FE]`)
 

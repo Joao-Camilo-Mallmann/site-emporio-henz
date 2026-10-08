@@ -19,6 +19,7 @@ declare module 'vue' {
     CatalogSortDropdown: typeof import('./components/catalogo/CatalogSortDropdown.vue')['default']
     HeroBannerDesktop: typeof import('./components/home/HeroBannerDesktop.vue')['default']
     HeroBannerMobile: typeof import('./components/home/HeroBannerMobile.vue')['default']
+    Icon: typeof import('@iconify/vue')['Icon']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UiButton: typeof import('./components/ui/UiButton.vue')['default']
