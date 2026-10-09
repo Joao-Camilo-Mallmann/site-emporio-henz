@@ -1,21 +1,15 @@
 export type ButtonVariant =
-  | "primary"
-  | "secondary"
-  | "outline"
-  | "ghost"
-  | "danger"
-  | "link"
-  | "custom";
+  "primary" | "secondary" | "outline" | "ghost" | "danger" | "link" | "custom";
 export type ButtonType = "button" | "submit" | "reset";
 
-export interface UiButtonProps {
+export type UiButtonProps = {
   variant?: ButtonVariant;
   type?: ButtonType;
   disabled?: boolean;
   loading?: boolean;
   block?: boolean;
   size?: "xs" | "sm" | "md" | "lg" | "xl" | "icon" | "none";
-}
+};
 
 export interface UiCardProps {
   title?: string;

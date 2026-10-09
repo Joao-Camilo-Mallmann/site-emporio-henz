@@ -355,6 +355,7 @@ const activeFiltersCount = computed(() => {
               v-for="prod in products"
               :key="prod.id"
               :product="prod"
+              @click="router.push(`/produtos/${prod.slug || prod.id}`)"
             />
           </div>
 

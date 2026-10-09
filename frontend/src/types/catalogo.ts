@@ -50,3 +50,44 @@ export interface CatalogResponse {
   meta: CatalogPaginationMeta;
 }
 
+export interface ProductImageItem {
+  id: string;
+  url: string;
+  thumbnailUrl?: string;
+  alt?: string;
+}
+
+export interface ProductVariationItem {
+  id: string;
+  name: string;
+  colorHex?: string;
+  imageRef?: string;
+  available?: boolean;
+}
+
+export interface ProductSpecificationItem {
+  label: string;
+  value: string;
+}
+
+export interface ProductDetail {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  installments: string;
+  manufacturingTime?: string;
+  deliveryCondition?: string;
+  discountPixPercent?: number;
+  description: string;
+  category: string;
+  subcategory?: string;
+  brand?: string;
+  line?: string;
+  mainFeatures?: string[];
+  images: ProductImageItem[];
+  variations: ProductVariationItem[];
+  specifications: ProductSpecificationItem[];
+  relatedProducts?: CatalogProductItem[];
+}
+

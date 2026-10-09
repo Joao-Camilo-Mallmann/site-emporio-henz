@@ -1,20 +1,20 @@
-import type { CatalogProductItem } from "@/types";
+import type { CatalogProductItem, ProductDetail } from "@/types";
 
 export const MOCK_CATALOG_PRODUCTS: CatalogProductItem[] = [
   {
     id: "p-1",
     name: "Roupeiro Roma",
     slug: "roupeiro-roma",
-    price: 4850,
+    price: 4850.3,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-veneza.png",
+    image: "/images/products/roupeiro-roma-clean-1.png",
     category: "quarto",
     subcategory: "Roupeiros",
     material: "MDF",
-    brand: "Móveis primavera",
+    brand: "Primavera",
     finishes: [
-      { color: "#4A3024", label: "Imbuia Escura" },
-      { color: "#A58D63", label: "Carvalho Claro" },
+      { color: "#4A3024", label: "Itaúba Âmbar" },
+      { color: "#A58D63", label: "Carvalho Mel" },
     ],
     availability: "IN_STOCK",
   },
@@ -196,3 +196,145 @@ export const MOCK_CATALOG_PRODUCTS: CatalogProductItem[] = [
     availability: "IN_STOCK",
   },
 ];
+
+export const ROUPEIRO_ROMA_DETAIL: ProductDetail = {
+  id: "p-1",
+  name: "Roupeiro Roma",
+  slug: "roupeiro-roma",
+  price: 4850.3,
+  installments: "Até 10x no cartão",
+  manufacturingTime: "Fabricação: 20 dias úteis",
+  deliveryCondition: "Com entrega e montagem",
+  discountPixPercent: 3,
+  description:
+    "O Roupeiro Roma da Linha Itália une sofisticação e versatilidade. Produzido 100% em MDF de 15 mm, seu grande diferencial é o layout interno personalizável, permitindo adaptar prateleiras e nichos durante a montagem. Conta com 6 portas (com detalhes em vidro fumê) e 3 gavetas. Para um acabamento premium e maior durabilidade, possui portas com amortecimento, corrediças telescópicas, puxadores em alumínio e laterais com moldura em chanfro de 45°.",
+  category: "quarto",
+  subcategory: "Roupeiros",
+  brand: "Primavera",
+  line: "Itália",
+  mainFeatures: [
+    "Altura: 2300 mm",
+    "Largura: 2430 mm",
+    "Profundidade: 565 mm",
+    "Marca: Primavera",
+    "6 portas e 3 gavetas",
+    "Portas em vidro fumê e MDF",
+  ],
+  images: [
+    {
+      id: "img-1",
+      url: "/images/products/roupeiro-roma-clean-1.png",
+      thumbnailUrl: "/images/products/roupeiro-roma-thumb-1.png",
+      alt: "Roupeiro Roma frontal acabamento Itaúba Âmbar",
+    },
+    {
+      id: "img-2",
+      url: "/images/products/roupeiro-roma-interior.png",
+      thumbnailUrl: "/images/products/roupeiro-roma-thumb-2.png",
+      alt: "Roupeiro Roma vista interna com nichos e gavetas",
+    },
+    {
+      id: "img-3",
+      url: "/images/products/roupeiro-roma-carvalho-mel.png",
+      thumbnailUrl: "/images/products/roupeiro-roma-thumb-3.png",
+      alt: "Roupeiro Roma acabamento Carvalho Mel",
+    },
+    {
+      id: "img-4",
+      url: "/images/products/roupeiro-roma-detalhe.png",
+      thumbnailUrl: "/images/products/roupeiro-roma-thumb-4.png",
+      alt: "Roupeiro Roma detalhe puxadores e portas de vidro fumê",
+    },
+  ],
+  variations: [
+    {
+      id: "v-1",
+      name: "Itaúba Âmbar",
+      colorHex: "#4A3024",
+      imageRef: "/images/products/roupeiro-roma-clean-1.png",
+      available: true,
+    },
+    {
+      id: "v-2",
+      name: "Carvalho Mel",
+      colorHex: "#A58D63",
+      imageRef: "/images/products/roupeiro-roma-carvalho-mel.png",
+      available: true,
+    },
+  ],
+  specifications: [
+    { label: "Marca", value: "Primavera" },
+    { label: "Linha", value: "Itália" },
+    { label: "Material da estrutura", value: "100% MDF (15 mm)" },
+    { label: "Acabamento", value: "Itaúba âmbar/carvalho mel" },
+    { label: "Dimensões (A x L x P)", value: "2300 x 2430 x 565 mm" },
+    { label: "Composição", value: "6 portas e 3 gavetas" },
+    { label: "Material das Portas", value: "MDF e Vidro Fumê" },
+    {
+      label: "Ferragens",
+      value: "Corrediças telescópicas e dobradiças com amortecimento",
+    },
+    { label: "Material dos puxadores", value: "Alumínio" },
+  ],
+  relatedProducts: MOCK_CATALOG_PRODUCTS.filter(
+    (p) => p.id !== "p-1" && p.category === "quarto"
+  ).slice(0, 4),
+};
+
+export function getMockProductDetail(idOrSlug: string): ProductDetail | undefined {
+  const normalized = idOrSlug.toLowerCase().trim();
+  if (normalized === "p-1" || normalized === "roupeiro-roma") {
+    return ROUPEIRO_ROMA_DETAIL;
+  }
+
+  const found = MOCK_CATALOG_PRODUCTS.find(
+    (p) => p.id.toLowerCase() === normalized || p.slug.toLowerCase() === normalized
+  );
+
+  if (!found) return undefined;
+
+  return {
+    id: found.id,
+    name: found.name,
+    slug: found.slug,
+    price: found.price,
+    installments: found.installments,
+    manufacturingTime: "Fabricação: 20 dias úteis",
+    deliveryCondition: "Com entrega e montagem",
+    discountPixPercent: 3,
+    description: `Conheça o ${found.name}. Móvel com design exclusivo, acabamento de alto padrão e materiais selecionados para transformar o seu ambiente com elegância e durabilidade.`,
+    category: found.category,
+    subcategory: found.subcategory,
+    brand: found.brand || "Empório Henz",
+    mainFeatures: [
+      `Marca: ${found.brand || "Empório Henz"}`,
+      `Categoria: ${found.subcategory || found.category}`,
+      `Material principal: ${found.material || "MDF"}`,
+      "Acabamento refinado de alta durabilidade",
+      "Entrega e montagem especializadas em todo Vale do Taquari",
+    ],
+    images: [
+      {
+        id: `${found.id}-img-1`,
+        url: found.image,
+        thumbnailUrl: found.image,
+        alt: found.name,
+      },
+    ],
+    variations: found.finishes.map((f, idx) => ({
+      id: `${found.id}-v-${idx + 1}`,
+      name: f.label || `Opção ${idx + 1}`,
+      colorHex: f.color,
+      available: true,
+    })),
+    specifications: [
+      { label: "Marca", value: found.brand || "Empório Henz" },
+      { label: "Categoria", value: found.subcategory || found.category },
+      { label: "Material", value: found.material || "MDF" },
+      { label: "Garantia", value: "90 dias contra defeitos de fabricação" },
+    ],
+    relatedProducts: MOCK_CATALOG_PRODUCTS.filter(
+      (p) => p.id !== found.id && p.category === found.category
+    ).slice(0, 4),
+  };
+}

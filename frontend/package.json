@@ -11,28 +11,28 @@
     "check-types": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@iconify/vue": "^5.0.2",
+    "@iconify/vue": "^5.0.3",
     "axios": "^1.20.0",
-    "pinia": "^3.0.1",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.43",
+    "vue-router": "^5.4.0",
     "vue3-toastify": "^0.2.9"
   },
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
-    "@tailwindcss/vite": "^4.0.9",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/bun": "^1.4.2",
-    "@types/node": "^22.13.5",
-    "@vitejs/plugin-vue": "^5.2.1",
-    "eslint": "^9.21.0",
-    "eslint-plugin-vue": "^9.32.0",
+    "@types/node": "^26.6.4",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "eslint": "^10.12.0",
+    "eslint-plugin-vue": "^10.11.1",
     "sharp": "^0.35.5",
-    "tailwindcss": "^4.0.9",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.25.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.71.1",
     "unplugin-vue-components": "^32.1.0",
-    "vite": "^6.2.0",
+    "vite": "^8.3.4",
     "vite-plugin-vue-devtools": "^8.2.1",
-    "vue-tsc": "^2.2.8"
+    "vue-tsc": "^3.3.12"
   }
 }

@@ -13,7 +13,7 @@
           <img
             src="/images/logos/logo-vertical.svg"
             alt="Empório Henz"
-            class="h-28 w-auto object-contain filter brightness-0 invert"
+            class="h-28 w-auto object-contain filter brightness-0 invert hover:brightness-90 transition-all duration-300 hover:scale-105"
           />
         </div>
         <!-- Linha vertical divisória (Figma node #I56:2164;3106:1817) -->

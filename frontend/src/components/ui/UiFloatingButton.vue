@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { UiFloatingButtonProps } from "@/types";
 import { Icon } from "@iconify/vue";
-import { computed, defineEmits, defineProps, withDefaults } from "vue";
+import { computed } from "vue";
 
 const props = withDefaults(defineProps<UiFloatingButtonProps>(), {
   variant: "primary",
