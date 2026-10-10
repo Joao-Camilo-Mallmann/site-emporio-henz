@@ -7,10 +7,7 @@ import {
   validateSubtypeQuery,
   validateUpdateSubtype,
 } from "./subtypes.schema";
-import {
-  subtypesService,
-  SubtypesService,
-} from "./subtypes.service";
+import { subtypesService, SubtypesService } from "./subtypes.service";
 
 const INVALID_ID_MESSAGE = "Identificador do subtipo inválido.";
 

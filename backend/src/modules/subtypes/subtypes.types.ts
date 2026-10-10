@@ -1,3 +1,5 @@
+import { Paginated } from "@/lib/pagination";
+
 export interface SubtypeDbRow {
   id: string;
   category_id: string;
@@ -42,12 +44,4 @@ export interface SubtypeQueryFilters {
   active?: boolean;
 }
 
-export interface PaginatedSubtypesResult {
-  data: SubtypeDto[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+export type PaginatedSubtypesResult = Paginated<SubtypeDto>;

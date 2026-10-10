@@ -4,7 +4,10 @@ import {
   userSuppliersService,
   UserSuppliersService,
 } from "@/modules/user-suppliers/user-suppliers.service";
-import { validateAssignSupplier } from "@/modules/user-suppliers/user-suppliers.schema";
+import {
+  validateAssignSupplier,
+  validateUserSupplierQuery,
+} from "@/modules/user-suppliers/user-suppliers.schema";
 
 export class UserSuppliersController {
   constructor(
@@ -13,8 +16,9 @@ export class UserSuppliersController {
 
   async list(_req: Request, ctx: RequestContext): Promise<Response> {
     const { userId } = ctx.params;
-    const suppliers = await this.service.listUserSuppliers(userId);
-    return ok(suppliers);
+    const filters = validateUserSupplierQuery(ctx.url);
+    const result = await this.service.listUserSuppliers(userId, filters);
+    return ok(result);
   }
 
   async assign(req: Request, ctx: RequestContext): Promise<Response> {

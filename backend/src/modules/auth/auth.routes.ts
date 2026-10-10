@@ -6,7 +6,9 @@ export const authRoutes = new Router();
 
 authRoutes.post("/register", (req) => authController.register(req));
 authRoutes.post("/login", (req) => authController.login(req));
-authRoutes.get("/me", authMiddleware, (req, ctx) => authController.me(req, ctx));
+authRoutes.get("/me", authMiddleware, (req, ctx) =>
+  authController.me(req, ctx),
+);
 authRoutes.put("/me", authMiddleware, (req, ctx) =>
   authController.updateProfile(req, ctx),
 );

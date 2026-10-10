@@ -1,12 +1,20 @@
 import { NotFoundError } from "@/lib/errors";
 import { suppliersRepository, SuppliersRepository } from "@/modules/suppliers/suppliers.repository";
-import { CreateSupplierDto, SupplierDto, UpdateSupplierDto } from "@/modules/suppliers/suppliers.types";
+import {
+  CreateSupplierDto,
+  PaginatedSuppliersResult,
+  SupplierDto,
+  SupplierQueryFilters,
+  UpdateSupplierDto,
+} from "@/modules/suppliers/suppliers.types";
 
 export class SuppliersService {
   constructor(private repo: SuppliersRepository = suppliersRepository) {}
 
-  async list(): Promise<SupplierDto[]> {
-    return await this.repo.list();
+  async list(
+    filters: SupplierQueryFilters = {},
+  ): Promise<PaginatedSuppliersResult> {
+    return await this.repo.list(filters);
   }
 
   async getById(id: string): Promise<SupplierDto> {

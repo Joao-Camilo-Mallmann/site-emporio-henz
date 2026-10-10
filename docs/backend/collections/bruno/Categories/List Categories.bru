@@ -19,5 +19,6 @@ params:query {
 docs {
   Sem `page`, `limit` ou `search`, retorna a hierarquia de categorias ativas com seus subtipos ativos.
   Com qualquer um deles, retorna a listagem paginada, sempre restrita a categorias ativas para o público.
+  Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
   O filtro `active` só é aplicado para o Administrador (ver "Listar Categorias (Admin)").
 }

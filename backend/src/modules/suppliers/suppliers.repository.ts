@@ -1,7 +1,10 @@
 import { sql } from "@/config/database";
+import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import {
   CreateSupplierDto,
+  PaginatedSuppliersResult,
   SupplierDto,
+  SupplierQueryFilters,
   UpdateSupplierDto,
 } from "@/modules/suppliers/suppliers.types";
 
@@ -15,15 +18,40 @@ interface SupplierDbRow {
 }
 
 export class SuppliersRepository {
-  async list(): Promise<SupplierDto[]> {
-    const rows = await sql<SupplierDbRow[]>`
-      SELECT id, name, contact, active, created_at, updated_at
-      FROM suppliers
-      WHERE deleted_at IS NULL
-      ORDER BY name ASC
-    `;
+  async list(
+    filters: SupplierQueryFilters = {},
+  ): Promise<PaginatedSuppliersResult> {
+    const { page, limit, offset } = resolvePagination(filters);
+    const search = filters.search ? escapeLike(filters.search) : null;
+    const active = filters.active !== undefined ? filters.active : null;
 
-    return rows.map((r: SupplierDbRow) => ({
+    const [countRows, rows] = await Promise.all([
+      sql<{ count: string }[]>`
+        SELECT COUNT(*)::text as count
+        FROM suppliers
+        WHERE deleted_at IS NULL
+          AND (${active}::boolean IS NULL OR active = ${active})
+          AND (${search}::text IS NULL OR (
+            name ILIKE ('%' || ${search} || '%') OR
+            contact ILIKE ('%' || ${search} || '%')
+          ))
+      `,
+      sql<SupplierDbRow[]>`
+        SELECT id, name, contact, active, created_at, updated_at
+        FROM suppliers
+        WHERE deleted_at IS NULL
+          AND (${active}::boolean IS NULL OR active = ${active})
+          AND (${search}::text IS NULL OR (
+            name ILIKE ('%' || ${search} || '%') OR
+            contact ILIKE ('%' || ${search} || '%')
+          ))
+        ORDER BY name ASC
+        LIMIT ${limit} OFFSET ${offset}
+      `,
+    ]);
+
+    const total = parseInt(countRows[0]?.count || "0", 10);
+    const data = rows.map((r: SupplierDbRow) => ({
       id: r.id,
       name: r.name,
       contact: r.contact,
@@ -31,6 +59,8 @@ export class SuppliersRepository {
       createdAt: r.created_at?.toISOString(),
       updatedAt: r.updated_at?.toISOString(),
     }));
+
+    return paginate(data, total, { page, limit });
   }
 
   async findById(id: string): Promise<SupplierDto | null> {

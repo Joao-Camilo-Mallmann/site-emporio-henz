@@ -37,3 +37,16 @@ Use os scripts do `backend` via Bun: desenvolvimento com recarga automática, te
 ## 5. Tipos e Interfaces
 
 Toda `interface` e todo `type` nomeado de um módulo vivem no arquivo `<módulo>.types.ts` dele, incluindo DTOs, filtros, resultados paginados e tipos de linha do banco (`*DbRow`). Controllers, services, repositories, schemas e routes apenas importam esses tipos, sem declará-los localmente. Quando um módulo precisar de um tipo de outro, importe do `types.ts` do módulo dono em vez de duplicar a declaração.
+
+---
+
+## 6. Paginação de Listagens
+
+Toda rota que devolve uma coleção plana de registros é paginada, conforme o RNF11 do [PRD](../docs/PRD.md). O padrão vive em `src/lib/pagination.ts` e não deve ser reimplementado por módulo:
+
+- O schema do módulo lê a query com `parsePagination` (e `parseSearch`, quando houver busca) e devolve o filtro tipado.
+- O repository calcula `page`, `limit` e `offset` com `resolvePagination`, escapa o termo de busca com `escapeLike` e monta a resposta com `paginate`.
+- O tipo de retorno é um alias de `Paginated<T>` declarado no `<módulo>.types.ts` (por exemplo `PaginatedSuppliersResult`). `Paginated<T>` e `PaginationParams` são os únicos tipos compartilhados que ficam em `src/lib/`.
+- A contagem total e a página usam exatamente os mesmos filtros no `WHERE`.
+
+Não devolva array puro em rota de listagem nem crie outro formato de envelope. As exceções são as definidas no PRD.

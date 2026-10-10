@@ -10,7 +10,7 @@ suppliersRoutes.get(
   "/",
   authMiddleware,
   requireRole(ROLES.SELLER, ROLES.ADMIN),
-  () => suppliersController.list(),
+  (req, ctx) => suppliersController.list(req, ctx),
 );
 
 suppliersRoutes.get(

@@ -4,10 +4,7 @@ import {
   categoriesRepository,
   CategoriesRepository,
 } from "@/modules/categories/categories.repository";
-import {
-  subtypesRepository,
-  SubtypesRepository,
-} from "./subtypes.repository";
+import { subtypesRepository, SubtypesRepository } from "./subtypes.repository";
 import {
   CreateSubtypeDto,
   PaginatedSubtypesResult,
@@ -81,7 +78,9 @@ export class SubtypesService {
   }
 
   private slugConflict(slug: string): ConflictError {
-    return new ConflictError(`Já existe um subtipo ativo com o slug '${slug}'.`);
+    return new ConflictError(
+      `Já existe um subtipo ativo com o slug '${slug}'.`,
+    );
   }
 
   async update(id: string, dto: UpdateSubtypeDto): Promise<SubtypeDto> {
@@ -118,7 +117,9 @@ export class SubtypesService {
 
     // O subtipo ou a nova categoria foi deletado por requisição concorrente.
     if (!updated) {
-      throw new NotFoundError("Subtipo ou categoria vinculada não encontrados.");
+      throw new NotFoundError(
+        "Subtipo ou categoria vinculada não encontrados.",
+      );
     }
 
     return updated;

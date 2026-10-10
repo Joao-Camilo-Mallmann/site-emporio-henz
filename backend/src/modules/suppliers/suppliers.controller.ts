@@ -2,6 +2,7 @@ import { badRequest, created, ok } from "@/lib/response";
 import { RequestContext } from "@/lib/router";
 import {
   validateCreateSupplier,
+  validateSupplierQuery,
   validateUpdateSupplier,
 } from "@/modules/suppliers/suppliers.schema";
 import {
@@ -12,9 +13,10 @@ import {
 export class SuppliersController {
   constructor(private service: SuppliersService = suppliersService) {}
 
-  async list(): Promise<Response> {
-    const suppliers = await this.service.list();
-    return ok(suppliers);
+  async list(_req: Request, ctx: RequestContext): Promise<Response> {
+    const filters = validateSupplierQuery(ctx.url);
+    const result = await this.service.list(filters);
+    return ok(result);
   }
 
   async getById(_req: Request, ctx: RequestContext): Promise<Response> {

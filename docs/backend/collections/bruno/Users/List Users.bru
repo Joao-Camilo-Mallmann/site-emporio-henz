@@ -20,3 +20,10 @@ params:query {
 auth:bearer {
   token: {{token}}
 }
+
+docs {
+  Listagem paginada de usuários, do mais recente para o mais antigo. Exclusiva do Administrador.
+  `page` (1 a 10000, padrão 1) e `limit` (1 a 100, padrão 20) fora dos limites caem no padrão.
+  `search` filtra por nome ou e-mail e é truncado em 100 caracteres. `role` aceita 1, 2 ou 3.
+  Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
+}

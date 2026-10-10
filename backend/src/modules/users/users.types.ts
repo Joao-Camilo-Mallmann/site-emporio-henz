@@ -1,3 +1,5 @@
+import { Paginated } from "@/lib/pagination";
+
 export interface UserDto {
   id: string;
   email: string;
@@ -33,12 +35,4 @@ export interface UserQueryFilters {
   role?: number;
 }
 
-export interface PaginatedUsersResult {
-  data: UserDto[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+export type PaginatedUsersResult = Paginated<UserDto>;

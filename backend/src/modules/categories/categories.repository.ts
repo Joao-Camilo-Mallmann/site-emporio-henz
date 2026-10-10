@@ -1,5 +1,5 @@
 import { sql } from "@/config/database";
-import { escapeLike } from "@/lib/pagination";
+import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import { SubtypeDbRow, SubtypeDto } from "@/modules/subtypes/subtypes.types";
 import {
   CategoryDbRow,
@@ -70,9 +70,7 @@ export class CategoriesRepository {
   async listPaginated(
     filters: CategoryQueryFilters = {},
   ): Promise<PaginatedCategoriesResult> {
-    const page = filters.page || 1;
-    const limit = filters.limit || 20;
-    const offset = (page - 1) * limit;
+    const { page, limit, offset } = resolvePagination(filters);
     const search = filters.search ? escapeLike(filters.search) : null;
     const active = filters.active !== undefined ? filters.active : null;
 
@@ -96,17 +94,8 @@ export class CategoriesRepository {
     ]);
 
     const total = parseInt(countRows[0]?.count || "0", 10);
-    const totalPages = Math.ceil(total / limit) || 1;
 
-    return {
-      data: rows.map(mapCategory),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-      },
-    };
+    return paginate(rows.map(mapCategory), total, { page, limit });
   }
 
   async findCategoryById(id: string): Promise<CategoryDto | null> {

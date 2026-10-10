@@ -1,3 +1,4 @@
+import { Paginated } from "@/lib/pagination";
 import { SubtypeDto } from "@/modules/subtypes/subtypes.types";
 
 export interface CategoryDbRow {
@@ -38,12 +39,4 @@ export interface CategoryQueryFilters {
   active?: boolean;
 }
 
-export interface PaginatedCategoriesResult {
-  data: CategoryDto[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+export type PaginatedCategoriesResult = Paginated<CategoryDto>;

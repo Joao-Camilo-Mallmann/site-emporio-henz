@@ -1,15 +1,29 @@
 meta {
-  name: Listar Fornecedores
+  name: Listar Fornecedores (Paginado)
   type: http
   seq: 1
 }
 
 get {
-  url: {{baseUrl}}/suppliers
+  url: {{baseUrl}}/suppliers?page=1&limit=20
   body: none
   auth: bearer
 }
 
+params:query {
+  page: 1
+  limit: 20
+  ~search: henz
+  ~active: true
+}
+
 auth:bearer {
   token: {{token}}
+}
+
+docs {
+  Listagem paginada de fornecedores não deletados, em ordem alfabética. Permitida para Administrador e Vendedor.
+  `page` (1 a 10000, padrão 1) e `limit` (1 a 100, padrão 20) fora dos limites caem no padrão.
+  `search` filtra por nome ou contato e é truncado em 100 caracteres. `active=true` ou `active=false` filtra pelo status; sem o parâmetro, retorna ambos.
+  Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
 }

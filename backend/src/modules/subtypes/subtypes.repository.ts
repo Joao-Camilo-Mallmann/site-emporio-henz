@@ -1,5 +1,5 @@
 import { sql } from "@/config/database";
-import { escapeLike } from "@/lib/pagination";
+import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import {
   CreateSubtypeDto,
   PaginatedSubtypesResult,
@@ -31,9 +31,7 @@ export class SubtypesRepository {
     filters: SubtypeQueryFilters = {},
     visibleOnly = false,
   ): Promise<PaginatedSubtypesResult> {
-    const page = filters.page || 1;
-    const limit = filters.limit || 20;
-    const offset = (page - 1) * limit;
+    const { page, limit, offset } = resolvePagination(filters);
     const search = filters.search ? escapeLike(filters.search) : null;
     const categoryId = filters.categoryId || null;
     const active = filters.active !== undefined ? filters.active : null;
@@ -72,17 +70,8 @@ export class SubtypesRepository {
     ]);
 
     const total = parseInt(countRows[0]?.count || "0", 10);
-    const totalPages = Math.ceil(total / limit) || 1;
 
-    return {
-      data: rows.map(mapSubtype),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-      },
-    };
+    return paginate(rows.map(mapSubtype), total, { page, limit });
   }
 
   async findById(id: string, visibleOnly = false): Promise<SubtypeDto | null> {

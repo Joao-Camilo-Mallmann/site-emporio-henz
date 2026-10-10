@@ -44,6 +44,17 @@ Erros seguem o formato:
 }
 ```
 
+Listagens são paginadas (RNF11 do PRD) e seguem o formato:
+
+```json
+{
+  "data": [],
+  "pagination": { "page": 1, "limit": 20, "total": 0, "totalPages": 1 }
+}
+```
+
+Parâmetros `page` e `limit` de cada rota estão na collection Bruno.
+
 Status utilizados: `200`, `201`, `204`, `400`, `401`, `403`, `404`, `409` e `500`.
 
 Papéis de acesso:
