@@ -1,0 +1,20 @@
+meta {
+  name: Obter Categoria por ID
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/categorias/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+docs {
+  `400` se `:id` não for um UUID válido. `404` se a categoria não existir ou estiver inativa.
+  Com token de Administrador (Bearer), categorias inativas também são retornadas.
+}

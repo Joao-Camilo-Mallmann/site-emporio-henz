@@ -61,5 +61,6 @@ Ao terminar uma tarefa ou história de usuário, marque-a como concluída na mes
 - Modele e valide o banco antes do backend e do frontend.
 - Use soft delete e integridade conforme PRD e documentação de database.
 - Não use cores hexadecimais arbitrárias no frontend; use os tokens do design system.
+- Toda rota de listagem segue a paginação padrão do RNF11 do [PRD](docs/PRD.md); a implementação está descrita em [`backend/agents.md`](backend/agents.md).
 - Toda mudança de API deve atualizar, na mesma entrega, a collection Bruno em [`docs/backend/collections/bruno/`](docs/backend/collections/bruno/). Consultar a API é consultar essa collection.
 - Use Bun para instalar dependências e executar os comandos em cada diretório (`backend/` e `frontend/`).

@@ -1,7 +1,9 @@
 import { sql } from "@/config/database";
+import { paginate, resolvePagination } from "@/lib/pagination";
 import {
-  AssignedSupplierDto,
+  PaginatedAssignedSuppliersResult,
   UserSupplierLinkDto,
+  UserSupplierQueryFilters,
 } from "@/modules/user-suppliers/user-suppliers.types";
 
 interface LinkDbRow {
@@ -14,7 +16,19 @@ interface LinkDbRow {
 }
 
 export class UserSuppliersRepository {
-  async listByUserId(userId: string): Promise<AssignedSupplierDto[]> {
+  async listByUserId(
+    userId: string,
+    filters: UserSupplierQueryFilters = {},
+  ): Promise<PaginatedAssignedSuppliersResult> {
+    const { page, limit, offset } = resolvePagination(filters);
+
+    const countRows = await sql<{ count: string }[]>`
+      SELECT COUNT(*)::text as count
+      FROM user_suppliers us
+      INNER JOIN suppliers s ON s.id = us.supplier_id AND s.deleted_at IS NULL
+      WHERE us.user_id = ${userId} AND us.deleted_at IS NULL
+    `;
+
     const rows = await sql<
       {
         id: string;
@@ -34,15 +48,19 @@ export class UserSuppliersRepository {
       INNER JOIN suppliers s ON s.id = us.supplier_id AND s.deleted_at IS NULL
       WHERE us.user_id = ${userId} AND us.deleted_at IS NULL
       ORDER BY s.name ASC
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
-    return rows.map((r) => ({
+    const total = parseInt(countRows[0]?.count || "0", 10);
+    const data = rows.map((r) => ({
       id: r.id,
       name: r.name,
       contact: r.contact,
       active: r.active,
       linkedAt: r.linked_at.toISOString(),
     }));
+
+    return paginate(data, total, { page, limit });
   }
 
   async findExistingLink(

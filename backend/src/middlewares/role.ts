@@ -9,6 +9,10 @@ export const ROLES = {
 
 export type RoleType = (typeof ROLES)[keyof typeof ROLES];
 
+export function isAdmin(ctx: RequestContext): boolean {
+  return ctx.user?.role === ROLES.ADMIN;
+}
+
 export function requireRole(...allowedRoles: number[]): RouteHandler {
   return (_req: Request, ctx: RequestContext) => {
     if (!ctx.user) {

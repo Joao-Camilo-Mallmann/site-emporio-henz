@@ -6,11 +6,7 @@ export function errorHandler(error: unknown): Response {
     return errorResponse(error.code, error.message, error.status);
   }
 
+  // O detalhe da falha (mensagem do driver, constraint, stack) fica só no log do servidor.
   console.error("Erro interno não capturado no servidor:", error);
-  const message =
-    error instanceof Error
-      ? error.message
-      : "Ocorreu um erro interno ao processar a requisição.";
-
-  return internalServerError(message);
+  return internalServerError();
 }

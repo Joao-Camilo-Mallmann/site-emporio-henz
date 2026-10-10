@@ -1,3 +1,4 @@
+import { parsePagination, parseSearch } from "@/lib/pagination";
 import { CreateUserDto, UpdateUserDto, UserQueryFilters } from "./users.types";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -121,21 +122,13 @@ export function validateUpdateUser(
 }
 
 export function validateUserQuery(url: URL): UserQueryFilters {
-  const pageParam = Number(url.searchParams.get("page"));
-  const limitParam = Number(url.searchParams.get("limit"));
-  const searchParam = url.searchParams.get("search");
+  const { page, limit } = parsePagination(url);
   const roleParam = Number(url.searchParams.get("role"));
-
-  const page = !isNaN(pageParam) && pageParam > 0 ? pageParam : 1;
-  const limit =
-    !isNaN(limitParam) && limitParam > 0 && limitParam <= 100
-      ? limitParam
-      : 20;
 
   return {
     page,
     limit,
-    search: searchParam?.trim() || undefined,
+    search: parseSearch(url),
     role: VALID_ROLES.includes(roleParam) ? roleParam : undefined,
   };
 }

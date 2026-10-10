@@ -1,0 +1,20 @@
+meta {
+  name: Obter Subtipo por ID
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/subtipos/:id
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+docs {
+  `400` se `:id` não for um UUID válido. `404` se o subtipo não existir, estiver inativo ou pertencer a uma categoria inativa.
+  Com token de Administrador (Bearer), esses registros também são retornados.
+}

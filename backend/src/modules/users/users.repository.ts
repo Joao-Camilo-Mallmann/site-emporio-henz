@@ -1,4 +1,5 @@
 import { sql } from "@/config/database";
+import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import {
   CreateUserDto,
   PaginatedUsersResult,
@@ -20,10 +21,8 @@ interface UserDbRow {
 
 export class UsersRepository {
   async list(filters: UserQueryFilters): Promise<PaginatedUsersResult> {
-    const page = filters.page || 1;
-    const limit = filters.limit || 20;
-    const offset = (page - 1) * limit;
-    const search = filters.search || null;
+    const { page, limit, offset } = resolvePagination(filters);
+    const search = filters.search ? escapeLike(filters.search) : null;
     const role = filters.role || null;
 
     const countRows = await sql<{ count: string }[]>`
@@ -39,7 +38,6 @@ export class UsersRepository {
     `;
 
     const total = parseInt(countRows[0]?.count || "0", 10);
-    const totalPages = Math.ceil(total / limit) || 1;
 
     const rows = await sql<UserDbRow[]>`
       SELECT 
@@ -75,15 +73,7 @@ export class UsersRepository {
       updatedAt: r.updated_at?.toISOString(),
     }));
 
-    return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-      },
-    };
+    return paginate(data, total, { page, limit });
   }
 
   async findById(id: string): Promise<UserDto | null> {

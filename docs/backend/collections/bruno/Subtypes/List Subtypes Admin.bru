@@ -1,0 +1,29 @@
+meta {
+  name: Listar Subtipos (Admin, inclui inativos)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/subtipos?page=1&limit=20
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 20
+  ~search: sofas
+  ~categoryId: 00000000-0000-0000-0000-000000000000
+  ~active: false
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Com token de Administrador a listagem inclui subtipos inativos e subtipos de categorias inativas.
+  `active=true` ou `active=false` filtra pelo status do subtipo; sem o parâmetro, retorna ambos.
+  Tokens de Cliente ou Vendedor recebem a mesma resposta do público.
+}

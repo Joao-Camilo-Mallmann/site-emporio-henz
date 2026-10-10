@@ -1,0 +1,28 @@
+meta {
+  name: Listar Categorias (Admin, inclui inativas)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/categorias?page=1&limit=20
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 20
+  ~search: quarto
+  ~active: false
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Com token de Administrador a listagem paginada inclui categorias inativas e os subtipos inativos de cada categoria.
+  `active=true` ou `active=false` filtra pelo status; sem o parâmetro, retorna ambos.
+  Tokens de Cliente ou Vendedor recebem a mesma resposta do público (somente ativas).
+}

@@ -1,3 +1,5 @@
+import { Paginated } from "@/lib/pagination";
+
 export interface UserSupplierLinkDto {
   id: string;
   userId: string;
@@ -17,3 +19,10 @@ export interface AssignedSupplierDto {
 export interface AssignSupplierDto {
   supplierId: string;
 }
+
+export interface UserSupplierQueryFilters {
+  page?: number;
+  limit?: number;
+}
+
+export type PaginatedAssignedSuppliersResult = Paginated<AssignedSupplierDto>;

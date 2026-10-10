@@ -1,0 +1,25 @@
+meta {
+  name: Listar Subtipos (Público Paginado)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/subtipos?page=1&limit=20
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  limit: 20
+  ~search: sofas
+  ~categoryId: 00000000-0000-0000-0000-000000000000
+}
+
+docs {
+  Para o público, retorna somente subtipos ativos cuja categoria também está ativa.
+  `page` (1 a 10000, padrão 1) e `limit` (1 a 100, padrão 20) fora dos limites caem no padrão. `search` filtra pelo nome e é truncado em 100 caracteres. `categoryId` inválido é ignorado.
+  Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
+  O filtro `active` só é aplicado para o Administrador (ver "Listar Subtipos (Admin)").
+}

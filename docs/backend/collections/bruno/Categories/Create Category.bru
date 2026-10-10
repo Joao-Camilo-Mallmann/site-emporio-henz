@@ -1,0 +1,29 @@
+meta {
+  name: Cadastrar Categoria (Admin)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/categorias
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Área Externa",
+    "slug": "area-externa",
+    "active": true
+  }
+}
+
+docs {
+  Exclusivo do Administrador (`401` sem token, `403` para outros perfis).
+  `name` é obrigatório, de 2 a 255 caracteres. `slug` é opcional (gerado a partir do nome) e limitado a 255 caracteres. `active` é opcional (padrão `true`).
+  `400` para payload inválido. `409` se já existir categoria não deletada com o mesmo slug.
+}

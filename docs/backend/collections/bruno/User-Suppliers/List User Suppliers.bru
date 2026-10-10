@@ -1,13 +1,18 @@
 meta {
-  name: Listar Fornecedores do Vendedor
+  name: Listar Fornecedores do Vendedor (Paginado)
   type: http
   seq: 1
 }
 
 get {
-  url: {{baseUrl}}/users/:userId/suppliers
+  url: {{baseUrl}}/users/:userId/suppliers?page=1&limit=20
   body: none
   auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 20
 }
 
 params:path {
@@ -16,4 +21,10 @@ params:path {
 
 auth:bearer {
   token: {{token}}
+}
+
+docs {
+  Listagem paginada dos fornecedores vinculados ao usuário, em ordem alfabética. Exclusiva do Administrador.
+  `page` (1 a 10000, padrão 1) e `limit` (1 a 100, padrão 20) fora dos limites caem no padrão.
+  Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
 }

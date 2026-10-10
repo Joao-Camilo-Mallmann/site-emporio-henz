@@ -1,0 +1,30 @@
+meta {
+  name: Cadastrar Subtipo (Admin)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/subtipos
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "categoryId": "00000000-0000-0000-0000-000000000000",
+    "name": "Espreguiçadeira",
+    "slug": "espreguicadeira",
+    "active": true
+  }
+}
+
+docs {
+  Exclusivo do Administrador (`401` sem token, `403` para outros perfis).
+  `categoryId` (UUID válido) e `name` (2 a 255 caracteres) são obrigatórios. `slug` é opcional (gerado a partir do nome) e limitado a 255 caracteres. `active` é opcional (padrão `true`).
+  `400` para payload inválido. `404` se a categoria não existir. `409` se já existir subtipo não deletado com o mesmo slug.
+}

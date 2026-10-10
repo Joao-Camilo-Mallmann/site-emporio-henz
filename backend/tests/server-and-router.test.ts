@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { handleRequest } from "@/app";
 import { Router } from "@/lib/router";
 import { ok } from "@/lib/response";
+import { errorHandler } from "@/middlewares/error";
 
 describe("Roteador Nativo e Servidor HTTP", () => {
   it("deve responder 200 no healthcheck GET /api/v1/health com status ok", async () => {
@@ -57,5 +58,18 @@ describe("Roteador Nativo e Servidor HTTP", () => {
     expect(res).not.toBeNull();
     expect(res?.status).toBe(200);
     expect(capturedParam).toBe("uuid-teste-999");
+  });
+
+  it("deve responder 500 genérico sem expor a mensagem interna do erro", async () => {
+    const res = errorHandler(
+      new Error(
+        'duplicate key value violates unique constraint "idx_categories_slug_active"',
+      ),
+    );
+    expect(res.status).toBe(500);
+
+    const data = (await res.json()) as { error: string; message: string };
+    expect(data.error).toBe("Internal Server Error");
+    expect(data.message).not.toContain("idx_categories_slug_active");
   });
 });

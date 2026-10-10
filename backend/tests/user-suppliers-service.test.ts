@@ -5,18 +5,25 @@ import { UsersRepository } from "@/modules/users/users.repository";
 import { SuppliersRepository } from "@/modules/suppliers/suppliers.repository";
 import {
   AssignedSupplierDto,
+  PaginatedAssignedSuppliersResult,
   UserSupplierLinkDto,
+  UserSupplierQueryFilters,
 } from "@/modules/user-suppliers/user-suppliers.types";
 import { SupplierDto } from "@/modules/suppliers/suppliers.types";
 import { UserDto } from "@/modules/users/users.types";
 import { ConflictError, NotFoundError } from "@/lib/errors";
+import { paginate, resolvePagination } from "@/lib/pagination";
 import { validateAssignSupplier } from "@/modules/user-suppliers/user-suppliers.schema";
 
 class MockUserSuppliersRepository extends UserSuppliersRepository {
   public links: Map<string, { id: string; userId: string; supplierId: string; deleted: boolean; createdAt: string }> =
     new Map();
 
-  async listByUserId(userId: string): Promise<AssignedSupplierDto[]> {
+  async listByUserId(
+    userId: string,
+    filters: UserSupplierQueryFilters = {},
+  ): Promise<PaginatedAssignedSuppliersResult> {
+    const { page, limit, offset } = resolvePagination(filters);
     const assigned: AssignedSupplierDto[] = [];
     for (const link of this.links.values()) {
       if (link.userId === userId && !link.deleted) {
@@ -29,7 +36,10 @@ class MockUserSuppliersRepository extends UserSuppliersRepository {
         });
       }
     }
-    return assigned;
+    return paginate(assigned.slice(offset, offset + limit), assigned.length, {
+      page,
+      limit,
+    });
   }
 
   async findExistingLink(
@@ -146,8 +156,8 @@ describe("Módulo de Vínculos Vendedor ↔ Fornecedor (UserSuppliersService)", 
     expect(link.supplierId).toBe(supplierId);
 
     const list = await service.listUserSuppliers(userId);
-    expect(list.length).toBe(1);
-    expect(list[0].id).toBe(supplierId);
+    expect(list.pagination.total).toBe(1);
+    expect(list.data[0].id).toBe(supplierId);
   });
 
   it("deve impedir criação de vínculo duplicado ativo com ConflictError", async () => {
@@ -211,14 +221,14 @@ describe("Módulo de Vínculos Vendedor ↔ Fornecedor (UserSuppliersService)", 
     await service.revokeSupplier(userId, supplierId);
 
     const emptyList = await service.listUserSuppliers(userId);
-    expect(emptyList.length).toBe(0);
+    expect(emptyList.pagination.total).toBe(0);
 
     // Reativação
     const reactivated = await service.assignSupplier(userId, supplierId);
     expect(reactivated).toBeDefined();
 
     const restoredList = await service.listUserSuppliers(userId);
-    expect(restoredList.length).toBe(1);
+    expect(restoredList.pagination.total).toBe(1);
   });
 
   it("deve falhar ao revogar vínculo inexistente com NotFoundError", async () => {

@@ -6,8 +6,9 @@ import {
   UserSuppliersRepository,
 } from "@/modules/user-suppliers/user-suppliers.repository";
 import {
-  AssignedSupplierDto,
+  PaginatedAssignedSuppliersResult,
   UserSupplierLinkDto,
+  UserSupplierQueryFilters,
 } from "@/modules/user-suppliers/user-suppliers.types";
 
 export class UserSuppliersService {
@@ -17,13 +18,16 @@ export class UserSuppliersService {
     private suppliersRepo: SuppliersRepository = suppliersRepository,
   ) {}
 
-  async listUserSuppliers(userId: string): Promise<AssignedSupplierDto[]> {
+  async listUserSuppliers(
+    userId: string,
+    filters: UserSupplierQueryFilters = {},
+  ): Promise<PaginatedAssignedSuppliersResult> {
     const user = await this.usersRepo.findById(userId);
     if (!user) {
       throw new NotFoundError("Usuário não encontrado.");
     }
 
-    return await this.repo.listByUserId(userId);
+    return await this.repo.listByUserId(userId, filters);
   }
 
   async assignSupplier(

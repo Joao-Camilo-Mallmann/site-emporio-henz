@@ -1,0 +1,32 @@
+meta {
+  name: Atualizar Subtipo (Admin)
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/subtipos/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Espreguiçadeira Reclinável",
+    "active": true
+  }
+}
+
+docs {
+  Exclusivo do Administrador (`401` sem token, `403` para outros perfis).
+  Envie ao menos um entre `categoryId` (UUID válido), `name` (2 a 255 caracteres), `slug` (até 255) e `active`.
+  `400` se `:id` não for um UUID válido ou o payload for inválido. `404` se o subtipo ou a nova categoria não existir. `409` se o slug colidir com outro subtipo não deletado.
+}

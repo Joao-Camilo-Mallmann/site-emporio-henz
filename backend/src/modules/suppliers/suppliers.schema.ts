@@ -1,4 +1,9 @@
-import { CreateSupplierDto, UpdateSupplierDto } from "./suppliers.types";
+import { parsePagination, parseSearch } from "@/lib/pagination";
+import {
+  CreateSupplierDto,
+  SupplierQueryFilters,
+  UpdateSupplierDto,
+} from "./suppliers.types";
 
 export function validateCreateSupplier(body: unknown): {
   error?: string;
@@ -80,5 +85,21 @@ export function validateUpdateSupplier(body: unknown): {
       contact: typeof contact === "string" ? contact.trim() : undefined,
       active,
     },
+  };
+}
+
+export function validateSupplierQuery(url: URL): SupplierQueryFilters {
+  const { page, limit } = parsePagination(url);
+  const activeParam = url.searchParams.get("active");
+
+  let active: boolean | undefined = undefined;
+  if (activeParam === "true") active = true;
+  if (activeParam === "false") active = false;
+
+  return {
+    page,
+    limit,
+    search: parseSearch(url),
+    active,
   };
 }
