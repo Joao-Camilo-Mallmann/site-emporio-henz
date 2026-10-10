@@ -4,18 +4,30 @@ Este diretório reúne a documentação de produto, planejamento e implementaç�
 
 ## Por onde começar
 
+### Comum
+
 | Objetivo | Documento |
 | --- | --- |
 | Entender o produto e as regras de negócio | [PRD](./PRD.md) |
 | Consultar o andamento das histórias | [Backlog de histórias](./planning/user-stories-backlog.md) |
 | Criar histórias, tarefas e issues | [Padrão de histórias e tarefas](./padrao-historias-tarefas.md) |
-| Entender o banco e as migrações | [Banco de dados](./database/README.md) |
-| Desenvolver ou consultar a API | [Back-end](./backend/README.md) |
-| Testar endpoints | [Collection Bruno](./backend/collections/README.md) |
-| Desenvolver interfaces | [Front-end](./frontend/README.md) |
-| Consultar cores e tokens visuais | [Design system](./frontend/design-system-cores.md) |
 | Operar Docker, deploy ou backups | [Infraestrutura](./infra/README.md) |
 | Consultar materiais da apresentação | [Apresentação da Parcial 1](./slides/apresentacao-parcial-1.md) |
+
+### Frontend
+
+| Objetivo | Documento |
+| --- | --- |
+| Desenvolver interfaces | [Front-end](./frontend/README.md) |
+| Consultar cores e tokens visuais | [Design system](./frontend/design-system-cores.md) |
+
+### Backend (API + banco)
+
+| Objetivo | Documento |
+| --- | --- |
+| Desenvolver ou consultar a API | [Back-end](./backend/README.md) |
+| Entender o banco e as migrações | [Banco de dados](./database/README.md) |
+| Testar endpoints | [Collection Bruno](./backend/collections/README.md) |
 
 ## Ordem de autoridade
 
@@ -69,5 +81,6 @@ docs/
 - História, tarefa ou critério de aceite: sincronizar o padrão e o backlog.
 - Endpoint, payload, status ou resposta: atualizar a collection Bruno na mesma entrega.
 - Decisão técnica: atualizar o README do domínio afetado.
+- Cada ambiente tem sua matriz de manutenção no respectivo `agents.md`: [frontend/agents.md](../frontend/agents.md) e [backend/agents.md](../backend/agents.md).
 - Tarefa concluída: marcar os critérios atendidos no backlog e no `tasks.md` do OpenSpec, quando existir.
 - Arquivo movido ou renomeado: revisar todos os links internos.

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import CatalogFilterSidebar from "@/components/catalogo/CatalogFilterSidebar.vue";
-import CatalogPagination from "@/components/catalogo/CatalogPagination.vue";
 import CatalogProductCard from "@/components/catalogo/CatalogProductCard.vue";
 import CatalogSortDropdown from "@/components/catalogo/CatalogSortDropdown.vue";
 import UiButton from "@/components/ui/UiButton.vue";
@@ -389,9 +388,10 @@ const activeFiltersCount = computed(() => {
 
           <!-- Paginação -->
           <div v-if="products.length > 0 && !isLoading" class="mt-8">
-            <CatalogPagination
-              :meta="paginationMeta"
-              @change-page="handlePageChange"
+            <UiPagination
+              :page="paginationMeta.currentPage"
+              :total-pages="paginationMeta.totalPages"
+              @update:page="handlePageChange"
             />
           </div>
         </div>

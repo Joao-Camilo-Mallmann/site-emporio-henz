@@ -7,15 +7,19 @@ Gerenciar o fluxo completo de cadastro, listagem, busca, edição e desativaçã
 ## Requirements
 
 ### Requirement: Listagem e Busca de Fornecedores no Painel Administrativo
-O painel administrativo SHALL fornecer uma interface dedicada em `/admin/fornecedores` para listar e pesquisar marcas e fábricas parceiras cadastradas.
+O painel administrativo SHALL fornecer uma interface dedicada em `/admin/fornecedores` para listar e pesquisar marcas e fábricas parceiras cadastradas com paginação e busca no servidor.
 
-#### Scenario: Visualizar listagem de fornecedores
+#### Scenario: Visualizar listagem paginada de fornecedores
 - **WHEN** um usuário autenticado com perfil Administrador acessa `/admin/fornecedores`
-- **THEN** a aplicação SHALL carregar e exibir a lista de fornecedores ativos com nome, contato, status e data de criação, além de botões para novo cadastro e edição
+- **THEN** a aplicação SHALL carregar e exibir a página inicial de fornecedores via requisição paginada (`GET /api/v1/suppliers?page=1&limit=...`), exibindo nome, contato, status, data de criação e controles de paginação (página atual, total de registros, botões anterior e próxima)
 
-#### Scenario: Filtrar fornecedores por nome ou contato
-- **WHEN** o administrador digita um termo de busca no campo de pesquisa
-- **THEN** a tabela SHALL filtrar em tempo real os fornecedores cujo nome ou informação de contato contenha o termo digitado
+#### Scenario: Filtrar fornecedores por nome ou contato no servidor
+- **WHEN** o administrador digita um termo de busca no campo de pesquisa e confirma a busca
+- **THEN** a aplicação SHALL solicitar os dados filtrados ao servidor com parâmetro `search` resetando para a página 1 e renderizando os registros retornados pelo backend
+
+#### Scenario: Navegar entre páginas da listagem
+- **WHEN** o administrador clica nos botões de navegação "Próxima" ou "Anterior"
+- **THEN** a aplicação SHALL requisitar a página correspondente e atualizar a tabela com os novos registros e o indicador de página atual
 
 ### Requirement: Cadastro de Novo Fornecedor em Tela Dedicada
 A aplicação SHALL permitir ao Administrador cadastrar novas marcas e fornecedores parceiros através de uma tela dedicada de formulário em `/admin/fornecedores/novo`.

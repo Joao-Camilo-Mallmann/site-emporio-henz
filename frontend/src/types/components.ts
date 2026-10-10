@@ -18,6 +18,14 @@ export interface UiCardProps {
   href?: string;
 }
 
+export interface UiPaginationProps {
+  page: number;
+  totalPages: number;
+  total?: number;
+  itemLabel?: string;
+  disabled?: boolean;
+}
+
 export interface UiFloatingButtonProps {
   icon?: string;
   href?: string;

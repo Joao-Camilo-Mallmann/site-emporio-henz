@@ -2,6 +2,20 @@
 
 Este arquivo funciona como roteador. Regras mutáveis devem viver em sua fonte canônica, não ser copiadas aqui.
 
+## Ambientes de trabalho
+
+O projeto tem dois ambientes, cada um com seu contexto. A tarefa define o ambiente; carregue só o contexto dele.
+
+| Ambiente              | Código                          | Instruções            | Documentação                      |
+| --------------------- | ------------------------------- | --------------------- | --------------------------------- |
+| Frontend              | `frontend/`                     | [`frontend/agents.md`](frontend/agents.md) | [`docs/frontend/`](docs/frontend/README.md) |
+| Backend (API + banco) | `backend/`, `backend/database/` | [`backend/agents.md`](backend/agents.md)   | [`docs/backend/`](docs/backend/README.md), [`docs/database/`](docs/database/README.md) |
+
+- Tarefa `[FE]` não lê `backend/agents.md`, `docs/backend/README.md` nem `docs/database/`.
+- Tarefa `[DB]` ou `[BE]` não lê `frontend/agents.md` nem `docs/frontend/`.
+- Se a tarefa precisar das duas camadas, são duas tarefas, uma por ambiente.
+- A única ponte entre os ambientes é o [PRD](docs/PRD.md) e a collection Bruno em [`docs/backend/collections/bruno/`](docs/backend/collections/bruno/). Regras de implementação (design system, paginação, soft delete, Database First, atualização da Bruno) vivem no `agents.md` do ambiente dono.
+
 ## Hierarquia documental obrigatória
 
 Consulte nesta ordem (QUANDO FOR NECESSÁRIO) para alinhar regras, requisitos e escopo da tarefa ou história de usuário:
@@ -45,22 +59,12 @@ Ao terminar uma tarefa ou história de usuário, marque-a como concluída na mes
 
 ## Matriz de manutenção documental
 
-| Mudança                                              | Atualizações obrigatórias                                 |
-| ---------------------------------------------------- | --------------------------------------------------------- |
-| Regra, requisito, escopo ou comportamento do produto | `docs/PRD.md`                                             |
-| Modelo conceitual ou persistência                    | PRD, quando afetar o produto, + `docs/database/README.md` |
-| Endpoint, payload, parâmetro, status ou resposta     | collection Bruno em `docs/backend/collections/bruno/`     |
-| Fluxo, arquitetura ou integração do frontend         | `docs/frontend/README.md`                                 |
-| Token ou regra visual                                | `docs/frontend/design-system-cores.md`                    |
-| Docker, deploy, backup ou operação                   | `docs/infra/`                                             |
+| Mudança                                              | Atualizações obrigatórias                                                                 |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Regra, requisito, escopo ou comportamento do produto | `docs/PRD.md`, antes de qualquer outro artefato                                           |
+| Docker, deploy, backup ou operação                   | `docs/infra/`                                                                             |
+| Demais mudanças de documentação                      | Matriz de manutenção do ambiente afetado: [`frontend/agents.md`](frontend/agents.md) ou [`backend/agents.md`](backend/agents.md) |
 
 ## Regras transversais
 
-- Consulte [`backend/agents.md`](backend/agents.md) ao alterar backend.
-- Consulte [`frontend/agents.md`](frontend/agents.md) ao alterar frontend.
-- Modele e valide o banco antes do backend e do frontend.
-- Use soft delete e integridade conforme PRD e documentação de database.
-- Não use cores hexadecimais arbitrárias no frontend; use os tokens do design system.
-- Toda rota de listagem segue a paginação padrão do RNF11 do [PRD](docs/PRD.md); a implementação está descrita em [`backend/agents.md`](backend/agents.md).
-- Toda mudança de API deve atualizar, na mesma entrega, a collection Bruno em [`docs/backend/collections/bruno/`](docs/backend/collections/bruno/). Consultar a API é consultar essa collection.
 - Use Bun para instalar dependências e executar os comandos em cada diretório (`backend/` e `frontend/`).

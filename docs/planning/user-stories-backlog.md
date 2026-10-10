@@ -27,6 +27,7 @@ Este documento organiza a execução do portal da Empório Henz em histórias, r
   - [Sistema Publicado na VM (1,0 pt)](#sistema-publicado-na-vm-10-pt)
   - [Processo e Robustez Final (2,0 pts)](#processo-e-robustez-final-20-pts)
 - [Segurança: sessão em cookie e travas de autorização](#segurança-sessão-em-cookie-e-travas-de-autorização)
+- [Interface: componente global de paginação](#interface-componente-global-de-paginação)
 
 ---
 
@@ -666,9 +667,9 @@ Interface administrativa intuitiva com visualização em acordeão ou árvore hi
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Permite cadastrar um novo ambiente (ex: "Área Gourmet") e adicionar subtipos (ex: "Banqueta").
-- [ ] Reflete imediatamente as atualizações nas listagens.
-- [ ] Bloqueia envio de formulário com campos obrigatórios vazios.
+- [x] Permite cadastrar um novo ambiente (ex: "Área Gourmet") e adicionar subtipos (ex: "Banqueta").
+- [x] Reflete imediatamente as atualizações nas listagens.
+- [x] Bloqueia envio de formulário com campos obrigatórios vazios.
 
 ---
 
@@ -1336,5 +1337,44 @@ Essa esteira automatizada resolve esse atrito operacional integrando o repositó
 - [x] Execução remota configurada com `script_stop: true` para reportar falha em caso de erro no build ou subida dos containers.
 - [x] Conexão SSH finaliza e fecha automaticamente após a conclusão do script de deploy.
 - [x] Documentação em `docs/infra/README.md` atualizada detalhando as variáveis necessárias em GitHub Secrets e a preparação do usuário no grupo `docker`.
+
+---
+
+# Interface: componente global de paginação
+
+Pacote de interface definido a partir do [RNF11](../PRD.md), que já fixa o contrato das listagens paginadas. Esta história só unifica a implementação no frontend; não muda regra de produto, endpoint, banco nem collection Bruno.
+
+---
+
+### [US-FE-15] Componente global de paginação
+
+**Como** Desenvolvedor Frontend,  
+**Quero** um único componente `UiPagination` e um tipo genérico `Paginated<T>` para todas as listagens paginadas,  
+**Para que** a paginação tenha o mesmo visual e o mesmo comportamento em todo o painel e no catálogo, sem copiar o bloco em cada tela.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por todas as rotas de listagem do backend. Hoje a paginação está escrita quatro vezes no frontend: um bloco inline ("Página X de Y (N registros)" com Anterior/Próxima) em `FornecedorListView.vue`, `CategoriaListView.vue` e `UsuarioListView.vue`, e `components/catalogo/CatalogPagination.vue`, numerado e exclusivo do catálogo. O envelope também está copiado em `types/suppliers.ts`, `categories.ts`, `subtypes.ts` e `users.ts`, sem tipo genérico. Esta história reverte a alternativa descartada em `openspec/changes/archive/2026-10-10-fe-admin-suppliers-pagination/design.md` e acompanha o change `fe-ui-pagination`.
+
+- O visual "resumo + números" vale para todo o frontend; `CatalogPagination.vue` é removido.
+- Os botões somem quando há uma página só; o resumo aparece sempre que o total for informado.
+- Busca e filtros nas telas administrativas continuam voltando para a página 1.
+- Fora de escopo: composable de listagem, seletor de tamanho de página, sincronização de `?page=` no admin e o limite fixo de 100 subtipos em `SubcategoriaTagManager.vue`.
+
+#### 🎨 Especificação Técnica (`frontend`)
+
+- **Tipos** (`src/types/pagination.ts`): `PaginationParams`, `PaginationMeta` e `Paginated<T>`, espelhando `backend/src/lib/pagination.ts`. Os `Paginated*Response` viram aliases e os `*FilterParams` estendem `PaginationParams`, sem mudar os nomes exportados.
+- **Componente** (`src/components/ui/UiPagination.vue`): props `page`, `totalPages`, `total?`, `itemLabel?` (padrão `"registros"`) e `disabled?`, evento `update:page`, declaradas em `UiPaginationProps` (`src/types/components.ts`). Usa só `UiButton`, `aria-current="page"` e tokens do design system.
+- **Consumidores**: as três `*ListView.vue` do admin e `src/views/CatalogoView.vue` passam a usar `<UiPagination>`; o estado e as funções de carga das views não mudam.
+- **Documentação**: seção "Paginação de listagens" em `frontend/agents.md` e `UiPagination` em `docs/frontend/README.md`.
+
+#### ✅ Critérios de Aceitação
+
+- [x] `Paginated<T>` e `PaginationParams` existem em `src/types/pagination.ts` e os tipos de fornecedores, categorias, subtipos e usuários os reutilizam.
+- [ ] `UiPagination` mostra o resumo "Página X de Y (N registros)", os números com reticências e Anterior/Próxima, e ignora páginas inválidas.
+- [ ] As telas `/admin/fornecedores`, `/admin/categorias` e `/admin/usuarios` usam `UiPagination`, travam a navegação durante o carregamento e voltam à página 1 ao buscar ou filtrar.
+- [ ] `/catalogo` usa `UiPagination` sem resumo, mantém `?page=` sincronizado e esconde a paginação com página única.
+- [x] `CatalogPagination.vue` removido e sem referências em `frontend/src`.
+- [x] `bun run check-types`, `bun run lint` e `bun run build` passam no diretório `frontend`.
 
 

@@ -1,13 +1,19 @@
 import { api as axios } from "@/plugins/axios";
 import type {
   ISupplier,
+  PaginatedSuppliersResponse,
   SupplierCreateInput,
+  SupplierFilterParams,
   SupplierUpdateInput,
 } from "@/types";
 
 export const fornecedoresApi = {
-  async listar(): Promise<ISupplier[]> {
-    const response = await axios.get<ISupplier[]>("/suppliers");
+  async listar(
+    params?: SupplierFilterParams,
+  ): Promise<PaginatedSuppliersResponse> {
+    const response = await axios.get<PaginatedSuppliersResponse>("/suppliers", {
+      params,
+    });
     return response.data;
   },
 
