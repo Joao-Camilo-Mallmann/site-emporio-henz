@@ -641,9 +641,9 @@ Atende ao **RF04**. Categorias principais representam ambientes da casa (Sala de
 
 #### ✅ Critérios de Aceitação
 
-- [ ] `GET /api/categorias` traz a hierarquia de categorias e subtipos em estrutura JSON limpa.
-- [ ] Slugs são gerados ou validados com unicidade ativa.
-- [ ] Exclusão de categoria ou subtipo preenche `deleted_at` sem apagar linhas fisicamente.
+- [x] `GET /api/categorias` traz a hierarquia de categorias e subtipos em estrutura JSON limpa.
+- [x] Slugs são gerados ou validados com unicidade ativa.
+- [x] Exclusão de categoria ou subtipo preenche `deleted_at` sem apagar linhas fisicamente.
 
 ---
 

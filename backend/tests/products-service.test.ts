@@ -17,7 +17,8 @@ class MockProductsRepository extends ProductsRepository {
     if (!p || p.deleted) {
       return null;
     }
-    const { deleted: _, ...dto } = p;
+    const { deleted, ...dto } = p;
+    void deleted;
     return dto;
   }
 
@@ -35,7 +36,11 @@ class MockProductsRepository extends ProductsRepository {
           !p.deleted,
       )
       .slice(0, limit)
-      .map(({ deleted: _, ...dto }) => dto);
+      .map((item) => {
+        const { deleted, ...dto } = item;
+        void deleted;
+        return dto;
+      });
   }
 }
 

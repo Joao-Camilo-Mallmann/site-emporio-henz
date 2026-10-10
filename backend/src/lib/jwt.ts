@@ -1,4 +1,5 @@
 import { env } from "@/config/env";
+import { AuthenticatedUser } from "./router";
 
 export interface JwtPayload {
   id: string;
@@ -125,4 +126,24 @@ export async function verifyJwt<T = JwtPayload>(
     console.error("Erro na verificação de token JWT:", error);
     return null;
   }
+}
+
+export async function userFromToken(
+  token: string,
+): Promise<AuthenticatedUser | null> {
+  const payload = await verifyJwt(token);
+  if (
+    !payload ||
+    !payload.id ||
+    !payload.email ||
+    typeof payload.role !== "number"
+  ) {
+    return null;
+  }
+
+  return {
+    id: payload.id,
+    email: payload.email,
+    role: payload.role,
+  };
 }

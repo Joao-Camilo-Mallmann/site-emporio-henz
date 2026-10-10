@@ -1,0 +1,32 @@
+meta {
+  name: Atualizar Categoria (Admin)
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/categorias/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Área Externa & Jardim",
+    "active": true
+  }
+}
+
+docs {
+  Exclusivo do Administrador (`401` sem token, `403` para outros perfis).
+  Envie ao menos um entre `name` (2 a 255 caracteres), `slug` (até 255) e `active`.
+  `400` se `:id` não for um UUID válido ou o payload for inválido. `404` se a categoria não existir. `409` se o slug colidir com outra categoria não deletada.
+}

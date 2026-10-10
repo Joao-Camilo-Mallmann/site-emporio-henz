@@ -6,10 +6,11 @@ Atualmente, as tabelas `categories` e `product_subtypes` estão previstas concei
 ## Goals / Non-Goals
 
 **Goals:**
-- Implementar migração SQL `008_create_categories_and_subtypes.sql` com integridade referencial (`ON DELETE RESTRICT`), colunas `deleted_at` e índices parciais de unicidade ativa (`WHERE deleted_at IS NULL`).
+- Implementar migrações SQL `008_create_categories.sql` e `009_create_product_subtypes.sql` com integridade referencial (`ON DELETE RESTRICT`), colunas `deleted_at` e índices parciais de unicidade ativa (`WHERE deleted_at IS NULL`).
 - Implementar seed idempotente em `backend/database/seed.ts` povoando os 6 ambientes oficiais do frontend (`quarto`, `sala-de-estar`, `sala-de-jantar`, `cozinha`, `escritorio`, `banheiro`) e seus subtipos correspondentes.
-- Criar o módulo `backend/src/modules/categories/` seguindo a arquitetura em camadas do projeto (controller, service, repository, schema, routes, types).
-- Expor `GET /api/v1/categorias` como rota pública que entrega a hierarquia aninhada de categorias e subtipos ativos em JSON limpo.
+- Criar os módulos desacoplados `backend/src/modules/categories/` e `backend/src/modules/subtypes/` seguindo a arquitetura em camadas do projeto (controller, service, repository, schema, routes, types) e utilitário compartilhado `backend/src/lib/slug.ts`.
+- Expor `GET /api/v1/categorias` como rota pública entregando a hierarquia completa de categorias com subtipos ativos em JSON limpo ou resultado paginado mediante query params (`page`, `limit`, `search`).
+- Expor `GET /api/v1/subtipos` como rota pública entregando listagem paginada de subtipos com suporte a filtros combinados por `categoryId`, `search` e `active`.
 - Expor rotas de mutação protegidas exclusivas para Admin (`role = 3`): `POST /api/v1/categorias`, `PUT /api/v1/categorias/:id`, `DELETE /api/v1/categorias/:id`, `POST /api/v1/subtipos`, `PUT /api/v1/subtipos/:id`, `DELETE /api/v1/subtipos/:id`.
 - Garantir geração automática e validação rigorosa de slugs únicos ativos na criação e em updates (ignorando o próprio ID em atualizações e retornando 409 se colidir com outro ativo).
 - Implementar exclusão lógica em cascata: ao deletar categoria, preencher atomicamente `deleted_at` em todos os seus subtipos vinculados.
@@ -37,7 +38,16 @@ Atualmente, as tabelas `categories` e `product_subtypes` estão previstas concei
 - **Decisão**: `GET /api/v1/categorias` é público para permitir carregamento rápido do catálogo por qualquer visitante. Todas as mutações (`POST`, `PUT`, `DELETE`) passam pelos middlewares `authMiddleware` e `requireRole(ROLES.ADMIN)`.
 - **Alternativa Rejeitada**: Exigir token em `GET` quebraria a navegação de visitantes deslogados no e-commerce.
 
+### 5. Visibilidade de Registros Inativos nas Leituras Públicas
+- **Decisão**: As rotas `GET` de categorias e subtipos passam por `attachUserIfAuthenticated`, que anexa o usuário quando o token é válido e nunca bloqueia. Os services recebem `includeInactive`, verdadeiro apenas para Administrador; sem ele, forçam `active = true` e, em subtipos, exigem também a categoria ativa.
+- **Alternativa Rejeitada**: Criar rotas administrativas separadas duplicaria controllers e a collection para o mesmo recurso. Confiar no parâmetro `active` da query deixaria qualquer visitante listar registros desativados.
+
+### 6. Validação de Entrada e Erros Internos
+- **Decisão**: `:id` é validado como UUID no controller (`400`). Paginação e busca usam `backend/src/lib/pagination.ts`, com fallback para os padrões quando fora dos limites. `name` e `slug` são limitados a 255 caracteres no schema. A violação do índice único (SQLSTATE `23505`) é convertida em `ConflictError` no service, cobrindo a corrida entre a checagem prévia e a escrita. O `errorHandler` global responde `500` com mensagem genérica e mantém o detalhe apenas no log.
+- **Alternativa Rejeitada**: Remover a checagem prévia de slug e depender só do índice economizaria uma consulta, mas a mensagem de conflito continuaria a mesma e os testes de serviço perderiam o caminho sem banco.
+
 ## Risks / Trade-offs
 
 - **[Colisão de Slug após Soft Delete]** → *Mitigação*: Os índices únicos usam a cláusula parcial `WHERE deleted_at IS NULL`. Isso permite que um slug anteriormente desativado possa ser recadastrado no futuro sem violação de unicidade.
 - **[Cascata lógica inconsistente]** → *Mitigação*: A desativação da categoria e a marcação de seus subtipos filhos ocorrem dentro de uma transação SQL gerenciada por `sql.begin()`.
+- **[Corrida na unicidade do slug]** → *Mitigação*: O índice único parcial é a garantia final; o service converte a violação em `409 Conflict`.

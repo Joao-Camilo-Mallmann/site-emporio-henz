@@ -39,3 +39,10 @@ export class ConflictError extends AppError {
     super(message, 409, "Conflict");
   }
 }
+
+// SQLSTATE 23505 (unique_violation) do PostgreSQL; o Bun.SQL expõe o código em `errno`.
+export function isUniqueViolation(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const { code, errno } = error as { code?: unknown; errno?: unknown };
+  return errno === "23505" || code === "23505";
+}

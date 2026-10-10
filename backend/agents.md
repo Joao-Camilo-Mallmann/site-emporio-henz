@@ -31,3 +31,9 @@ Endpoints, métodos, payloads, headers, ambientes e autenticação são consulta
 ## 4. Comandos do Backend
 
 Use os scripts do `backend` via Bun: desenvolvimento com recarga automática, testes, lint, checagem de tipos, migrações, seed, build e execução do bundle de produção. Não documente a invocação desses scripts neste arquivo; o README do serviço e o `package.json` são a referência operacional.
+
+---
+
+## 5. Tipos e Interfaces
+
+Toda `interface` e todo `type` nomeado de um módulo vivem no arquivo `<módulo>.types.ts` dele, incluindo DTOs, filtros, resultados paginados e tipos de linha do banco (`*DbRow`). Controllers, services, repositories, schemas e routes apenas importam esses tipos, sem declará-los localmente. Quando um módulo precisar de um tipo de outro, importe do `types.ts` do módulo dono em vez de duplicar a declaração.

@@ -1,0 +1,13 @@
+meta {
+  name: Subtypes
+}
+
+docs {
+  ## Regras comuns
+
+  - **Visibilidade**: sem token de Administrador, as leituras retornam apenas subtipos ativos cuja categoria também está ativa. Fora disso, `GET /subtipos/:id` responde `404`.
+  - **`:id`**: deve ser um UUID válido; caso contrário a resposta é `400 Bad Request`.
+  - **`name` e `slug`**: máximo de 255 caracteres (`400` acima disso). Sem `slug`, um `name` que não gere slug (ex.: só símbolos) também dá `400`.
+  - **Slug duplicado** entre registros não deletados: `409 Conflict`, inclusive em requisições concorrentes.
+  - **Paginação**: `page` inteiro de 1 a 10000 (padrão 1) e `limit` inteiro de 1 a 100 (padrão 20). Valores fora disso caem no padrão. `search` é truncado em 100 caracteres e buscado literalmente (`%` e `_` não são curingas).
+}

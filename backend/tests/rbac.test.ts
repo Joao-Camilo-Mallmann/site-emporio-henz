@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { env } from "@/config/env";
 import { signJwt } from "@/lib/jwt";
 import { RequestContext } from "@/lib/router";
-import { authMiddleware } from "@/middlewares/auth";
+import { authMiddleware, attachUserIfAuthenticated } from "@/middlewares/auth";
 import { requireRole, ROLES } from "@/middlewares/role";
 
 describe("Middlewares de Segurança: Bearer JWT e RBAC", () => {
@@ -60,6 +60,40 @@ describe("Middlewares de Segurança: Bearer JWT e RBAC", () => {
       expect(ctx.user?.id).toBe("usuario-uuid-1");
       expect(ctx.user?.email).toBe("vendedor@emporio.com.br");
       expect(ctx.user?.role).toBe(ROLES.SELLER);
+    });
+  });
+
+  describe("attachUserIfAuthenticated", () => {
+    it("deve seguir como visitante anônimo sem token ou com token inválido", async () => {
+      for (const headers of [
+        undefined,
+        { Authorization: "Basic dXNlcjpwYXNz" },
+        { Authorization: "Bearer token-invalido-xyz" },
+      ]) {
+        const req = new Request("http://localhost/api/v1/categorias", {
+          headers,
+        });
+        const ctx: RequestContext = { params: {}, url: new URL(req.url) };
+
+        const res = await attachUserIfAuthenticated(req, ctx);
+        expect(res).toBeUndefined();
+        expect(ctx.user).toBeUndefined();
+      }
+    });
+
+    it("deve anexar o usuário ao contexto quando o token for válido", async () => {
+      const token = await signJwt(
+        { id: "admin-1", email: "admin@emporio.com.br", role: ROLES.ADMIN },
+        env.JWT_SECRET,
+      );
+      const req = new Request("http://localhost/api/v1/categorias", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const ctx: RequestContext = { params: {}, url: new URL(req.url) };
+
+      const res = await attachUserIfAuthenticated(req, ctx);
+      expect(res).toBeUndefined();
+      expect(ctx.user?.role).toBe(ROLES.ADMIN);
     });
   });
 
