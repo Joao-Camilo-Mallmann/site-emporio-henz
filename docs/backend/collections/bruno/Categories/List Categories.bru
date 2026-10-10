@@ -1,24 +1,24 @@
 meta {
-  name: Listar Categorias (Público Hierárquico ou Paginado)
+  name: Listar Categorias (Público Paginado)
   type: http
   seq: 1
 }
 
 get {
-  url: {{baseUrl}}/categorias
+  url: {{baseUrl}}/categorias?page=1&limit=20
   body: none
   auth: none
 }
 
 params:query {
-  ~page: 1
-  ~limit: 20
+  page: 1
+  limit: 20
   ~search: quarto
 }
 
 docs {
-  Sem `page`, `limit` ou `search`, retorna a hierarquia de categorias ativas com seus subtipos ativos.
-  Com qualquer um deles, retorna a listagem paginada, sempre restrita a categorias ativas para o público.
+  Listagem sempre paginada. Para o público, retorna somente categorias ativas, cada uma com seus subtipos ativos em `subtypes`.
+  `page` (1 a 10000, padrão 1) e `limit` (1 a 100, padrão 20) fora dos limites caem no padrão. `search` filtra pelo nome e é truncado em 100 caracteres.
   Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
   O filtro `active` só é aplicado para o Administrador (ver "Listar Categorias (Admin)").
 }

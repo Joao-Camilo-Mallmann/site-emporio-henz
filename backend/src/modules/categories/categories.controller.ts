@@ -15,20 +15,9 @@ export class CategoriesController {
   constructor(private service: CategoriesService = categoriesService) {}
 
   async list(req: Request, ctx: RequestContext): Promise<Response> {
-    const url = new URL(req.url);
-    const hasPaginationParams =
-      url.searchParams.has("page") ||
-      url.searchParams.has("limit") ||
-      url.searchParams.has("search");
-
-    if (hasPaginationParams) {
-      const filters = validateCategoryQuery(url);
-      const paginated = await this.service.listPaginated(filters, isAdmin(ctx));
-      return ok(paginated);
-    }
-
-    const categories = await this.service.listHierarchy();
-    return ok(categories);
+    const filters = validateCategoryQuery(new URL(req.url));
+    const result = await this.service.listPaginated(filters, isAdmin(ctx));
+    return ok(result);
   }
 
   async getCategoryById(_req: Request, ctx: RequestContext): Promise<Response> {

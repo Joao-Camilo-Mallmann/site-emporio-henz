@@ -45,30 +45,6 @@ class MockCategoriesRepository extends CategoriesRepository {
   public categories: Map<string, CategoryDto & { deleted: boolean }> = new Map();
   public subtypes: Map<string, SubtypeDto & { deleted: boolean }> = new Map();
 
-  async listHierarchy(activeOnly = true): Promise<CategoryDto[]> {
-    const activeCats = Array.from(this.categories.values())
-      .filter((c) => !c.deleted && (!activeOnly || c.active))
-      .sort((a, b) => a.name.localeCompare(b.name));
-
-    return activeCats.map((cat) => {
-      const subs = Array.from(this.subtypes.values())
-        .filter(
-          (s) =>
-            s.categoryId === cat.id && !s.deleted && (!activeOnly || s.active),
-        )
-        .sort((a, b) => a.name.localeCompare(b.name));
-      return {
-        id: cat.id,
-        name: cat.name,
-        slug: cat.slug,
-        active: cat.active,
-        createdAt: cat.createdAt,
-        updatedAt: cat.updatedAt,
-        subtypes: subs,
-      };
-    });
-  }
-
   async listPaginated(
     filters: CategoryQueryFilters = {},
   ): Promise<PaginatedCategoriesResult> {
@@ -96,6 +72,14 @@ class MockCategoriesRepository extends CategoriesRepository {
         active: c.active,
         createdAt: c.createdAt,
         updatedAt: c.updatedAt,
+        subtypes: Array.from(this.subtypes.values())
+          .filter(
+            (s) =>
+              s.categoryId === c.id &&
+              !s.deleted &&
+              (filters.active !== true || s.active),
+          )
+          .sort((a, b) => a.name.localeCompare(b.name)),
       })),
       pagination: {
         page,
@@ -241,10 +225,10 @@ describe("Módulo de Categorias (CategoriesService)", () => {
       deleted: false,
     });
 
-    const hierarchy = await service.listHierarchy();
-    expect(hierarchy.length).toBe(1);
-    expect(hierarchy[0].name).toBe("Quarto");
-    expect(hierarchy[0].subtypes?.length).toBe(1);
+    const result = await service.listPaginated();
+    expect(result.pagination.total).toBe(1);
+    expect(result.data[0].name).toBe("Quarto");
+    expect(result.data[0].subtypes?.length).toBe(1);
   });
 
   it("deve listar categorias com paginação e busca por termo", async () => {
@@ -395,7 +379,7 @@ describe("Controller de Categorias (CategoriesController)", () => {
 
   it("deve listar inativas na paginação somente para o Administrador", async () => {
     const controller = buildController();
-    const req = new Request("http://localhost/api/v1/categorias?page=1");
+    const req = new Request("http://localhost/api/v1/categorias");
 
     const publicRes = await controller.list(req, buildCtx(""));
     const publicBody = (await publicRes.json()) as PaginatedCategoriesResult;

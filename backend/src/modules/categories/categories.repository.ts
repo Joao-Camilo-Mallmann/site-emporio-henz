@@ -35,46 +35,18 @@ function mapSubtype(row: SubtypeDbRow): SubtypeDto {
 
 export class CategoriesRepository {
   /**
-   * Busca todas as categorias ativas juntamente com seus subtipos ativos montados em memória.
-   * Utilizado para a navegação pública rápida por ambientes no catálogo e header.
+   * Lista paginada de categorias, cada uma com seus subtipos montados em memória.
+   * Com `active = true` (visão pública) só entram subtipos ativos.
    */
-  async listHierarchy(activeOnly = true): Promise<CategoryDto[]> {
-    const [categoryRows, subtypeRows] = await Promise.all([
-      sql<CategoryDbRow[]>`
-        SELECT id, name, slug, active, created_at, updated_at
-        FROM categories
-        WHERE deleted_at IS NULL AND (NOT ${activeOnly}::boolean OR active = TRUE)
-        ORDER BY name ASC
-      `,
-      sql<SubtypeDbRow[]>`
-        SELECT id, category_id, name, slug, active, created_at, updated_at
-        FROM product_subtypes
-        WHERE deleted_at IS NULL AND (NOT ${activeOnly}::boolean OR active = TRUE)
-        ORDER BY name ASC
-      `,
-    ]);
-
-    const subtypesByCategoryId = new Map<string, SubtypeDto[]>();
-    for (const sub of subtypeRows) {
-      const list = subtypesByCategoryId.get(sub.category_id) ?? [];
-      list.push(mapSubtype(sub));
-      subtypesByCategoryId.set(sub.category_id, list);
-    }
-
-    return categoryRows.map((cat: CategoryDbRow) => ({
-      ...mapCategory(cat),
-      subtypes: subtypesByCategoryId.get(cat.id) ?? [],
-    }));
-  }
-
   async listPaginated(
     filters: CategoryQueryFilters = {},
   ): Promise<PaginatedCategoriesResult> {
     const { page, limit, offset } = resolvePagination(filters);
     const search = filters.search ? escapeLike(filters.search) : null;
     const active = filters.active !== undefined ? filters.active : null;
+    const activeSubtypesOnly = filters.active === true;
 
-    const [countRows, rows] = await Promise.all([
+    const [countRows, rows, subtypeRows] = await Promise.all([
       sql<{ count: string }[]>`
         SELECT COUNT(*)::text as count
         FROM categories c
@@ -91,11 +63,29 @@ export class CategoriesRepository {
         ORDER BY c.name ASC
         LIMIT ${limit} OFFSET ${offset}
       `,
+      sql<SubtypeDbRow[]>`
+        SELECT id, category_id, name, slug, active, created_at, updated_at
+        FROM product_subtypes
+        WHERE deleted_at IS NULL
+          AND (NOT ${activeSubtypesOnly}::boolean OR active = TRUE)
+        ORDER BY name ASC
+      `,
     ]);
 
-    const total = parseInt(countRows[0]?.count || "0", 10);
+    const subtypesByCategoryId = new Map<string, SubtypeDto[]>();
+    for (const sub of subtypeRows) {
+      const list = subtypesByCategoryId.get(sub.category_id) ?? [];
+      list.push(mapSubtype(sub));
+      subtypesByCategoryId.set(sub.category_id, list);
+    }
 
-    return paginate(rows.map(mapCategory), total, { page, limit });
+    const total = parseInt(countRows[0]?.count || "0", 10);
+    const data = rows.map((cat: CategoryDbRow) => ({
+      ...mapCategory(cat),
+      subtypes: subtypesByCategoryId.get(cat.id) ?? [],
+    }));
+
+    return paginate(data, total, { page, limit });
   }
 
   async findCategoryById(id: string): Promise<CategoryDto | null> {

@@ -15,14 +15,10 @@ import {
 export class CategoriesService {
   constructor(private repo: CategoriesRepository = categoriesRepository) {}
 
-  async listHierarchy(): Promise<CategoryDto[]> {
-    return await this.repo.listHierarchy(true);
-  }
-
   // Registros inativos só são visíveis com `includeInactive` (Administrador).
   async listPaginated(
     filters: CategoryQueryFilters = {},
-    includeInactive = false,
+    includeInactive = false, // Se true, retorna registros inativos também (Administrador).
   ): Promise<PaginatedCategoriesResult> {
     return await this.repo.listPaginated(
       includeInactive ? filters : { ...filters, active: true },
@@ -77,10 +73,7 @@ export class CategoriesService {
     }
 
     if (dto.slug) {
-      const slugExists = await this.repo.existsCategorySlugActive(
-        dto.slug,
-        id,
-      );
+      const slugExists = await this.repo.existsCategorySlugActive(dto.slug, id);
       if (slugExists) {
         throw this.slugConflict(dto.slug);
       }

@@ -5,7 +5,7 @@ import { categoriesController } from "./categories.controller";
 
 export const categoriesRoutes = new Router();
 
-// Leitura de categorias: Pública (Hierarquia ou Paginação e busca por ID).
+// Leitura de categorias: Pública (Listagem paginada com subtipos e busca por ID).
 // Registros inativos só são retornados quando o token é de Administrador.
 categoriesRoutes.get("/", attachUserIfAuthenticated, (req, ctx) =>
   categoriesController.list(req, ctx),
