@@ -8,6 +8,18 @@ import { createRouter, createWebHistory, RouterView } from "vue-router";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: "smooth",
+      };
+    }
+    return { top: 0, behavior: "smooth" };
+  },
   routes: [
     {
       path: "/",
@@ -23,6 +35,14 @@ const router = createRouter({
       component: () => import("@/views/CatalogoView.vue"),
       meta: {
         title: "Catálogo de Móveis | Empório Henz",
+      },
+    },
+    {
+      path: "/produtos/:id",
+      name: "produto-detalhe",
+      component: () => import("@/views/ProdutoDetalheView.vue"),
+      meta: {
+        title: "Detalhes do Produto | Empório Henz",
       },
     },
     {

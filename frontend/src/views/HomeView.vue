@@ -1,23 +1,38 @@
 <script setup lang="ts">
 import HeroBannerDesktop from "@/components/home/HeroBannerDesktop.vue";
 import HeroBannerMobile from "@/components/home/HeroBannerMobile.vue";
+import { Icon } from "@iconify/vue";
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { toast } from "vue3-toastify";
+
+const router = useRouter();
 
 const hoveredCategory = ref<string | null>(null);
 const selectedCategory = ref<string>("");
 const savedItems = ref<Set<string>>(new Set());
 const selectedFinishes = ref<Record<string, string>>({});
 
-function toggleSave(id: string) {
+function toggleSave(id: string, name?: string) {
   if (savedItems.value.has(id)) {
     savedItems.value.delete(id);
+    toast.info(
+      name ? `${name} removido dos salvos.` : "Item removido dos salvos.",
+    );
   } else {
     savedItems.value.add(id);
+    toast.success(
+      name ? `${name} salvo nos seus favoritos!` : "Item salvo com sucesso!",
+    );
   }
 }
 
 function selectFinish(productId: string, color: string) {
   selectedFinishes.value[productId] = color;
+}
+
+function goToProduct(identifier: string) {
+  router.push(`/produtos/${identifier}`);
 }
 
 interface FinishColor {
@@ -27,6 +42,7 @@ interface FinishColor {
 
 interface ProductItem {
   id: string;
+  slug: string;
   name: string;
   price: number;
   installments: string;
@@ -82,10 +98,11 @@ const categories: CategoryItem[] = [
   },
 ];
 
-// Destaques conforme Figma
+// Destaques conforme Figma e catálogo mockado (p-12, p-9, p-10, p-11)
 const destaques: ProductItem[] = [
   {
-    id: "dest-1",
+    id: "p-12",
+    slug: "cristaleira-liara",
     name: "Cristaleira Liara",
     price: 1900,
     installments: "Até 10x no cartão",
@@ -93,7 +110,8 @@ const destaques: ProductItem[] = [
     finishes: [],
   },
   {
-    id: "dest-2",
+    id: "p-9",
+    slug: "mesa-de-centro-petala",
     name: "Mesa de Centro Pétala",
     price: 720,
     installments: "Até 10x no cartão",
@@ -106,7 +124,8 @@ const destaques: ProductItem[] = [
     extraFinishesCount: 2,
   },
   {
-    id: "dest-3",
+    id: "p-10",
+    slug: "home-ripado-supremo",
     name: "Home Ripado Supremo",
     price: 1550,
     installments: "Até 10x no cartão",
@@ -117,7 +136,8 @@ const destaques: ProductItem[] = [
     ],
   },
   {
-    id: "dest-4",
+    id: "p-11",
+    slug: "poltrona-tissi",
     name: "Poltrona Tissi",
     price: 2370,
     installments: "Até 10x no cartão",
@@ -130,10 +150,11 @@ const destaques: ProductItem[] = [
   },
 ];
 
-// Seção "Você também pode gostar" conforme footer.png
+// Seção "Você também pode gostar" conforme footer.png e catálogo mockado (p-4, p-2, p-8, p-7)
 const recomendados: ProductItem[] = [
   {
-    id: "rec-1",
+    id: "p-4",
+    slug: "roupeiro-milano",
     name: "Roupeiro Milano",
     price: 4900,
     installments: "Até 10x no cartão",
@@ -144,7 +165,8 @@ const recomendados: ProductItem[] = [
     ],
   },
   {
-    id: "rec-2",
+    id: "p-2",
+    slug: "roupeiro-veneza",
     name: "Roupeiro Veneza",
     price: 7300,
     installments: "Até 10x no cartão",
@@ -155,7 +177,8 @@ const recomendados: ProductItem[] = [
     ],
   },
   {
-    id: "rec-3",
+    id: "p-8",
+    slug: "comoda-italia",
     name: "Cômoda Itália",
     price: 1500,
     installments: "Até 10x no cartão",
@@ -166,7 +189,8 @@ const recomendados: ProductItem[] = [
     ],
   },
   {
-    id: "rec-4",
+    id: "p-7",
+    slug: "cabeceira-italia",
     name: "Cabeceira Itália",
     price: 550,
     installments: "Até 10x no cartão",
@@ -195,7 +219,7 @@ const recomendados: ProductItem[] = [
         <RouterLink
           v-for="cat in categories"
           :key="cat.id"
-          to="/"
+          :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
           @mouseenter="hoveredCategory = cat.slug"
           @mouseleave="hoveredCategory = null"
           @click="selectedCategory = cat.slug"
@@ -267,14 +291,28 @@ const recomendados: ProductItem[] = [
         >
           Destaques
         </h2>
+        <RouterLink
+          to="/catalogo"
+          class="text-xs sm:text-sm font-semibold text-secondary hover:text-sky-700 flex items-center gap-1 group transition-colors"
+        >
+          <span>Ver catálogo completo</span>
+          <Icon
+            icon="mdi:chevron-right"
+            class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+          />
+        </RouterLink>
       </div>
 
-      <!-- Grid de 4 Cards de Produto com Hover Elevado e Tooltip de Acabamento -->
+      <!-- Grid de 4 Cards de Produto com Hover Elevado e Navegação para Detalhes -->
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
           v-for="item in destaques"
           :key="item.id"
-          class="bg-white rounded-2xl shadow-[0px_4px_14px_rgba(0,0,0,0.05)] border border-stone-200/70 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col group cursor-pointer"
+          role="link"
+          tabindex="0"
+          @click="goToProduct(item.slug || item.id)"
+          @keydown.enter="goToProduct(item.slug || item.id)"
+          class="bg-white rounded-2xl shadow-[0px_4px_14px_rgba(0,0,0,0.05)] border border-stone-200/70 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col group cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary/50"
         >
           <!-- Imagem e Seletor de Acabamentos -->
           <div
@@ -286,34 +324,29 @@ const recomendados: ProductItem[] = [
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out select-none"
             />
 
-            <!-- Botão Flutuante de Salvar/Favoritar com Microinteração no Hover -->
-            <button
-              type="button"
-              @click.stop.prevent="toggleSave(item.id)"
-              class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/85 hover:bg-white backdrop-blur-xs flex items-center justify-center text-stone-600 hover:text-rose-500 transition-all duration-200 shadow-sm hover:scale-110 cursor-pointer z-10"
+            <!-- Botão Flutuante de Salvar/Favoritar -->
+            <UiButton
+              variant="custom"
+              size="icon"
+              class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/85 hover:bg-white backdrop-blur-xs flex items-center justify-center text-stone-600 hover:text-rose-500 transition-all duration-200 shadow-sm hover:scale-110 cursor-pointer z-10 p-0 border-none"
+              @click.stop.prevent="toggleSave(item.id, item.name)"
               :title="
                 savedItems.has(item.id) ? 'Remover dos salvos' : 'Salvar móvel'
               "
-              aria-label="Favoritar móvel"
+              :aria-label="
+                savedItems.has(item.id) ? 'Remover dos salvos' : 'Salvar móvel'
+              "
             >
-              <svg
+              <Icon
+                icon="mdi:heart"
                 class="w-4 h-4 transition-colors"
                 :class="
                   savedItems.has(item.id)
                     ? 'fill-rose-500 text-rose-500'
                     : 'fill-transparent text-stone-600 group-hover:text-rose-500'
                 "
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-            </button>
+              />
+            </UiButton>
 
             <!-- Pílula de Acabamentos Flutuante no Canto Inferior Direito (Figma node #2:941) -->
             <div
@@ -371,14 +404,28 @@ const recomendados: ProductItem[] = [
         >
           Você também pode gostar
         </h2>
+        <RouterLink
+          to="/catalogo"
+          class="text-xs sm:text-sm font-semibold text-secondary hover:text-sky-700 flex items-center gap-1 group transition-colors"
+        >
+          <span>Explorar mais móveis</span>
+          <Icon
+            icon="mdi:chevron-right"
+            class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+          />
+        </RouterLink>
       </div>
 
-      <!-- Grid de 4 Cards de Produto (footer.png) -->
+      <!-- Grid de 4 Cards de Produto (footer.png) com Navegação para Detalhes -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div
           v-for="item in recomendados"
           :key="item.id"
-          class="bg-white rounded-2xl shadow-[0px_4px_14px_rgba(0,0,0,0.05)] border border-stone-200/70 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col group cursor-pointer"
+          role="link"
+          tabindex="0"
+          @click="goToProduct(item.slug || item.id)"
+          @keydown.enter="goToProduct(item.slug || item.id)"
+          class="bg-white rounded-2xl shadow-[0px_4px_14px_rgba(0,0,0,0.05)] border border-stone-200/70 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col group cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary/50"
         >
           <!-- Imagem e Acabamentos -->
           <div
@@ -391,25 +438,28 @@ const recomendados: ProductItem[] = [
             />
 
             <!-- Botão Flutuante de Salvar/Favoritar -->
-            <button
-              type="button"
-              @click.stop.prevent="toggleSave(item.id)"
-              class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/85 hover:bg-white backdrop-blur-xs flex items-center justify-center text-stone-600 hover:text-rose-500 transition-all duration-200 shadow-sm hover:scale-110 cursor-pointer z-10"
+            <UiButton
+              variant="custom"
+              size="icon"
+              class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/85 hover:bg-white backdrop-blur-xs flex items-center justify-center text-stone-600 hover:text-rose-500 transition-all duration-200 shadow-sm hover:scale-110 cursor-pointer z-10 p-0 border-none"
+              @click.stop.prevent="toggleSave(item.id, item.name)"
               :title="
                 savedItems.has(item.id) ? 'Remover dos salvos' : 'Salvar móvel'
               "
-              aria-label="Favoritar móvel"
+              :aria-label="
+                savedItems.has(item.id) ? 'Remover dos salvos' : 'Salvar móvel'
+              "
             >
               <Icon
-                icon="mdi-heart"
-                class="w-4 h-4"
+                icon="mdi:heart"
+                class="w-4 h-4 transition-colors"
                 :class="
                   savedItems.has(item.id)
                     ? 'fill-rose-500 text-rose-500'
                     : 'fill-transparent text-stone-600 group-hover:text-rose-500'
                 "
               />
-            </button>
+            </UiButton>
 
             <!-- Pílula de Acabamentos -->
             <div

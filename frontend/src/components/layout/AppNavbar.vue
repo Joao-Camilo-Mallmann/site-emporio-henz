@@ -243,7 +243,7 @@ onUnmounted(() => {
           <img
             src="/images/logos/logo-horizontal.svg"
             alt="Empório Henz"
-            class="h-8 md:h-9 w-auto object-contain filter brightness-0 invert"
+            class="h-8 md:h-9 w-auto object-contain filter brightness-0 invert transition-all duration-300 hover:scale-105"
             onerror="
               this.style.display = 'none';
               this.nextElementSibling.style.display = 'flex';

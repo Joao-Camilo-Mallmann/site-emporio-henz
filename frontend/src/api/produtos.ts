@@ -3,17 +3,32 @@ import type {
   IProduct,
   ProductFilterParams,
   ProductCreateInput,
+  ProductDetail,
 } from "@/types";
+import { getMockProductDetail } from "@/mocks/catalogo";
 
-export default {
+export const produtosApi = {
   async listar(params?: ProductFilterParams): Promise<IProduct[]> {
     const response = await axios.get<IProduct[]>("/api/produtos", { params });
     return response.data;
   },
 
-  async buscarPorId(id: string): Promise<IProduct> {
-    const response = await axios.get<IProduct>(`/api/produtos/${id}`);
-    return response.data;
+  async buscarPorId(id: string): Promise<ProductDetail> {
+    try {
+      const response = await axios.get<ProductDetail>(`/produtos/${id}`);
+      if (response.data && response.data.id) {
+        return response.data;
+      }
+    } catch {
+      // Fallback resiliente no catálogo mockado caso backend não esteja disponível
+    }
+
+    const mockDetail = getMockProductDetail(id);
+    if (mockDetail) {
+      return mockDetail;
+    }
+
+    throw new Error(`Produto "${id}" não encontrado.`);
   },
 
   async insert(dados: ProductCreateInput): Promise<IProduct> {
@@ -36,3 +51,5 @@ export default {
     return response.data;
   },
 };
+
+export default produtosApi;

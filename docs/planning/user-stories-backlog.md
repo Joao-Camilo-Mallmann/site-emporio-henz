@@ -872,9 +872,9 @@ Atende ao **RF06**. Elementos obrigatórios na tela:
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Selecionar acabamento altera a imagem principal correspondente no carrossel.
-- [ ] Exibe claramente as especificações, dimensões e condições de entrega/montagem.
-- [ ] Card de visita ao showroom em Cruzeiro do Sul está presente e visualmente destacado.
+- [x] Selecionar acabamento altera a imagem principal correspondente no carrossel.
+- [x] Exibe claramente as especificações, dimensões e condições de entrega/montagem.
+- [x] Card de visita ao showroom em Cruzeiro do Sul está presente e visualmente destacado.
 
 ---
 

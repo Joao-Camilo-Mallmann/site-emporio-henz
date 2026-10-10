@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { CatalogProductItem, CatalogVariationBadge } from "@/types";
 import { computed } from "vue";
+import { useRouter } from "vue-router";
 
 interface Props {
   product: CatalogProductItem;
 }
 
 const props = defineProps<Props>();
+
+const router = useRouter();
 
 const emit = defineEmits<{
   (e: "click", product: CatalogProductItem): void;
@@ -33,6 +36,10 @@ const formattedPriceParts = computed(() => {
 
 function handleCardClick() {
   emit("click", props.product);
+  const identifier = props.product.slug || props.product.id;
+  if (identifier) {
+    router.push(`/produtos/${identifier}`);
+  }
 }
 
 function handleFinishClick(finish: CatalogVariationBadge) {

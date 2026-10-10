@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { UiButtonProps } from "@/types";
-import { defineEmits, defineProps, withDefaults } from "vue";
 
 const props = withDefaults(defineProps<UiButtonProps>(), {
   variant: "primary",

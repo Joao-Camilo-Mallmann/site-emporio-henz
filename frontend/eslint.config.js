@@ -1,11 +1,19 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginVue from "eslint-plugin-vue";
+import globals from "globals";
 
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...pluginVue.configs["flat/essential"],
+  {
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
   {
     files: ["*.vue", "**/*.vue"],
     languageOptions: {
