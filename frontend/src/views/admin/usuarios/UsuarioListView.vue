@@ -381,39 +381,13 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Controles Limpos de Paginação -->
-        <div
-          class="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-500 px-1"
-        >
-          <span>
-            Página {{ currentPage }} de {{ totalPages }} ({{ totalUsers }}
-            registros)
-          </span>
-
-          <div class="flex items-center gap-2">
-            <UiButton
-              variant="outline"
-              size="sm"
-              :disabled="currentPage <= 1 || loading"
-              aria-label="Página anterior"
-              @click="carregarUsuarios(currentPage - 1)"
-            >
-              <Icon icon="mdi:chevron-left" class="w-3.5 h-3.5" />
-              <span>Anterior</span>
-            </UiButton>
-
-            <UiButton
-              variant="outline"
-              size="sm"
-              :disabled="currentPage >= totalPages || loading"
-              aria-label="Próxima página"
-              @click="carregarUsuarios(currentPage + 1)"
-            >
-              <span>Próxima</span>
-              <Icon icon="mdi:chevron-right" class="w-3.5 h-3.5" />
-            </UiButton>
-          </div>
-        </div>
+        <UiPagination
+          :page="currentPage"
+          :total-pages="totalPages"
+          :total="totalUsers"
+          :disabled="loading"
+          @update:page="carregarUsuarios"
+        />
       </div>
     </div>
 

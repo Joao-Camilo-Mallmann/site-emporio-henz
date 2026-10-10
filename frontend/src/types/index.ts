@@ -1,8 +1,10 @@
 export * from "./api";
 export * from "./auth";
 export * from "./components";
+export * from "./pagination";
 export * from "./models";
 export * from "./suppliers";
 export * from "./users";
 export * from "./catalogo";
-
+export * from "./categories";
+export * from "./subtypes";

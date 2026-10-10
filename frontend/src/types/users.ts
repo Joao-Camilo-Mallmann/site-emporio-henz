@@ -1,4 +1,5 @@
 import type { UserRole } from "./auth";
+import type { Paginated, PaginationParams } from "./pagination";
 
 export interface IUser {
   id: string;
@@ -28,19 +29,9 @@ export interface UserUpdateInput {
   password?: string;
 }
 
-export interface UserFilterParams {
-  page?: number;
-  limit?: number;
+export interface UserFilterParams extends PaginationParams {
   search?: string;
   role?: UserRole | number;
 }
 
-export interface PaginatedUsersResponse {
-  data: IUser[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+export type PaginatedUsersResponse = Paginated<IUser>;

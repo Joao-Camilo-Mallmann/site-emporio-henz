@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "beautiful-article": {
+      "source": "ConardLi/garden-skills",
+      "sourceType": "github",
+      "skillPath": "skills/beautiful-article/SKILL.md",
+      "computedHash": "30464dd1e18dcd674d6a93e7e3e13391036b48a392c37ba49069f57da55d103e"
+    },
     "code-review": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -13,11 +19,35 @@
       "skillPath": "skills/geo-magazine-slides-cn/SKILL.md",
       "computedHash": "7cc672dd9164dbe0cf20acbf5d808ff2f41042b8680638917027538c61d444a3"
     },
+    "gpt-image-2": {
+      "source": "ConardLi/garden-skills",
+      "sourceType": "github",
+      "skillPath": "skills/gpt-image-2/SKILL.md",
+      "computedHash": "69b037d22cfa2eb5f51f640e69bd03c4e96f2f8a8a36444c9ad49db52b797b7d"
+    },
     "grill-me": {
       "source": "mattpocock/skills",
       "sourceType": "github",
       "skillPath": "skills/productivity/grill-me/SKILL.md",
       "computedHash": "9cdbb4b8f7a3aeaef82e6230c9e823500d4a8a1214c726cf342cf9829d34fc7d"
+    },
+    "kb-retriever": {
+      "source": "ConardLi/garden-skills",
+      "sourceType": "github",
+      "skillPath": "skills/kb-retriever/SKILL.md",
+      "computedHash": "aa228657d333e5259ab46569f6e53386be7c4eb6db31b774836b0d26b55cf128"
+    },
+    "web-design-engineer": {
+      "source": "ConardLi/garden-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-design-engineer/SKILL.md",
+      "computedHash": "419833614b24848c7c93bb2118e135a7e7b8267e53a25b0373eb4d1c49e71547"
+    },
+    "web-video-presentation": {
+      "source": "ConardLi/garden-skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-video-presentation/SKILL.md",
+      "computedHash": "a760be4be109d4f259559760dbbfdcbef616b061cdc181472e5a45e330025773"
     }
   }
 }

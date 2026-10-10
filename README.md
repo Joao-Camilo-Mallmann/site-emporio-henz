@@ -194,27 +194,15 @@ bun run dev
 
 ## 📋 Padrões de Execução e Qualidade
 
-### Backend (`backend/`)
+Os comandos de instalação, execução, lint, tipos, testes e build de cada aplicação estão nos respectivos READMEs:
 
-```bash
-cd backend
-bun run check-types  # Checagem de tipos (tsc --noEmit)
-bun run lint         # Verificação de lint (ESLint)
-bun test             # Suíte de testes automatizados (bun:test)
-bun run build        # Bundle de produção
-```
-
-### Frontend (`frontend/`)
-
-```bash
-cd frontend
-bun run check-types  # Checagem de tipos (vue-tsc --noEmit)
-bun run lint         # Verificação de lint (ESLint)
-bun run build        # Build estático para produção
-```
+- [Backend (`backend/`)](backend/README.md)
+- [Frontend (`frontend/`)](frontend/README.md)
 
 ---
 
 ## 📖 Diretrizes e Desenvolvimento de Novas Features
 
-Consulte o arquivo [agents.md](agents.md) para as regras de governança e arquitetura do projeto. O ciclo de vida de novas features deve seguir o fluxo **OpenSpec** (`openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-archive-change`).
+O projeto tem dois ambientes de trabalho: o **frontend** (`frontend/`) e o **backend** (`backend/`, que inclui a API e o banco de dados). Cada um tem seu próprio `agents.md` ([frontend/agents.md](frontend/agents.md) e [backend/agents.md](backend/agents.md)); o [agents.md](agents.md) da raiz é o roteador que aponta para as regras gerais e para o ambiente de cada tarefa.
+
+O ciclo de vida de novas features deve seguir o fluxo **OpenSpec** (`openspec-explore`, `openspec-propose`, `openspec-apply-change`, `openspec-archive-change`).

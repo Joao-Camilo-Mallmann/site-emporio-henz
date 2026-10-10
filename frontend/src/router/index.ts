@@ -158,6 +158,41 @@ const router = createRouter({
             roles: [UserRole.Administrador],
           },
         },
+
+        // Gestão de Categorias & Subtipos
+        {
+          path: "categorias",
+          name: "admin-categorias",
+          component: () =>
+            import("@/views/admin/categorias/CategoriaListView.vue"),
+          meta: {
+            title: "Gestão de Categorias & Subtipos | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
+        {
+          path: "categorias/nova",
+          name: "admin-categorias-nova",
+          component: () =>
+            import("@/views/admin/categorias/CategoriaNewView.vue"),
+          meta: {
+            title: "Nova Categoria | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
+        {
+          path: "categorias/:id/editar",
+          name: "admin-categorias-editar",
+          component: () =>
+            import("@/views/admin/categorias/CategoriaEditView.vue"),
+          meta: {
+            title: "Editar Categoria | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Administrador],
+          },
+        },
       ],
     },
 

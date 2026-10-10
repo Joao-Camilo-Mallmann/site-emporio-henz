@@ -28,8 +28,10 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
 | `frontend/src/composables/` | Comportamentos reutilizáveis |
 | `frontend/src/plugins/` | Axios, Pinia e integrações globais |
 | `frontend/src/router/` | Rotas e guards de navegação |
+| `frontend/src/components/ui/` | Componentes do design system, incluindo `UiPagination.vue` para paginação de listagens |
 | `frontend/src/stores/` | Estado global |
-| `frontend/src/views/` | Páginas públicas, autenticadas e administrativas |
+| `frontend/src/types/` | Tipos e modelos de domínio; `pagination.ts` define o envelope `Paginated<T>` das listagens |
+| `frontend/src/views/` | Páginas públicas, autenticadas e administrativas (domínios complexos como `categorias/subcategorias/` utilizam subpastas para modularizar componentes privados) |
 
 ## Convenções de interface e reaproveitamento de código
 
@@ -42,6 +44,7 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
   - `<UiButton>`: mandatório para qualquer botão ou disparador de ação na interface. Não use tags `<button>` nativas soltas nem links manuais com aparência de botão. Suporta variantes `'primary'`, `'secondary'`, `'outline'`, `'ghost'`, `'danger'` e `'link'`, tamanhos `'xs'` a `'xl'`, `'icon'` e `'none'`, além de `block` (100% largura) e `:loading`.
   - `<UiModal>`: mandatório para diálogos, modais e alertas de confirmação.
   - `<UiCard>`, `<UiFloatingActions>` e `<UiFloatingButton>`: componentes canônicos para cartões e ações flutuantes.
+  - `<UiPagination>`: obrigatório em toda listagem paginada; detalhes na seção "Paginação de listagens" de [frontend/agents.md](../../frontend/agents.md).
 - Componentes em `src/components/` são importados automaticamente por `unplugin-vue-components`.
 - Feedbacks transitórios usam `useToast()` e `vue3-toastify`.
 - Estados de carregamento, erro, vazio e sucesso devem ser explícitos.

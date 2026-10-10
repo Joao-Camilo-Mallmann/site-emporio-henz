@@ -1,3 +1,5 @@
+import type { Paginated, PaginationParams } from "./pagination";
+
 export interface ISupplier {
   id: string;
   name: string;
@@ -18,3 +20,10 @@ export interface SupplierUpdateInput {
   contact?: string;
   active?: boolean;
 }
+
+export interface SupplierFilterParams extends PaginationParams {
+  search?: string;
+  active?: boolean;
+}
+
+export type PaginatedSuppliersResponse = Paginated<ISupplier>;
