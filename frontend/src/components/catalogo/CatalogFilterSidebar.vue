@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UiButton from "@/components/ui/UiButton.vue";
-import type { CatalogFilterParams } from "@/types";
+import type { CatalogAvailability, CatalogFilterParams } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, ref, watch } from "vue";
 
@@ -21,6 +21,7 @@ const localSubcategoria = ref(props.filters.subcategoria || "");
 const localMateriais = ref<string[]>([...(props.filters.materiais || [])]);
 const localCores = ref<string[]>([...(props.filters.cores || [])]);
 const localMarcas = ref<string[]>([...(props.filters.marcas || [])]);
+const localDisponibilidade = ref<CatalogAvailability[]>([...(props.filters.disponibilidade || []),]);
 const localMinPreco = ref<number | undefined>(props.filters.minPreco);
 const localMaxPreco = ref<number | undefined>(props.filters.maxPreco);
 
@@ -36,6 +37,7 @@ watch(
     localMateriais.value = [...(newVal.materiais || [])];
     localCores.value = [...(newVal.cores || [])];
     localMarcas.value = [...(newVal.marcas || [])];
+    localDisponibilidade.value = [...(newVal.disponibilidade || [])];
     localMinPreco.value = newVal.minPreco;
     localMaxPreco.value = newVal.maxPreco;
   },
@@ -166,6 +168,56 @@ function toggleSubcategory(sub: string) {
   emit("apply");
 }
 
+const availabilityOptions: { value: CatalogAvailability; label: string }[] = [
+  { value: "IN_STOCK", label: "Pronta Entrega" },
+  { value: "ON_DEMAND", label: "Sob Encomenda" },
+];
+
+function toggleAvailability(value: CatalogAvailability) {
+  const index = localDisponibilidade.value.indexOf(value);
+  if (index > -1) {
+    localDisponibilidade.value.splice(index, 1);
+  } else {
+    localDisponibilidade.value.push(value);
+  }
+  emitFilterChange();
+}
+
+// Slider de faixa de preço (dois pontos)
+const PRICE_MIN = 0;
+const PRICE_MAX = 10000;
+const PRICE_STEP = 100;
+
+const sliderMin = computed<number>({
+  get: () => localMinPreco.value ?? PRICE_MIN,
+  set: (v) => {
+    const clamped = Math.min(v, sliderMax.value - PRICE_STEP);
+    localMinPreco.value = clamped <= PRICE_MIN ? undefined : clamped;
+  },
+});
+
+const sliderMax = computed<number>({
+  get: () => localMaxPreco.value ?? PRICE_MAX,
+  set: (v) => {
+    const clamped = Math.max(v, sliderMin.value + PRICE_STEP);
+    localMaxPreco.value = clamped >= PRICE_MAX ? undefined : clamped;
+  },
+});
+
+const minPercent = computed(
+  () => ((sliderMin.value - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100,
+);
+const maxPercent = computed(
+  () => ((sliderMax.value - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100,
+);
+
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 function toggleMaterial(mat: string) {
   const index = localMateriais.value.indexOf(mat);
@@ -207,6 +259,7 @@ function emitFilterChange() {
       : undefined,
     cores: localCores.value.length ? [...localCores.value] : undefined,
     marcas: localMarcas.value.length ? [...localMarcas.value] : undefined,
+    disponibilidade: localDisponibilidade.value.length ? [...localDisponibilidade.value] : undefined,
     minPreco: localMinPreco.value,
     maxPreco: localMaxPreco.value,
     page: 1,
@@ -225,6 +278,7 @@ function handleReset() {
   localMateriais.value = [];
   localCores.value = [];
   localMarcas.value = [];
+  localDisponibilidade.value = [];
   localMinPreco.value = undefined;
   localMaxPreco.value = undefined;
 
@@ -304,6 +358,30 @@ function handleReset() {
           </span>
           <span>{{ sub }}</span>
         </UiButton>
+      </div>
+    </div>
+
+    <hr class="border-stone-200 my-4" />
+
+     <!-- Seção: Disponibilidade -->
+    <div class="mb-5">
+      <h3 class="text-sm font-bold text-stone-900 mb-2.5">Disponibilidade</h3>
+      <div class="space-y-2.5">
+        <label
+          v-for="opt in availabilityOptions"
+          :key="opt.value"
+          class="flex items-center gap-2.5 text-xs sm:text-sm text-stone-700 cursor-pointer select-none group"
+        >
+          <input
+            type="checkbox"
+            :checked="localDisponibilidade.includes(opt.value)"
+            @change="toggleAvailability(opt.value)"
+            class="w-4 h-4 rounded border-stone-300 text-secondary focus:ring-secondary/20 cursor-pointer"
+          />
+          <span class="group-hover:text-stone-900 transition-colors">{{
+            opt.label
+          }}</span>
+        </label>
       </div>
     </div>
 
@@ -406,31 +484,51 @@ function handleReset() {
     <hr class="border-stone-200 my-4" />
 
     <!-- Seção: Faixa de Preço -->
-    <div class="mb-6">
+     <div class="mb-6">
       <h3 class="text-sm font-bold text-stone-900 mb-2.5">Faixa de preço</h3>
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs text-stone-600 mb-1">De</label>
-          <input
-            v-model.number="localMinPreco"
-            type="number"
-            placeholder="0"
-            class="w-full px-3 py-1.5 text-xs sm:text-sm bg-white border border-stone-200 rounded-md focus:border-secondary focus:outline-none"
-            @change="emitFilterChange"
-            @input="emitFilterChange"
-          />
-        </div>
-        <div>
-          <label class="block text-xs text-stone-600 mb-1">Até</label>
-          <input
-            v-model.number="localMaxPreco"
-            type="number"
-            placeholder="10000"
-            class="w-full px-3 py-1.5 text-xs sm:text-sm bg-white border border-stone-200 rounded-md focus:border-secondary focus:outline-none"
-            @change="emitFilterChange"
-            @input="emitFilterChange"
-          />
-        </div>
+
+      <div
+        class="flex items-center justify-between text-xs sm:text-sm text-stone-700 mb-3"
+      >
+        <span>{{ formatPrice(sliderMin) }}</span>
+        <span>{{
+          sliderMax >= PRICE_MAX
+            ? `${formatPrice(PRICE_MAX)}+`
+            : formatPrice(sliderMax)
+        }}</span>
+      </div>
+
+      <div class="price-slider relative h-6 mx-1">
+        <!-- Trilho e faixa selecionada -->
+        <div
+          class="absolute top-1/2 -translate-y-1/2 h-1 w-full rounded bg-stone-200"
+        ></div>
+        <div
+          class="absolute top-1/2 -translate-y-1/2 h-1 rounded bg-secondary"
+          :style="{
+            left: minPercent + '%',
+            width: maxPercent - minPercent + '%',
+          }"
+        ></div>
+
+        <input
+          v-model.number="sliderMin"
+          type="range"
+          :min="PRICE_MIN"
+          :max="PRICE_MAX"
+          :step="PRICE_STEP"
+          aria-label="Preço mínimo"
+          @input="emitFilterChange"
+        />
+        <input
+          v-model.number="sliderMax"
+          type="range"
+          :min="PRICE_MIN"
+          :max="PRICE_MAX"
+          :step="PRICE_STEP"
+          aria-label="Preço máximo"
+          @input="emitFilterChange"
+        />
       </div>
     </div>
 
@@ -439,7 +537,7 @@ function handleReset() {
       <UiButton
         size="md"
         variant="primary"
-        class="w-full shadow-xs text-xs font-semibold py-2.5"
+        class="w-full shadow-xs text-xs font-semibold py-2.5 lg:hidden"
         @click="handleApply"
       >
         Filtrar
@@ -455,3 +553,52 @@ function handleReset() {
     </div>
   </aside>
 </template>
+<style scoped>
+/* Dois <input type="range"> sobrepostos: só as bolinhas recebem clique */
+.price-slider input[type="range"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.price-slider input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: transparent;
+}
+
+.price-slider input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: transparent;
+}
+
+.price-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--color-secondary, #007cd8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.price-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #fff;
+  border: 2px solid var(--color-secondary, #007cd8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+</style>

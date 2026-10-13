@@ -79,6 +79,7 @@ export const MOCK_CATALOG_PRODUCTS: CatalogProductItem[] = [
     brand: "Patrimar",
     finishes: [],
     availability: "ON_DEMAND",
+    estimatedDays: 20,
   },
   {
     id: "p-6",

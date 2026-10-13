@@ -34,6 +34,23 @@ const formattedPriceParts = computed(() => {
   };
 });
 
+const availabilityBadge = computed(() => {
+  if (props.product.availability === "IN_STOCK") {
+    return {
+      label: "Pronta Entrega",
+      classes: "bg-emerald-600 text-white",
+    };
+  }
+  if (props.product.availability === "ON_DEMAND") {
+    const days = props.product.estimatedDays;
+    return {
+      label: days ? `Sob Encomenda · ${days} dias` : "Sob Encomenda",
+      classes: "bg-amber-500 text-white",
+    };
+  }
+  return null;
+});
+
 function handleCardClick() {
   emit("click", props.product);
   const identifier = props.product.slug || props.product.id;
@@ -49,13 +66,10 @@ function handleFinishClick(finish: CatalogVariationBadge) {
 
 <template>
   <article
-    tabindex="0"
-    role="button"
-    :aria-label="product.name"
+
     class="bg-white rounded-2xl shadow-[0px_4px_14px_rgba(0,0,0,0.05)] border border-stone-200/70 overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col group cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary/40"
     @click="handleCardClick"
-    @keydown.enter="handleCardClick"
-    @keydown.space.prevent="handleCardClick"
+
   >
     <!-- Contêiner de Imagem com Aspect Square -->
     <div
@@ -76,6 +90,14 @@ function handleFinishClick(finish: CatalogVariationBadge) {
       </div>
 
       <!-- Pílula de Acabamentos no canto inferior direito -->
+      <!-- Selo de disponibilidade no canto superior esquerdo -->
+      <span
+        v-if="availabilityBadge"
+        class="absolute top-2 sm:top-3 left-2 sm:left-3 z-10 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold shadow-md"
+        :class="availabilityBadge.classes"
+      >
+        {{ availabilityBadge.label }}
+      </span>
       <div
         v-if="product.finishes && product.finishes.length > 0"
         class="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 bg-neutral-dark/85 backdrop-blur-xs px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1 sm:gap-1.5 border border-white/20 shadow-md z-10"
@@ -125,6 +147,16 @@ function handleFinishClick(finish: CatalogVariationBadge) {
         >
           {{ product.installments }}
         </p>
+        <UiButton
+          variant="outline"
+          size="xs"
+          block
+          class="mt-2 sm:mt-3 sm:h-9 sm:text-sm"
+          :aria-label="`Ver detalhes de ${product.name}`"
+        >
+          Ver detalhes
+          <Icon icon="mdi:arrow-right" class="w-3.5 h-3.5" />
+        </UiButton>
       </div>
     </div>
   </article>
