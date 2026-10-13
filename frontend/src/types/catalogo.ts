@@ -1,3 +1,5 @@
+export type CatalogAvailability = "IN_STOCK" | "ON_DEMAND";
+
 export type CatalogSortOption =
   | "relevancia"
   | "menor-preco"
@@ -22,6 +24,7 @@ export interface CatalogProductItem {
   brand?: string;
   finishes: CatalogVariationBadge[];
   availability?: "IN_STOCK" | "ON_DEMAND";
+  estimatedDays?: number;
 }
 
 export interface CatalogFilterParams {
@@ -31,6 +34,7 @@ export interface CatalogFilterParams {
   materiais?: string[];
   cores?: string[];
   marcas?: string[];
+  disponibilidade?: CatalogAvailability[];
   minPreco?: number;
   maxPreco?: number;
   ordem?: CatalogSortOption;

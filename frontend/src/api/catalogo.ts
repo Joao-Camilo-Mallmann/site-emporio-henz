@@ -61,6 +61,13 @@ export const catalogoApi = {
       );
     }
 
+    if (params?.disponibilidade && params.disponibilidade.length > 0) {
+      items = items.filter(
+        (p) =>
+          p.availability && params.disponibilidade!.includes(p.availability),
+      );
+    }
+
     if (params?.minPreco !== undefined && !isNaN(params.minPreco)) {
       items = items.filter((p) => p.price >= params.minPreco!);
     }

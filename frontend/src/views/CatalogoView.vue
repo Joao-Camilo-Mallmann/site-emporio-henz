@@ -5,13 +5,14 @@ import CatalogSortDropdown from "@/components/catalogo/CatalogSortDropdown.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import { catalogoApi } from "@/api/catalogo";
 import type {
+  CatalogAvailability,
   CatalogFilterParams,
   CatalogPaginationMeta,
   CatalogProductItem,
   CatalogSortOption,
 } from "@/types";
 import { Icon } from "@iconify/vue";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
@@ -29,6 +30,7 @@ const filters = ref<CatalogFilterParams>({
   materiais: [],
   cores: [],
   marcas: [],
+  disponibilidade: [],
   minPreco: undefined,
   maxPreco: undefined,
   ordem: "relevancia",
@@ -91,6 +93,13 @@ function syncFiltersFromRoute() {
     typeof route.query.marcas === "string"
       ? route.query.marcas.split(",").filter(Boolean)
       : [];
+        const disponibilidade = (
+    typeof route.query.disponibilidade === "string"
+      ? route.query.disponibilidade.split(",")
+      : []
+  ).filter(
+    (v): v is CatalogAvailability => v === "IN_STOCK" || v === "ON_DEMAND",
+  );
   const minPreco =
     typeof route.query.minPreco === "string"
       ? parseFloat(route.query.minPreco)
@@ -109,6 +118,7 @@ function syncFiltersFromRoute() {
     materiais,
     cores,
     marcas,
+    disponibilidade,
     minPreco: isNaN(minPreco as number) ? undefined : minPreco,
     maxPreco: isNaN(maxPreco as number) ? undefined : maxPreco,
     ordem,
@@ -146,9 +156,31 @@ function handleFiltersUpdate(updated: CatalogFilterParams) {
   filters.value = { ...updated, page: 1 };
 }
 
+// Aplicação automática dos filtros no desktop (debounce)
+let applyTimer: ReturnType<typeof setTimeout> | undefined;
+
+function cancelPendingApply() {
+  if (applyTimer) {
+    clearTimeout(applyTimer);
+    applyTimer = undefined;
+  }
+}
+
+function handleDesktopFiltersUpdate(updated: CatalogFilterParams) {
+  handleFiltersUpdate(updated);
+  cancelPendingApply();
+  applyTimer = setTimeout(() => {
+    applyTimer = undefined;
+    updateRouteQuery();
+  }, 400);
+}
+
 function handleApplyFilters() {
+  cancelPendingApply();
   updateRouteQuery();
 }
+
+onBeforeUnmount(cancelPendingApply);
 
 function updateRouteQuery() {
   const query: Record<string, string> = {};
@@ -162,6 +194,8 @@ function updateRouteQuery() {
     query.cores = filters.value.cores.join(",");
   if (filters.value.marcas?.length)
     query.marcas = filters.value.marcas.join(",");
+  if (filters.value.disponibilidade?.length)
+    query.disponibilidade = filters.value.disponibilidade.join(",");
   if (filters.value.minPreco !== undefined && !isNaN(filters.value.minPreco)) {
     query.minPreco = String(filters.value.minPreco);
   }
@@ -179,6 +213,7 @@ function updateRouteQuery() {
 }
 
 function handleResetFilters() {
+  cancelPendingApply();
   filters.value = {
     name: undefined,
     categoria: undefined,
@@ -186,6 +221,7 @@ function handleResetFilters() {
     materiais: [],
     cores: [],
     marcas: [],
+    disponibilidade: [],
     minPreco: undefined,
     maxPreco: undefined,
     ordem: "relevancia",
@@ -203,6 +239,7 @@ const activeFiltersCount = computed(() => {
   if (filters.value.materiais?.length) count += filters.value.materiais.length;
   if (filters.value.cores?.length) count += filters.value.cores.length;
   if (filters.value.marcas?.length) count += filters.value.marcas.length;
+  if (filters.value.disponibilidade?.length) count += filters.value.disponibilidade.length;
   if (
     (typeof filters.value.minPreco === "number" &&
       !isNaN(filters.value.minPreco)) ||
@@ -284,7 +321,7 @@ const activeFiltersCount = computed(() => {
         >
           <CatalogFilterSidebar
             :filters="filters"
-            @update:filters="handleFiltersUpdate"
+            @update:filters="handleDesktopFiltersUpdate"
             @apply="handleApplyFilters"
             @reset="handleResetFilters"
           />
