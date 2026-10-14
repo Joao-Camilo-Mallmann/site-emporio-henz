@@ -33,6 +33,9 @@ const assignedSuppliers = ref<IAssignedSupplier[]>([]);
 const loadingSuppliers = ref(false);
 const suppliersError = ref<string | null>(null);
 const isSuppliersModalOpen = ref(false);
+const isVendedor = computed(
+  () => Number(user.value?.role) === UserRole.Vendedor,
+);
 
 async function carregarFornecedoresVinculados() {
   if (!userId.value || Number(user.value?.role) !== UserRole.Vendedor) {
@@ -208,7 +211,7 @@ onMounted(() => {
 
       <!-- Seção de Marcas e Fornecedores Autorizados (Exclusivo Vendedores) -->
       <div
-        v-if="user && Number(user.role) === UserRole.Vendedor"
+        v-if="isVendedor"
         class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs space-y-4"
       >
         <div
@@ -222,7 +225,8 @@ onMounted(() => {
               </h2>
             </div>
             <p class="text-xs text-stone-500 mt-1">
-              Empresas parceiras que este vendedor tem permissão para gerenciar e cadastrar produtos no catálogo
+              Empresas parceiras que este vendedor tem permissão para gerenciar
+              e cadastrar produtos no catálogo
             </p>
           </div>
 
@@ -267,16 +271,30 @@ onMounted(() => {
         <div v-else>
           <div
             v-if="assignedSuppliers.length > 0"
-            class="flex flex-wrap gap-2 pt-1"
+            class="flex flex-wrap items-center gap-2 pt-1"
           >
             <span
               v-for="s in assignedSuppliers"
               :key="s.id"
               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 text-secondary-hover border border-sky-100 text-xs font-medium"
             >
-              <Icon icon="mdi:check-circle" class="w-3.5 h-3.5 text-secondary" />
+              <Icon
+                icon="mdi:check-circle"
+                class="w-3.5 h-3.5 text-secondary"
+              />
               <span>{{ s.name }}</span>
             </span>
+
+            <UiButton
+              variant="outline"
+              size="xs"
+              class="border-dashed border-stone-300 text-stone-600 hover:text-secondary hover:border-secondary hover:bg-secondary/5 transition-colors"
+              title="Vincular novas marcas ou alterar as atuais"
+              @click="isSuppliersModalOpen = true"
+            >
+              <Icon icon="mdi:plus" class="w-4 h-4 text-secondary" />
+              <span>Vincular mais</span>
+            </UiButton>
           </div>
 
           <!-- Vendedor sem marcas vinculadas -->
@@ -290,7 +308,9 @@ onMounted(() => {
                 class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"
               />
               <span class="leading-relaxed">
-                Nenhum fornecedor vinculado a este vendedor. Sem marcas autorizadas, o vendedor não poderá cadastrar produtos no catálogo (regra RF15).
+                Nenhum fornecedor vinculado a este vendedor. Sem marcas
+                autorizadas, o vendedor não poderá cadastrar produtos no
+                catálogo (regra RF15).
               </span>
             </div>
             <UiButton

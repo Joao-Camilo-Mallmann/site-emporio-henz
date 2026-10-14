@@ -4,6 +4,7 @@ import { useToast } from "@/composables/useToast";
 import type { IAssignedSupplier, ISupplier } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
 interface VendedorInfo {
   id: string;
@@ -24,6 +25,7 @@ const emit = defineEmits<{
 }>();
 
 const toast = useToast();
+const router = useRouter();
 
 const loading = ref(false);
 const saving = ref(false);
@@ -175,6 +177,11 @@ function handleClose() {
   emit("close");
 }
 
+function navegarParaFornecedores() {
+  handleClose();
+  void router.push("/admin/fornecedores");
+}
+
 async function handleSave() {
   if (!props.vendedor?.id || saving.value) return;
 
@@ -248,7 +255,8 @@ async function handleSave() {
     :open="open"
     title="Fornecedores e Marcas Autorizadas"
     variant="primary"
-    max-width="xl"
+    :show-icon="false"
+    max-width="3xl"
     :loading="saving"
     confirm-text="Salvar Alterações"
     cancel-text="Cancelar"
@@ -366,12 +374,14 @@ async function handleSave() {
         class="py-8 text-center text-xs text-stone-500 bg-stone-50 rounded-lg border border-stone-100"
       >
         Nenhum fornecedor ativo encontrado no catálogo. Cadastre fornecedores em
-        <RouterLink
-          to="/admin/fornecedores"
-          class="text-secondary hover:underline font-medium"
+        <UiButton
+          variant="link"
+          size="none"
+          class="font-medium align-baseline"
+          @click="navegarParaFornecedores"
         >
           Fornecedores
-        </RouterLink>
+        </UiButton>
         primeiro.
       </div>
 

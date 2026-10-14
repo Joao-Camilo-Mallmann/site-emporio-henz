@@ -296,13 +296,15 @@ onMounted(() => {
               : "Ainda não há outros usuários cadastrados."
           }}
         </p>
-        <RouterLink
-          to="/admin/usuarios/novo"
-          class="mt-3.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-secondary text-white font-medium text-xs hover:bg-secondary-hover transition-colors"
+        <UiButton
+          variant="secondary"
+          size="sm"
+          class="mt-3.5"
+          @click="$router.push('/admin/usuarios/novo')"
         >
           <Icon icon="mdi:plus" class="w-3.5 h-3.5" />
           <span>Cadastrar Primeiro Usuário</span>
-        </RouterLink>
+        </UiButton>
       </div>
 
       <!-- Tabela Clean de Usuários -->
