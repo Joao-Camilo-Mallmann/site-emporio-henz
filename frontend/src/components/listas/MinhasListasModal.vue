@@ -28,7 +28,10 @@ const activeList = computed<UserList | undefined>(() => {
 // Total estimado dos móveis na pasta ativa
 const activeListTotal = computed(() => {
   if (!activeList.value) return 0;
-  return activeList.value.items.reduce((acc, item) => acc + (item.price || 0), 0);
+  return activeList.value.items.reduce(
+    (acc, item) => acc + (item.price || 0),
+    0,
+  );
 });
 
 function formatPrice(val: number): string {
@@ -208,18 +211,27 @@ function getIconColorClass(listType: string): string {
 <template>
   <UiModal
     :model-value="listasStore.isManageModalOpen"
-    :title="activeLevel === 'level1_folders' ? 'Móveis Salvos & Pastas de Ambientes' : (activeList?.name || 'Móveis da Pasta')"
+    :title="
+      activeLevel === 'level1_folders'
+        ? 'Móveis Salvos & Pastas de Ambientes'
+        : activeList?.name || 'Móveis da Pasta'
+    "
     max-width="3xl"
     :show-footer="false"
     :show-close="true"
-    @update:model-value="(val) => (!val ? listasStore.closeManageModal() : null)"
+    :show-icon="false"
+    @update:model-value="
+      (val) => (!val ? listasStore.closeManageModal() : null)
+    "
     @close="listasStore.closeManageModal"
   >
     <!-- ========================================== -->
     <!-- NÍVEL 1: LISTAGEM LIMPA E COMPACTA DE PASTAS -->
     <!-- ========================================== -->
     <div v-if="activeLevel === 'level1_folders'" class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-stone-200">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-stone-200"
+      >
         <div>
           <p class="text-xs text-stone-500">
             Organize os ambientes da sua casa ou os projetos dos seus clientes.
@@ -253,10 +265,20 @@ function getIconColorClass(listType: string): string {
             class="flex-1 px-3 py-1.5 text-xs rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-secondary/40 bg-white"
             @keydown.enter.prevent="handleCreateFolder"
           />
-          <UiButton variant="primary" size="xs" class="h-8" @click="handleCreateFolder">
+          <UiButton
+            variant="primary"
+            size="xs"
+            class="h-8"
+            @click="handleCreateFolder"
+          >
             Criar
           </UiButton>
-          <UiButton variant="outline" size="xs" class="h-8" @click="isCreatingFolder = false">
+          <UiButton
+            variant="outline"
+            size="xs"
+            class="h-8"
+            @click="isCreatingFolder = false"
+          >
             Cancelar
           </UiButton>
         </div>
@@ -282,7 +304,9 @@ function getIconColorClass(listType: string): string {
             </div>
             <div class="min-w-0">
               <div class="flex items-center gap-2">
-                <h4 class="text-sm font-bold text-neutral-dark truncate group-hover:text-secondary transition-colors">
+                <h4
+                  class="text-sm font-bold text-neutral-dark truncate group-hover:text-secondary transition-colors"
+                >
                   {{ list.name }}
                 </h4>
                 <span
@@ -297,7 +321,8 @@ function getIconColorClass(listType: string): string {
                 </span>
               </div>
               <p class="text-xs text-stone-400 mt-0.5">
-                {{ list.items.length }} {{ list.items.length === 1 ? "móvel salvo" : "móveis salvos" }}
+                {{ list.items.length }}
+                {{ list.items.length === 1 ? "móvel salvo" : "móveis salvos" }}
               </p>
             </div>
           </div>
@@ -318,9 +343,14 @@ function getIconColorClass(listType: string): string {
     <!-- ========================================== -->
     <!-- NÍVEL 2: VISUALIZAÇÃO DOS ITENS DA PASTA   -->
     <!-- ========================================== -->
-    <div v-else-if="activeLevel === 'level2_items' && activeList" class="space-y-4">
+    <div
+      v-else-if="activeLevel === 'level2_items' && activeList"
+      class="space-y-4"
+    >
       <!-- Navegação de Volta e Ações da Pasta -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200">
+      <div
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200"
+      >
         <UiButton
           variant="ghost"
           size="xs"
@@ -391,8 +421,12 @@ function getIconColorClass(listType: string): string {
           class="flex-1 px-3 py-1 text-xs rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-secondary/40 bg-white"
           @keydown.enter.prevent="handleRename"
         />
-        <UiButton variant="primary" size="xs" @click="handleRename">Salvar</UiButton>
-        <UiButton variant="outline" size="xs" @click="isRenaming = false">Cancelar</UiButton>
+        <UiButton variant="primary" size="xs" @click="handleRename"
+          >Salvar</UiButton
+        >
+        <UiButton variant="outline" size="xs" @click="isRenaming = false"
+          >Cancelar</UiButton
+        >
       </div>
 
       <!-- Confirmação de Exclusão de Pasta -->
@@ -401,13 +435,18 @@ function getIconColorClass(listType: string): string {
         class="p-3 bg-rose-50 rounded-xl border border-rose-200 text-xs text-rose-800 space-y-2 animate-in fade-in duration-200"
       >
         <p class="font-semibold">
-          Tem certeza que deseja excluir a pasta "{{ activeList.name }}"? Todos os itens salvos nela serão removidos.
+          Tem certeza que deseja excluir a pasta "{{ activeList.name }}"? Todos
+          os itens salvos nela serão removidos.
         </p>
         <div class="flex items-center gap-2">
           <UiButton variant="danger" size="xs" @click="handleDeleteFolder">
             Sim, excluir pasta
           </UiButton>
-          <UiButton variant="outline" size="xs" @click="isConfirmingDelete = false">
+          <UiButton
+            variant="outline"
+            size="xs"
+            @click="isConfirmingDelete = false"
+          >
             Cancelar
           </UiButton>
         </div>
@@ -418,21 +457,34 @@ function getIconColorClass(listType: string): string {
         v-if="activeList.items.length === 0"
         class="text-center py-10 px-4 rounded-xl border-2 border-dashed border-stone-200 bg-stone-50/50 space-y-3"
       >
-        <Icon icon="mdi:package-variant-closed" class="w-12 h-12 mx-auto text-stone-300" />
+        <Icon
+          icon="mdi:package-variant-closed"
+          class="w-12 h-12 mx-auto text-stone-300"
+        />
         <div>
-          <h4 class="text-sm font-semibold text-neutral-dark">Esta pasta está vazia</h4>
+          <h4 class="text-sm font-semibold text-neutral-dark">
+            Esta pasta está vazia
+          </h4>
           <p class="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
-            Navegue pelo catálogo ou detalhes dos produtos e clique no botão de salvar para guardar móveis nesta pasta.
+            Navegue pelo catálogo ou detalhes dos produtos e clique no botão de
+            salvar para guardar móveis nesta pasta.
           </p>
         </div>
-        <UiButton variant="secondary" size="sm" class="mt-2" @click="goToCatalog">
+        <UiButton
+          variant="secondary"
+          size="sm"
+          class="mt-2"
+          @click="goToCatalog"
+        >
           Explorar Catálogo de Móveis
         </UiButton>
       </div>
 
       <!-- Grid de Móveis Salvos -->
       <div v-else class="space-y-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[50vh] overflow-y-auto pr-1">
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-[50vh] overflow-y-auto pr-1"
+        >
           <div
             v-for="item in activeList.items"
             :key="item.id"
@@ -445,20 +497,29 @@ function getIconColorClass(listType: string): string {
                 :alt="item.name"
                 class="w-full h-full object-cover"
               />
-              <div v-else class="w-full h-full flex items-center justify-center text-stone-300">
+              <div
+                v-else
+                class="w-full h-full flex items-center justify-center text-stone-300"
+              >
                 <Icon icon="mdi:image-outline" class="w-8 h-8" />
               </div>
             </div>
 
             <div class="p-3 flex-1 flex flex-col justify-between">
               <div>
-                <h5 class="text-xs font-bold text-neutral-dark line-clamp-1" :title="item.name">
+                <h5
+                  class="text-xs font-bold text-neutral-dark line-clamp-1"
+                  :title="item.name"
+                >
                   {{ item.name }}
                 </h5>
                 <p class="text-xs font-semibold text-secondary mt-0.5">
                   {{ formatPrice(item.price) }}
                 </p>
-                <div v-if="item.finishLabel || item.finishColor" class="flex items-center gap-1.5 mt-1.5">
+                <div
+                  v-if="item.finishLabel || item.finishColor"
+                  class="flex items-center gap-1.5 mt-1.5"
+                >
                   <span
                     v-if="item.finishColor"
                     class="w-2.5 h-2.5 rounded-full border border-stone-300 shrink-0"
@@ -470,7 +531,9 @@ function getIconColorClass(listType: string): string {
                 </div>
               </div>
 
-              <div class="mt-3 pt-2 border-t border-stone-100 flex items-center justify-end">
+              <div
+                class="mt-3 pt-2 border-t border-stone-100 flex items-center justify-end"
+              >
                 <UiButton
                   variant="ghost"
                   size="none"
@@ -486,15 +549,23 @@ function getIconColorClass(listType: string): string {
         </div>
 
         <!-- Rodapé do Nível 2: Total e Fechar -->
-        <div class="flex items-center justify-between pt-3 border-t border-stone-200">
+        <div
+          class="flex items-center justify-between pt-3 border-t border-stone-200"
+        >
           <div>
-            <span class="text-xs text-stone-500 block">Total estimado da pasta:</span>
+            <span class="text-xs text-stone-500 block"
+              >Total estimado da pasta:</span
+            >
             <span class="text-base font-bold text-neutral-dark">
               {{ formatPrice(activeListTotal) }}
             </span>
           </div>
 
-          <UiButton variant="primary" size="sm" @click="listasStore.closeManageModal">
+          <UiButton
+            variant="primary"
+            size="sm"
+            @click="listasStore.closeManageModal"
+          >
             Fechar
           </UiButton>
         </div>
