@@ -27,3 +27,21 @@ export interface SupplierFilterParams extends PaginationParams {
 }
 
 export type PaginatedSuppliersResponse = Paginated<ISupplier>;
+
+export interface IAssignedSupplier {
+  id: string;
+  name: string;
+  contact: string | null;
+  active: boolean;
+  linkedAt: string;
+}
+
+export interface UserSupplierLinkDto {
+  id: string;
+  userId: string;
+  supplierId: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export type PaginatedAssignedSuppliersResponse = Paginated<IAssignedSupplier>;

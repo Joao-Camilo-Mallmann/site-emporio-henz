@@ -611,9 +611,9 @@ Tela no painel administrativo listando a equipe de vendedores. Ao selecionar um 
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Exibe com clareza quais marcas cada vendedor está autorizado a operar.
-- [ ] Salvar vínculos chama as APIs correspondentes e atualiza o estado visual sem recarregar a página.
-- [ ] Interface restrita ao perfil Administrador.
+- [x] Exibe com clareza quais marcas cada vendedor está autorizado a operar.
+- [x] Salvar vínculos chama as APIs correspondentes e atualiza o estado visual sem recarregar a página.
+- [x] Interface restrita ao perfil Administrador.
 
 ---
 
