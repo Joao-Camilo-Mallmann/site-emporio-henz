@@ -3,7 +3,7 @@ import { fornecedoresApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import type { SupplierCreateInput, SupplierUpdateInput } from "@/types";
 import { ref } from "vue";
-import { useRouter, RouterLink } from "vue-router";
+import { useRouter } from "vue-router";
 import FornecedorForm from "./FornecedorForm.vue";
 
 const router = useRouter();
@@ -46,13 +46,23 @@ function handleCancel() {
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
          
-          <RouterLink to="/admin" class="hover:text-neutral-dark transition-colors">
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin')"
+          >
             Painel
-          </RouterLink>
+          </UiButton>
           <span>/</span>
-          <RouterLink to="/admin/fornecedores" class="hover:text-neutral-dark transition-colors">
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin/fornecedores')"
+          >
             Fornecedores
-          </RouterLink>
+          </UiButton>
           <span>/</span>
           <span class="text-neutral-dark font-medium">Novo Fornecedor</span>
         </div>

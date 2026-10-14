@@ -3,7 +3,7 @@ import { usuariosApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import type { UserCreateInput, UserUpdateInput } from "@/types";
 import { ref } from "vue";
-import { useRouter, RouterLink } from "vue-router";
+import { useRouter } from "vue-router";
 import UsuarioForm from "./UsuarioForm.vue";
 
 const router = useRouter();
@@ -45,13 +45,23 @@ function handleCancel() {
       <!-- Breadcrumbs e Cabeçalho Limpo -->
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <RouterLink to="/admin" class="hover:text-neutral-dark transition-colors">
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin')"
+          >
             Painel
-          </RouterLink>
+          </UiButton>
           <span>/</span>
-          <RouterLink to="/admin/usuarios" class="hover:text-neutral-dark transition-colors">
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin/usuarios')"
+          >
             Usuários
-          </RouterLink>
+          </UiButton>
           <span>/</span>
           <span class="text-neutral-dark font-medium">Novo Usuário</span>
         </div>

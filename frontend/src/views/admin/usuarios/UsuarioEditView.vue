@@ -10,7 +10,7 @@ import {
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
-import { RouterLink, useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import UsuarioForm from "./UsuarioForm.vue";
 import VendedorFornecedoresModal from "./VendedorFornecedoresModal.vue";
 
@@ -127,19 +127,23 @@ onMounted(() => {
       <!-- Breadcrumbs e Cabeçalho Limpo -->
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <RouterLink
-            to="/admin"
-            class="hover:text-neutral-dark transition-colors"
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin')"
           >
             Painel
-          </RouterLink>
+          </UiButton>
           <span>/</span>
-          <RouterLink
-            to="/admin/usuarios"
-            class="hover:text-neutral-dark transition-colors"
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin/usuarios')"
           >
             Usuários
-          </RouterLink>
+          </UiButton>
           <span>/</span>
           <span class="text-neutral-dark font-medium">Editar Usuário</span>
         </div>

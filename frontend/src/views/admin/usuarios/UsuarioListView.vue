@@ -5,9 +5,10 @@ import { useAuthStore } from "@/stores/auth";
 import { UserRole, type IUser, type UserFilterParams } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { useRouter } from "vue-router";
 import VendedorFornecedoresModal from "./VendedorFornecedoresModal.vue";
 
+const router = useRouter();
 const toast = useToast();
 const authStore = useAuthStore();
 
@@ -180,13 +181,15 @@ onMounted(() => {
         class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
-          <RouterLink
-            to="/admin"
-            class="inline-flex items-center gap-1.5 text-xs text-stone-500 hover:text-neutral-dark transition-colors mb-2"
+          <UiButton
+            variant="custom"
+            size="none"
+            class="inline-flex items-center gap-1.5 text-xs font-normal text-stone-500 hover:text-neutral-dark transition-colors mb-2"
+            @click="router.push('/admin')"
           >
             <Icon icon="mdi:arrow-left" class="w-3.5 h-3.5" />
             <span>Painel Administrativo</span>
-          </RouterLink>
+          </UiButton>
           <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
             Usuários & Clientes
           </h1>
