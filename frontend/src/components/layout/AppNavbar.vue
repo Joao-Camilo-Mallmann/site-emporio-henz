@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
+import { useListasStore } from "@/stores/listas";
 import { Icon } from "@iconify/vue";
 import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const listasStore = useListasStore();
 
 const searchQuery = ref("");
 const isUserMenuOpen = ref(false);
@@ -286,7 +288,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Ações Desktop: Sobre a loja, Salvos, Minha conta -->
-        <div class="flex items-center gap-2 sm:gap-4 text-xs font-medium">
+        <div class="flex fle gap-2 sm:gap-4 text-xs font-medium">
           <!-- Sobre a loja -->
           <RouterLink
             to="/sobre-a-loja"
@@ -326,9 +328,12 @@ onUnmounted(() => {
           </RouterLink>
 
           <!-- Salvos -->
-          <RouterLink
-            to="/"
-            class="flex flex-col items-center justify-center gap-1 text-white hover:text-rose-200 hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer"
+          <UiButton
+            variant="ghost"
+            size="none"
+            @click="listasStore.openManageModal()"
+            title="Ver móveis salvos e pastas"
+            aria-label="Ver móveis salvos e pastas"
           >
             <svg
               class="w-5 h-5 text-white transition-all duration-200 group-hover:scale-110 group-hover:text-rose-300"
@@ -346,7 +351,7 @@ onUnmounted(() => {
             <span class="text-xs font-semibold leading-tight tracking-tight"
               >Salvos</span
             >
-          </RouterLink>
+          </UiButton>
 
           <!-- Botão Painel Admin Desktop (Visível apenas para Vendedores e Administradores) -->
           <RouterLink
@@ -457,17 +462,30 @@ onUnmounted(() => {
                   }}</span>
                 </RouterLink>
 
-                <RouterLink
-                  to="/"
-                  @click="closeUserMenu"
-                  class="flex items-center gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors"
+                <UiButton
+                  variant="ghost"
+                  size="none"
+                  block
+                  @click="
+                    closeUserMenu();
+                    listasStore.openManageModal();
+                  "
+                  class="w-full flex items-center justify-between px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors text-left border-none bg-transparent cursor-pointer font-normal rounded-none"
                 >
-                  <Icon
-                    icon="mdi:heart-outline"
-                    class="w-4 h-4 text-stone-400 shrink-0"
-                  />
-                  <span>Móveis Salvos</span>
-                </RouterLink>
+                  <div class="flex items-center gap-2.5">
+                    <Icon
+                      icon="mdi:heart-outline"
+                      class="w-4 h-4 text-stone-400 shrink-0"
+                    />
+                    <span>Móveis Salvos</span>
+                  </div>
+                  <span
+                    v-if="listasStore.totalSavedCount > 0"
+                    class="bg-stone-100 text-stone-600 text-xs px-2 py-0.5 rounded-full font-semibold"
+                  >
+                    {{ listasStore.totalSavedCount }}
+                  </span>
+                </UiButton>
 
                 <RouterLink
                   v-if="authStore.isEquipe"
@@ -838,17 +856,30 @@ onUnmounted(() => {
               <!-- Divisor Sutil -->
               <div class="border-t border-white/25 my-4 pt-3 space-y-2">
                 <!-- Salvos -->
-                <RouterLink
-                  to="/"
-                  @click="closeDrawer"
-                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                <UiButton
+                  variant="ghost"
+                  size="none"
+                  block
+                  @click="
+                    closeDrawer();
+                    listasStore.openManageModal();
+                  "
+                  class="flex items-center justify-between py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-left border-none bg-transparent"
                 >
-                  <Icon
-                    icon="mdi:heart-outline"
-                    class="w-5 h-5 text-white shrink-0"
-                  />
-                  <span>Salvos</span>
-                </RouterLink>
+                  <div class="flex items-center gap-3.5">
+                    <Icon
+                      icon="mdi:heart-outline"
+                      class="w-5 h-5 text-white shrink-0"
+                    />
+                    <span>Salvos</span>
+                  </div>
+                  <span
+                    v-if="listasStore.totalSavedCount > 0"
+                    class="bg-rose-500 text-white text-xs px-2 py-0.5 rounded-full font-bold"
+                  >
+                    {{ listasStore.totalSavedCount }}
+                  </span>
+                </UiButton>
 
                 <!-- Sobre a loja -->
                 <RouterLink

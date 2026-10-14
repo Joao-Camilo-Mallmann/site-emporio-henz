@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { useListasStore } from "@/stores/listas";
 import type { CatalogProductItem, CatalogVariationBadge } from "@/types";
+import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 
@@ -10,6 +12,25 @@ interface Props {
 const props = defineProps<Props>();
 
 const router = useRouter();
+const listasStore = useListasStore();
+
+const isSaved = computed(() =>
+  listasStore.isProductSavedAnywhere(props.product.id),
+);
+
+function handleSaveClick(event: Event) {
+  event.stopPropagation();
+  event.preventDefault();
+  listasStore.openSaveModal({
+    productId: props.product.id,
+    productSlug: props.product.slug,
+    name: props.product.name,
+    price: props.product.price,
+    image: props.product.image || "",
+    finishLabel: props.product.finishes?.[0]?.label,
+    finishColor: props.product.finishes?.[0]?.color,
+  });
+}
 
 const emit = defineEmits<{
   (e: "click", product: CatalogProductItem): void;
@@ -66,10 +87,8 @@ function handleFinishClick(finish: CatalogVariationBadge) {
 
 <template>
   <article
-
     class="bg-white rounded-2xl shadow-[0px_4px_14px_rgba(0,0,0,0.05)] border border-stone-200/70 overflow-hidden hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 flex flex-col group cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary/40"
     @click="handleCardClick"
-
   >
     <!-- Contêiner de Imagem com Aspect Square -->
     <div
@@ -98,6 +117,29 @@ function handleFinishClick(finish: CatalogVariationBadge) {
       >
         {{ availabilityBadge.label }}
       </span>
+
+      <!-- Botão Flutuante de Salvar/Favoritar no canto superior direito -->
+      <UiButton
+        variant="ghost"
+        size="icon"
+        @click.stop.prevent="handleSaveClick"
+        :title="
+          isSaved ? 'Móvel salvo em suas listas' : 'Salvar móvel em uma lista'
+        "
+        :aria-label="
+          isSaved ? 'Móvel salvo em suas listas' : 'Salvar móvel em uma lista'
+        "
+      >
+        <Icon
+          icon="mdi:heart"
+          class="w-4 h-4 transition-colors"
+          :class="
+            isSaved
+              ? 'fill-rose-500 text-rose-500'
+              : 'fill-transparent text-stone-600 hover:text-rose-500'
+          "
+        />
+      </UiButton>
       <div
         v-if="product.finishes && product.finishes.length > 0"
         class="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 bg-neutral-dark/85 backdrop-blur-xs px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1 sm:gap-1.5 border border-white/20 shadow-md z-10"

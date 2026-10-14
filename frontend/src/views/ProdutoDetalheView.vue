@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import { produtosApi } from "@/api";
+import { useListasStore } from "@/stores/listas";
 import type {
   ProductDetail,
   ProductVariationItem,
@@ -16,6 +17,7 @@ import CatalogProductCard from "@/components/catalogo/CatalogProductCard.vue";
 
 const route = useRoute();
 const router = useRouter();
+const listasStore = useListasStore();
 
 const loading = ref(true);
 const error = ref<string | null>(null);
@@ -23,7 +25,10 @@ const product = ref<ProductDetail | null>(null);
 
 const activeImageIndex = ref(0);
 const selectedVariationId = ref("");
-const isFavorite = ref(false);
+const isFavorite = computed(() => {
+  if (!product.value) return false;
+  return listasStore.isProductSavedAnywhere(product.value.id);
+});
 
 const formattedPriceParts = computed(() => {
   const price = product.value?.price;
@@ -89,12 +94,24 @@ function onVariationChange(variation: ProductVariationItem) {
 }
 
 function toggleFavorite() {
-  isFavorite.value = !isFavorite.value;
-  if (isFavorite.value) {
-    toast.success("Produto salvo nos seus favoritos!");
-  } else {
-    toast.info("Produto removido dos favoritos.");
-  }
+  if (!product.value) return;
+
+  const currentVariation = product.value.variations.find(
+    (v) => v.id === selectedVariationId.value,
+  );
+
+  listasStore.openSaveModal({
+    productId: product.value.id,
+    productSlug: product.value.slug,
+    name: product.value.name,
+    price: product.value.price,
+    image:
+      product.value.images[activeImageIndex.value]?.url ||
+      product.value.images[0]?.url ||
+      "",
+    finishLabel: currentVariation?.name,
+    finishColor: currentVariation?.colorHex,
+  });
 }
 
 async function handleShare() {
