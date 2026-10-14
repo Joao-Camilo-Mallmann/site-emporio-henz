@@ -48,7 +48,18 @@ export interface UiFloatingActionsProps {
 
 export type ModalVariant =
   "danger" | "warning" | "info" | "primary" | "success";
-export type ModalMaxWidth = "sm" | "md" | "lg" | "xl" | "2xl";
+export type ModalMaxWidth =
+  | "sm"
+  | "md"
+  | "lg"
+  | "xl"
+  | "2xl"
+  | "3xl"
+  | "4xl"
+  | "5xl"
+  | "6xl"
+  | "7xl"
+  | "full";
 
 export interface UiModalProps {
   open?: boolean;

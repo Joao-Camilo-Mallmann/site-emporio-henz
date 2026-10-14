@@ -6,6 +6,7 @@ import { UserRole, type IUser, type UserFilterParams } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
+import VendedorFornecedoresModal from "./VendedorFornecedoresModal.vue";
 
 const toast = useToast();
 const authStore = useAuthStore();
@@ -22,6 +23,20 @@ const totalUsers = ref(0);
 const pageSize = ref(10);
 const searchTerm = ref("");
 const selectedRole = ref<number | undefined>(undefined);
+
+// Modal de Fornecedores Autorizados (Vendedores)
+const isSuppliersModalOpen = ref(false);
+const selectedVendedor = ref<IUser | null>(null);
+
+function abrirModalFornecedores(user: IUser) {
+  selectedVendedor.value = user;
+  isSuppliersModalOpen.value = true;
+}
+
+function fecharModalFornecedores() {
+  isSuppliersModalOpen.value = false;
+  selectedVendedor.value = null;
+}
 
 // Modal de Exclusão Lógica
 const isDeleteModalOpen = ref(false);
@@ -251,13 +266,14 @@ onMounted(() => {
           />
           <span>{{ error }}</span>
         </div>
-        <button
+        <UiButton
           type="button"
+          variant="danger"
+          size="sm"
           @click="carregarUsuarios(currentPage)"
-          class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition-colors shrink-0 cursor-pointer"
         >
           Tentar Novamente
-        </button>
+        </UiButton>
       </div>
 
       <!-- Estado Vazio -->
@@ -353,6 +369,17 @@ onMounted(() => {
                   <td class="py-3 px-4 text-right">
                     <div class="inline-flex items-center gap-1">
                       <UiButton
+                        v-if="user.role === UserRole.Vendedor"
+                        variant="ghost"
+                        size="icon"
+                        class="h-8 w-8 text-stone-400 hover:text-secondary hover:bg-sky-50"
+                        title="Fornecedores Autorizados"
+                        aria-label="Fornecedores Autorizados"
+                        @click="abrirModalFornecedores(user)"
+                      >
+                        <Icon icon="mdi:domain" class="w-4 h-4" />
+                      </UiButton>
+                      <UiButton
                         variant="ghost"
                         size="icon"
                         class="h-8 w-8 text-stone-400 hover:text-secondary hover:bg-sky-50"
@@ -405,5 +432,12 @@ onMounted(() => {
       ({{ userToDelete?.email }})? O registro passará por exclusão lógica e a
       conta não poderá mais efetuar login.
     </UiModal>
+
+    <!-- Modal de Vínculos de Fornecedores do Vendedor -->
+    <VendedorFornecedoresModal
+      :open="isSuppliersModalOpen"
+      :vendedor="selectedVendedor"
+      @close="fecharModalFornecedores"
+    />
   </div>
 </template>
