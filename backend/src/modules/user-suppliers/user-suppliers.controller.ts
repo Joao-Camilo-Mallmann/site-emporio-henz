@@ -15,14 +15,14 @@ export class UserSuppliersController {
   ) {}
 
   async list(_req: Request, ctx: RequestContext): Promise<Response> {
-    const { userId } = ctx.params;
+    const userId = ctx.params.userId || ctx.params.id;
     const filters = validateUserSupplierQuery(ctx.url);
     const result = await this.service.listUserSuppliers(userId, filters);
     return ok(result);
   }
 
   async assign(req: Request, ctx: RequestContext): Promise<Response> {
-    const { userId } = ctx.params;
+    const userId = ctx.params.userId || ctx.params.id;
 
     let body: unknown;
     try {
@@ -41,7 +41,8 @@ export class UserSuppliersController {
   }
 
   async revoke(_req: Request, ctx: RequestContext): Promise<Response> {
-    const { userId, supplierId } = ctx.params;
+    const userId = ctx.params.userId || ctx.params.id;
+    const { supplierId } = ctx.params;
     await this.service.revokeSupplier(userId, supplierId);
     return ok({ message: "Vínculo revogado com sucesso." });
   }

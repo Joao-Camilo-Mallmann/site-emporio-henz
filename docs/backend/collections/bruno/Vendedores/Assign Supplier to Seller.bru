@@ -1,0 +1,33 @@
+meta {
+  name: Vincular Fornecedor ao Vendedor
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/vendedores/:id/fornecedores
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "supplierId": "00000000-0000-0000-0000-000000000000"
+  }
+}
+
+docs {
+  Cria ou reativa o vínculo N:N entre o vendedor e o fornecedor informado.
+  Exclusivo do Administrador (demais usuários recebem 403 Forbidden).
+  Retorna 404 Not Found se `:id` não for encontrado ou não for um vendedor ativo (`role = 2`).
+  Retorna 409 Conflict se o vínculo ativo já existir.
+  Resposta 201: `{ id, userId, supplierId, createdAt }`.
+}

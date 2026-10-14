@@ -6,7 +6,10 @@ import { categoriesRoutes } from "@/modules/categories/categories.routes";
 import { productsRoutes } from "@/modules/products/products.routes";
 import { subtypesRoutes } from "@/modules/subtypes/subtypes.routes";
 import { suppliersRoutes } from "@/modules/suppliers/suppliers.routes";
-import { userSuppliersRoutes } from "@/modules/user-suppliers/user-suppliers.routes";
+import {
+  userSuppliersRoutes,
+  vendedoresRoutes,
+} from "@/modules/user-suppliers/user-suppliers.routes";
 import { usersRoutes } from "@/modules/users/users.routes";
 
 export const apiRouter = new Router({ prefix: "/api/v1" });
@@ -15,6 +18,7 @@ export const apiRouter = new Router({ prefix: "/api/v1" });
 apiRouter.use("/auth", authRoutes);
 apiRouter.use("/users", usersRoutes);
 apiRouter.use("/users", userSuppliersRoutes);
+apiRouter.use("/vendedores", vendedoresRoutes);
 apiRouter.use("/suppliers", suppliersRoutes);
 apiRouter.use("/categorias", categoriesRoutes);
 apiRouter.use("/subtipos", subtypesRoutes);

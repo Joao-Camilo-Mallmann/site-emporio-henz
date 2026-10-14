@@ -16,6 +16,12 @@ export class UsersController {
     return ok(result);
   }
 
+  async listSellers(_req: Request, ctx: RequestContext): Promise<Response> {
+    const filters = validateUserQuery(ctx.url);
+    const result = await this.service.listSellers(filters);
+    return ok(result);
+  }
+
   async getById(_req: Request, ctx: RequestContext): Promise<Response> {
     const { id } = ctx.params;
     const user = await this.service.getById(id);

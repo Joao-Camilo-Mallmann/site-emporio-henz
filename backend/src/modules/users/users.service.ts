@@ -16,6 +16,10 @@ export class UsersService {
     return await this.repo.list(filters);
   }
 
+  async listSellers(filters: UserQueryFilters = {}): Promise<PaginatedUsersResult> {
+    return await this.repo.list({ ...filters, role: 2 });
+  }
+
   async getById(id: string): Promise<UserDto> {
     const user = await this.repo.findById(id);
     if (!user) {

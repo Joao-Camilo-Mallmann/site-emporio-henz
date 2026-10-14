@@ -1,0 +1,28 @@
+meta {
+  name: Desvincular Fornecedor do Vendedor
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/vendedores/:id/fornecedores/:supplierId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+  supplierId: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Executa exclusão lógica (soft delete preenchendo `deleted_at = CURRENT_TIMESTAMP`) do vínculo entre o vendedor e o fornecedor.
+  A desvinculação reflete imediatamente na listagem subsequente (ignora vínculos com `deleted_at` preenchido).
+  Exclusivo do Administrador (demais usuários recebem 403 Forbidden).
+  Retorna 404 Not Found se `:id` não for vendedor ativo ou se o vínculo não existir / já estiver inativo.
+  Resposta 200: `{ "message": "Vínculo revogado com sucesso." }`.
+}

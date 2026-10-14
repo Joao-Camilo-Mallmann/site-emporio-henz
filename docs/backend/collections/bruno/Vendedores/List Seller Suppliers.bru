@@ -1,0 +1,31 @@
+meta {
+  name: Listar Fornecedores do Vendedor
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/vendedores/:id/fornecedores?page=1&limit=20
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 20
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Listagem paginada dos fornecedores vinculados ativamente ao vendedor (ignora registros com `deleted_at` preenchido).
+  Exclusiva do Administrador (demais usuários recebem 403 Forbidden).
+  Retorna 404 Not Found se `:id` não for encontrado, estiver desativado ou não possuir papel Vendedor (`role = 2`).
+  Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
+}
