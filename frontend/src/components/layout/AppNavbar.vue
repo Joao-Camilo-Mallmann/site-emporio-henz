@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
+import { useListasStore } from "@/stores/listas";
 import { Icon } from "@iconify/vue";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const listasStore = useListasStore();
 
 const searchQuery = ref("");
 const isUserMenuOpen = ref(false);
@@ -112,6 +114,19 @@ function toggleUserMenu() {
 
 function closeUserMenu() {
   isUserMenuOpen.value = false;
+}
+
+const accountPath = computed(() =>
+  authStore.isAdmin ? `/admin/usuarios/${authStore.user?.id}/editar` : "/perfil",
+);
+const drawerAccountPath = computed(() =>
+  authStore.isAuthenticated ? accountPath.value : "/login",
+);
+
+function navigateTo(path: string) {
+  closeUserMenu();
+  closeDrawer();
+  router.push(path);
 }
 
 function openDrawer() {
@@ -326,9 +341,13 @@ onUnmounted(() => {
           </RouterLink>
 
           <!-- Salvos -->
-          <RouterLink
-            to="/"
-            class="flex flex-col items-center justify-center gap-1 text-white hover:text-rose-200 hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer"
+          <UiButton
+            variant="custom"
+            size="none"
+            @click="listasStore.openManageModal()"
+            title="Ver móveis salvos e pastas"
+            aria-label="Ver móveis salvos e pastas"
+            class="flex-col gap-1 text-white hover:text-rose-200 hover:bg-white/10 px-3 py-1.5 rounded-xl group"
           >
             <svg
               class="w-5 h-5 text-white transition-all duration-200 group-hover:scale-110 group-hover:text-rose-300"
@@ -346,13 +365,15 @@ onUnmounted(() => {
             <span class="text-xs font-semibold leading-tight tracking-tight"
               >Salvos</span
             >
-          </RouterLink>
+          </UiButton>
 
           <!-- Botão Painel Admin Desktop (Visível apenas para Vendedores e Administradores) -->
-          <RouterLink
+          <UiButton
             v-if="authStore.isEquipe"
-            to="/admin"
-            class="flex flex-col items-center justify-center gap-1 text-white hover:text-amber-200 hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer"
+            variant="custom"
+            size="none"
+            @click="navigateTo('/admin')"
+            class="flex-col gap-1 text-white hover:text-amber-200 hover:bg-white/10 px-3 py-1.5 rounded-xl group"
           >
             <Icon
               icon="mdi:shield-account"
@@ -361,7 +382,7 @@ onUnmounted(() => {
             <span class="text-xs font-semibold leading-tight tracking-tight"
               >Painel Admin</span
             >
-          </RouterLink>
+          </UiButton>
 
           <!-- Menu de Usuário Desktop -->
           <div id="user-menu-container" class="relative">
@@ -439,14 +460,12 @@ onUnmounted(() => {
               </div>
 
               <div class="py-1">
-                <RouterLink
-                  :to="
-                    authStore.isAdmin
-                      ? `/admin/usuarios/${authStore.user.id}/editar`
-                      : '/perfil'
-                  "
-                  @click="closeUserMenu"
-                  class="flex items-center gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors"
+                <UiButton
+                  variant="custom"
+                  size="none"
+                  block
+                  @click="navigateTo(accountPath)"
+                  class="w-full flex items-center justify-start gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors text-left font-normal rounded-none cursor-pointer"
                 >
                   <Icon
                     icon="mdi:account-edit-outline"
@@ -455,46 +474,63 @@ onUnmounted(() => {
                   <span>{{
                     authStore.isAdmin ? "Editar Usuário" : "Meu Perfil"
                   }}</span>
-                </RouterLink>
+                </UiButton>
 
-                <RouterLink
-                  to="/"
-                  @click="closeUserMenu"
-                  class="flex items-center gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors"
+                <UiButton
+                  variant="ghost"
+                  size="none"
+                  block
+                  @click="
+                    closeUserMenu();
+                    listasStore.openManageModal();
+                  "
+                  class="w-full flex items-center justify-start gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors text-left border-none bg-transparent cursor-pointer font-normal rounded-none"
                 >
-                  <Icon
-                    icon="mdi:heart-outline"
-                    class="w-4 h-4 text-stone-400 shrink-0"
-                  />
-                  <span>Móveis Salvos</span>
-                </RouterLink>
+                  <div class="flex items-center gap-2.5">
+                    <Icon
+                      icon="mdi:heart-outline"
+                      class="w-4 h-4 text-stone-400 shrink-0"
+                    />
+                    <span>Móveis Salvos</span>
+                  </div>
+                  <span
+                    v-if="listasStore.totalSavedCount > 0"
+                    class="bg-stone-100 text-stone-600 text-xs px-2 py-0.5 rounded-full font-semibold"
+                  >
+                    {{ listasStore.totalSavedCount }}
+                  </span>
+                </UiButton>
 
-                <RouterLink
+                <UiButton
                   v-if="authStore.isEquipe"
-                  to="/admin"
-                  @click="closeUserMenu"
-                  class="flex items-center gap-2.5 px-4 py-2 hover:bg-amber-50 text-amber-900 transition-colors font-medium"
+                  variant="custom"
+                  size="none"
+                  block
+                  @click="navigateTo('/admin')"
+                  class="w-full flex items-center justify-start gap-2.5 px-4 py-2 hover:bg-amber-50 text-amber-900 transition-colors font-medium text-left rounded-none cursor-pointer"
                 >
                   <Icon
                     icon="mdi:shield-account"
                     class="w-4 h-4 text-amber-700 shrink-0"
                   />
                   <span>Painel Admin</span>
-                </RouterLink>
+                </UiButton>
               </div>
 
               <div class="border-t border-stone-100 pt-1">
-                <button
-                  type="button"
+                <UiButton
+                  variant="custom"
+                  size="none"
+                  block
                   @click="handleLogout"
-                  class="w-full text-left flex items-center gap-2.5 px-4 py-2 text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                  class="w-full flex items-center justify-start gap-2.5 px-4 py-2 text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer font-normal rounded-none"
                 >
                   <Icon
                     icon="mdi:logout"
                     class="w-4 h-4 text-rose-600 shrink-0"
                   />
                   <span>Sair da conta</span>
-                </button>
+                </UiButton>
               </div>
             </div>
 
@@ -838,17 +874,30 @@ onUnmounted(() => {
               <!-- Divisor Sutil -->
               <div class="border-t border-white/25 my-4 pt-3 space-y-2">
                 <!-- Salvos -->
-                <RouterLink
-                  to="/"
-                  @click="closeDrawer"
-                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                <UiButton
+                  variant="ghost"
+                  size="none"
+                  block
+                  @click="
+                    closeDrawer();
+                    listasStore.openManageModal();
+                  "
+                  class="flex items-center justify-between py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-left border-none bg-transparent"
                 >
-                  <Icon
-                    icon="mdi:heart-outline"
-                    class="w-5 h-5 text-white shrink-0"
-                  />
-                  <span>Salvos</span>
-                </RouterLink>
+                  <div class="flex items-center gap-3.5">
+                    <Icon
+                      icon="mdi:heart-outline"
+                      class="w-5 h-5 text-white shrink-0"
+                    />
+                    <span>Salvos</span>
+                  </div>
+                  <span
+                    v-if="listasStore.totalSavedCount > 0"
+                    class="bg-rose-500 text-white text-xs px-2 py-0.5 rounded-full font-bold"
+                  >
+                    {{ listasStore.totalSavedCount }}
+                  </span>
+                </UiButton>
 
                 <!-- Sobre a loja -->
                 <RouterLink
@@ -888,30 +937,28 @@ onUnmounted(() => {
                 </RouterLink>
 
                 <!-- Painel Admin Mobile (Exclusivo para Equipe) -->
-                <RouterLink
+                <UiButton
                   v-if="authStore.isEquipe"
-                  to="/admin"
-                  @click="closeDrawer"
-                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:text-amber-200 hover:bg-white/10 rounded-lg transition-colors cursor-pointer group"
+                  variant="custom"
+                  size="none"
+                  block
+                  @click="navigateTo('/admin')"
+                  class="w-full flex items-center justify-start gap-3.5 py-2.5 px-1 font-semibold text-white hover:text-amber-200 hover:bg-white/10 rounded-lg transition-colors cursor-pointer group text-left"
                 >
                   <Icon
                     icon="mdi:shield-account"
                     class="w-5 h-5 text-white shrink-0 transition-colors group-hover:text-amber-200"
                   />
                   <span>Painel Admin</span>
-                </RouterLink>
+                </UiButton>
 
                 <!-- Minha conta / Editar Usuário / Meu Perfil -->
-                <RouterLink
-                  :to="
-                    authStore.isAuthenticated
-                      ? authStore.isAdmin
-                        ? `/admin/usuarios/${authStore.user?.id}/editar`
-                        : '/perfil'
-                      : '/login'
-                  "
-                  @click="closeDrawer"
-                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                <UiButton
+                  variant="custom"
+                  size="none"
+                  block
+                  @click="navigateTo(drawerAccountPath)"
+                  class="w-full flex items-center justify-start gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-left"
                 >
                   <Icon
                     :icon="
@@ -926,7 +973,7 @@ onUnmounted(() => {
                     ({{ authStore.user.name.split(" ")[0] }})
                   </span>
                   <span v-else>Minha conta</span>
-                </RouterLink>
+                </UiButton>
 
                 <!-- Sair / Entrar -->
                 <button

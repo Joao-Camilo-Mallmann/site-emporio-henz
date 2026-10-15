@@ -8,3 +8,4 @@ export * from "./users";
 export * from "./catalogo";
 export * from "./categories";
 export * from "./subtypes";
+export * from "./listas";

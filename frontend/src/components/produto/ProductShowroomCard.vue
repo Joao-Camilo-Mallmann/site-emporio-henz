@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 interface Props {
   imageSrc?: string;
@@ -41,16 +43,18 @@ withDefaults(defineProps<Props>(), {
         {{ description }}
       </p>
       <div class="mt-2.5">
-        <RouterLink
-          :to="to"
+        <UiButton
+          variant="custom"
+          size="none"
           class="inline-flex items-center gap-1.5 text-secondary hover:text-secondary-hover font-semibold text-xs sm:text-sm transition-colors group"
+          @click="router.push(to)"
         >
           <Icon
             icon="mdi:map-marker-outline"
             class="w-4 h-4 transition-transform group-hover:-translate-y-0.5 text-secondary"
           />
           <span>{{ linkText }}</span>
-        </RouterLink>
+        </UiButton>
       </div>
     </div>
   </div>

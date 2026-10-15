@@ -7,7 +7,7 @@ import type {
   SubtypeDraftItem,
 } from "@/types";
 import { ref } from "vue";
-import { RouterLink, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import CategoriaForm from "./CategoriaForm.vue";
 
 const router = useRouter();
@@ -83,13 +83,23 @@ function handleCancel() {
       <!-- Breadcrumbs e Cabeçalho Limpo -->
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <RouterLink to="/admin" class="hover:text-neutral-dark transition-colors">
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin')"
+          >
             Painel
-          </RouterLink>
+          </UiButton>
           <span>/</span>
-          <RouterLink to="/admin/categorias" class="hover:text-neutral-dark transition-colors">
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin/categorias')"
+          >
             Categorias
-          </RouterLink>
+          </UiButton>
           <span>/</span>
           <span class="text-neutral-dark font-medium">Nova Categoria</span>
         </div>

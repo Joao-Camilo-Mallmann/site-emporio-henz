@@ -1,30 +1,31 @@
 <script setup lang="ts">
 import HeroBannerDesktop from "@/components/home/HeroBannerDesktop.vue";
 import HeroBannerMobile from "@/components/home/HeroBannerMobile.vue";
+import { useListasStore } from "@/stores/listas";
 import { Icon } from "@iconify/vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { toast } from "vue3-toastify";
 
 const router = useRouter();
+const listasStore = useListasStore();
 
 const hoveredCategory = ref<string | null>(null);
 const selectedCategory = ref<string>("");
-const savedItems = ref<Set<string>>(new Set());
 const selectedFinishes = ref<Record<string, string>>({});
 
-function toggleSave(id: string, name?: string) {
-  if (savedItems.value.has(id)) {
-    savedItems.value.delete(id);
-    toast.info(
-      name ? `${name} removido dos salvos.` : "Item removido dos salvos.",
-    );
-  } else {
-    savedItems.value.add(id);
-    toast.success(
-      name ? `${name} salvo nos seus favoritos!` : "Item salvo com sucesso!",
-    );
-  }
+function handleSaveProduct(item: ProductItem) {
+  const finishColor = selectedFinishes.value[item.id];
+  const finish = item.finishes.find((f) => f.color === finishColor) || item.finishes[0];
+
+  listasStore.openSaveModal({
+    productId: item.id,
+    productSlug: item.slug,
+    name: item.name,
+    price: item.price,
+    image: item.image,
+    finishLabel: finish?.label,
+    finishColor: finish?.color,
+  });
 }
 
 function selectFinish(productId: string, color: string) {
@@ -326,22 +327,26 @@ const recomendados: ProductItem[] = [
 
             <!-- Botão Flutuante de Salvar/Favoritar -->
             <UiButton
-              variant="custom"
+              variant="ghost"
               size="icon"
               class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/85 hover:bg-white backdrop-blur-xs flex items-center justify-center text-stone-600 hover:text-rose-500 transition-all duration-200 shadow-sm hover:scale-110 cursor-pointer z-10 p-0 border-none"
-              @click.stop.prevent="toggleSave(item.id, item.name)"
+              @click.stop.prevent="handleSaveProduct(item)"
               :title="
-                savedItems.has(item.id) ? 'Remover dos salvos' : 'Salvar móvel'
+                listasStore.isProductSavedAnywhere(item.id)
+                  ? 'Móvel salvo nas suas listas'
+                  : 'Salvar móvel em uma lista'
               "
               :aria-label="
-                savedItems.has(item.id) ? 'Remover dos salvos' : 'Salvar móvel'
+                listasStore.isProductSavedAnywhere(item.id)
+                  ? 'Móvel salvo nas suas listas'
+                  : 'Salvar móvel em uma lista'
               "
             >
               <Icon
                 icon="mdi:heart"
                 class="w-4 h-4 transition-colors"
                 :class="
-                  savedItems.has(item.id)
+                  listasStore.isProductSavedAnywhere(item.id)
                     ? 'fill-rose-500 text-rose-500'
                     : 'fill-transparent text-stone-600 group-hover:text-rose-500'
                 "
@@ -439,22 +444,26 @@ const recomendados: ProductItem[] = [
 
             <!-- Botão Flutuante de Salvar/Favoritar -->
             <UiButton
-              variant="custom"
+              variant="ghost"
               size="icon"
               class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/85 hover:bg-white backdrop-blur-xs flex items-center justify-center text-stone-600 hover:text-rose-500 transition-all duration-200 shadow-sm hover:scale-110 cursor-pointer z-10 p-0 border-none"
-              @click.stop.prevent="toggleSave(item.id, item.name)"
+              @click.stop.prevent="handleSaveProduct(item)"
               :title="
-                savedItems.has(item.id) ? 'Remover dos salvos' : 'Salvar móvel'
+                listasStore.isProductSavedAnywhere(item.id)
+                  ? 'Móvel salvo nas suas listas'
+                  : 'Salvar móvel em uma lista'
               "
               :aria-label="
-                savedItems.has(item.id) ? 'Remover dos salvos' : 'Salvar móvel'
+                listasStore.isProductSavedAnywhere(item.id)
+                  ? 'Móvel salvo nas suas listas'
+                  : 'Salvar móvel em uma lista'
               "
             >
               <Icon
                 icon="mdi:heart"
                 class="w-4 h-4 transition-colors"
                 :class="
-                  savedItems.has(item.id)
+                  listasStore.isProductSavedAnywhere(item.id)
                     ? 'fill-rose-500 text-rose-500'
                     : 'fill-transparent text-stone-600 group-hover:text-rose-500'
                 "

@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/auth";
 import type { IUser, UserCreateInput, UserUpdateInput, UserProfile } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
-import { RouterLink, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import UsuarioForm from "@/views/admin/usuarios/UsuarioForm.vue";
 
 const router = useRouter();
@@ -98,9 +98,14 @@ onMounted(() => {
       <!-- Breadcrumbs e Cabeçalho -->
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <RouterLink to="/" class="hover:text-neutral-dark transition-colors">
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/')"
+          >
             Início
-          </RouterLink>
+          </UiButton>
           <span>/</span>
           <span class="text-neutral-dark font-medium">Meu Perfil</span>
         </div>

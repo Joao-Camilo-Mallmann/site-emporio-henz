@@ -1013,9 +1013,9 @@ No card de cada produto e na página de detalhes, o botão "Salvar" abre um moda
 
 #### ✅ Critérios de Aceitação
 
-- [ ] O usuário consegue salvar qualquer produto em qualquer uma de suas listas.
-- [ ] Criação e remoção de pastas personalizadas funciona de forma reativa.
-- [ ] A exclusão das listas padrão do sistema é devidamente bloqueada na UI.
+- [x] O usuário consegue salvar qualquer produto em qualquer uma de suas listas.
+- [x] Criação e remoção de pastas personalizadas funciona de forma reativa.
+- [x] A exclusão das listas padrão do sistema é devidamente bloqueada na UI.
 
 ---
 

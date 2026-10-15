@@ -8,7 +8,7 @@ import type {
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
-import { RouterLink, useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import FornecedorForm from "./FornecedorForm.vue";
 
 const route = useRoute();
@@ -93,19 +93,23 @@ onMounted(() => {
       <!-- Breadcrumbs e Cabeçalho Limpo -->
       <div>
         <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <RouterLink
-            to="/admin"
-            class="hover:text-neutral-dark transition-colors"
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin')"
           >
             Painel
-          </RouterLink>
+          </UiButton>
           <span>/</span>
-          <RouterLink
-            to="/admin/fornecedores"
-            class="hover:text-neutral-dark transition-colors"
+          <UiButton
+            variant="custom"
+            size="none"
+            class="font-normal hover:text-neutral-dark transition-colors"
+            @click="router.push('/admin/fornecedores')"
           >
             Fornecedores
-          </RouterLink>
+          </UiButton>
           <span>/</span>
           <span class="text-neutral-dark font-medium">Editar Fornecedor</span>
         </div>
