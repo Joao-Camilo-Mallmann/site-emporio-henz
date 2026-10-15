@@ -68,3 +68,4 @@ Ao terminar uma tarefa ou história de usuário, marque-a como concluída na mes
 ## Regras transversais
 
 - Use Bun para instalar dependências e executar os comandos em cada diretório (`backend/` e `frontend/`).
+- Commits e Pull Requests seguem [`docs/padrao-commits-e-pull-requests.md`](docs/padrao-commits-e-pull-requests.md). Não use mensagens genéricas (`update`, `ajustes`, `wip`) nem nome de branch como título de PR.
