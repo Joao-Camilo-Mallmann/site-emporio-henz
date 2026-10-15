@@ -11,6 +11,7 @@ Este diretório reúne a documentação de produto, planejamento e implementaç�
 | Entender o produto e as regras de negócio | [PRD](./PRD.md) |
 | Consultar o andamento das histórias | [Backlog de histórias](./planning/user-stories-backlog.md) |
 | Criar histórias, tarefas e issues | [Padrão de histórias e tarefas](./padrao-historias-tarefas.md) |
+| Escrever commits, abrir ou revisar Pull Requests | [Padrão de commits e PRs](./padrao-commits-e-pull-requests.md) |
 | Operar Docker, deploy ou backups | [Infraestrutura](./infra/README.md) |
 | Consultar materiais da apresentação | [Apresentação da Parcial 1](./slides/apresentacao-parcial-1.md) |
 
@@ -46,6 +47,7 @@ docs/
 ├── README.md                       # Índice da documentação
 ├── PRD.md                          # Produto e regras de negócio
 ├── padrao-historias-tarefas.md     # Processo de planejamento e execução
+├── padrao-commits-e-pull-requests.md # Mensagens de commit, PRs e revisão
 ├── product/
 │   └── perguntas-cliente.md        # Insumos de descoberta
 ├── planning/

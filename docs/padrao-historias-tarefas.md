@@ -167,5 +167,6 @@ Para garantir o fechamento automático e a rastreabilidade no GitHub:
   - `git checkout -b feature/issue-14-be-jwt-auth`
   - `git checkout -b database/issue-11-db-admin-seed`
 - Ao realizar o commit ou Pull Request que finaliza a tarefa, inclua a instrução:
-  - `git commit -m "feat(backend): implement JWT authentication utilities (Closes #14)"`
+  - `git commit -m "feat(backend): implementar utilitários de autenticação JWT (Closes #14)"`
   - Isso fechará a issue correspondente no GitHub automaticamente quando o commit for integrado à branch principal.
+- Formato das mensagens de commit, títulos de PR, descrição e revisão: [padrão de commits e PRs](./padrao-commits-e-pull-requests.md).
