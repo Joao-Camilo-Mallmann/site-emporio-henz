@@ -1,0 +1,49 @@
+meta {
+  name: Atualizar Produto (Admin / Vendedor)
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/produtos/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Roupeiro Roma 6 Portas Premium",
+    "referencePrice": 4790.0,
+    "availabilityType": "IN_STOCK",
+    "heightMm": 2300,
+    "widthMm": 2700,
+    "depthMm": 600,
+    "active": true,
+    "variations": [
+      {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "name": "Carvalho Mel / Off White",
+        "variationType": "WOOD",
+        "colorsHex": ["#8B5A2B", "#F5F5DC"],
+        "sortOrder": 0,
+        "inStock": true
+      }
+    ]
+  }
+}
+
+docs {
+  Restrito a Vendedor (`role = 2`) e Administrador (`role = 3`).
+  - Atualiza dados cadastrais do produto e, quando `variations` é informado, sincroniza as variações preservando os UUIDs existentes enviados com `id`, inserindo novas sem `id` e aplicando soft delete nas omitidas.
+  - O JSON não leva imagens. Editar uma variação existente mantém a amostra já enviada (`sampleImageUrl`); fotos e amostras só mudam pelo upload da US-BE-10.
+  - Para Vendedor, valida o vínculo ativo tanto com o fornecedor atual do produto quanto com o novo `supplierId` (se alterado).
+  - Retorna `200 OK`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found` ou `409 Conflict`.
+}

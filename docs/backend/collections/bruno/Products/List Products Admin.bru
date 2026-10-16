@@ -1,0 +1,33 @@
+meta {
+  name: Listar Produtos (Admin / Vendedor)
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/produtos?page=1&limit=20
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 20
+  ~search: roupeiro
+  ~categoryId: 00000000-0000-0000-0000-000000000000
+  ~subtypeId: 00000000-0000-0000-0000-000000000000
+  ~supplierId: 00000000-0000-0000-0000-000000000000
+  ~availabilityType: ON_DEMAND
+  ~active: true
+  ~status: active
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Listagem administrativa paginada de produtos:
+  - **Administrador (`role = 3`)**: visão global de todos os fornecedores, incluindo ativos e inativos (`active=true|false` ou `status=active|inactive`).
+  - **Vendedor (`role = 2`)**: retorna exclusivamente produtos dos fornecedores vinculados ativamente ao vendedor em `user_suppliers`. Retorna `403 Forbidden` se o vendedor não possuir nenhum vínculo ativo ou se informar um `supplierId` fora de seus vínculos.
+}

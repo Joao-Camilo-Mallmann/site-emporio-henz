@@ -11,14 +11,14 @@ API do Empório Henz construída com Bun nativo (`Bun.serve`), TypeScript e Post
 
 O backend lê as variáveis do ambiente do processo. Para execução local, copie as variáveis de [`.env.example`](../.env.example) para um `.env` dentro de `backend/`, ou exporte-as no terminal.
 
-| Variável | Uso |
-| --- | --- |
-| `PORT` | Porta do servidor. Padrão: `3001`. |
-| `NODE_ENV` | Ambiente de execução (`development` ou `production`). |
-| `JWT_SECRET` | Segredo de assinatura dos tokens JWT. Se ausente, o código usa um valor padrão de desenvolvimento, que não deve ir para produção. |
-| `DATABASE_URL` | String de conexão completa com o PostgreSQL. Quando definida, substitui as variáveis `POSTGRES_*`. |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | Credenciais, banco e porta usados na montagem da conexão quando `DATABASE_URL` não existe. |
-| `POSTGRES_HOST` | Host do banco. Use `localhost` na execução local e `postgres` no Docker Compose. |
+| Variável                                                             | Uso                                                                                                                               |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                                                               | Porta do servidor. Padrão: `3001`.                                                                                                |
+| `NODE_ENV`                                                           | Ambiente de execução (`development` ou `production`).                                                                             |
+| `JWT_SECRET`                                                         | Segredo de assinatura dos tokens JWT. Se ausente, o código usa um valor padrão de desenvolvimento, que não deve ir para produção. |
+| `DATABASE_URL`                                                       | String de conexão completa com o PostgreSQL. Quando definida, substitui as variáveis `POSTGRES_*`.                                |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | Credenciais, banco e porta usados na montagem da conexão quando `DATABASE_URL` não existe.                                        |
+| `POSTGRES_HOST`                                                      | Host do banco. Use `localhost` na execução local e `postgres` no Docker Compose.                                                  |
 
 Exemplo para execução local:
 
@@ -43,7 +43,7 @@ bun run seed
 bun run dev
 ```
 
-Inicia em `http://localhost:3001`. O healthcheck fica em `/health`.
+Inicia em `http://localhost:3001`. O healthcheck fica em `api/v1/health`.
 
 ## Scripts
 

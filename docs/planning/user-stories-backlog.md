@@ -691,52 +691,61 @@ Atende aos requisitos **RF02**, **RF03**, **RF16**, **RF17** e **RF19**.
 - Disponibilidade: `IN_STOCK` (pronta entrega na loja física) ou `ON_DEMAND` (sob encomenda com prazo estimado em dias `estimated_days`).
 - Validação Multi-empresa: Se o usuário logado for Vendedor (`role = 2`), o backend confere se o `supplier_id` do produto pertence às empresas vinculadas ao vendedor em `user_suppliers`. Se não pertencer, retorna `403 Forbidden`.
 - Exclusão lógica obrigatória preenchendo `deleted_at = CURRENT_TIMESTAMP`.
+- Imagens não entram no JSON do CRUD: o banco guarda só os caminhos dos arquivos (`thumbnail_path`, `full_image_path`, `sample_image_path`) e as respostas trazem URLs. O envio dos arquivos é a US-BE-10.
 
-#### ⚙️ Especificação Técnica (`backend/src/routes/produtos.ts`)
+#### ⚙️ Especificação Técnica (`backend/src/modules/products/`)
 
-- `GET /api/produtos`: Listagem administrativa com filtros por status, fornecedor e categoria.
-- `GET /api/produtos/:id`: Retorna todos os dados do produto, variações e imagens.
-- `POST /api/produtos`: Criação de produto com validação de escopo multi-empresa.
-- `PUT /api/produtos/:id`: Atualização de dados cadastrais do produto.
-- `DELETE /api/produtos/:id`: Soft delete do produto.
+- `GET /api/v1/produtos`: Listagem administrativa e pública paginada com filtros por status, fornecedor, categoria, subtipo, disponibilidade e busca.
+- `GET /api/v1/produtos/:id`: Retorna todos os dados do produto, variações e imagens.
+- `POST /api/v1/produtos`: Criação de produto com validação de escopo multi-empresa.
+- `PUT /api/v1/produtos/:id`: Atualização de dados cadastrais e sincronização de variações do produto.
+- `DELETE /api/v1/produtos/:id`: Soft delete do produto e cascata lógica nas variações e imagens.
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Vendedor só consegue criar ou editar produtos das empresas às quais está ativamente vinculado.
-- [ ] Tentativa de gerenciar produto de outra empresa retorna HTTP `403 Forbidden`.
-- [ ] O soft delete marca `deleted_at` e oculta o produto imediatamente das buscas ativas.
+- [x] Vendedor só consegue criar ou editar produtos das empresas às quais está ativamente vinculado.
+- [x] Tentativa de gerenciar produto de outra empresa retorna HTTP `403 Forbidden`.
+- [x] O soft delete marca `deleted_at` e oculta o produto imediatamente das buscas ativas.
 
 ---
 
-### [US-BE-10] Upload e Armazenamento Otimizado de Fotos Base64 (Thumbnail vs Full)
+### [US-BE-10] Upload e Armazenamento de Fotos em Disco no Servidor (Thumbnail vs Full)
 
 **Como** Desenvolvedor Backend,  
-**Quero** processar e persistir imagens de produtos em Base64 no PostgreSQL utilizando a estratégia dupla (thumbnail leve vs full completa),  
-**Para que** as listagens do catálogo carreguem em milissegundos sem sobrecarregar o tráfego de dados.
+**Quero** receber as fotos de produtos e as amostras de variação como arquivo, gravá-las no disco do servidor (volume Docker da VM) e guardar no PostgreSQL apenas o caminho de cada arquivo, com a estratégia dupla (thumbnail leve vs full completa),  
+**Para que** o banco, os backups e as respostas da API continuem leves e o catálogo carregue rápido, com cache de imagem no navegador.
 
 #### 📖 Contexto e Regras de Negócio
 
-Atende aos requisitos **RF02** e **RNF02**. As fotos dos produtos são salvas diretamente no banco na tabela `product_images`:
+Atende aos requisitos **RF02** e **RNF02**. Nenhuma imagem é gravada no banco, nem em Base64: os arquivos ficam no diretório de uploads do backend, que em produção é o volume Docker `uploads_data` da VM, e o banco registra só o caminho relativo:
 
-- `thumbnail_base64`: Imagem comprimida e redimensionada (< 50 KB) para cards de catálogo.
-- `full_base64`: Imagem completa (< 2 MB) para o carrossel de fotos na página de detalhe.
+- `product_images.thumbnail_path`: miniatura comprimida e redimensionada (< 50 KB) para cards de catálogo.
+- `product_images.full_image_path`: imagem completa (até 2 MB) para o carrossel de fotos na página de detalhe.
+- `product_variations.sample_image_path`: amostra da textura do acabamento.
 - Requisições com imagem superior a 2 MB devem ser rejeitadas com HTTP `400 Bad Request`.
+- A API devolve URLs (`thumbnailUrl`, `fullImageUrl`, `sampleImageUrl`), nunca o conteúdo do arquivo.
+- Soft delete de produto, variação ou imagem não apaga o arquivo do disco.
 
-#### ⚙️ Especificação Técnica (`backend/src/services/imageService.ts`)
+#### ⚙️ Especificação Técnica (`backend/src/modules/products/` e `backend/src/lib/uploads.ts`)
 
-- Validação do tamanho do payload Base64 antes de salvar.
-- Associação opcional da foto com `variation_id` (para troca de imagem na seleção de acabamento).
-- Gravação transacional em `product_images`.
+- Recebimento em `multipart/form-data`, com validação do tipo e do tamanho do arquivo antes de gravar.
+- Nome do arquivo gerado pelo servidor (UUID), nunca o nome enviado pelo cliente, com o caminho final sempre dentro do diretório de uploads.
+- Geração da miniatura e gravação dos dois arquivos no volume; gravação transacional em `product_images` só dos caminhos, com associação opcional a `variation_id`.
+- Upload da amostra de variação gravando `product_variations.sample_image_path`.
+- Rota de leitura `GET /api/v1/uploads/...` servindo os arquivos com `Cache-Control` de longa duração.
+- `[INFRA]` Backup da VM (`scripts/backup.sh`) copiando o volume `uploads_data` junto com o dump do banco, e restauração correspondente em `scripts/restore.sh`.
 
 #### ✅ Critérios de Aceitação
 
 - [ ] Imagens maiores que 2 MB são bloqueadas com status HTTP 400 e mensagem informativa.
-- [ ] Listagens de catálogo retornam apenas `thumbnail_base64`, mantendo o payload ultraleve.
-- [ ] O detalhe do produto recupera o carrossel completo de imagens em alta resolução.
+- [ ] O arquivo fica no volume de uploads da VM e o banco guarda apenas o caminho, sem conteúdo de imagem nem Base64.
+- [ ] Listagens de catálogo retornam apenas a URL da miniatura (`thumbnailUrl`), mantendo o payload leve.
+- [ ] O detalhe do produto retorna as URLs do carrossel completo em alta resolução, na ordem de `sort_order`.
+- [ ] As fotos continuam disponíveis depois de um novo deploy (`deploy.sh`) e entram no backup da VM.
 
 ---
 
-### [US-FE-08] Formulário Completo de Produtos com Variações e Fotos Base64
+### [US-FE-08] Formulário Completo de Produtos com Variações e Upload de Fotos
 
 **Como** Administrador ou Vendedor,  
 **Quero** uma interface rica de formulário para cadastrar móveis com fotos, dimensões, opções de cores/madeiras e especificações técnicas,  
@@ -750,18 +759,18 @@ O formulário deve ser organizado por etapas ou seções lógicas:
 2. Preço de Referência, Condições de Parcelamento e Disponibilidade (Pronta Entrega ou Sob Encomenda com prazo em dias).
 3. Dimensões em mm (Altura, Largura, Profundidade).
 4. Variações de Acabamento (seletor de cores sólidas ou bicolores com hexadecimais, amostra de textura).
-5. Upload de Fotos com pré-visualização instantânea e conversão automática para Base64.
+5. Upload de Fotos com pré-visualização instantânea no navegador, enviando o arquivo original para a API (sem conversão para Base64).
 6. Especificações Técnicas flexíveis (chave e valor em JSONB).
 
 #### 🎨 Especificação Técnica (`frontend/src/views/admin/ProdutoFormView.vue`)
 
 - Componentes de input estilizados com validação reativa.
 - Seletor de cores visual com suporte a círculo bicolor.
-- Input de arquivo local com conversão direta para string Base64 e validação de tamanho.
+- Input de arquivo local com validação de tamanho (até 2 MB por imagem) antes do envio em `multipart/form-data`.
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Converte e exibe preview das fotos selecionadas no formulário.
+- [ ] Exibe preview das fotos selecionadas no formulário e as envia como arquivo, sem Base64.
 - [ ] Vendedor vinculado a apenas 1 fornecedor tem a empresa pré-selecionada sem possibilidade de alteração.
 - [ ] Salva o produto completo na API com feedback de sucesso e redirecionamento.
 
@@ -790,7 +799,7 @@ Atende aos requisitos **RF05** e **RNF01**. A rota pública `GET /api/catalogo` 
 #### ⚙️ Especificação Técnica (`backend/src/routes/catalogo.ts`)
 
 - Query SQL dinâmica com parâmetros preparados seguros.
-- Retorno de miniaturas (`thumbnail_base64`) e resumo de variações disponíveis.
+- Retorno da URL da miniatura (`thumbnailUrl`) e resumo de variações disponíveis.
 - Paginação otimizada com contagem de total de itens.
 
 #### ✅ Critérios de Aceitação
@@ -833,7 +842,7 @@ Apresenta o catálogo público da Empório Henz conforme o layout do Figma. Poss
 
 #### 📖 Contexto e Regras de Negócio
 
-Atende ao **RF06**. A rota `GET /api/catalogo/:id` ou `:slug` retorna a entidade completa do produto, incluindo carrossel completo de fotos em alta resolução (`full_base64`), lista de variações de acabamento com amostras e a tabela técnica em `specifications JSONB`.
+Atende ao **RF06**. A rota `GET /api/catalogo/:id` ou `:slug` retorna a entidade completa do produto, incluindo as URLs do carrossel completo de fotos em alta resolução (`fullImageUrl`), lista de variações de acabamento com amostras e a tabela técnica em `specifications JSONB`.
 
 #### ⚙️ Especificação Técnica
 

@@ -16,6 +16,7 @@ Documentação da persistência PostgreSQL do Empório Henz. O modelo conceitual
 3. **Unicidade ativa:** campos únicos sujeitos a reuso usam índices parciais com `WHERE deleted_at IS NULL`.
 4. **Migrações ordenadas:** arquivos SQL recebem prefixos numéricos e são aplicados pelo runner em ordem.
 5. **Idempotência:** uma migração já aplicada não deve ser executada novamente.
+6. **Imagens fora do banco:** fotos de produto e amostras de variação são arquivos no volume de uploads do backend. As tabelas guardam só o caminho relativo (`thumbnail_path`, `full_image_path` e `sample_image_path`, em `VARCHAR(255)`), nunca o conteúdo da imagem nem Base64.
 
 ## Estrutura
 
@@ -26,7 +27,7 @@ backend/database/
 └── migrations/      # Arquivos SQL versionados
 ```
 
-As tabelas atualmente implementadas são `roles`, `users`, `clients`, `suppliers` e `user_suppliers`. O modelo planejado no PRD também contempla categorias, produtos, variações, imagens e listas.
+As tabelas atualmente implementadas são `roles`, `users`, `clients`, `suppliers`, `user_suppliers`, `categories`, `product_subtypes`, `products`, `product_variations` e `product_images`. O modelo planejado no PRD também contempla listas (`lists` e `list_items`).
 
 ## Executar
 

@@ -67,6 +67,38 @@ Papéis de acesso:
 
 O servidor aplica as permissões; ocultar ações no front-end não substitui a validação RBAC.
 
+### Fluxo de Autorização e Escopo por Fornecedor (`/api/v1/produtos`)
+
+```text
+                       Requisição em /api/v1/produtos
+                                     │
+         ┌───────────────────────────┼───────────────────────────┐
+         ▼                           ▼                           ▼
+   Visitante / Cliente         Vendedor (role = 2)         Admin (role = 3)
+      (role = 1)                     │                           │
+         │                           ├─ Sem vínculo ativo?       │
+         ├─ GET / e GET /:id:        │  ──► 403 Forbidden (E1)   ├─ GET / e GET /:id:
+         │  Vê apenas produtos       │                           │  Acesso global (ativos
+         │  ativos (active=true)     ├─ GET /:                   │  e inativos de qualquer
+         │                           │  Filtra por seus          │  fornecedor)
+         └─ POST / PUT / DELETE:     │  user_suppliers ativos;   │
+            ──► 401 / 403 Forbidden  │  se filtrar supplierId    └─ POST / PUT / DELETE:
+                                     │  não vinculado ──► 403       Acesso global a
+                                     │                              qualquer fornecedor
+                                     ├─ GET /:id:
+                                     │  Se produto é de outro
+                                     │  fornecedor ──► 403
+                                     │
+                                     └─ POST / PUT / DELETE:
+                                        Valida supplierId em
+                                        user_suppliers ativos;
+                                        se não pertencer ──► 403 (E2/E3)
+```
+
+### Imagens
+
+Imagens não trafegam no JSON nem em Base64 (RNF02 do PRD). O banco guarda o caminho do arquivo relativo ao diretório `uploads/` do backend, que em produção é o volume Docker `uploads_data`, montado em `/app/uploads`. As respostas devolvem URLs relativas no formato `/api/v1/uploads/<caminho>`, montadas por `toUploadUrl` em `src/lib/uploads.ts`. O upload dos arquivos e a rota que os serve fazem parte da US-BE-10.
+
 ## Executar
 
 ```bash
@@ -83,6 +115,7 @@ A API fica disponível em `http://localhost:3001/api/v1` e o healthcheck em `GET
 ```bash
 cd backend
 bun run check-types
+
 bun run lint
 bun test
 bun run build

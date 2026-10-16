@@ -55,6 +55,11 @@ services:
       NODE_ENV: ${NODE_ENV:-production}
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
 
+    # Fotos de produtos e amostras de variação (RNF02): arquivos no disco da VM,
+    # fora do banco e da imagem do container, preservados entre deploys.
+    volumes:
+      - uploads_data:/app/uploads
+
     ports:
       - "${BACKEND_PORT:-3001}:3001"
 
@@ -104,6 +109,7 @@ services:
       postgres:
         condition: service_healthy
 
+    # Em dev, /app/uploads cai em ./backend/uploads no host (ignorado pelo git).
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -156,6 +162,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  uploads_data:
     driver: local
 
 networks:

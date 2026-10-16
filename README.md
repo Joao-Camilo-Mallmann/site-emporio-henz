@@ -81,7 +81,7 @@ Você pode subir a stack utilizando diretamente os comandos nativos do Docker Co
   docker compose --profile prod up -d --build
   ```
 
-  _Inicia: PostgreSQL, `backend` (compilado para produção com auto-migração) e `nginx` (servindo o frontend estático e proxy reverso na porta 80)._
+  _Inicia: PostgreSQL, `backend` (compilado para produção com auto-migração; as fotos dos produtos ficam no volume `uploads_data`) e `nginx` (servindo o frontend estático e proxy reverso na porta 80)._
 
 - **Parar todos os containers mantendo os dados:**
 
@@ -109,12 +109,12 @@ Após iniciar os containers:
 - **Modo Desenvolvimento (`--profile dev`):**
   - **Frontend Web (Vite HMR)**: [http://localhost:3000](http://localhost:3000)
   - **Backend API**: [http://localhost:3001](http://localhost:3001)
-  - **Healthcheck da API**: [http://localhost:3001/health](http://localhost:3001/health)
+  - **Healthcheck da API**: [http://localhost:3001/api/v1/health](http://localhost:3001/api/v1/health)
 
 - **Modo Produção (`--profile prod`):**
   - **Frontend (Nginx Proxy)**: [http://localhost](http://localhost) (porta 80)
   - **Backend API**: [http://localhost/api](http://localhost/api)
-  - **Healthcheck da API**: [http://localhost/health](http://localhost/health)
+  - **Healthcheck da API**: [http://localhost/api/v1/health](http://localhost/api/v1/health)
 
 ---
 
@@ -136,10 +136,12 @@ Após iniciar os containers:
   # Em produção
   docker compose logs -f backend
   ```
-- **Parar containers e apagar volumes (resetar banco de dados):**
+- **Parar containers e apagar volumes (resetar banco de dados e apagar as fotos enviadas):**
   ```bash
   docker compose --profile dev --profile prod down -v
   ```
+  > [!WARNING]
+  > O `-v` apaga também o volume `uploads_data`, onde ficam as fotos dos produtos em produção. O banco guarda só o caminho de cada foto, então restaurar o dump do banco sem esse volume deixa as imagens quebradas.
 
 ---
 

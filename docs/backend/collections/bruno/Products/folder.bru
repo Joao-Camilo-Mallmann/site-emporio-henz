@@ -1,3 +1,15 @@
 meta {
   name: Products
 }
+
+docs {
+  ## Regras comuns
+
+  - **`:id`**: nas rotas `GET /produtos/:id`, `PUT /produtos/:id` e `DELETE /produtos/:id`, deve ser um UUID válido (`400 Bad Request` caso contrário).
+  - **Paginação**: `page` inteiro de 1 a 10000 (padrão 1) e `limit` inteiro de 1 a 100 (padrão 20).
+  - **Escopo Multi-Empresa (`user_suppliers`)**:
+    - Visitantes e Clientes (`role = 1`) visualizam apenas produtos com `active = true` e não possuem acesso às rotas de escrita (`401` / `403`).
+    - Vendedores (`role = 2`) operam exclusivamente produtos dos fornecedores aos quais possuem vínculo ativo em `user_suppliers`. Vendedor sem nenhum vínculo ativo recebe `403 Forbidden` (E1), e qualquer tentativa de filtrar, consultar, cadastrar, editar ou desativar produto de outro fornecedor retorna `403 Forbidden` (E2/E3).
+    - Administradores (`role = 3`) possuem acesso global a todos os fornecedores e status (`active = true` e `active = false`).
+  - **Imagens (RNF02)**: nenhuma rota de produto recebe ou devolve conteúdo de imagem, nem em Base64. Os arquivos ficam no volume de uploads do servidor, o banco guarda só o caminho e as respostas trazem URLs relativas sob `/api/v1/uploads/...`. O envio dos arquivos é feito pelo upload da US-BE-10.
+}

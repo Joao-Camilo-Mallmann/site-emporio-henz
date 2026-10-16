@@ -1,0 +1,27 @@
+meta {
+  name: Listar Produtos (Público Paginado)
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/produtos?page=1&limit=20
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  limit: 20
+  ~search: sofa
+  ~categoryId: 00000000-0000-0000-0000-000000000000
+  ~subtypeId: 00000000-0000-0000-0000-000000000000
+  ~supplierId: 00000000-0000-0000-0000-000000000000
+  ~availabilityType: IN_STOCK
+}
+
+docs {
+  Listagem pública paginada de produtos. Para visitantes e Clientes (`role = 1`), retorna apenas produtos ativos (`active = true`).
+  Suporta filtros opcionais combinados: `search` (até 100 caracteres, busca em nome, descrição e linha/coleção), `categoryId`, `subtypeId`, `supplierId` e `availabilityType` (`IN_STOCK` ou `ON_DEMAND`).
+  Resposta `200 OK`: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
+}
