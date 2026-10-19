@@ -719,28 +719,36 @@ Atende aos requisitos **RF02**, **RF03**, **RF16**, **RF17** e **RF19**.
 
 Atende aos requisitos **RF02** e **RNF02**. Nenhuma imagem é gravada no banco, nem em Base64: os arquivos ficam no diretório de uploads do backend, que em produção é o volume Docker `uploads_data` da VM, e o banco registra só o caminho relativo:
 
-- `product_images.thumbnail_path`: miniatura comprimida e redimensionada (< 50 KB) para cards de catálogo.
-- `product_images.full_image_path`: imagem completa (até 2 MB) para o carrossel de fotos na página de detalhe.
-- `product_variations.sample_image_path`: amostra da textura do acabamento.
-- Requisições com imagem superior a 2 MB devem ser rejeitadas com HTTP `400 Bad Request`.
+- `product_images.thumbnail_path`: miniatura WebP com lado maior de até 480 px (< 50 KB) para cards de catálogo.
+- `product_images.full_image_path`: imagem WebP com lado maior de até 1920 px para o carrossel de fotos na página de detalhe.
+- `product_variations.sample_image_path`: amostra da textura do acabamento em WebP com lado maior de até 512 px.
+- Entrada: uma imagem por requisição, JPEG, PNG ou WebP, com no máximo 2 MiB (2.097.152 bytes). O formato é conferido pelo conteúdo do arquivo. Fora disso, HTTP `400 Bad Request` com o tamanho enviado e o limite (ou os formatos aceitos).
+- O servidor não aceita foto maior para comprimir: quem cadastra reduz a imagem antes. O servidor reconverte tudo para WebP, o que descarta o EXIF (inclusive GPS).
+- Cada foto nova entra no fim do carrossel (`sort_order` = último + 1), definido pelo servidor.
+- Capa nas listagens: primeira foto sem variação; sem ela, primeira foto de variação; sem foto, `thumbnailUrl: null`.
 - A API devolve URLs (`thumbnailUrl`, `fullImageUrl`, `sampleImageUrl`), nunca o conteúdo do arquivo.
-- Soft delete de produto, variação ou imagem não apaga o arquivo do disco.
+- Soft delete de produto, variação ou imagem não apaga o arquivo do disco, e a URL do arquivo continua abrindo.
 
 #### ⚙️ Especificação Técnica (`backend/src/modules/products/` e `backend/src/lib/uploads.ts`)
 
-- Recebimento em `multipart/form-data`, com validação do tipo e do tamanho do arquivo antes de gravar.
-- Nome do arquivo gerado pelo servidor (UUID), nunca o nome enviado pelo cliente, com o caminho final sempre dentro do diretório de uploads.
-- Geração da miniatura e gravação dos dois arquivos no volume; gravação transacional em `product_images` só dos caminhos, com associação opcional a `variation_id`.
-- Upload da amostra de variação gravando `product_variations.sample_image_path`.
-- Rota de leitura `GET /api/v1/uploads/...` servindo os arquivos com `Cache-Control` de longa duração.
-- `[INFRA]` Backup da VM (`scripts/backup.sh`) copiando o volume `uploads_data` junto com o dump do banco, e restauração correspondente em `scripts/restore.sh`.
+- `POST /api/v1/produtos/:id/imagens` (`multipart/form-data`, campo `file` e `variationId` opcional): recusa pelo `Content-Length` antes de ler o corpo, valida formato pelo conteúdo, gera miniatura e imagem completa com `Bun.Image`, grava os dois arquivos e insere a linha em `product_images` numa transação. Se o banco falhar, os arquivos recém-gravados são apagados.
+- `DELETE /api/v1/produtos/:id/imagens/:imageId`: soft delete da foto.
+- `PUT /api/v1/produtos/:id/variacoes/:variationId/amostra` (`multipart/form-data`, campo `file`): grava a amostra e atualiza `product_variations.sample_image_path`. `DELETE` na mesma rota volta a amostra para `null`.
+- Mesma autorização do `PUT /api/v1/produtos/:id`: Admin global, Vendedor só nos fornecedores vinculados (`403 Forbidden`).
+- Nome do arquivo gerado pelo servidor (UUID), em `products/<productId>/` ou `variations/<variationId>/`, nunca o nome enviado pelo cliente.
+- Rota de leitura `GET /api/v1/uploads/:scope/:ownerId/:file`, aceitando só o padrão de nome gerado pelo servidor, com `Cache-Control: public, max-age=31536000, immutable`.
+- `thumbnailUrl` da capa em cada item de `GET /api/v1/produtos`.
+- `[INFRA]` Fixar a versão da imagem `oven/bun` no `Dockerfile` e confirmar o `Bun.Image` no Alpine.
+- `[INFRA]` Backup da VM (`scripts/backup.sh`) gerando o dump do banco e, depois, o `.tar.gz` do volume `uploads_data` com o mesmo timestamp; `scripts/restore.sh` restaurando os dois pelo timestamp.
 
 #### ✅ Critérios de Aceitação
 
 - [ ] Imagens maiores que 2 MB são bloqueadas com status HTTP 400 e mensagem informativa.
-- [ ] O arquivo fica no volume de uploads da VM e o banco guarda apenas o caminho, sem conteúdo de imagem nem Base64.
-- [ ] Listagens de catálogo retornam apenas a URL da miniatura (`thumbnailUrl`), mantendo o payload leve.
+- [ ] Arquivos que não são JPEG, PNG ou WebP (inclusive com extensão trocada) são bloqueados com status HTTP 400.
+- [ ] O arquivo fica no volume de uploads da VM, em WebP e sem EXIF, e o banco guarda apenas o caminho, sem conteúdo de imagem nem Base64.
+- [ ] Listagens de catálogo retornam apenas a URL da miniatura (`thumbnailUrl`) da capa, mantendo o payload leve.
 - [ ] O detalhe do produto retorna as URLs do carrossel completo em alta resolução, na ordem de `sort_order`.
+- [ ] Vendedor não envia nem exclui fotos de produto de fornecedor não vinculado (`403 Forbidden`).
 - [ ] As fotos continuam disponíveis depois de um novo deploy (`deploy.sh`) e entram no backup da VM.
 
 ---
@@ -766,7 +774,9 @@ O formulário deve ser organizado por etapas ou seções lógicas:
 
 - Componentes de input estilizados com validação reativa.
 - Seletor de cores visual com suporte a círculo bicolor.
-- Input de arquivo local com validação de tamanho (até 2 MB por imagem) antes do envio em `multipart/form-data`.
+- Input de arquivo local com validação de tamanho (até 2 MiB por imagem) e formato (JPEG, PNG ou WebP) antes do envio em `multipart/form-data`. O front não comprime a foto: acima do limite, mostra a mensagem e não envia.
+- As fotos são enviadas uma por requisição para `POST /api/v1/produtos/:id/imagens` depois que o produto é salvo e tem `id`, com progresso e erro por foto (US-BE-10).
+- Os endereços das imagens devolvidos pela API (`/api/v1/uploads/...`) são montados com a mesma base da API (`VITE_API_URL`).
 
 #### ✅ Critérios de Aceitação
 
