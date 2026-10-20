@@ -23,6 +23,7 @@ import {
 import {
   CreateProductDto,
   PaginatedProductsResult,
+  ProductDbRow,
   ProductDetailDto,
   ProductDto,
   ProductImageDbRow,
@@ -134,6 +135,10 @@ class MockProductsRepository extends ProductsRepository {
     return dto;
   }
 
+  async findManageableById(id: string) {
+    return this.findById(id);
+  }
+
   async findDetailById(id: string): Promise<ProductDetailDto | null> {
     const base = await this.findById(id);
     if (!base) return null;
@@ -234,6 +239,7 @@ class MockProductsRepository extends ProductsRepository {
       description: data.description ?? null,
       specifications: data.specifications ?? {},
       active: data.active ?? true,
+      thumbnailUrl: null,
       createdAt: now,
       updatedAt: now,
       deleted: false,
@@ -410,6 +416,7 @@ function createDummyProduct(
     description: overrides.description || "Descrição de teste",
     specifications: overrides.specifications || {},
     active: overrides.active ?? true,
+    thumbnailUrl: overrides.thumbnailUrl ?? null,
     createdAt: overrides.createdAt || new Date().toISOString(),
     updatedAt: overrides.updatedAt || new Date().toISOString(),
     deleted: overrides.deleted ?? false,
@@ -1236,6 +1243,10 @@ describe("CRUD de Produtos e Escopo Multi-Empresa por Fornecedor (US-BE-09)", ()
 
 // Expõe os mapeadores do repositório real para conferir o contrato das imagens.
 class ProductRowMapper extends ProductsRepository {
+  product(row: ProductDbRow): ProductDto {
+    return this.mapRow(row);
+  }
+
   image(row: ProductImageDbRow): ProductImageDto {
     return this.mapImageRow(row);
   }
@@ -1321,5 +1332,168 @@ describe("Imagens em arquivo: caminho no banco, URL na API (RNF02)", () => {
     expect(result.value?.variations?.[0]).not.toHaveProperty(
       "sampleImageBase64",
     );
+  });
+});
+
+describe("Autorização compartilhada de escrita em produto (assertCanManageProduct)", () => {
+  const adminActor = {
+    id: "admin-1",
+    email: "admin@emporio.com",
+    role: ROLES.ADMIN,
+  };
+  const sellerActor = {
+    id: "seller-1",
+    email: "vendedor@emporio.com",
+    role: ROLES.SELLER,
+  };
+  const unlinkedSellerActor = {
+    id: "seller-sem-vinculo",
+    email: "novo@emporio.com",
+    role: ROLES.SELLER,
+  };
+
+  function buildRepo(): MockProductsRepository {
+    const mockRepo = new MockProductsRepository();
+    mockRepo.sellerSuppliers.set(sellerActor.id, [SUP_A_ID]);
+    mockRepo.products.set(
+      PROD_1_ID,
+      createDummyProduct({
+        id: PROD_1_ID,
+        supplierId: SUP_A_ID,
+        active: false,
+        name: "Produto A (inativo)",
+      }),
+    );
+    mockRepo.products.set(
+      PROD_2_ID,
+      createDummyProduct({ id: PROD_2_ID, supplierId: SUP_B_ID }),
+    );
+    return mockRepo;
+  }
+
+  it("Administrador opera qualquer produto, inclusive inativo, e recebe o produto de volta", async () => {
+    const service = new ProductsService(buildRepo());
+
+    const product = await service.assertCanManageProduct(PROD_1_ID, adminActor);
+    expect(product.id).toBe(PROD_1_ID);
+    expect(product.active).toBeFalse();
+
+    const other = await service.assertCanManageProduct(PROD_2_ID, adminActor);
+    expect(other.supplierId).toBe(SUP_B_ID);
+  });
+
+  it("produto inexistente ou desativado (deleted_at) responde 404 Not Found", async () => {
+    const mockRepo = buildRepo();
+    mockRepo.products.set(
+      "deleted-1",
+      createDummyProduct({ id: "deleted-1", supplierId: SUP_A_ID, deleted: true }),
+    );
+    const service = new ProductsService(mockRepo);
+
+    await expect(
+      service.assertCanManageProduct("nao-existe", adminActor),
+    ).rejects.toThrow(NotFoundError);
+    await expect(
+      service.assertCanManageProduct("deleted-1", sellerActor),
+    ).rejects.toThrow(NotFoundError);
+  });
+
+  it("Vendedor vinculado ao fornecedor do produto é autorizado", async () => {
+    const service = new ProductsService(buildRepo());
+
+    const product = await service.assertCanManageProduct(PROD_1_ID, sellerActor);
+    expect(product.supplierId).toBe(SUP_A_ID);
+  });
+
+  it("Vendedor de outro fornecedor recebe 403 Forbidden (E2/E3) com a mensagem do PRD", async () => {
+    const service = new ProductsService(buildRepo());
+
+    const attempt = service.assertCanManageProduct(PROD_2_ID, sellerActor);
+    await expect(attempt).rejects.toThrow(ForbiddenError);
+    await expect(attempt).rejects.toThrow(
+      "Você não possui autorização para gerenciar produtos deste fornecedor.",
+    );
+  });
+
+  it("Vendedor sem vínculo ativo recebe 403 Forbidden (E1) antes de qualquer consulta ao produto", async () => {
+    const service = new ProductsService(buildRepo());
+
+    const attempt = service.assertCanManageProduct(PROD_1_ID, unlinkedSellerActor);
+    await expect(attempt).rejects.toThrow(ForbiddenError);
+    await expect(attempt).rejects.toThrow(
+      "Vendedor sem vínculo ativo com nenhuma empresa não possui permissão para gerenciar produtos.",
+    );
+    // Mesmo para produto inexistente, a resposta é 403 e não 404.
+    await expect(
+      service.assertCanManageProduct("nao-existe", unlinkedSellerActor),
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("PUT e DELETE continuam usando a mesma regra (E1, E2/E3 e 404)", async () => {
+    const service = new ProductsService(buildRepo());
+
+    await expect(
+      service.updateProduct(PROD_2_ID, { name: "x" }, sellerActor),
+    ).rejects.toThrow(ForbiddenError);
+    await expect(service.deleteProduct(PROD_2_ID, sellerActor)).rejects.toThrow(
+      ForbiddenError,
+    );
+    await expect(
+      service.updateProduct(PROD_1_ID, { name: "x" }, unlinkedSellerActor),
+    ).rejects.toThrow(ForbiddenError);
+    await expect(service.deleteProduct("nao-existe", adminActor)).rejects.toThrow(
+      NotFoundError,
+    );
+
+    const updated = await service.updateProduct(
+      PROD_1_ID,
+      { name: "Produto A editado" },
+      sellerActor,
+    );
+    expect(updated.name).toBe("Produto A editado");
+  });
+});
+
+describe("Capa da listagem (thumbnailUrl) no mapeador de produto", () => {
+  const mapper = new ProductRowMapper();
+  const createdAt = new Date("2026-10-15T12:00:00.000Z");
+  const row: ProductDbRow = {
+    id: PROD_1_ID,
+    category_id: CAT_SALA_ID,
+    subtype_id: null,
+    supplier_id: SUP_A_ID,
+    name: "Sofá Milano",
+    slug: "sofa-milano",
+    collection_line: null,
+    main_material: null,
+    reference_price: "3890.00",
+    max_installments: 10,
+    availability_type: "IN_STOCK",
+    estimated_days: 0,
+    height_mm: 900,
+    width_mm: 2200,
+    depth_mm: 1000,
+    description: null,
+    specifications: null,
+    active: true,
+    created_at: createdAt,
+    updated_at: createdAt,
+  };
+
+  it("converte o caminho da capa em URL pública", () => {
+    const dto = mapper.product({
+      ...row,
+      cover_thumbnail_path: `products/${PROD_1_ID}/img-1-thumb.webp`,
+    });
+    expect(dto.thumbnailUrl).toBe(
+      `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/img-1-thumb.webp`,
+    );
+    expect(dto).not.toHaveProperty("fullImageUrl");
+    expect(dto).not.toHaveProperty("images");
+  });
+
+  it("devolve null sem foto ativa ou quando a consulta não traz a capa", () => {
+    expect(mapper.product({ ...row, cover_thumbnail_path: null }).thumbnailUrl).toBeNull();
+    expect(mapper.product(row).thumbnailUrl).toBeNull();
   });
 });

@@ -743,13 +743,13 @@ Atende aos requisitos **RF02** e **RNF02**. Nenhuma imagem é gravada no banco, 
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Imagens maiores que 2 MB são bloqueadas com status HTTP 400 e mensagem informativa.
-- [ ] Arquivos que não são JPEG, PNG ou WebP (inclusive com extensão trocada) são bloqueados com status HTTP 400.
-- [ ] O arquivo fica no volume de uploads da VM, em WebP e sem EXIF, e o banco guarda apenas o caminho, sem conteúdo de imagem nem Base64.
-- [ ] Listagens de catálogo retornam apenas a URL da miniatura (`thumbnailUrl`) da capa, mantendo o payload leve.
-- [ ] O detalhe do produto retorna as URLs do carrossel completo em alta resolução, na ordem de `sort_order`.
-- [ ] Vendedor não envia nem exclui fotos de produto de fornecedor não vinculado (`403 Forbidden`).
-- [ ] As fotos continuam disponíveis depois de um novo deploy (`deploy.sh`) e entram no backup da VM.
+- [x] Imagens maiores que 2 MB são bloqueadas com status HTTP 400 e mensagem informativa.
+- [x] Arquivos que não são JPEG, PNG ou WebP (inclusive com extensão trocada) são bloqueados com status HTTP 400.
+- [x] O arquivo fica no volume de uploads da VM, em WebP e sem EXIF, e o banco guarda apenas o caminho, sem conteúdo de imagem nem Base64.
+- [x] Listagens de catálogo retornam apenas a URL da miniatura (`thumbnailUrl`) da capa, mantendo o payload leve.
+- [x] O detalhe do produto retorna as URLs do carrossel completo em alta resolução, na ordem de `sort_order`.
+- [x] Vendedor não envia nem exclui fotos de produto de fornecedor não vinculado (`403 Forbidden`).
+- [x] As fotos continuam disponíveis depois de um novo deploy (`deploy.sh`) e entram no backup da VM.
 
 ---
 

@@ -24,4 +24,5 @@ docs {
   Listagem pública paginada de produtos. Para visitantes e Clientes (`role = 1`), retorna apenas produtos ativos (`active = true`).
   Suporta filtros opcionais combinados: `search` (até 100 caracteres, busca em nome, descrição e linha/coleção), `categoryId`, `subtypeId`, `supplierId` e `availabilityType` (`IN_STOCK` ou `ON_DEMAND`).
   Resposta `200 OK`: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
+  Cada item traz `thumbnailUrl` com a miniatura da capa do produto (`/api/v1/uploads/products/<productId>/<imageId>-thumb.webp`) e nenhuma outra URL de imagem: a capa é a foto ativa sem variação de menor `sortOrder`; sem ela, a foto ativa de variação de menor `sortOrder`; sem nenhuma foto ativa, `thumbnailUrl: null`. A listagem não traz `fullImageUrl` nem o array `images` (apenas `GET /produtos/:id`).
 }

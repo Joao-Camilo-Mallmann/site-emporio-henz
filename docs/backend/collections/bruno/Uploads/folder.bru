@@ -1,0 +1,17 @@
+meta {
+  name: Uploads
+}
+
+docs {
+  ## Leitura pública dos arquivos de imagem
+
+  Os arquivos de fotos de produto e amostras de variação ficam no diretório de uploads do backend (volume Docker `uploads_data`, montado em `/app/uploads`). A API devolve só URLs relativas a `/api/v1/uploads/...`; o frontend monta o endereço completo com a base `VITE_API_URL`.
+
+  - Rota única: `GET /uploads/:scope/:ownerId/:file`, sem autenticação e sem consultar o banco.
+  - `scope`: `products` (fotos) ou `variations` (amostras).
+  - `ownerId`: UUID do produto ou da variação.
+  - `file`: nome gerado pelo servidor — `<imageId>-thumb.webp` ou `<imageId>-full.webp` em `products`; `<uuid>.webp` em `variations`.
+  - Qualquer coisa fora desse padrão (escopo desconhecido, `ownerId` que não é UUID, nome diferente, `..`, `%2e%2e%2f`) responde `404 Not Found` sem tocar em arquivo fora do diretório de uploads.
+  - Resposta `200 OK` com `Content-Type: image/webp`, `Cache-Control: public, max-age=31536000, immutable` e `X-Content-Type-Options: nosniff`. Como o nome nunca muda, o arquivo pode ficar em cache por um ano.
+  - A URL continua respondendo `200` para foto, variação ou produto excluídos logicamente, enquanto o arquivo existir no volume.
+}

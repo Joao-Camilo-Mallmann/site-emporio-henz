@@ -1,0 +1,27 @@
+meta {
+  name: Remover Amostra da Variação (Admin / Vendedor)
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{baseUrl}}/produtos/:id/variacoes/:variationId/amostra
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+  variationId: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Restrito a Vendedor (`role = 2`) e Administrador (`role = 3`), com a mesma regra de escopo de `PUT /produtos/:id`.
+  - Volta `product_variations.sample_image_path` para `NULL`. O arquivo anterior continua no volume de uploads.
+  - Retorna `200 OK` com a variação (`ProductVariationDto`) e `sampleImageUrl: null`.
+  - `404 Not Found` para variação inexistente, removida ou de outro produto; `400 Bad Request` para identificadores que não são UUID; `401` / `403` conforme autenticação e escopo.
+}

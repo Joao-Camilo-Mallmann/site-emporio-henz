@@ -15,6 +15,7 @@ import {
 import {
   AvailabilityType,
   CreateProductDto,
+  ManageableProduct,
   PaginatedProductsResult,
   ProductDetailDto,
   ProductDto,
@@ -125,21 +126,20 @@ export class ProductsService {
     dto: UpdateProductDto,
     actor: AuthenticatedUser,
   ): Promise<ProductDetailDto> {
-    let allowedSupplierIds: string[] | undefined;
-    if (actor.role === ROLES.SELLER) {
-      allowedSupplierIds = await this.resolveSellerSupplierIds(actor.id);
-    }
-
+    const { allowedSupplierIds } = await this.authorizeProductWrite(id, actor);
+    // O PUT mescla com os valores atuais, então precisa do produto completo.
     const existing = await this.repo.findById(id);
     if (!existing) {
       throw new NotFoundError("Produto não encontrado.");
     }
 
-    if (actor.role === ROLES.SELLER && allowedSupplierIds) {
-      this.assertSellerOwnsSupplier(allowedSupplierIds, existing.supplierId);
-      if (dto.supplierId !== undefined) {
-        this.assertSellerOwnsSupplier(allowedSupplierIds, dto.supplierId);
-      }
+    // Vendedor só transfere o produto para outro fornecedor ao qual está vinculado.
+    if (
+      allowedSupplierIds &&
+      dto.supplierId !== undefined &&
+      dto.supplierId !== existing.supplierId
+    ) {
+      this.assertSellerOwnsSupplier(allowedSupplierIds, dto.supplierId);
     }
 
     const effectiveAvailability =
@@ -209,12 +209,35 @@ export class ProductsService {
   }
 
   async deleteProduct(id: string, actor: AuthenticatedUser): Promise<void> {
+    await this.assertCanManageProduct(id, actor);
+    await this.repo.softDeleteProductWithCascade(id);
+  }
+
+  // Regra única de escrita em produto (RNF09), compartilhada por PUT, DELETE e
+  // pelas rotas de imagem: Admin opera qualquer produto; Vendedor só os de
+  // fornecedores com vínculo ativo. Lança 403 (E1) para Vendedor sem vínculo,
+  // 404 para produto inexistente ou desativado e 403 (E2/E3) fora do escopo.
+  // Não lê corpo de requisição, então pode rodar antes de qualquer upload.
+  async assertCanManageProduct(
+    productId: string,
+    actor: AuthenticatedUser,
+  ): Promise<ManageableProduct> {
+    const { product } = await this.authorizeProductWrite(productId, actor);
+    return product;
+  }
+
+  // Devolve também os fornecedores do Vendedor (undefined para Admin), para quem
+  // precisar checar outro fornecedor sem consultar user_suppliers de novo.
+  private async authorizeProductWrite(
+    productId: string,
+    actor: AuthenticatedUser,
+  ): Promise<{ product: ManageableProduct; allowedSupplierIds?: string[] }> {
     let allowedSupplierIds: string[] | undefined;
     if (actor.role === ROLES.SELLER) {
       allowedSupplierIds = await this.resolveSellerSupplierIds(actor.id);
     }
 
-    const existing = await this.repo.findById(id);
+    const existing = await this.repo.findManageableById(productId);
     if (!existing) {
       throw new NotFoundError("Produto não encontrado.");
     }
@@ -223,7 +246,7 @@ export class ProductsService {
       this.assertSellerOwnsSupplier(allowedSupplierIds, existing.supplierId);
     }
 
-    await this.repo.softDeleteProductWithCascade(id);
+    return { product: existing, allowedSupplierIds };
   }
 
   async getRecommendations(productId: string): Promise<ProductDto[]> {

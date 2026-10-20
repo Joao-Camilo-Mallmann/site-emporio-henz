@@ -30,4 +30,5 @@ docs {
   Listagem administrativa paginada de produtos:
   - **Administrador (`role = 3`)**: visão global de todos os fornecedores, incluindo ativos e inativos (`active=true|false` ou `status=active|inactive`).
   - **Vendedor (`role = 2`)**: retorna exclusivamente produtos dos fornecedores vinculados ativamente ao vendedor em `user_suppliers`. Retorna `403 Forbidden` se o vendedor não possuir nenhum vínculo ativo ou se informar um `supplierId` fora de seus vínculos.
+  - Cada item traz `thumbnailUrl` da capa (primeira foto ativa sem variação; depois a primeira de variação; `null` sem foto), como na listagem pública.
 }

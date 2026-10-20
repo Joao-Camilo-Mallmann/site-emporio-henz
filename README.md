@@ -145,6 +145,40 @@ Após iniciar os containers:
 
 ---
 
+### 💾 Backup e Restauração (banco + fotos)
+
+Os dados de produção ficam em dois volumes Docker: `postgres_data` (banco) e `uploads_data` (fotos dos produtos e amostras de variação, montado em `/app/uploads` no backend). O banco guarda só o caminho de cada imagem, então os dois precisam ser copiados juntos. Os scripts em [scripts/](scripts) usam os containers do perfil `prod` em execução.
+
+- **Gerar backup** (dump do banco e, depois, o `.tar.gz` dos uploads, com o mesmo timestamp):
+
+  ```bash
+  ./scripts/backup.sh
+  # backups/backup_emporio_henz_2026-10-20_030000.sql.gz
+  # backups/uploads_2026-10-20_030000.tar.gz
+  ```
+
+  Backups com mais de 30 dias (dos dois padrões) são removidos automaticamente. Para agendar na VM:
+
+  ```bash
+  0 3 * * * /caminho/para/site-emporio-henz/scripts/backup.sh >> /var/log/emporio-backup.log 2>&1
+  ```
+
+- **Restaurar pelo timestamp** (banco e uploads do mesmo par; pede confirmação, `--force` pula):
+
+  ```bash
+  ./scripts/restore.sh 2026-10-20_030000
+  ```
+
+- **Restaurar só o banco** (backups antigos, anteriores ao `.tar.gz` de uploads):
+
+  ```bash
+  ./scripts/restore.sh --db-only backups/backup_emporio_henz_2026-09-13_120000.sql.gz
+  ```
+
+  Depois de restaurar, as URLs das fotos (`/api/v1/uploads/...`) voltam a responder `200` sem novo deploy, porque os arquivos entram direto no volume `uploads_data`.
+
+---
+
 ## 💻 Como Rodar Localmente sem Docker (Desenvolvimento com Bun)
 
 Caso deseje desenvolver diretamente na máquina host:

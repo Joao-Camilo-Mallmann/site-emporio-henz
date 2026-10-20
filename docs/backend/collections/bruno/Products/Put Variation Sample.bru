@@ -1,0 +1,32 @@
+meta {
+  name: Enviar Amostra da Variação (Admin / Vendedor)
+  type: http
+  seq: 10
+}
+
+put {
+  url: {{baseUrl}}/produtos/:id/variacoes/:variationId/amostra
+  body: multipartForm
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+  variationId: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  file: @file(/caminho/para/textura.jpg)
+}
+
+docs {
+  Restrito a Vendedor (`role = 2`) e Administrador (`role = 3`), com a mesma regra de escopo de `PUT /produtos/:id`.
+  - `file`: exatamente um arquivo JPEG, PNG ou WebP de até 2 MiB, sujeito aos mesmos limites e mensagens de `POST /produtos/:id/imagens`.
+  - O servidor grava a amostra em WebP com lado maior de até 512 px em `variations/<variationId>/<uuid>.webp`, sempre em arquivo novo, e atualiza `product_variations.sample_image_path`. O arquivo anterior não é apagado.
+  - Retorna `200 OK` com a variação (`ProductVariationDto`) e o novo `sampleImageUrl` (`/api/v1/uploads/variations/<variationId>/<uuid>.webp`), diferente do anterior.
+  - `404 Not Found` para variação inexistente, removida ou de outro produto (sem gravar arquivo); `400 Bad Request` para arquivo inválido ou identificadores que não são UUID; `401` / `403` conforme autenticação e escopo.
+}

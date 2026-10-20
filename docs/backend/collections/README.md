@@ -30,7 +30,9 @@ admin123
 | Leitura de fornecedores | Vendedor ou administrador |
 | Escrita de fornecedores | Administrador |
 | Vínculos vendedor-fornecedor | Administrador |
-| Recomendações de produtos | Público |
+| Leitura de produtos e recomendações | Público (Vendedor e Administrador veem mais, conforme escopo) |
+| Escrita de produtos, fotos e amostras de variação | Vendedor (fornecedores vinculados) ou administrador |
+| Leitura dos arquivos de imagem (`/uploads`) | Público |
 
 Consulte cada requisição `.bru` para o método, caminho e payload exatos.
 

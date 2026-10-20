@@ -12,10 +12,88 @@ import {
   ProductImageDto,
   ProductQueryFilters,
   ProductVariationDbRow,
+  ManageableProduct,
   ProductVariationDto,
   ProductVariationInputDto,
   UpdateProductDto,
 } from "@/modules/products/products.types";
+
+// Capa do produto (PRD): a foto ativa sem variação de menor `sort_order`; sem
+// ela, a foto ativa de variação de menor `sort_order`. O índice
+// `idx_product_images_product_active (product_id, sort_order)` atende a consulta.
+const COVER_JOIN = sql`
+  LEFT JOIN LATERAL (
+    SELECT pi.thumbnail_path
+    FROM product_images pi
+    WHERE pi.product_id = p.id AND pi.deleted_at IS NULL
+    ORDER BY (pi.variation_id IS NOT NULL), pi.sort_order, pi.created_at
+    LIMIT 1
+  ) cover ON true
+`;
+
+function toIso(value: Date | string): string {
+  return value instanceof Date ? value.toISOString() : String(value);
+}
+
+export function mapProductRow(r: ProductDbRow): ProductDto {
+  return {
+    id: r.id,
+    categoryId: r.category_id,
+    subtypeId: r.subtype_id,
+    supplierId: r.supplier_id,
+    name: r.name,
+    slug: r.slug,
+    collectionLine: r.collection_line,
+    mainMaterial: r.main_material,
+    referencePrice: Number(r.reference_price),
+    maxInstallments: r.max_installments,
+    availabilityType: r.availability_type,
+    estimatedDays: r.estimated_days,
+    heightMm: r.height_mm,
+    widthMm: r.width_mm,
+    depthMm: r.depth_mm,
+    description: r.description,
+    specifications: r.specifications ?? {},
+    active: r.active,
+    thumbnailUrl: r.cover_thumbnail_path
+      ? toUploadUrl(r.cover_thumbnail_path)
+      : null,
+    createdAt: toIso(r.created_at),
+    updatedAt: toIso(r.updated_at),
+  };
+}
+
+export function mapProductVariationRow(
+  r: ProductVariationDbRow,
+): ProductVariationDto {
+  return {
+    id: r.id,
+    productId: r.product_id,
+    name: r.name,
+    variationType: r.variation_type,
+    colorsHex: Array.isArray(r.colors_hex) ? r.colors_hex : [],
+    sampleImageUrl: r.sample_image_path
+      ? toUploadUrl(r.sample_image_path)
+      : null,
+    finishDetails: r.finish_details ?? {},
+    sortOrder: r.sort_order,
+    inStock: r.in_stock,
+    createdAt: toIso(r.created_at),
+    updatedAt: toIso(r.updated_at),
+  };
+}
+
+export function mapProductImageRow(r: ProductImageDbRow): ProductImageDto {
+  return {
+    id: r.id,
+    productId: r.product_id,
+    variationId: r.variation_id,
+    thumbnailUrl: toUploadUrl(r.thumbnail_path),
+    fullImageUrl: toUploadUrl(r.full_image_path),
+    sortOrder: r.sort_order,
+    createdAt: toIso(r.created_at),
+  };
+}
 
 export class ProductsRepository {
   async listPaginated(
@@ -61,8 +139,10 @@ export class ProductsRepository {
           p.id, p.category_id, p.subtype_id, p.supplier_id, p.name, p.slug,
           p.collection_line, p.main_material, p.reference_price, p.max_installments,
           p.availability_type, p.estimated_days, p.height_mm, p.width_mm, p.depth_mm,
-          p.description, p.specifications, p.active, p.created_at, p.updated_at
+          p.description, p.specifications, p.active, p.created_at, p.updated_at,
+          cover.thumbnail_path AS cover_thumbnail_path
         FROM products p
+        ${COVER_JOIN}
         WHERE p.deleted_at IS NULL
           AND (${categoryId}::uuid IS NULL OR p.category_id = ${categoryId}::uuid)
           AND (${subtypeId}::uuid IS NULL OR p.subtype_id = ${subtypeId}::uuid)
@@ -87,23 +167,25 @@ export class ProductsRepository {
     return paginate(data, total, { page, limit });
   }
 
-  async findById(id: string): Promise<ProductDto | null> {
-    const rows = await sql<ProductDbRow[]>`
-      SELECT 
-        id, category_id, subtype_id, supplier_id, name, slug,
-        collection_line, main_material, reference_price, max_installments,
-        availability_type, estimated_days, height_mm, width_mm, depth_mm,
-        description, specifications, active, created_at, updated_at
+  // Consulta leve para autorização: sem a capa nem as demais colunas do produto.
+  async findManageableById(id: string): Promise<ManageableProduct | null> {
+    const rows = await sql<
+      { id: string; supplier_id: string | null; active: boolean }[]
+    >`
+      SELECT id, supplier_id, active
       FROM products
       WHERE id = ${id} AND deleted_at IS NULL
       LIMIT 1
     `;
+    const row = rows[0];
+    return row
+      ? { id: row.id, supplierId: row.supplier_id, active: row.active }
+      : null;
+  }
 
-    if (rows.length === 0) {
-      return null;
-    }
-
-    return this.mapRow(rows[0]!);
+  async findById(id: string): Promise<ProductDto | null> {
+    const row = await this.selectProductRow(sql, id);
+    return row ? this.mapRow(row) : null;
   }
 
   async findDetailById(id: string): Promise<ProductDetailDto | null> {
@@ -145,17 +227,19 @@ export class ProductsRepository {
     limit = 4,
   ): Promise<ProductDto[]> {
     const rows = await sql<ProductDbRow[]>`
-      SELECT 
-        id, category_id, subtype_id, supplier_id, name, slug,
-        collection_line, main_material, reference_price, max_installments,
-        availability_type, estimated_days, height_mm, width_mm, depth_mm,
-        description, specifications, active, created_at, updated_at
-      FROM products
-      WHERE category_id = ${categoryId}
-        AND id != ${productId}
-        AND active = TRUE
-        AND deleted_at IS NULL
-      ORDER BY created_at DESC
+      SELECT
+        p.id, p.category_id, p.subtype_id, p.supplier_id, p.name, p.slug,
+        p.collection_line, p.main_material, p.reference_price, p.max_installments,
+        p.availability_type, p.estimated_days, p.height_mm, p.width_mm, p.depth_mm,
+        p.description, p.specifications, p.active, p.created_at, p.updated_at,
+        cover.thumbnail_path AS cover_thumbnail_path
+      FROM products p
+      ${COVER_JOIN}
+      WHERE p.category_id = ${categoryId}
+        AND p.id != ${productId}
+        AND p.active = TRUE
+        AND p.deleted_at IS NULL
+      ORDER BY p.created_at DESC
       LIMIT ${limit}
     `;
 
@@ -254,6 +338,7 @@ export class ProductsRepository {
           description, specifications, active, created_at, updated_at
       `;
 
+      // Produto recém-criado ainda não tem foto: a capa é `null`.
       const product = this.mapRow(productRows[0]!);
       const variations: ProductVariationDto[] = [];
 
@@ -289,7 +374,7 @@ export class ProductsRepository {
         ? JSON.stringify(data.specifications ?? {})
         : null;
 
-      const productRows = await tx<ProductDbRow[]>`
+      const updatedRows = await tx<{ id: string }[]>`
         UPDATE products
         SET
           category_id = COALESCE(${data.categoryId ?? null}::uuid, category_id),
@@ -311,24 +396,20 @@ export class ProductsRepository {
           active = COALESCE(${data.active ?? null}, active),
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ${id} AND deleted_at IS NULL
-        RETURNING
-          id, category_id, subtype_id, supplier_id, name, slug,
-          collection_line, main_material, reference_price, max_installments,
-          availability_type, estimated_days, height_mm, width_mm, depth_mm,
-          description, specifications, active, created_at, updated_at
+        RETURNING id
       `;
 
-      if (productRows.length === 0) {
+      if (updatedRows.length === 0) {
         return null;
       }
-
-      const product = this.mapRow(productRows[0]!);
 
       if (data.variations !== undefined) {
         await this.syncVariations(tx, id, data.variations);
       }
 
-      const [variationRows, imageRows] = await Promise.all([
+      // Relê com a capa, pois o produto pode já ter fotos.
+      const [productRow, variationRows, imageRows] = await Promise.all([
+        this.selectProductRow(tx, id),
         tx<ProductVariationDbRow[]>`
           SELECT
             id, product_id, name, variation_type, colors_hex,
@@ -348,8 +429,12 @@ export class ProductsRepository {
         `,
       ]);
 
+      if (!productRow) {
+        return null;
+      }
+
       return {
-        ...product,
+        ...this.mapRow(productRow),
         variations: variationRows.map((v) => this.mapVariationRow(v)),
         images: imageRows.map((img) => this.mapImageRow(img)),
       };
@@ -383,6 +468,26 @@ export class ProductsRepository {
 
       return true;
     });
+  }
+
+  // Linha do produto ativo com a miniatura da capa; usada fora e dentro de transação.
+  private async selectProductRow(
+    executor: typeof sql,
+    id: string,
+  ): Promise<ProductDbRow | null> {
+    const rows = await executor<ProductDbRow[]>`
+      SELECT
+        p.id, p.category_id, p.subtype_id, p.supplier_id, p.name, p.slug,
+        p.collection_line, p.main_material, p.reference_price, p.max_installments,
+        p.availability_type, p.estimated_days, p.height_mm, p.width_mm, p.depth_mm,
+        p.description, p.specifications, p.active, p.created_at, p.updated_at,
+        cover.thumbnail_path AS cover_thumbnail_path
+      FROM products p
+      ${COVER_JOIN}
+      WHERE p.id = ${id} AND p.deleted_at IS NULL
+      LIMIT 1
+    `;
+    return rows.length > 0 ? rows[0]! : null;
   }
 
   private async insertVariation(
@@ -449,6 +554,12 @@ export class ProductsRepository {
           SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
           WHERE id = ${existingId} AND product_id = ${productId} AND deleted_at IS NULL
         `;
+        // As fotos da variação removida saem junto, para não virarem capa.
+        await tx`
+          UPDATE product_images
+          SET deleted_at = CURRENT_TIMESTAMP
+          WHERE variation_id = ${existingId} AND deleted_at IS NULL
+        `;
       }
     }
 
@@ -481,73 +592,15 @@ export class ProductsRepository {
   }
 
   protected mapRow(r: ProductDbRow): ProductDto {
-    return {
-      id: r.id,
-      categoryId: r.category_id,
-      subtypeId: r.subtype_id,
-      supplierId: r.supplier_id,
-      name: r.name,
-      slug: r.slug,
-      collectionLine: r.collection_line,
-      mainMaterial: r.main_material,
-      referencePrice: Number(r.reference_price),
-      maxInstallments: r.max_installments,
-      availabilityType: r.availability_type,
-      estimatedDays: r.estimated_days,
-      heightMm: r.height_mm,
-      widthMm: r.width_mm,
-      depthMm: r.depth_mm,
-      description: r.description,
-      specifications: r.specifications ?? {},
-      active: r.active,
-      createdAt:
-        r.created_at instanceof Date
-          ? r.created_at.toISOString()
-          : String(r.created_at),
-      updatedAt:
-        r.updated_at instanceof Date
-          ? r.updated_at.toISOString()
-          : String(r.updated_at),
-    };
+    return mapProductRow(r);
   }
 
   protected mapVariationRow(r: ProductVariationDbRow): ProductVariationDto {
-    return {
-      id: r.id,
-      productId: r.product_id,
-      name: r.name,
-      variationType: r.variation_type,
-      colorsHex: Array.isArray(r.colors_hex) ? r.colors_hex : [],
-      sampleImageUrl: r.sample_image_path
-        ? toUploadUrl(r.sample_image_path)
-        : null,
-      finishDetails: r.finish_details ?? {},
-      sortOrder: r.sort_order,
-      inStock: r.in_stock,
-      createdAt:
-        r.created_at instanceof Date
-          ? r.created_at.toISOString()
-          : String(r.created_at),
-      updatedAt:
-        r.updated_at instanceof Date
-          ? r.updated_at.toISOString()
-          : String(r.updated_at),
-    };
+    return mapProductVariationRow(r);
   }
 
   protected mapImageRow(r: ProductImageDbRow): ProductImageDto {
-    return {
-      id: r.id,
-      productId: r.product_id,
-      variationId: r.variation_id,
-      thumbnailUrl: toUploadUrl(r.thumbnail_path),
-      fullImageUrl: toUploadUrl(r.full_image_path),
-      sortOrder: r.sort_order,
-      createdAt:
-        r.created_at instanceof Date
-          ? r.created_at.toISOString()
-          : String(r.created_at),
-    };
+    return mapProductImageRow(r);
   }
 }
 

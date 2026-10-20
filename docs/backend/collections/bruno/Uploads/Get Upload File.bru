@@ -1,0 +1,26 @@
+meta {
+  name: Obter Arquivo de Imagem (Público)
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/uploads/:scope/:ownerId/:file
+  body: none
+  auth: none
+}
+
+params:path {
+  scope: products
+  ownerId: 00000000-0000-0000-0000-000000000000
+  file: 00000000-0000-0000-0000-000000000000-thumb.webp
+}
+
+docs {
+  Serve o arquivo WebP gravado pelo upload. Use o `thumbnailUrl`, `fullImageUrl` ou `sampleImageUrl` devolvido pela API (ex.: `/api/v1/uploads/products/<productId>/<imageId>-thumb.webp`).
+  - `scope`: `products` ou `variations`.
+  - `ownerId`: UUID do produto (`products`) ou da variação (`variations`).
+  - `file`: `<imageId>-thumb.webp` / `<imageId>-full.webp` em `products`; `<uuid>.webp` em `variations`.
+  - `200 OK` com `Content-Type: image/webp`, `Cache-Control: public, max-age=31536000, immutable` e `X-Content-Type-Options: nosniff`.
+  - `404 Not Found` para caminho fora do padrão ou arquivo inexistente. Não exige sessão e não consulta o banco.
+}

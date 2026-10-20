@@ -25,6 +25,9 @@ export interface ProductDbRow {
   active: boolean;
   created_at: Date;
   updated_at: Date;
+  // Miniatura da capa, trazida pelo LEFT JOIN LATERAL das consultas de listagem
+  // e detalhe; ausente nos RETURNING de INSERT/UPDATE.
+  cover_thumbnail_path?: string | null;
 }
 
 export interface ProductVariationDbRow {
@@ -75,6 +78,9 @@ export interface ProductImageDto {
   createdAt: string;
 }
 
+// Campos mínimos para decidir se o ator pode escrever no produto.
+export type ManageableProduct = Pick<ProductDto, "id" | "supplierId" | "active">;
+
 export interface ProductDto {
   id: string;
   categoryId: string;
@@ -94,6 +100,9 @@ export interface ProductDto {
   description: string | null;
   specifications: Record<string, unknown>;
   active: boolean;
+  // Miniatura da capa: primeira foto ativa sem variação; sem ela, a primeira
+  // foto ativa de variação; `null` quando o produto não tem foto.
+  thumbnailUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
