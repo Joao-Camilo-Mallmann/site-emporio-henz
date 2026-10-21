@@ -643,6 +643,14 @@ export function validateUpdateProduct(body: unknown): {
   };
 }
 
+// Limite de preço do filtro: número finito >= 0. Ausente ou inválido é ignorado,
+// como os demais filtros da listagem.
+function parsePriceParam(raw: string | null): number | undefined {
+  if (raw === null || raw.trim() === "") return undefined;
+  const value = Number(raw);
+  return Number.isFinite(value) && value >= 0 ? value : undefined;
+}
+
 export function validateProductQuery(url: URL): ProductQueryFilters {
   const { page, limit } = parsePagination(url);
   const categoryIdParam = url.searchParams.get("categoryId");
@@ -678,6 +686,8 @@ export function validateProductQuery(url: URL): ProductQueryFilters {
         ? supplierIdParam
         : undefined,
     availabilityType,
+    minPrice: parsePriceParam(url.searchParams.get("minPrice")),
+    maxPrice: parsePriceParam(url.searchParams.get("maxPrice")),
     active,
   };
 }

@@ -102,6 +102,10 @@ class MockProductsRepository extends ProductsRepository {
       ) {
         return false;
       }
+      if (filters.minPrice !== undefined && p.referencePrice < filters.minPrice)
+        return false;
+      if (filters.maxPrice !== undefined && p.referencePrice > filters.maxPrice)
+        return false;
       if (filters.active !== undefined && p.active !== filters.active) {
         return false;
       }
@@ -768,6 +772,32 @@ describe("Validação de Schemas do Módulo de Produtos (US-BE-09)", () => {
     expect(filters.search).toBe("sofa");
   });
 
+  it("deve ler a faixa de preço (minPrice/maxPrice) e ignorar valores inválidos", () => {
+    const valid = validateProductQuery(
+      new URL("http://localhost:3001/api/v1/produtos?minPrice=1000&maxPrice=2999.90"),
+    );
+    expect(valid.minPrice).toBe(1000);
+    expect(valid.maxPrice).toBe(2999.9);
+
+    const onlyMax = validateProductQuery(
+      new URL("http://localhost:3001/api/v1/produtos?maxPrice=0"),
+    );
+    expect(onlyMax.minPrice).toBeUndefined();
+    expect(onlyMax.maxPrice).toBe(0);
+
+    const invalid = validateProductQuery(
+      new URL("http://localhost:3001/api/v1/produtos?minPrice=-5&maxPrice=abc"),
+    );
+    expect(invalid.minPrice).toBeUndefined();
+    expect(invalid.maxPrice).toBeUndefined();
+
+    const empty = validateProductQuery(
+      new URL("http://localhost:3001/api/v1/produtos?minPrice=&maxPrice=%20"),
+    );
+    expect(empty.minPrice).toBeUndefined();
+    expect(empty.maxPrice).toBeUndefined();
+  });
+
   it("deve rejeitar validateUpdateProduct vazio", () => {
     const res = validateUpdateProduct({});
     expect(res.error).toBeDefined();
@@ -1221,6 +1251,50 @@ describe("CRUD de Produtos e Escopo Multi-Empresa por Fornecedor (US-BE-09)", ()
     // Admin vê o inativo normalmente
     const adminDetail = await service.getById(PROD_2_ID, adminActor);
     expect(adminDetail.id).toBe(PROD_2_ID);
+  });
+
+  it("listagem pública combina faixa de preço com os demais filtros, com limites inclusivos", async () => {
+    const mockRepo = new MockProductsRepository();
+    const service = new ProductsService(mockRepo);
+
+    mockRepo.products.set(
+      "prod-barato",
+      createDummyProduct({ id: "prod-barato", referencePrice: 900 }),
+    );
+    mockRepo.products.set(
+      "prod-limite",
+      createDummyProduct({ id: "prod-limite", referencePrice: 1000 }),
+    );
+    mockRepo.products.set(
+      "prod-encomenda",
+      createDummyProduct({
+        id: "prod-encomenda",
+        referencePrice: 1500,
+        availabilityType: "ON_DEMAND",
+        estimatedDays: 20,
+      }),
+    );
+    mockRepo.products.set(
+      "prod-inativo",
+      createDummyProduct({ id: "prod-inativo", referencePrice: 1200, active: false }),
+    );
+
+    const range = await service.listPaginated({ minPrice: 1000, maxPrice: 2000 });
+    expect(range.data.map((p) => p.id).sort()).toEqual([
+      "prod-encomenda",
+      "prod-limite",
+    ]);
+    expect(range.pagination.total).toBe(2);
+
+    const rangeInStock = await service.listPaginated({
+      minPrice: 1000,
+      maxPrice: 2000,
+      availabilityType: "IN_STOCK",
+    });
+    expect(rangeInStock.data.map((p) => p.id)).toEqual(["prod-limite"]);
+
+    const inverted = await service.listPaginated({ minPrice: 2000, maxPrice: 1000 });
+    expect(inverted.data).toHaveLength(0);
   });
 
   it("Rotas HTTP de /api/v1/produtos devem aplicar RBAC (401/403 para Cliente em mutações)", async () => {

@@ -69,3 +69,19 @@ Ao terminar uma tarefa ou história de usuário, marque-a como concluída na mes
 
 - Use Bun para instalar dependências e executar os comandos em cada diretório (`backend/` e `frontend/`).
 - Commits e Pull Requests seguem [`docs/padrao-commits-e-pull-requests.md`](docs/padrao-commits-e-pull-requests.md). Não use mensagens genéricas (`update`, `ajustes`, `wip`) nem nome de branch como título de PR.
+
+## Uso de subagentes e modelos
+
+O chat principal funciona como **orquestrador**: entende o pedido, divide o trabalho, delega a subagentes e integra e valida o resultado. Delegue sempre que a tarefa puder ser isolada, escolhendo o modelo mais barato que dê conta dela. Não rode tudo no modelo mais caro.
+
+| Modelo     | Use para                                                                                                                                  |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Haiku**  | Explorar e mapear pastas, localizar arquivos e símbolos, ler e resumir código ou docs, operações de Git (status, diff, branch, commit) e edições mecânicas simples (renomear, ajustar texto, marcar `- [x]` no backlog). |
+| **Sonnet** | Codificação de rotina: implementar endpoint, tela ou componente com padrão já existente, escrever e corrigir testes, atualizar a collection Bruno. |
+| **Opus**   | Codificação complexa: mudanças em várias camadas ou módulos, modelagem de banco, refatorações amplas, bugs difíceis e revisão de código. |
+
+- Tarefas complexas ficam com o orquestrador, que planeja e distribui as partes entre os subagentes.
+- Rode em paralelo os subagentes com tarefas independentes.
+- O prompt de cada subagente leva o contexto necessário: ambiente (`[DB]`, `[BE]` ou `[FE]`), arquivos envolvidos e o `agents.md` que se aplica. O subagente não vê a conversa principal.
+- O orquestrador continua responsável pela entrega. Ele confere o que cada subagente fez (testes, tipos, lint) antes de dar a tarefa por concluída.
+- Commits feitos por subagente seguem o mesmo padrão de commits e PRs, e só acontecem quando o usuário pedir.

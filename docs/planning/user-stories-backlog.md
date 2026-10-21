@@ -695,7 +695,7 @@ Atende aos requisitos **RF02**, **RF03**, **RF16**, **RF17** e **RF19**.
 
 #### ⚙️ Especificação Técnica (`backend/src/modules/products/`)
 
-- `GET /api/v1/produtos`: Listagem administrativa e pública paginada com filtros por status, fornecedor, categoria, subtipo, disponibilidade e busca.
+- `GET /api/v1/produtos`: Listagem administrativa e pública paginada com filtros combinados por status, fornecedor, categoria, subtipo, disponibilidade, faixa de preço de referência (`minPrice` e `maxPrice`, inclusivos) e busca textual em nome, descrição e linha (RF05).
 - `GET /api/v1/produtos/:id`: Retorna todos os dados do produto, variações e imagens.
 - `POST /api/v1/produtos`: Criação de produto com validação de escopo multi-empresa.
 - `PUT /api/v1/produtos/:id`: Atualização de dados cadastrais e sincronização de variações do produto.
@@ -706,6 +706,7 @@ Atende aos requisitos **RF02**, **RF03**, **RF16**, **RF17** e **RF19**.
 - [x] Vendedor só consegue criar ou editar produtos das empresas às quais está ativamente vinculado.
 - [x] Tentativa de gerenciar produto de outra empresa retorna HTTP `403 Forbidden`.
 - [x] O soft delete marca `deleted_at` e oculta o produto imediatamente das buscas ativas.
+- [x] A listagem combina os filtros com a faixa de preço (ex.: Sala de Estar + Pronta Entrega + R$ 1.000 a R$ 3.000) e devolve só a interseção.
 
 ---
 
@@ -787,36 +788,6 @@ O formulário deve ser organizado por etapas ou seções lógicas:
 ---
 
 ## Catálogo Principal e Detalhes do Produto (2,0 pts)
-
----
-
-### [US-BE-11] API do Catálogo Público com Filtros Combinados e Busca Textual
-
-**Como** Consumidor ou Arquiteto navegando no site,  
-**Quero** consultar o catálogo de móveis com filtros combinados rápidos e busca textual,  
-**Para que** eu encontre com facilidade os produtos ideais para mobiliar meus ambientes.
-
-#### 📖 Contexto e Regras de Negócio
-
-Atende aos requisitos **RF05** e **RNF01**. A rota pública `GET /api/catalogo` deve responder em menos de 2 segundos, filtrando estritamente itens ativos (`active = TRUE AND deleted_at IS NULL`). Suporta múltiplos filtros combinados:
-
-- Categoria e Subtipo.
-- Disponibilidade: `IN_STOCK` (pronta entrega) ou `ON_DEMAND` (encomenda).
-- Faixa de preço (`min_price` e `max_price`).
-- Fornecedor / Marca.
-- Busca textual livre por nome ou descrição.
-
-#### ⚙️ Especificação Técnica (`backend/src/routes/catalogo.ts`)
-
-- Query SQL dinâmica com parâmetros preparados seguros.
-- Retorno da URL da miniatura (`thumbnailUrl`) e resumo de variações disponíveis.
-- Paginação otimizada com contagem de total de itens.
-
-#### ✅ Critérios de Aceitação
-
-- [ ] Retorna os produtos corretos na combinação de filtros (ex: Sala de Estar + Pronta Entrega).
-- [ ] Produtos desativados via soft delete nunca são retornados na busca pública.
-- [ ] Tempo de resposta inferior a 2 segundos com carga de produtos.
 
 ---
 
@@ -942,7 +913,7 @@ Atende aos requisitos **RF03** e **RNF08**. O teste deve:
 1. Criar um registro no banco PostgreSQL (ex.: um produto de teste).
 2. Executar a requisição `DELETE /api/produtos/:id`.
 3. Consultar diretamente o banco relacional via SQL e comprovar que a linha continua persistida e que a coluna `deleted_at` contém timestamp não-nulo.
-4. Consultar a rota pública `GET /api/catalogo` e comprovar que o produto desativado não é mais listado.
+4. Consultar a rota pública `GET /api/v1/produtos` e comprovar que o produto desativado não é mais listado.
 
 #### ⚙️ Especificação Técnica (`backend/tests/soft_delete.test.ts`)
 

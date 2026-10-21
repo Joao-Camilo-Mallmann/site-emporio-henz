@@ -110,6 +110,8 @@ export class ProductsRepository {
     const subtypeId = filters.subtypeId ?? null;
     const supplierId = filters.supplierId ?? null;
     const availabilityType = filters.availabilityType ?? null;
+    const minPrice = filters.minPrice ?? null;
+    const maxPrice = filters.maxPrice ?? null;
     const active = filters.active !== undefined ? filters.active : null;
     const supplierIdsCsv =
       filters.supplierIds && filters.supplierIds.length > 0
@@ -126,6 +128,8 @@ export class ProductsRepository {
           AND (${supplierId}::uuid IS NULL OR p.supplier_id = ${supplierId}::uuid)
           AND (${supplierIdsCsv}::text IS NULL OR p.supplier_id = ANY(string_to_array(${supplierIdsCsv}, ',')::uuid[]))
           AND (${availabilityType}::varchar IS NULL OR p.availability_type = ${availabilityType})
+          AND (${minPrice}::numeric IS NULL OR p.reference_price >= ${minPrice}::numeric)
+          AND (${maxPrice}::numeric IS NULL OR p.reference_price <= ${maxPrice}::numeric)
           AND (${active}::boolean IS NULL OR p.active = ${active})
           AND (
             ${search}::text IS NULL
@@ -149,6 +153,8 @@ export class ProductsRepository {
           AND (${supplierId}::uuid IS NULL OR p.supplier_id = ${supplierId}::uuid)
           AND (${supplierIdsCsv}::text IS NULL OR p.supplier_id = ANY(string_to_array(${supplierIdsCsv}, ',')::uuid[]))
           AND (${availabilityType}::varchar IS NULL OR p.availability_type = ${availabilityType})
+          AND (${minPrice}::numeric IS NULL OR p.reference_price >= ${minPrice}::numeric)
+          AND (${maxPrice}::numeric IS NULL OR p.reference_price <= ${maxPrice}::numeric)
           AND (${active}::boolean IS NULL OR p.active = ${active})
           AND (
             ${search}::text IS NULL

@@ -172,6 +172,9 @@ export interface ProductQueryFilters {
   subtypeId?: string;
   supplierId?: string;
   availabilityType?: AvailabilityType;
+  // Faixa do preço de referência, com limites inclusivos.
+  minPrice?: number;
+  maxPrice?: number;
   active?: boolean;
   supplierIds?: string[];
 }
