@@ -129,7 +129,7 @@ O serviço `migration` no `docker-compose.yml` executa como um runner one-shot a
 
 #### 🗄️ Especificação de Banco de Dados e Script
 
-- Testar a conexão do driver nativo do Bun (`SQL`) utilizando a variável `DATABASE_URL`.
+- Testar a conexão do driver nativo do Bun (`SQL`) utilizando a URL montada a partir das variáveis `POSTGRES_*`.
 - Simular execução com banco zerado e com migrações pré-existentes.
 - Validar se o container finaliza com código de saída `0` e não trava os demais containers dependentes (`backend`, `nginx`).
 
