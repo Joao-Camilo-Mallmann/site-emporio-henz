@@ -11,14 +11,14 @@ API do Empório Henz construída com Bun nativo (`Bun.serve`), TypeScript e Post
 
 O backend lê as variáveis do ambiente do processo. Para execução local, copie as variáveis de [`.env.example`](../.env.example) para um `.env` dentro de `backend/`, ou exporte-as no terminal.
 
-| Variável | Uso |
-| --- | --- |
-| `PORT` | Porta do servidor. Padrão: `3001`. |
-| `NODE_ENV` | Ambiente de execução (`development` ou `production`). |
-| `JWT_SECRET` | Segredo de assinatura dos tokens JWT. Se ausente, o código usa um valor padrão de desenvolvimento, que não deve ir para produção. |
-| `DATABASE_URL` | String de conexão completa com o PostgreSQL. Quando definida, substitui as variáveis `POSTGRES_*`. |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | Credenciais, banco e porta usados na montagem da conexão quando `DATABASE_URL` não existe. |
-| `POSTGRES_HOST` | Host do banco. Use `localhost` na execução local e `postgres` no Docker Compose. |
+| Variável                                                             | Uso                                                                                                                               |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                                                               | Porta do servidor. Padrão: `3001`.                                                                                                |
+| `NODE_ENV`                                                           | Ambiente de execução (`development` ou `production`).                                                                             |
+| `JWT_SECRET`                                                         | Segredo de assinatura dos tokens JWT. Se ausente, o código usa um valor padrão de desenvolvimento, que não deve ir para produção. |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | Credenciais, banco e porta. O backend monta a URL de conexão com o PostgreSQL a partir delas e de `POSTGRES_HOST`.                 |
+| `POSTGRES_HOST`                                                      | Host do banco. Use `localhost` na execução local e `postgres` no Docker Compose.                                                  |
+| `UPLOADS_DIR`                                                        | Diretório das fotos de produto e amostras de variação. Padrão: `<cwd>/uploads` (`/app/uploads` no container, volume `uploads_data`). |
 
 Exemplo para execução local:
 
@@ -43,7 +43,7 @@ bun run seed
 bun run dev
 ```
 
-Inicia em `http://localhost:3001`. O healthcheck fica em `/health`.
+Inicia em `http://localhost:3001`. O healthcheck fica em `api/v1/health`.
 
 ## Scripts
 
@@ -61,11 +61,12 @@ bun run check-types  # valida tipos com tsc --noEmit
 ## Estrutura
 
 - `src/config/`: variáveis de ambiente e conexão com o banco
-- `src/lib/`: utilitários compartilhados (JWT, senhas, paginação, respostas HTTP, erros e roteador)
+- `src/lib/`: utilitários compartilhados (JWT, senhas, paginação, respostas HTTP, erros, roteador, processamento de imagens com `Bun.Image`, caminhos de upload e leitor de multipart)
 - `src/middlewares/`: autenticação, papéis e tratamento de erros
-- `src/modules/`: regras de negócio por domínio (`auth`, `categories`, `products`, `subtypes`, `suppliers`, `user-suppliers`, `users`)
+- `src/modules/`: regras de negócio por domínio (`auth`, `categories`, `product-images`, `products`, `subtypes`, `suppliers`, `uploads`, `user-suppliers`, `users`)
 - `src/routes/`: definição das rotas
 - `database/`: migrações SQL (`migrations/`), `migrate.ts` e `seed.ts`
-- `tests/`: testes automatizados
+- `tests/`: testes automatizados (`tests/fixtures/` guarda as imagens usadas nos testes de upload)
+- `uploads/`: fotos e amostras gravadas na execução local (ignorado pelo git; em produção é o volume `uploads_data`)
 
 Consulte a [documentação técnica do back-end](../docs/backend/README.md), a [documentação do banco de dados](../docs/database/README.md) e a [collection Bruno](../docs/backend/collections/bruno/), que é a fonte de consulta dos endpoints.

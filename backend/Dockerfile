@@ -1,7 +1,9 @@
 # ==============================================================================
 # ESTÁGIO 1: BASE — Dependências do Backend
 # ==============================================================================
-FROM oven/bun:1-alpine AS base
+# Versão fixa: o Bun.Image (reconversão das fotos para WebP) foi validado nesta
+# versão, inclusive no Alpine (musl). Atualize de propósito, rodando os testes.
+FROM oven/bun:1.4.3-alpine AS base
 WORKDIR /app
 
 # Copia manifestos de dependência para cache de camadas

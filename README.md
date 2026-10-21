@@ -81,7 +81,7 @@ Você pode subir a stack utilizando diretamente os comandos nativos do Docker Co
   docker compose --profile prod up -d --build
   ```
 
-  _Inicia: PostgreSQL, `backend` (compilado para produção com auto-migração) e `nginx` (servindo o frontend estático e proxy reverso na porta 80)._
+  _Inicia: PostgreSQL, `backend` (compilado para produção com auto-migração; as fotos dos produtos ficam no volume `uploads_data`) e `nginx` (servindo o frontend estático e proxy reverso na porta 80)._
 
 - **Parar todos os containers mantendo os dados:**
 
@@ -109,12 +109,12 @@ Após iniciar os containers:
 - **Modo Desenvolvimento (`--profile dev`):**
   - **Frontend Web (Vite HMR)**: [http://localhost:3000](http://localhost:3000)
   - **Backend API**: [http://localhost:3001](http://localhost:3001)
-  - **Healthcheck da API**: [http://localhost:3001/health](http://localhost:3001/health)
+  - **Healthcheck da API**: [http://localhost:3001/api/v1/health](http://localhost:3001/api/v1/health)
 
 - **Modo Produção (`--profile prod`):**
   - **Frontend (Nginx Proxy)**: [http://localhost](http://localhost) (porta 80)
   - **Backend API**: [http://localhost/api](http://localhost/api)
-  - **Healthcheck da API**: [http://localhost/health](http://localhost/health)
+  - **Healthcheck da API**: [http://localhost/api/v1/health](http://localhost/api/v1/health)
 
 ---
 
@@ -136,10 +136,46 @@ Após iniciar os containers:
   # Em produção
   docker compose logs -f backend
   ```
-- **Parar containers e apagar volumes (resetar banco de dados):**
+- **Parar containers e apagar volumes (resetar banco de dados e apagar as fotos enviadas):**
   ```bash
   docker compose --profile dev --profile prod down -v
   ```
+  > [!WARNING]
+  > O `-v` apaga também o volume `uploads_data`, onde ficam as fotos dos produtos em produção. O banco guarda só o caminho de cada foto, então restaurar o dump do banco sem esse volume deixa as imagens quebradas.
+
+---
+
+### 💾 Backup e Restauração (banco + fotos)
+
+Os dados de produção ficam em dois volumes Docker: `postgres_data` (banco) e `uploads_data` (fotos dos produtos e amostras de variação, montado em `/app/uploads` no backend). O banco guarda só o caminho de cada imagem, então os dois precisam ser copiados juntos. Os scripts em [scripts/](scripts) usam os containers do perfil `prod` em execução.
+
+- **Gerar backup** (dump do banco e, depois, o `.tar.gz` dos uploads, com o mesmo timestamp):
+
+  ```bash
+  ./scripts/backup.sh
+  # backups/backup_emporio_henz_2026-10-20_030000.sql.gz
+  # backups/uploads_2026-10-20_030000.tar.gz
+  ```
+
+  Backups com mais de 30 dias (dos dois padrões) são removidos automaticamente. Para agendar na VM:
+
+  ```bash
+  0 3 * * * /caminho/para/site-emporio-henz/scripts/backup.sh >> /var/log/emporio-backup.log 2>&1
+  ```
+
+- **Restaurar pelo timestamp** (banco e uploads do mesmo par; pede confirmação, `--force` pula):
+
+  ```bash
+  ./scripts/restore.sh 2026-10-20_030000
+  ```
+
+- **Restaurar só o banco** (backups antigos, anteriores ao `.tar.gz` de uploads):
+
+  ```bash
+  ./scripts/restore.sh --db-only backups/backup_emporio_henz_2026-09-13_120000.sql.gz
+  ```
+
+  Depois de restaurar, as URLs das fotos (`/api/v1/uploads/...`) voltam a responder `200` sem novo deploy, porque os arquivos entram direto no volume `uploads_data`.
 
 ---
 

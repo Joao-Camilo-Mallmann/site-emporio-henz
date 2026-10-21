@@ -1,0 +1,26 @@
+meta {
+  name: Desativar Produto (Admin / Vendedor)
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/produtos/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Restrito a Vendedor (`role = 2`) e Administrador (`role = 3`).
+  - Aplica exclusão lógica (`deleted_at = CURRENT_TIMESTAMP`) no produto e em cascata lógica nas suas variações (`product_variations`) e imagens (`product_images`).
+  - Vendedor só pode desativar produtos pertencentes aos seus fornecedores vinculados (`403 Forbidden` caso contrário).
+  - Retorna `200 OK` com mensagem de confirmação ou `404 Not Found` se o produto não existir.
+}

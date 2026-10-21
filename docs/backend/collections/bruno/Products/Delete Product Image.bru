@@ -1,0 +1,27 @@
+meta {
+  name: Excluir Foto do Produto (Admin / Vendedor)
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/produtos/:id/imagens/:imageId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+  imageId: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Restrito a Vendedor (`role = 2`) e Administrador (`role = 3`), com a mesma regra de escopo de `PUT /produtos/:id`.
+  - Exclusão lógica: preenche `deleted_at` na foto, que sai de `GET /produtos/:id` e deixa de ser capa na listagem. Os arquivos continuam no volume de uploads e a URL antiga continua abrindo (cache imutável).
+  - Retorna `200 OK` com `{ "message": "Foto removida com sucesso." }`.
+  - `404 Not Found` se o `imageId` não pertence ao `:id` informado ou já foi excluído; `400 Bad Request` para `:id` ou `:imageId` que não é UUID; `401` / `403` conforme autenticação e escopo.
+}

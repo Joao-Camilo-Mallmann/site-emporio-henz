@@ -20,6 +20,9 @@ backups/
 *.dump
 *.sql.gz
 
+# Fotos enviadas pelo backend (em produção ficam no volume uploads_data)
+backend/uploads/
+
 # Testing
 coverage
 

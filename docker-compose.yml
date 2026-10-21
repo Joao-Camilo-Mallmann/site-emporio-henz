@@ -53,7 +53,20 @@ services:
     environment:
       PORT: 3001
       NODE_ENV: ${NODE_ENV:-production}
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
+      # O backend monta a URL de conexão a partir destas variáveis. Host e porta
+      # são os da rede interna do Compose, não a porta publicada no host.
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-emporio_henz}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      UPLOADS_DIR: /app/uploads
+
+    # Fotos de produtos e amostras de variação (RNF02): arquivos no disco da VM,
+    # fora do banco e da imagem do container, preservados entre deploys.
+    # Entram no backup da VM via scripts/backup.sh (uploads_<timestamp>.tar.gz).
+    volumes:
+      - uploads_data:/app/uploads
 
     ports:
       - "${BACKEND_PORT:-3001}:3001"
@@ -104,6 +117,7 @@ services:
       postgres:
         condition: service_healthy
 
+    # Em dev, /app/uploads cai em ./backend/uploads no host (ignorado pelo git).
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -111,7 +125,12 @@ services:
     environment:
       PORT: 3001
       NODE_ENV: ${NODE_ENV:-development}
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-emporio_henz}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-emporio_henz}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      UPLOADS_DIR: /app/uploads
 
     ports:
       - "${BACKEND_PORT:-3001}:3001"
@@ -156,6 +175,8 @@ services:
 
 volumes:
   postgres_data:
+    driver: local
+  uploads_data:
     driver: local
 
 networks:

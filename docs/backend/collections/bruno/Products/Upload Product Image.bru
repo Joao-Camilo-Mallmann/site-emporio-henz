@@ -1,0 +1,43 @@
+meta {
+  name: Enviar Foto do Produto (Admin / Vendedor)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/produtos/:id/imagens
+  body: multipartForm
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:multipart-form {
+  file: @file(/caminho/para/foto.jpg)
+  ~variationId: 00000000-0000-0000-0000-000000000000
+}
+
+docs {
+  Restrito a Vendedor (`role = 2`) e Administrador (`role = 3`), com a mesma regra de escopo de `PUT /produtos/:id` (Vendedor só em produtos de fornecedores vinculados; `403 Forbidden` fora deles). A autorização é conferida antes de o arquivo ser lido.
+
+  **Corpo** `multipart/form-data`:
+  - `file` (obrigatório): exatamente um arquivo JPEG, PNG ou WebP de até 2 MiB (2.097.152 bytes). O formato é conferido pelo conteúdo, não pela extensão nem pelo `Content-Type` da parte.
+  - `variationId` (opcional): UUID de uma variação ativa do mesmo produto, para fotos de acabamento.
+
+  **Processamento**: o servidor reconverte a imagem em WebP (descartando EXIF, inclusive GPS) e grava dois arquivos no volume de uploads, em `products/<productId>/<imageId>-thumb.webp` (lado maior até 480 px, < 50 KB) e `...-full.webp` (lado maior até 1920 px), sem ampliar imagens menores. A linha em `product_images` guarda só os caminhos e recebe `sort_order` igual ao maior da foto ativa do produto + 1 (fim do carrossel).
+
+  **Respostas**:
+  - `201 Created` com `ProductImageDto`: `{ id, productId, variationId, thumbnailUrl, fullImageUrl, sortOrder, createdAt }`. As URLs são relativas (`/api/v1/uploads/products/<productId>/<imageId>-thumb.webp`).
+  - `400 Bad Request`: `Content-Length` ausente ou acima de 2 MiB + 64 KiB (recusado sem ler o corpo); arquivo acima de 2.097.152 bytes (mensagem com o tamanho enviado e o limite); formato fora de JPEG/PNG/WebP (inclusive texto renomeado para `.jpg`); imagem que declara mais de 40 megapixels; multipart sem arquivo ou com mais de um; `variationId` inexistente, removido ou de outro produto; `:id` que não é UUID.
+  - `401 Unauthorized` sem token; `403 Forbidden` para Cliente ou Vendedor fora do escopo; `404 Not Found` para produto inexistente ou desativado.
+  - `413` (Bun) para corpo acima de 10 MiB, limite global igual ao `client_max_body_size` do nginx.
+
+  Exemplo via curl:
+  `curl -X POST -H "Authorization: Bearer $TOKEN" -F "file=@foto.jpg" -F "variationId=<uuid>" {{baseUrl}}/produtos/<id>/imagens`
+}

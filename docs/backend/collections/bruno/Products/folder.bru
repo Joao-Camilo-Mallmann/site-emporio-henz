@@ -1,3 +1,17 @@
 meta {
   name: Products
 }
+
+docs {
+  ## Regras comuns
+
+  - **`:id`**: nas rotas `GET /produtos/:id`, `PUT /produtos/:id` e `DELETE /produtos/:id`, deve ser um UUID válido (`400 Bad Request` caso contrário).
+  - **Paginação**: `page` inteiro de 1 a 10000 (padrão 1) e `limit` inteiro de 1 a 100 (padrão 20).
+  - **Escopo Multi-Empresa (`user_suppliers`)**:
+    - Visitantes e Clientes (`role = 1`) visualizam apenas produtos com `active = true` e não possuem acesso às rotas de escrita (`401` / `403`).
+    - Vendedores (`role = 2`) operam exclusivamente produtos dos fornecedores aos quais possuem vínculo ativo em `user_suppliers`. Vendedor sem nenhum vínculo ativo recebe `403 Forbidden` (E1), e qualquer tentativa de filtrar, consultar, cadastrar, editar ou desativar produto de outro fornecedor retorna `403 Forbidden` (E2/E3).
+    - Administradores (`role = 3`) possuem acesso global a todos os fornecedores e status (`active = true` e `active = false`).
+  - **`:id` nas rotas de imagem**: `POST /produtos/:id/imagens`, `DELETE /produtos/:id/imagens/:imageId`, `PUT` e `DELETE /produtos/:id/variacoes/:variationId/amostra` exigem UUIDs válidos em todos os identificadores (`400 Bad Request` caso contrário) e aplicam a mesma regra de escopo de `PUT /produtos/:id`, conferida antes de ler o arquivo.
+  - **Imagens (RNF02)**: nenhuma rota de produto recebe ou devolve conteúdo de imagem, nem em Base64. As fotos e amostras são enviadas como arquivo (`multipart/form-data`, uma imagem por requisição, JPEG/PNG/WebP de até 2 MiB, formato conferido pelo conteúdo) pelas rotas de imagem desta pasta. O servidor reconverte tudo em WebP (sem EXIF), grava no volume de uploads com nome UUID gerado pelo servidor e o banco guarda só o caminho. As respostas trazem URLs relativas sob `/api/v1/uploads/...` (ver pasta **Uploads**); a listagem traz só `thumbnailUrl` da capa, e o detalhe traz `images` e `sampleImageUrl` das variações.
+  - **Soft delete de imagem**: excluir foto, variação ou produto não apaga arquivos do volume; a URL antiga continua abrindo.
+}

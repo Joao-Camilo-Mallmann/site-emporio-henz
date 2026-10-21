@@ -41,7 +41,7 @@ The migration runner and backend MUST use native Bun PostgreSQL connection and r
 #### Scenario: Leitura de configuração de banco
 
 - **WHEN** o runner de migração ou a aplicação inicializarem
-- **THEN** a conexão DEVE ser estabelecida a partir da variável de ambiente `DATABASE_URL`
+- **THEN** a conexão DEVE ser estabelecida com uma URL montada a partir das variáveis de ambiente `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_HOST`, `POSTGRES_PORT` e `POSTGRES_DB`
 
 ### Requirement: Esquema de Banco Focado no PR 1 (Roles, Usuários, Clientes, Fornecedores e Vínculos)
 
