@@ -52,7 +52,7 @@ const comoFuncionaItems = [
       <picture class="absolute inset-0 w-full h-full">
         <source srcset="/images/about/showroom-loja.webp" type="image/webp" />
         <img
-          src="/images/about/showroom-loja.png"
+          src="/images/about/showroom-loja.webp"
           alt="Showroom da Empório Henz"
           class="w-full h-full object-cover object-center"
           fetchpriority="high"
@@ -149,7 +149,7 @@ const comoFuncionaItems = [
             <picture>
               <source srcset="/images/about/equipe-henz-alta.webp" type="image/webp" />
               <img
-                src="/images/about/equipe-henz-alta.png"
+                src="/images/about/equipe-henz-alta.webp"
                 alt="Fundadoras e Equipe Empório Henz"
                 class="w-full h-auto object-cover"
                 loading="lazy"

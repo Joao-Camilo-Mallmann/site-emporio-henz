@@ -64,37 +64,37 @@ const categories: CategoryItem[] = [
   {
     id: "1",
     name: "Quarto",
-    image: "/images/categories/cat-quarto.png",
+    image: "/images/categories/cat-quarto.webp",
     slug: "quarto",
   },
   {
     id: "2",
     name: "Sala de Estar",
-    image: "/images/categories/cat-sala-estar.png",
+    image: "/images/categories/cat-sala-estar.webp",
     slug: "sala-de-estar",
   },
   {
     id: "3",
     name: "Sala de Jantar",
-    image: "/images/categories/cat-sala-jantar.png",
+    image: "/images/categories/cat-sala-jantar.webp",
     slug: "sala-de-jantar",
   },
   {
     id: "4",
     name: "Cozinha",
-    image: "/images/categories/cat-cozinha.png",
+    image: "/images/categories/cat-cozinha.webp",
     slug: "cozinha",
   },
   {
     id: "5",
     name: "Escritório",
-    image: "/images/categories/cat-escritorio.png",
+    image: "/images/categories/cat-escritorio.webp",
     slug: "escritorio",
   },
   {
     id: "6",
     name: "Banheiro",
-    image: "/images/categories/cat-banheiro.png",
+    image: "/images/categories/cat-banheiro.webp",
     slug: "banheiro",
   },
 ];
@@ -107,7 +107,7 @@ const destaques: ProductItem[] = [
     name: "Cristaleira Liara",
     price: 1900,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-cristaleira.png",
+    image: "/images/products/prod-cristaleira.webp",
     finishes: [],
   },
   {
@@ -116,7 +116,7 @@ const destaques: ProductItem[] = [
     name: "Mesa de Centro Pétala",
     price: 720,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-mesa-petala.png",
+    image: "/images/products/prod-mesa-petala.webp",
     finishes: [
       { color: "#C97C49", label: "Cerejeira" },
       { color: "#EFC171", label: "Mel" },
@@ -130,7 +130,7 @@ const destaques: ProductItem[] = [
     name: "Home Ripado Supremo",
     price: 1550,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-home-ripado.png",
+    image: "/images/products/prod-home-ripado.webp",
     finishes: [
       { color: "#A58D63", label: "Nogueira" },
       { color: "#4A3024", label: "Imbuia Escura" },
@@ -142,7 +142,7 @@ const destaques: ProductItem[] = [
     name: "Poltrona Tissi",
     price: 2370,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-poltrona-tissi.png",
+    image: "/images/products/prod-poltrona-tissi.webp",
     finishes: [
       { color: "#4A3024", label: "Madeira Nobre" },
       { color: "#A58D63", label: "Linho Bege" },
@@ -159,7 +159,7 @@ const recomendados: ProductItem[] = [
     name: "Roupeiro Milano",
     price: 4900,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-milano.png",
+    image: "/images/products/prod-roupeiro-milano.webp",
     finishes: [
       { color: "#4A3025", label: "Freijó Âmbar" },
       { color: "#A58D66", label: "Carvalho Claro" },
@@ -171,7 +171,7 @@ const recomendados: ProductItem[] = [
     name: "Roupeiro Veneza",
     price: 7300,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-veneza.png",
+    image: "/images/products/prod-roupeiro-veneza.webp",
     finishes: [
       { color: "#4A3025", label: "Madeira Maciça" },
       { color: "#A58D66", label: "Champagne" },
@@ -183,7 +183,7 @@ const recomendados: ProductItem[] = [
     name: "Cômoda Itália",
     price: 1500,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-comoda-italia.png",
+    image: "/images/products/prod-comoda-italia.webp",
     finishes: [
       { color: "#4A3025", label: "Carvalho Escuro" },
       { color: "#A58D66", label: "Freijó Claro" },
@@ -195,7 +195,7 @@ const recomendados: ProductItem[] = [
     name: "Cabeceira Itália",
     price: 550,
     installments: "Até 10x no cartão",
-    image: "/images/products/prod-cabeceira-italia.png",
+    image: "/images/products/prod-cabeceira-italia.webp",
     finishes: [
       { color: "#4A3025", label: "Linho Areia" },
       { color: "#A58D66", label: "Cinza Chumbo" },

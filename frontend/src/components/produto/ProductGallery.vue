@@ -39,7 +39,7 @@ const currentImage = computed(() => {
   if (!props.images || props.images.length === 0) {
     return {
       id: "placeholder",
-      url: "/images/products/roupeiro-roma-clean-1.png",
+      url: "/images/products/roupeiro-roma-clean-1.webp",
       alt: "Produto Empório Henz",
     };
   }

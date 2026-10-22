@@ -75,7 +75,7 @@
         <!-- Cena de Móveis do Figma (PNG Transparente recortado) -->
         <div class="col-span-7 relative flex justify-end">
           <img
-            src="/images/hero/hero-furniture.png"
+            src="/images/hero/hero-furniture.webp"
             alt="Ambiente Empório Henz"
             class="w-full max-w-2xl h-auto object-contain drop-shadow-sm select-none"
           />
