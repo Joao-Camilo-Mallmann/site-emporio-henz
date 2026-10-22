@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { isHexColor, normalizeHexColor } from "./produtoDraft";
+import {
+  isHexColor,
+  normalizeHexColor,
+} from "@/utils/produtos/produtoFormEstado";
 
 // Círculo de pré-visualização das cores de uma variação: sólido (1 cor),
 // dividido ao meio (2) ou em fatias iguais (3+). As cores são dados do

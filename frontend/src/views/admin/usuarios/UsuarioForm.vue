@@ -7,6 +7,7 @@ import {
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, reactive, ref, watch } from "vue";
+import { formatPhone, maskPhoneInput } from "@/utils/phone";
 
 interface Props {
   initialData?: Partial<IUser>;
@@ -34,16 +35,6 @@ const emit = defineEmits<{
   (e: "submit", data: UserCreateInput | UserUpdateInput): void;
   (e: "cancel"): void;
 }>();
-
-function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (!digits) return "";
-  if (digits.length <= 2) return `(${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  if (digits.length <= 10)
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-}
 
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
@@ -153,8 +144,7 @@ watch(
 );
 
 function handlePhoneInput(e: Event) {
-  const target = e.target as HTMLInputElement;
-  form.phone = formatPhone(target.value);
+  form.phone = maskPhoneInput(e);
   if (formErrors.phone) {
     const digits = form.phone.replace(/\D/g, "");
     if (digits.length === 0 || digits.length === 10 || digits.length === 11) {

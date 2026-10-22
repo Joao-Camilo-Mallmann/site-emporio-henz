@@ -38,21 +38,26 @@ Quando o usuário autenticado é `SELLER`, a listagem faz `JOIN` com `user_suppl
 - *Alternativas*: incluir `suppliers` no `/auth/me`, que mistura sessão com dado de domínio e fica velho quando o vínculo muda; ou abrir `GET /users/:userId/suppliers` ao próprio Vendedor, que é uma segunda rota com a mesma informação.
 - *Por quê*: é a mesma regra que `GET /produtos` já aplica ao Vendedor e é a menor mudança para o front.
 
-### D2. Página única com seções, não wizard
-O save é um único `POST` com todos os dados, e não há rascunho na API. Um wizard só esconderia campos e obrigaria a validar por etapa. A página única tem as seções numeradas em `<section id="...">` e um índice de âncoras fixo no topo, ou na lateral em telas largas.
+### D2. Formulário em etapas, com uma seção visível por vez
+O save continua sendo um único `POST` com todos os dados, e a API não tem rascunho. Um formulário com seis seções numa página só fica longo e cansativo, então a tela mostra uma seção por vez, num indicador de etapas (lateral em telas largas, faixa rolável no celular). Todas as seções ficam montadas no DOM, apenas escondidas, para o estado e os ids dos campos continuarem valendo.
 
-### D3. Estado do formulário num rascunho local, com funções puras
-Os tipos do rascunho (`ProductDraft`, `VariationDraft`, `PhotoDraft`, `KeyValueRow`, `UploadState`) ficam em `src/types/productDraft.ts`, exportados pelo barrel, porque o `frontend/agents.md` não permite tipos soltos nas views. O arquivo `src/views/admin/produtos/formulario/produtoDraft.ts` concentra as funções:
+- *Avanço*: "Próximo" valida só os campos da etapa atual (`fieldStep` mapeia o id do campo para a etapa) e bloqueia com a mensagem junto ao campo. As etapas já alcançadas ficam clicáveis; as futuras não.
+- *Salvar*: no cadastro o botão aparece na última etapa e valida tudo; se houver erro, a tela abre a etapa do primeiro campo com erro. Enter numa etapa intermediária avança em vez de salvar.
+- *Edição*: o produto já está completo, então todas as etapas ficam livres e "Salvar alterações" aparece em todas.
+- *Depois do `201`*: com o formulário travado para o envio dos arquivos, todas as seções voltam a aparecer, porque o estado e o "Tentar de novo" de amostras e fotos moram nas etapas 4 e 5.
 
-- `createEmptyDraft()`;
-- `validateDraft(draft, ctx)`, que devolve um mapa `campo → mensagem`;
-- `toCreatePayload(draft)`;
+### D3. Estado do formulário local, com funções puras
+Os tipos do estado do formulário (`ProductFormState`, `VariationFormItem`, `PhotoFormItem`, `KeyValueRow`, `UploadState`) ficam em `src/types/productForm.ts`, exportados pelo barrel, porque o `frontend/agents.md` não permite tipos soltos nas views. Os módulos de `src/utils/produtos/` concentram as funções:
+
+- `createEmptyForm()`;
+- `validateForm(form, ctx)`, que devolve um mapa `campo → mensagem`;
+- `toCreatePayload(form)`;
 - `resolveVariationIds(variations, product)` (D4).
 
 Cada variação e cada foto tem uma `key` local, gerada com `crypto.randomUUID()` quando existe. Sem HTTPS nem localhost, o navegador não oferece `randomUUID`, e o código usa um id aleatório no lugar. Uma foto aponta para a variação por `variationKey: string | null`, porque o `id` real só existe depois do `POST`. As funções puras deixam a view enxuta e facilitam testes quando o front tiver um runner.
 
 ### D4. Associação das variações pelo `sortOrder`
-`toCreatePayload` envia `sortOrder = índice` na ordem da tela. Depois do `201`, cada `VariationDraft` recebe o `id` de `response.variations.find(v => v.sortOrder === índice)`. O servidor não garante devolver as variações na ordem do array enviado, mas ordena por `sortOrder`, e os índices são únicos.
+`toCreatePayload` envia `sortOrder = índice` na ordem da tela. Depois do `201`, cada `VariationFormItem` recebe o `id` de `response.variations.find(v => v.sortOrder === índice)`. O servidor não garante devolver as variações na ordem do array enviado, mas ordena por `sortOrder`, e os índices são únicos.
 
 ### D5. Envio dos arquivos em sequência, amostras antes das fotos
 O fluxo é `POST /produtos`, depois as amostras e depois as fotos, com um `await` por vez, sem `Promise.all`:
@@ -105,7 +110,7 @@ Segue o padrão `views/admin/<domínio>/`, como em fornecedores e categorias, e 
 
 ```
 src/types/products.ts             tipos do contrato (DTOs e payloads), exportados no barrel
-src/types/productDraft.ts         tipos do rascunho do formulário, exportados no barrel
+src/types/productForm.ts         tipos do estado do formulário, exportados no barrel
 src/api/produtos.ts               + criar, enviarFoto, enviarAmostra; atualizar e deletar com o caminho corrigido
 src/utils/uploads.ts              validação de arquivo e toApiAssetUrl
 src/views/admin/produtos/
@@ -116,7 +121,7 @@ src/views/admin/produtos/
   ProdutoFotosSection.vue         grade de fotos com preview, variação, ordem, capa e estado do envio
   ColorSwatch.vue                 círculo de pré-visualização (1, 2 ou N cores)
   KeyValueEditor.vue              editor de chave e valor
-  produtoDraft.ts                 rascunho, validação e payload (D3, D4)
+  (lógica em src/utils/produtos/: produtoFormEstado.ts, produtoFormValidacao.ts, ...)
 ```
 
 Inputs e alertas reutilizam as classes dos formulários existentes (`FornecedorForm.vue`). Todas as ações usam `<UiButton>`, e diálogos usam `<UiModal>`, sem `<button>` nativo.

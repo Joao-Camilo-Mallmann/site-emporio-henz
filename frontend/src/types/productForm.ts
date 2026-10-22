@@ -1,6 +1,7 @@
-// Estado local do formulário de cadastro de produto (`/admin/produtos/novo`).
+// Estado local do formulário de produto (`/admin/produtos/novo` e `/:id/editar`).
 // As funções que operam sobre esses tipos ficam em
-// `src/views/admin/produtos/formulario/produtoDraft.ts`.
+// `src/utils/produtos/produtoFormEstado.ts` e
+// `produtoFormValidacao.ts`.
 
 import type {
   AvailabilityType,
@@ -23,7 +24,7 @@ export interface KeyValueRow {
   value: string;
 }
 
-export interface SampleDraft {
+export interface SampleFormItem {
   file: File;
   /** Object URL do arquivo local (`URL.createObjectURL`). */
   previewUrl: string;
@@ -33,7 +34,7 @@ export interface SampleDraft {
   uploadedUrl: string | null;
 }
 
-export interface VariationDraft {
+export interface VariationFormItem {
   /** Chave local; o `id` real só existe depois do `POST /produtos`. */
   key: string;
   id: string | null;
@@ -42,7 +43,7 @@ export interface VariationDraft {
   colorsHex: string[];
   finishDetails: KeyValueRow[];
   inStock: boolean;
-  sample: SampleDraft | null;
+  sample: SampleFormItem | null;
   /**
    * Amostra já gravada na API (`sampleImageUrl`), só na edição. Um novo
    * arquivo em `sample` substitui esta amostra depois do `PUT`.
@@ -50,7 +51,7 @@ export interface VariationDraft {
   existingSampleUrl: string | null;
 }
 
-export interface PhotoDraft {
+export interface PhotoFormItem {
   key: string;
   file: File;
   /** Object URL do arquivo local (`URL.createObjectURL`). */
@@ -62,7 +63,7 @@ export interface PhotoDraft {
   uploaded: ProductImageDto | null;
 }
 
-export interface ProductDraft {
+export interface ProductFormState {
   name: string;
   slug: string;
   /** `true` depois que o usuário edita o slug: ele deixa de seguir o nome. */
@@ -80,13 +81,13 @@ export interface ProductDraft {
   heightMm: NumericInput;
   widthMm: NumericInput;
   depthMm: NumericInput;
-  variations: VariationDraft[];
-  photos: PhotoDraft[];
+  variations: VariationFormItem[];
+  photos: PhotoFormItem[];
   specifications: KeyValueRow[];
   active: boolean;
 }
 
-export interface DraftValidationContext {
+export interface FormValidationContext {
   /** Subtipos ativos da categoria escolhida. */
   subtypeIds: string[];
 }

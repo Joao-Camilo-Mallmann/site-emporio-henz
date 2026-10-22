@@ -10,4 +10,4 @@ export * from "./categories";
 export * from "./subtypes";
 export * from "./listas";
 export * from "./products";
-export * from "./productDraft";
+export * from "./productForm";

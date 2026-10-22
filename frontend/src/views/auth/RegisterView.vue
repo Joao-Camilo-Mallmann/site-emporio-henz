@@ -3,6 +3,7 @@ import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
 import { reactive, ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { maskPhoneInput } from "@/utils/phone";
 
 const route = useRoute();
 const router = useRouter();
@@ -38,22 +39,7 @@ onMounted(() => {
 
 // Máscara dinâmica para WhatsApp / Telefone: (99) 99999-9999
 function handlePhoneInput(event: Event) {
-  const target = event.target as HTMLInputElement;
-  let digits = target.value.replace(/\D/g, "");
-
-  if (digits.length > 11) {
-    digits = digits.substring(0, 11);
-  }
-
-  if (digits.length <= 2) {
-    form.phone = digits.length ? `(${digits}` : "";
-  } else if (digits.length <= 6) {
-    form.phone = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  } else if (digits.length <= 10) {
-    form.phone = `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  } else {
-    form.phone = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
-  }
+  form.phone = maskPhoneInput(event);
 }
 
 function validate(): boolean {

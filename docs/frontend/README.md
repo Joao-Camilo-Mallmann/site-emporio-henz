@@ -75,19 +75,19 @@ A API devolve ao Vendedor só os produtos dos fornecedores vinculados, então as
 
 ### Arquivos
 
-As quatro telas ficam na raiz de `src/views/admin/produtos/`; as peças do formulário e as funções do rascunho ficam em `produtos/formulario/`, como `categorias/` faz com `subcategorias/`.
+As quatro telas ficam na raiz de `src/views/admin/produtos/`; as peças visuais do formulário ficam em `produtos/formulario/`, como `categorias/` faz com `subcategorias/`, e a lógica sem Vue fica em `src/utils/produtos/`.
 
 | Arquivo | Papel |
 | --- | --- |
 | `src/types/products.ts` | Contrato da API: `ProductListItemDto`, `ProductDto`, `ProductVariationDto`, `ProductImageDto`, `ProductCreatePayload`, `ProductUpdatePayload`, `ProductAdminFilterParams` |
-| `src/types/productDraft.ts` | Estado local do formulário: `ProductDraft`, `VariationDraft`, `PhotoDraft`, `KeyValueRow`, `UploadState`, `FieldErrors` |
+| `src/types/productForm.ts` | Estado local do formulário: `ProductFormState`, `VariationFormItem`, `PhotoFormItem`, `KeyValueRow`, `UploadState`, `FieldErrors` |
 | `src/api/produtos.ts` | `listarAdmin`, `buscarDetalhe`, `criar`, `atualizar`, `deletar`, `enviarFoto`, `enviarAmostra`, `removerFoto` e `removerAmostra` (`listar` e `buscarPorId`, usadas pelo catálogo público, seguem com mock de fallback) |
 | `src/utils/uploads.ts` | `MAX_IMAGE_BYTES`, `ACCEPTED_IMAGE_TYPES`, `validateImageFile` e `toApiAssetUrl` |
-| `src/views/admin/produtos/formulario/produtoDraft.ts` | Funções puras: `createEmptyDraft`, `draftFromProduct`, `validateDraft`, `toCreatePayload`, `toUpdatePayload`, `resolveVariationIds`, ids dos campos e rótulos da listagem |
+| `src/utils/produtos/` | Lógica pura do formulário, sem Vue: `produtoFormConstantes.ts` (ids de campo, rótulos e limites), `produtoFormEstado.ts` (criação, conversão de e para a API), `produtoFormValidacao.ts` e `produtoFormatadores.ts` (rótulos da listagem). Principais funções: `createEmptyForm`, `formFromProduct`, `validateForm`, `toCreatePayload`, `toUpdatePayload`, `resolveVariationIds`, ids dos campos e rótulos da listagem |
 | `src/views/admin/produtos/ProdutoListView.vue` | Listagem: filtros, paginação, miniatura da capa e desativação com confirmação |
 | `src/views/admin/produtos/ProdutoNewView.vue` | Casca do cadastro: carga das opções, regra do fornecedor por perfil e gravação em etapas |
 | `src/views/admin/produtos/ProdutoEditView.vue` | Casca da edição: carga do produto, `PUT`, arquivos novos e exclusões imediatas |
-| `src/views/admin/produtos/ProdutoForm.vue` | Seções 1, 2, 3 e 6, índice de âncoras, erros por campo e composição das seções 4 e 5 |
+| `src/views/admin/produtos/ProdutoForm.vue` | Formulário em etapas: indicador de etapas, "Voltar" e "Próximo" com validação por etapa, seções 1, 2, 3 e 6, erros por campo e composição das seções 4 e 5 |
 | `formulario/ProdutoVariacoesSection.vue`, `formulario/ProdutoVariacaoCard.vue` | Variações: incluir, mover, remover, cores, detalhes de acabamento, estoque e amostra |
 | `formulario/ProdutoFotosSection.vue` | Fotos: seleção múltipla, preview, variação, ordem, capa, estado do envio e grade das fotos já publicadas |
 | `formulario/ColorSwatch.vue`, `formulario/KeyValueEditor.vue` | Círculo de cores (1, 2 ou N cores) e editor de chave e valor |
@@ -96,10 +96,18 @@ As quatro telas ficam na raiz de `src/views/admin/produtos/`; as peças do formu
 
 1. **Carga**: `categoriasApi.listar({ limit: 100, active: true })` e `fornecedoresApi.listar({ limit: 100, active: true })` em paralelo. Como o token de Admin traz inativos, categorias e `subtypes` são filtrados por `active` no cliente. Se a carga falhar, a tela mostra o erro com "Tentar de novo" e não exibe o formulário.
 2. **Fornecedor**: o Admin escolhe entre todos os ativos. Para o Vendedor, a API devolve só as empresas vinculadas: uma vem pré-selecionada e travada; várias ficam à escolha; nenhuma mostra o aviso e desabilita "Salvar produto".
-3. **Validação**: `validateDraft` devolve `id do campo → mensagem` na ordem visual. Ao salvar com erro, o formulário marca os campos (`aria-invalid`) e rola até o primeiro. Especificações e detalhes de acabamento descartam linhas vazias, bloqueiam chaves repetidas e enviam os valores como texto.
+3. **Validação**: `validateForm` devolve `id do campo → mensagem` na ordem visual. Ao salvar com erro, o formulário marca os campos (`aria-invalid`) e rola até o primeiro. Especificações e detalhes de acabamento descartam linhas vazias, bloqueiam chaves repetidas e enviam os valores como texto.
 4. **Arquivos**: fotos e amostras são validadas no navegador (JPEG, PNG ou WebP, até 2 MiB, pelo `type` do arquivo) e mostradas com `URL.createObjectURL`, sem Base64 nem compressão. Os object URLs são revogados ao remover ou trocar o arquivo e ao sair da tela.
 5. **Gravação**: `POST /produtos` em JSON. Depois do `201`, cada variação recebe o `id` devolvido pelo `sortOrder` (índice na tela), o formulário trava e os arquivos sobem um por vez: primeiro as amostras, depois as fotos, na ordem da tela.
 6. **Resultado**: tudo enviado gera toast de sucesso e volta para `/admin`. Arquivo com erro mostra a mensagem da API e "Tentar de novo", que reenvia só aquele arquivo para o produto já criado; "Concluir assim mesmo" avisa quantos ficaram de fora e volta para `/admin`. Erro no `POST`: `409` marca o campo slug; `400` e `403` aparecem no alerta geral.
+
+### Etapas do formulário
+
+O `ProdutoForm.vue` mostra uma das seis seções por vez, com indicador de etapas à esquerda em telas largas e como faixa rolável no celular. Todas as seções ficam montadas (`v-show`), então o estado e os ids dos campos não se perdem. O indicador mostra a barra de progresso e o estado de cada etapa: atual, concluída, com erro (depois de tentar avançar) ou bloqueada. No celular ele vira uma versão compacta, com o título da etapa atual e os círculos numerados.
+
+- **Cadastro**: "Próximo" valida só a etapa atual (`fieldStep`, em `src/utils/produtos/produtoFormConstantes.ts`, liga o id do campo à etapa) e só libera a seguinte sem erros. Só as etapas já alcançadas ficam clicáveis. "Salvar produto" aparece na última etapa e valida tudo; com erro, a tela abre a etapa do primeiro campo inválido. Enter numa etapa intermediária avança.
+- **Edição**: a prop `steps-unlocked` libera todas as etapas e mostra "Salvar alterações" em todas.
+- **Depois do `201` ou do `200`**: o indicador some e todas as seções reaparecem, porque o "Tentar de novo" das amostras e fotos fica nas etapas 4 e 5.
 
 ### Fluxo da listagem
 
@@ -110,7 +118,7 @@ As quatro telas ficam na raiz de `src/views/admin/produtos/`; as peças do formu
 
 ### Fluxo da edição
 
-1. **Carga**: produto, categorias e fornecedores em paralelo. `draftFromProduct` converte o `ProductDetailDto` no rascunho do formulário, com `slugEdited: true` (o slug não volta a seguir o nome) e as variações com o `id` real. O `404` vira a tela "Produto não encontrado". Se o fornecedor atual não estiver na página de fornecedores ativos, ele é buscado por `id` e entra no seletor, para o `PUT` não trocar o fornecedor do produto.
+1. **Carga**: produto, categorias e fornecedores em paralelo. `formFromProduct` converte o `ProductDetailDto` no estado do formulário, com `slugEdited: true` (o slug não volta a seguir o nome) e as variações com o `id` real. O `404` vira a tela "Produto não encontrado". Se o fornecedor atual não estiver na página de fornecedores ativos, ele é buscado por `id` e entra no seletor, para o `PUT` não trocar o fornecedor do produto.
 2. **Gravação**: `PUT /produtos/:id` com o mesmo corpo do cadastro. As variações existentes vão com `id` (preservadas), as novas sem `id` (inseridas) e as omitidas recebem soft delete na API. Depois do `200`, as variações novas recebem o `id` pelo `sortOrder`, o formulário trava e os arquivos novos sobem um por vez, como no cadastro.
 3. **Exclusões imediatas**: foto publicada (`DELETE /produtos/:id/imagens/:imageId`), amostra publicada (`DELETE /produtos/:id/variacoes/:variationId/amostra`) e desativação do produto (`DELETE /produtos/:id`) passam por um `UiModal` de confirmação e valem na hora, sem esperar o botão de salvar, porque o JSON do `PUT` não carrega imagem (UC08, A1 e A2).
 

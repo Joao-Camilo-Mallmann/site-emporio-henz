@@ -6,28 +6,30 @@ import type {
   FieldErrors,
   ICategory,
   ISupplier,
-  PhotoDraft,
+  PhotoFormItem,
   ProductCreatePayload,
-  ProductDraft,
+  ProductFormState,
   ProductDto,
   ProductImageDto,
-  VariationDraft,
+  VariationFormItem,
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ProdutoForm from "./ProdutoForm.vue";
 import {
-  createEmptyDraft,
-  draftFromProduct,
   FIELD_IDS,
+} from "@/utils/produtos/produtoFormConstantes";
+import {
+  createEmptyForm,
+  formFromProduct,
   listUploadStates,
   resolveVariationIds,
-  revokeDraftObjectUrls,
-} from "./formulario/produtoDraft";
+  revokeFormObjectUrls,
+} from "@/utils/produtos/produtoFormEstado";
 
 // Casca da tela `/admin/produtos/:id/editar`. Reaproveita o `ProdutoForm` do
-// cadastro: carrega o produto no rascunho, grava com `PUT /produtos/:id` e
+// cadastro: carrega o produto no formulário, grava com `PUT /produtos/:id` e
 // envia os arquivos novos em sequência, um por requisição.
 //
 // Fotos e amostras não entram no corpo do `PUT`: excluir uma foto publicada
@@ -43,7 +45,7 @@ const LISTA_URL = "/admin/produtos";
 
 const productId = computed(() => String(route.params.id ?? ""));
 
-const draft = ref<ProductDraft>(createEmptyDraft());
+const form = ref<ProductFormState>(createEmptyForm());
 const product = ref<ProductDto | null>(null);
 const existingImages = ref<ProductImageDto[]>([]);
 
@@ -79,7 +81,7 @@ const noSupplier = computed(
 
 const locked = computed(() => saving.value || saved.value);
 
-const uploadStates = computed(() => listUploadStates(draft.value));
+const uploadStates = computed(() => listUploadStates(form.value));
 const totalFiles = computed(() => uploadStates.value.length);
 const doneFiles = computed(
   () => uploadStates.value.filter((state) => state === "done").length,
@@ -125,8 +127,8 @@ function aplicarProduto(loaded: ProductDto) {
   existingImages.value = [...(loaded.images ?? [])].sort(
     (a, b) => a.sortOrder - b.sortOrder,
   );
-  revokeDraftObjectUrls(draft.value);
-  draft.value = draftFromProduct(loaded);
+  revokeFormObjectUrls(form.value);
+  form.value = formFromProduct(loaded);
 }
 
 async function carregarTela() {
@@ -163,16 +165,16 @@ async function carregarTela() {
     // O fornecedor atual pode estar inativo ou fora da página carregada: sem
     // ele na lista o seletor ficaria vazio e o `PUT` trocaria o fornecedor.
     if (
-      draft.value.supplierId &&
-      !suppliers.value.some((supplier) => supplier.id === draft.value.supplierId)
+      form.value.supplierId &&
+      !suppliers.value.some((supplier) => supplier.id === form.value.supplierId)
     ) {
       try {
         suppliers.value = [
-          await fornecedoresApi.buscarPorId(draft.value.supplierId),
+          await fornecedoresApi.buscarPorId(form.value.supplierId),
           ...suppliers.value,
         ];
       } catch {
-        draft.value.supplierId = "";
+        form.value.supplierId = "";
       }
     }
   } catch (err: unknown) {
@@ -228,8 +230,8 @@ async function handleSubmit(payload: ProductCreatePayload) {
   saved.value = true;
 
   // As variações novas ganharam `id` no `PUT`; as antigas mantiveram o seu.
-  const variationIds = resolveVariationIds(draft.value.variations, updated);
-  for (const variation of draft.value.variations) {
+  const variationIds = resolveVariationIds(form.value.variations, updated);
+  for (const variation of form.value.variations) {
     variation.id = variationIds.get(variation.key) ?? variation.id;
   }
   saving.value = false;
@@ -246,7 +248,7 @@ async function handleSubmit(payload: ProductCreatePayload) {
   await enviarArquivos();
 }
 
-async function enviarAmostra(variation: VariationDraft) {
+async function enviarAmostra(variation: VariationFormItem) {
   const sample = variation.sample;
   const current = product.value;
   if (!sample || !current) return;
@@ -277,13 +279,13 @@ async function enviarAmostra(variation: VariationDraft) {
   }
 }
 
-async function enviarFoto(photo: PhotoDraft) {
+async function enviarFoto(photo: PhotoFormItem) {
   const current = product.value;
   if (!current) return;
 
   let variationId: string | null = null;
   if (photo.variationKey) {
-    const variation = draft.value.variations.find(
+    const variation = form.value.variations.find(
       (item) => item.key === photo.variationKey,
     );
     if (!variation?.id) {
@@ -314,12 +316,12 @@ async function enviarFoto(photo: PhotoDraft) {
 async function enviarArquivos() {
   uploading.value = true;
   try {
-    for (const variation of draft.value.variations) {
+    for (const variation of form.value.variations) {
       if (variation.sample && variation.sample.uploadState !== "done") {
         await enviarAmostra(variation);
       }
     }
-    for (const photo of draft.value.photos) {
+    for (const photo of form.value.photos) {
       if (photo.uploadState !== "done") {
         await enviarFoto(photo);
       }
@@ -338,7 +340,7 @@ function concluirSeCompleto() {
 
 async function tentarAmostraDeNovo(variationKey: string) {
   if (uploading.value) return;
-  const variation = draft.value.variations.find(
+  const variation = form.value.variations.find(
     (item) => item.key === variationKey,
   );
   if (!variation) return;
@@ -354,7 +356,7 @@ async function tentarAmostraDeNovo(variationKey: string) {
 
 async function tentarFotoDeNovo(photoKey: string) {
   if (uploading.value) return;
-  const photo = draft.value.photos.find((item) => item.key === photoKey);
+  const photo = form.value.photos.find((item) => item.key === photoKey);
   if (!photo) return;
 
   uploading.value = true;
@@ -409,7 +411,7 @@ async function removerFoto(imageId: string) {
 
 async function removerAmostra(variationKey: string) {
   const current = product.value;
-  const variation = draft.value.variations.find(
+  const variation = form.value.variations.find(
     (item) => item.key === variationKey,
   );
   if (!current || !variation) return;
@@ -460,7 +462,7 @@ function handleCancel() {
 
 // O erro de slug duplicado some quando o usuário edita o slug.
 watch(
-  () => draft.value.slug,
+  () => form.value.slug,
   () => {
     if (serverErrors.value[FIELD_IDS.slug]) serverErrors.value = {};
   },
@@ -471,7 +473,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  revokeDraftObjectUrls(draft.value);
+  revokeFormObjectUrls(form.value);
 });
 </script>
 
@@ -603,7 +605,7 @@ onBeforeUnmount(() => {
 
       <ProdutoForm
         v-else
-        v-model:draft="draft"
+        v-model:form="form"
         :categories="categories"
         :suppliers="suppliers"
         :supplier-locked="supplierLocked"
@@ -616,6 +618,7 @@ onBeforeUnmount(() => {
         :server-errors="serverErrors"
         :existing-images="existingImages"
         submit-label="Salvar alterações"
+        steps-unlocked
         @submit="handleSubmit"
         @cancel="handleCancel"
         @retry-sample="tentarAmostraDeNovo"

@@ -6,23 +6,25 @@ import type {
   FieldErrors,
   ICategory,
   ISupplier,
-  PhotoDraft,
+  PhotoFormItem,
   ProductCreatePayload,
-  ProductDraft,
+  ProductFormState,
   ProductDto,
-  VariationDraft,
+  VariationFormItem,
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import ProdutoForm from "./ProdutoForm.vue";
 import {
-  createEmptyDraft,
   FIELD_IDS,
+} from "@/utils/produtos/produtoFormConstantes";
+import {
+  createEmptyForm,
   listUploadStates,
   resolveVariationIds,
-  revokeDraftObjectUrls,
-} from "./formulario/produtoDraft";
+  revokeFormObjectUrls,
+} from "@/utils/produtos/produtoFormEstado";
 
 // Casca da tela `/admin/produtos/novo`: carga das opções, regra do seletor de
 // fornecedor por perfil e gravação em etapas (design D5, D6 e D9):
@@ -32,7 +34,7 @@ const router = useRouter();
 const toast = useToast();
 const authStore = useAuthStore();
 
-const draft = ref<ProductDraft>(createEmptyDraft());
+const form = ref<ProductFormState>(createEmptyForm());
 
 const categories = ref<ICategory[]>([]);
 const suppliers = ref<ISupplier[]>([]);
@@ -56,7 +58,7 @@ const noSupplier = computed(
 
 const locked = computed(() => saving.value || createdProduct.value !== null);
 
-const uploadStates = computed(() => listUploadStates(draft.value));
+const uploadStates = computed(() => listUploadStates(form.value));
 const totalFiles = computed(() => uploadStates.value.length);
 const doneFiles = computed(
   () => uploadStates.value.filter((state) => state === "done").length,
@@ -104,12 +106,12 @@ async function carregarOpcoes() {
     suppliers.value = suppliersResponse.data.filter((supplier) => supplier.active);
 
     if (supplierLocked.value) {
-      draft.value.supplierId = suppliers.value[0].id;
+      form.value.supplierId = suppliers.value[0].id;
     } else if (
-      draft.value.supplierId &&
-      !suppliers.value.some((supplier) => supplier.id === draft.value.supplierId)
+      form.value.supplierId &&
+      !suppliers.value.some((supplier) => supplier.id === form.value.supplierId)
     ) {
-      draft.value.supplierId = "";
+      form.value.supplierId = "";
     }
   } catch (err: unknown) {
     optionsError.value = apiErrorMessage(
@@ -157,8 +159,8 @@ async function handleSubmit(payload: ProductCreatePayload) {
   // Produto criado: a partir daqui o formulário fica travado e só os
   // arquivos podem ser reenviados (reenviar o POST daria 409 pelo slug).
   createdProduct.value = product;
-  const variationIds = resolveVariationIds(draft.value.variations, product);
-  for (const variation of draft.value.variations) {
+  const variationIds = resolveVariationIds(form.value.variations, product);
+  for (const variation of form.value.variations) {
     variation.id = variationIds.get(variation.key) ?? null;
   }
   saving.value = false;
@@ -172,7 +174,7 @@ async function handleSubmit(payload: ProductCreatePayload) {
   await enviarArquivos();
 }
 
-async function enviarAmostra(variation: VariationDraft) {
+async function enviarAmostra(variation: VariationFormItem) {
   const sample = variation.sample;
   const product = createdProduct.value;
   if (!sample || !product) return;
@@ -199,13 +201,13 @@ async function enviarAmostra(variation: VariationDraft) {
   }
 }
 
-async function enviarFoto(photo: PhotoDraft) {
+async function enviarFoto(photo: PhotoFormItem) {
   const product = createdProduct.value;
   if (!product) return;
 
   let variationId: string | null = null;
   if (photo.variationKey) {
-    const variation = draft.value.variations.find(
+    const variation = form.value.variations.find(
       (item) => item.key === photo.variationKey,
     );
     if (!variation?.id) {
@@ -231,12 +233,12 @@ async function enviarFoto(photo: PhotoDraft) {
 async function enviarArquivos() {
   uploading.value = true;
   try {
-    for (const variation of draft.value.variations) {
+    for (const variation of form.value.variations) {
       if (variation.sample && variation.sample.uploadState !== "done") {
         await enviarAmostra(variation);
       }
     }
-    for (const photo of draft.value.photos) {
+    for (const photo of form.value.photos) {
       if (photo.uploadState !== "done") {
         await enviarFoto(photo);
       }
@@ -255,7 +257,7 @@ function concluirSeCompleto() {
 
 async function tentarAmostraDeNovo(variationKey: string) {
   if (uploading.value) return;
-  const variation = draft.value.variations.find((item) => item.key === variationKey);
+  const variation = form.value.variations.find((item) => item.key === variationKey);
   if (!variation) return;
 
   uploading.value = true;
@@ -269,7 +271,7 @@ async function tentarAmostraDeNovo(variationKey: string) {
 
 async function tentarFotoDeNovo(photoKey: string) {
   if (uploading.value) return;
-  const photo = draft.value.photos.find((item) => item.key === photoKey);
+  const photo = form.value.photos.find((item) => item.key === photoKey);
   if (!photo) return;
 
   uploading.value = true;
@@ -297,7 +299,7 @@ function handleCancel() {
 
 // O erro de slug duplicado some quando o usuário edita o slug.
 watch(
-  () => draft.value.slug,
+  () => form.value.slug,
   () => {
     if (serverErrors.value[FIELD_IDS.slug]) serverErrors.value = {};
   },
@@ -308,7 +310,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  revokeDraftObjectUrls(draft.value);
+  revokeFormObjectUrls(form.value);
 });
 </script>
 
@@ -373,7 +375,7 @@ onBeforeUnmount(() => {
 
       <ProdutoForm
         v-else
-        v-model:draft="draft"
+        v-model:form="form"
         :categories="categories"
         :suppliers="suppliers"
         :supplier-locked="supplierLocked"

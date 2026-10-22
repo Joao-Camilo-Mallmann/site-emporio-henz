@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PhotoDraft, ProductImageDto, VariationDraft } from "@/types";
+import type { PhotoFormItem, ProductImageDto, VariationFormItem } from "@/types";
 import {
   ACCEPTED_IMAGE_INPUT,
   formatFileSize,
@@ -9,22 +9,24 @@ import {
 import { Icon } from "@iconify/vue";
 import { computed, ref } from "vue";
 import {
-  coverPhotoKey,
-  createPhotoDraft,
   fieldClass,
   UPLOAD_STATE_META,
+} from "@/utils/produtos/produtoFormConstantes";
+import {
+  coverPhotoKey,
+  createPhotoItem,
   variationLabel,
-} from "./produtoDraft";
+} from "@/utils/produtos/produtoFormEstado";
 
 // Fotos do produto: seleção múltipla com preview local (object URL, sem
 // Base64), associação opcional a uma variação, ordem de envio, indicação da
 // capa e estado do envio de cada arquivo.
 
-const photos = defineModel<PhotoDraft[]>({ required: true });
+const photos = defineModel<PhotoFormItem[]>({ required: true });
 
 const props = withDefaults(
   defineProps<{
-    variations: VariationDraft[];
+    variations: VariationFormItem[];
     locked?: boolean;
     uploadPhase?: boolean;
     busy?: boolean;
@@ -73,13 +75,13 @@ const variationOptions = computed(() =>
   })),
 );
 
-function photoSrc(photo: PhotoDraft) {
+function photoSrc(photo: PhotoFormItem) {
   return photo.uploaded
     ? toApiAssetUrl(photo.uploaded.thumbnailUrl)
     : photo.previewUrl;
 }
 
-function photoVariationName(photo: PhotoDraft) {
+function photoVariationName(photo: PhotoFormItem) {
   if (!photo.variationKey) return "";
   return (
     variationOptions.value.find((option) => option.key === photo.variationKey)
@@ -87,7 +89,7 @@ function photoVariationName(photo: PhotoDraft) {
   );
 }
 
-function photoAlt(photo: PhotoDraft, index: number) {
+function photoAlt(photo: PhotoFormItem, index: number) {
   const variationName = photoVariationName(photo);
   const base = `Foto ${index + 1} do produto (${photo.file.name})`;
   return variationName ? `${base}, variação ${variationName}` : base;
@@ -105,7 +107,7 @@ function addFiles(files: FileList | File[]) {
       rejected.push(error);
       continue;
     }
-    photos.value.push(createPhotoDraft(file, URL.createObjectURL(file)));
+    photos.value.push(createPhotoItem(file, URL.createObjectURL(file)));
   }
   rejections.value = rejected;
 }
@@ -140,7 +142,7 @@ function removePhoto(index: number) {
   if (removed) URL.revokeObjectURL(removed.previewUrl);
 }
 
-function variationSelectId(photo: PhotoDraft) {
+function variationSelectId(photo: PhotoFormItem) {
   return `photo-${photo.key}-variation`;
 }
 

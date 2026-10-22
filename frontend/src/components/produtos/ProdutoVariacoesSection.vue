@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import type { FieldErrors, VariationDraft } from "@/types";
+import type { FieldErrors, VariationFormItem } from "@/types";
 import { Icon } from "@iconify/vue";
 import { nextTick } from "vue";
-import ProdutoVariacaoCard from "./ProdutoVariacaoCard.vue";
-import { createVariationDraft, variationFieldId } from "./produtoDraft";
+import {
+  variationFieldId,
+} from "@/utils/produtos/produtoFormConstantes";
+import {
+  createVariationItem,
+} from "@/utils/produtos/produtoFormEstado";
 
 // Lista de variações: incluir, mover e remover. A ordem da tela define o
 // `sortOrder` enviado à API (começando em 0).
 
-const variations = defineModel<VariationDraft[]>({ required: true });
+const variations = defineModel<VariationFormItem[]>({ required: true });
 
 withDefaults(
   defineProps<{
@@ -34,7 +38,7 @@ const emit = defineEmits<{
 }>();
 
 function addVariation() {
-  const variation = createVariationDraft();
+  const variation = createVariationItem();
   variations.value.push(variation);
   nextTick(() =>
     document.getElementById(variationFieldId.name(variation.key))?.focus(),

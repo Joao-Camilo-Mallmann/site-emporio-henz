@@ -4,36 +4,39 @@ import type {
   ICategory,
   ISupplier,
   ProductCreatePayload,
-  ProductDraft,
+  ProductFormState,
   ProductImageDto,
 } from "@/types";
 import { slugify } from "@/utils/slug";
 import { Icon } from "@iconify/vue";
 import { computed, nextTick, ref, watch } from "vue";
-import KeyValueEditor from "./formulario/KeyValueEditor.vue";
-import ProdutoFotosSection from "./formulario/ProdutoFotosSection.vue";
-import ProdutoVariacoesSection from "./formulario/ProdutoVariacoesSection.vue";
 import {
   AVAILABILITY_OPTIONS,
   ERROR_TEXT_CLASS,
   FIELD_IDS,
   fieldClass,
+  fieldStep,
   FORM_SECTIONS,
-  formatMmAsCm,
   HINT_CLASS,
   INSTALLMENTS_MAX,
   INSTALLMENTS_MIN,
   LABEL_CLASS,
   TEXT_MAX_LENGTH,
+} from "@/utils/produtos/produtoFormConstantes";
+import {
+  formatMmAsCm,
   toCreatePayload,
-  validateDraft,
-} from "./formulario/produtoDraft";
+} from "@/utils/produtos/produtoFormEstado";
+import {
+  validateForm,
+} from "@/utils/produtos/produtoFormValidacao";
 
-// Seções 1, 2, 3 e 6 do cadastro, índice de âncoras e composição das seções
+// Formulário em etapas (uma seção visível por vez): seções 1, 2, 3 e 6, o
+// indicador de etapas e a composição das seções
 // 4 (variações) e 5 (fotos). A validação roda no navegador antes do envio e
 // leva até o primeiro campo com erro.
 
-const draft = defineModel<ProductDraft>("draft", { required: true });
+const form = defineModel<ProductFormState>("form", { required: true });
 
 const props = withDefaults(
   defineProps<{
@@ -58,6 +61,8 @@ const props = withDefaults(
     existingImages?: ProductImageDto[];
     /** Texto do botão de envio ("Salvar produto" no cadastro). */
     submitLabel?: string;
+    /** Edição: todas as etapas ficam livres e o botão de salvar aparece em todas. */
+    stepsUnlocked?: boolean;
   }>(),
   {
     supplierLocked: false,
@@ -70,6 +75,7 @@ const props = withDefaults(
     serverErrors: () => ({}),
     existingImages: () => [],
     submitLabel: "Salvar produto",
+    stepsUnlocked: false,
   },
 );
 
@@ -84,11 +90,19 @@ const emit = defineEmits<{
   (e: "remove-existing-sample", variationKey: string): void;
 }>();
 
-const submitted = ref(false);
+const formRoot = ref<HTMLFormElement | null>(null);
 const alertRef = ref<HTMLElement | null>(null);
 
+// Etapas: `maxStep` é a mais avançada já liberada; `attemptedSteps` são as
+// etapas em que o usuário tentou avançar e que passam a mostrar os erros.
+const currentStep = ref(0);
+const maxStep = ref(0);
+const attemptedSteps = ref<number[]>([]);
+
+const isLastStep = computed(() => currentStep.value === FORM_SECTIONS.length - 1);
+
 const selectedCategory = computed(() =>
-  props.categories.find((category) => category.id === draft.value.categoryId),
+  props.categories.find((category) => category.id === form.value.categoryId),
 );
 
 const subtypeOptions = computed(() => selectedCategory.value?.subtypes ?? []);
@@ -97,16 +111,27 @@ const validationContext = computed(() => ({
   subtypeIds: subtypeOptions.value.map((subtype) => subtype.id),
 }));
 
-const clientErrors = computed<FieldErrors>(() =>
-  submitted.value ? validateDraft(draft.value, validationContext.value) : {},
-);
+const clientErrors = computed<FieldErrors>(() => {
+  if (attemptedSteps.value.length === 0) return {};
+  const all = validateForm(form.value, validationContext.value);
+  return Object.fromEntries(
+    Object.entries(all).filter(([id]) =>
+      attemptedSteps.value.includes(fieldStep(id)),
+    ),
+  );
+});
 
 const errors = computed<FieldErrors>(() => ({
   ...props.serverErrors,
   ...clientErrors.value,
 }));
 
-const clientErrorCount = computed(() => Object.keys(clientErrors.value).length);
+const clientErrorCount = computed(
+  () =>
+    Object.keys(clientErrors.value).filter(
+      (id) => fieldStep(id) === currentStep.value,
+    ).length,
+);
 
 const dimensionFields = [
   { id: FIELD_IDS.heightMm, key: "heightMm", label: "Altura" },
@@ -124,6 +149,8 @@ function describedBy(id: string, hintId?: string): string | undefined {
 }
 
 function focusField(id: string) {
+  // O campo pode estar numa etapa escondida: abre a etapa antes de focar.
+  if (!props.uploadPhase) currentStep.value = fieldStep(id);
   nextTick(() => {
     const element = document.getElementById(id);
     if (!element) return;
@@ -132,37 +159,116 @@ function focusField(id: string) {
   });
 }
 
-function scrollToSection(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+function isStepVisible(index: number): boolean {
+  return props.uploadPhase || currentStep.value === index;
+}
+
+function canGoToStep(index: number): boolean {
+  return props.stepsUnlocked || index <= maxStep.value;
+}
+
+function isStepDone(index: number): boolean {
+  return !props.stepsUnlocked && index < maxStep.value;
+}
+
+function stepHasError(index: number): boolean {
+  return Object.keys(clientErrors.value).some((id) => fieldStep(id) === index);
+}
+
+type StepState = "current" | "error" | "done" | "open" | "locked";
+
+function stepState(index: number): StepState {
+  if (stepHasError(index)) return "error";
+  if (index === currentStep.value) return "current";
+  if (isStepDone(index)) return "done";
+  return canGoToStep(index) ? "open" : "locked";
+}
+
+const STEP_CIRCLE_CLASS: Record<StepState, string> = {
+  current: "bg-secondary text-white shadow-sm ring-4 ring-secondary/15",
+  error: "bg-rose-500 text-white ring-4 ring-rose-100",
+  done: "bg-emerald-500 text-white",
+  open: "bg-stone-200 text-stone-700",
+  locked: "bg-stone-100 text-stone-400",
+};
+
+const STEP_TITLE_CLASS: Record<StepState, string> = {
+  current: "font-semibold text-neutral-dark",
+  error: "font-semibold text-rose-700",
+  done: "font-medium text-neutral-dark",
+  open: "font-medium text-stone-700",
+  locked: "text-stone-400",
+};
+
+const progressPercent = computed(() =>
+  Math.round(((currentStep.value + 1) / FORM_SECTIONS.length) * 100),
+);
+
+function markAttempted(step: number) {
+  if (!attemptedSteps.value.includes(step)) attemptedSteps.value.push(step);
+}
+
+function showStep(index: number) {
+  currentStep.value = index;
+  maxStep.value = Math.max(maxStep.value, index);
+  nextTick(() =>
+    formRoot.value?.scrollIntoView({ behavior: "smooth", block: "start" }),
+  );
+}
+
+function goToStep(index: number) {
+  if (canGoToStep(index)) showStep(index);
+}
+
+function goBack() {
+  if (currentStep.value > 0) showStep(currentStep.value - 1);
+}
+
+/** Avança para a próxima etapa se a atual não tem erros (na edição, sempre). */
+function goNext() {
+  if (isLastStep.value) return;
+
+  if (!props.stepsUnlocked) {
+    const step = currentStep.value;
+    markAttempted(step);
+    const firstError = Object.keys(
+      validateForm(form.value, validationContext.value),
+    ).find((id) => fieldStep(id) === step);
+    if (firstError) {
+      focusField(firstError);
+      return;
+    }
+  }
+  showStep(currentStep.value + 1);
 }
 
 // Slug acompanha o nome até o usuário editá-lo.
 watch(
-  () => draft.value.name,
+  () => form.value.name,
   (name) => {
-    if (!draft.value.slugEdited) draft.value.slug = slugify(name);
+    if (!form.value.slugEdited) form.value.slug = slugify(name);
   },
 );
 
 function onSlugInput() {
-  draft.value.slugEdited = true;
+  form.value.slugEdited = true;
 }
 
 function regenerateSlug() {
-  draft.value.slugEdited = false;
-  draft.value.slug = slugify(draft.value.name);
+  form.value.slugEdited = false;
+  form.value.slug = slugify(form.value.name);
 }
 
 // Trocar a categoria limpa o subtipo escolhido.
 watch(
-  () => draft.value.categoryId,
+  () => form.value.categoryId,
   (current, previous) => {
-    if (current !== previous) draft.value.subtypeId = "";
+    if (current !== previous) form.value.subtypeId = "";
   },
 );
 
 function onVariationRemoved(key: string) {
-  for (const photo of draft.value.photos) {
+  for (const photo of form.value.photos) {
     if (photo.variationKey === key) photo.variationKey = null;
   }
 }
@@ -189,48 +295,176 @@ watch(
 function handleSubmit() {
   if (props.locked || props.noSupplier) return;
 
-  submitted.value = true;
-  const result = validateDraft(draft.value, validationContext.value);
+  // Enter numa etapa intermediária do cadastro avança, não salva.
+  if (!props.stepsUnlocked && !isLastStep.value) {
+    goNext();
+    return;
+  }
+
+  FORM_SECTIONS.forEach((_, index) => markAttempted(index));
+  const result = validateForm(form.value, validationContext.value);
   const firstError = Object.keys(result)[0];
   if (firstError) {
     focusField(firstError);
     return;
   }
 
-  emit("submit", toCreatePayload(draft.value));
+  emit("submit", toCreatePayload(form.value));
 }
 </script>
 
 <template>
   <form
+    ref="formRoot"
     novalidate
-    class="lg:grid lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-8 lg:items-start"
+    class="scroll-mt-28"
+    :class="
+      uploadPhase
+        ? ''
+        : 'lg:grid lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-8 lg:items-start'
+    "
     @submit.prevent="handleSubmit"
   >
-    <!-- Índice de âncoras: faixa rolável no celular, lateral fixa em telas largas -->
-    <nav aria-label="Seções do formulário" class="mb-6 lg:mb-0 lg:sticky lg:top-32">
-      <ol class="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:gap-1 lg:overflow-visible lg:pb-0">
-        <li v-for="(section, index) in FORM_SECTIONS" :key="section.id" class="shrink-0">
-          <UiButton
-            variant="custom"
-            size="none"
-            class="gap-2 whitespace-nowrap rounded-full border border-stone-200 bg-white px-3 py-1.5 text-xs text-stone-600 hover:border-secondary/50 hover:text-secondary lg:w-full lg:justify-start lg:rounded-lg lg:border-transparent lg:bg-transparent lg:hover:bg-white"
-            @click="scrollToSection(section.id)"
-          >
-            <span
-              class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary"
+    <!-- Indicador de etapas: cartão lateral em telas largas, versão compacta no celular -->
+    <nav
+      v-if="!uploadPhase"
+      aria-label="Etapas do formulário"
+      class="mb-6 lg:mb-0 lg:sticky lg:top-32"
+    >
+      <!-- Compacto (celular e tablet) -->
+      <div class="lg:hidden rounded-xl border border-stone-200 bg-white p-4 shadow-xs space-y-3">
+        <div class="flex items-baseline justify-between gap-3">
+          <p class="min-w-0 truncate text-sm font-semibold text-neutral-dark">
+            {{ FORM_SECTIONS[currentStep].title }}
+          </p>
+          <span class="shrink-0 text-xs text-stone-500">
+            Etapa {{ currentStep + 1 }} de {{ FORM_SECTIONS.length }}
+          </span>
+        </div>
+        <div
+          class="h-1.5 w-full overflow-hidden rounded-full bg-stone-100"
+          role="progressbar"
+          :aria-valuenow="currentStep + 1"
+          aria-valuemin="1"
+          :aria-valuemax="FORM_SECTIONS.length"
+          :aria-label="`Etapa ${currentStep + 1} de ${FORM_SECTIONS.length}`"
+        >
+          <div
+            class="h-full rounded-full bg-secondary transition-all duration-300"
+            :style="{ width: `${progressPercent}%` }"
+          ></div>
+        </div>
+        <ol class="flex items-center justify-between gap-1">
+          <li v-for="(section, index) in FORM_SECTIONS" :key="section.id">
+            <UiButton
+              type="button"
+              variant="custom"
+              size="none"
+              :disabled="!canGoToStep(index)"
+              :aria-current="index === currentStep ? 'step' : undefined"
+              :aria-label="`Etapa ${index + 1}: ${section.title}`"
+              :title="section.title"
+              class="h-8 w-8 rounded-full text-xs font-semibold transition-colors disabled:cursor-not-allowed"
+              :class="STEP_CIRCLE_CLASS[stepState(index)]"
+              @click="goToStep(index)"
             >
-              {{ index + 1 }}
+              <Icon v-if="stepState(index) === 'done'" icon="mdi:check" class="w-4 h-4" />
+              <Icon
+                v-else-if="stepState(index) === 'error'"
+                icon="mdi:exclamation-thick"
+                class="w-4 h-4"
+              />
+              <template v-else>{{ index + 1 }}</template>
+            </UiButton>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Lateral (telas largas) -->
+      <div class="hidden lg:block rounded-xl border border-stone-200 bg-white p-4 shadow-xs">
+        <div class="mb-3 space-y-2 px-1">
+          <div class="flex items-baseline justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-stone-500">
+              Etapas
             </span>
-            {{ section.title }}
-          </UiButton>
-        </li>
-      </ol>
+            <span class="text-xs text-stone-500">
+              {{ currentStep + 1 }} de {{ FORM_SECTIONS.length }}
+            </span>
+          </div>
+          <div
+            class="h-1.5 w-full overflow-hidden rounded-full bg-stone-100"
+            role="progressbar"
+            :aria-valuenow="currentStep + 1"
+            aria-valuemin="1"
+            :aria-valuemax="FORM_SECTIONS.length"
+            :aria-label="`Etapa ${currentStep + 1} de ${FORM_SECTIONS.length}`"
+          >
+            <div
+              class="h-full rounded-full bg-secondary transition-all duration-300"
+              :style="{ width: `${progressPercent}%` }"
+            ></div>
+          </div>
+        </div>
+
+        <ol>
+          <li v-for="(section, index) in FORM_SECTIONS" :key="section.id" class="relative">
+            <!-- Linha que liga esta etapa à próxima -->
+            <span
+              v-if="index < FORM_SECTIONS.length - 1"
+              aria-hidden="true"
+              class="pointer-events-none absolute left-6 top-[2.375rem] bottom-[-0.625rem] w-px"
+              :class="isStepDone(index) ? 'bg-emerald-300' : 'bg-stone-200'"
+            ></span>
+
+            <UiButton
+              type="button"
+              variant="custom"
+              size="none"
+              :disabled="!canGoToStep(index)"
+              :aria-current="index === currentStep ? 'step' : undefined"
+              class="w-full items-start justify-start gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors disabled:cursor-not-allowed"
+              :class="
+                index === currentStep
+                  ? 'bg-sky-50/70'
+                  : canGoToStep(index)
+                    ? 'hover:bg-stone-50'
+                    : ''
+              "
+              @click="goToStep(index)"
+            >
+              <span
+                class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all"
+                :class="STEP_CIRCLE_CLASS[stepState(index)]"
+              >
+                <Icon v-if="stepState(index) === 'done'" icon="mdi:check" class="w-4 h-4" />
+                <Icon
+                  v-else-if="stepState(index) === 'error'"
+                  icon="mdi:exclamation-thick"
+                  class="w-4 h-4"
+                />
+                <template v-else>{{ index + 1 }}</template>
+              </span>
+              <span class="min-w-0 flex-1 pt-0.5">
+                <span class="block text-sm leading-tight" :class="STEP_TITLE_CLASS[stepState(index)]">
+                  {{ section.title }}
+                </span>
+                <span
+                  class="mt-0.5 block text-xs leading-snug"
+                  :class="stepState(index) === 'locked' ? 'text-stone-300' : 'text-stone-500'"
+                >
+                  {{ section.hint }}
+                </span>
+              </span>
+            </UiButton>
+          </li>
+        </ol>
+      </div>
     </nav>
 
     <div class="min-w-0 space-y-6">
       <!-- 1. Dados básicos -->
       <section
+        v-show="isStepVisible(0)"
         :id="FORM_SECTIONS[0].id"
         class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
         :aria-labelledby="`${FORM_SECTIONS[0].id}-title`"
@@ -254,7 +488,7 @@ function handleSubmit() {
             <label :for="FIELD_IDS.name" :class="LABEL_CLASS">Nome do produto *</label>
             <input
               :id="FIELD_IDS.name"
-              v-model="draft.name"
+              v-model="form.name"
               type="text"
               :maxlength="TEXT_MAX_LENGTH"
               placeholder="Ex.: Roupeiro Roma 6 Portas"
@@ -273,7 +507,7 @@ function handleSubmit() {
             <label :for="FIELD_IDS.slug" :class="LABEL_CLASS">Slug (identificador na URL) *</label>
             <input
               :id="FIELD_IDS.slug"
-              v-model="draft.slug"
+              v-model="form.slug"
               type="text"
               :maxlength="TEXT_MAX_LENGTH"
               placeholder="Ex.: roupeiro-roma-6-portas"
@@ -289,10 +523,10 @@ function handleSubmit() {
               {{ fieldError(FIELD_IDS.slug) }}
             </p>
             <p :id="`${FIELD_IDS.slug}-hint`" :class="[HINT_CLASS, 'flex flex-wrap items-center gap-x-2']">
-              <span v-if="draft.slugEdited">Slug editado manualmente.</span>
+              <span v-if="form.slugEdited">Slug editado manualmente.</span>
               <span v-else>Gerado a partir do nome. Edite se quiser outro endereço.</span>
               <UiButton
-                v-if="draft.slugEdited && !locked"
+                v-if="form.slugEdited && !locked"
                 variant="link"
                 size="none"
                 class="text-xs"
@@ -308,7 +542,7 @@ function handleSubmit() {
             <label :for="FIELD_IDS.category" :class="LABEL_CLASS">Categoria *</label>
             <select
               :id="FIELD_IDS.category"
-              v-model="draft.categoryId"
+              v-model="form.categoryId"
               aria-required="true"
               :aria-invalid="fieldError(FIELD_IDS.category) ? 'true' : undefined"
               :aria-describedby="describedBy(FIELD_IDS.category)"
@@ -332,8 +566,8 @@ function handleSubmit() {
             <label :for="FIELD_IDS.subtype" :class="LABEL_CLASS">Subtipo</label>
             <select
               :id="FIELD_IDS.subtype"
-              v-model="draft.subtypeId"
-              :disabled="!draft.categoryId"
+              v-model="form.subtypeId"
+              :disabled="!form.categoryId"
               :aria-invalid="fieldError(FIELD_IDS.subtype) ? 'true' : undefined"
               :aria-describedby="describedBy(FIELD_IDS.subtype)"
               :class="fieldClass(!!fieldError(FIELD_IDS.subtype))"
@@ -346,7 +580,7 @@ function handleSubmit() {
             <p v-if="fieldError(FIELD_IDS.subtype)" :id="`${FIELD_IDS.subtype}-error`" :class="ERROR_TEXT_CLASS">
               {{ fieldError(FIELD_IDS.subtype) }}
             </p>
-            <p v-else-if="!draft.categoryId" :class="HINT_CLASS">Escolha a categoria primeiro.</p>
+            <p v-else-if="!form.categoryId" :class="HINT_CLASS">Escolha a categoria primeiro.</p>
           </div>
 
           <!-- Fornecedor -->
@@ -354,7 +588,7 @@ function handleSubmit() {
             <label :for="FIELD_IDS.supplier" :class="LABEL_CLASS">Fornecedor / fabricante *</label>
             <select
               :id="FIELD_IDS.supplier"
-              v-model="draft.supplierId"
+              v-model="form.supplierId"
               :disabled="supplierLocked || noSupplier"
               aria-required="true"
               :aria-invalid="fieldError(FIELD_IDS.supplier) ? 'true' : undefined"
@@ -396,7 +630,7 @@ function handleSubmit() {
             <label :for="FIELD_IDS.collectionLine" :class="LABEL_CLASS">Linha / coleção</label>
             <input
               :id="FIELD_IDS.collectionLine"
-              v-model="draft.collectionLine"
+              v-model="form.collectionLine"
               type="text"
               :maxlength="TEXT_MAX_LENGTH"
               placeholder="Ex.: Linha Itália"
@@ -414,7 +648,7 @@ function handleSubmit() {
             <label :for="FIELD_IDS.mainMaterial" :class="LABEL_CLASS">Material principal</label>
             <input
               :id="FIELD_IDS.mainMaterial"
-              v-model="draft.mainMaterial"
+              v-model="form.mainMaterial"
               type="text"
               :maxlength="TEXT_MAX_LENGTH"
               placeholder="Ex.: MDF 18mm"
@@ -432,7 +666,7 @@ function handleSubmit() {
             <label :for="FIELD_IDS.description" :class="LABEL_CLASS">Descrição</label>
             <textarea
               :id="FIELD_IDS.description"
-              v-model="draft.description"
+              v-model="form.description"
               rows="4"
               placeholder="Conte o que torna o móvel especial: materiais, uso e diferenciais."
               :class="[fieldClass(false), 'resize-y']"
@@ -443,6 +677,7 @@ function handleSubmit() {
 
       <!-- 2. Preço e disponibilidade -->
       <section
+        v-show="isStepVisible(1)"
         :id="FORM_SECTIONS[1].id"
         class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
         :aria-labelledby="`${FORM_SECTIONS[1].id}-title`"
@@ -469,7 +704,7 @@ function handleSubmit() {
                 <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm text-stone-500" aria-hidden="true">R$</span>
                 <input
                   :id="FIELD_IDS.referencePrice"
-                  v-model="draft.referencePrice"
+                  v-model="form.referencePrice"
                   type="number"
                   inputmode="decimal"
                   min="0"
@@ -491,7 +726,7 @@ function handleSubmit() {
               <label :for="FIELD_IDS.maxInstallments" :class="LABEL_CLASS">Parcelas máximas *</label>
               <input
                 :id="FIELD_IDS.maxInstallments"
-                v-model="draft.maxInstallments"
+                v-model="form.maxInstallments"
                 type="number"
                 inputmode="numeric"
                 :min="INSTALLMENTS_MIN"
@@ -521,14 +756,14 @@ function handleSubmit() {
                 :for="`product-availability-${option.value}`"
                 class="flex items-start gap-3 rounded-lg border p-3.5 cursor-pointer transition-colors"
                 :class="
-                  draft.availabilityType === option.value
+                  form.availabilityType === option.value
                     ? 'border-secondary bg-surface-tint/30'
                     : 'border-stone-200 hover:border-stone-300'
                 "
               >
                 <input
                   :id="`product-availability-${option.value}`"
-                  v-model="draft.availabilityType"
+                  v-model="form.availabilityType"
                   type="radio"
                   name="product-availability"
                   :value="option.value"
@@ -543,11 +778,11 @@ function handleSubmit() {
           </fieldset>
 
           <!-- Prazo (só sob encomenda) -->
-          <div v-if="draft.availabilityType === 'ON_DEMAND'" class="sm:max-w-xs">
+          <div v-if="form.availabilityType === 'ON_DEMAND'" class="sm:max-w-xs">
             <label :for="FIELD_IDS.estimatedDays" :class="LABEL_CLASS">Prazo de fabricação (dias) *</label>
             <input
               :id="FIELD_IDS.estimatedDays"
-              v-model="draft.estimatedDays"
+              v-model="form.estimatedDays"
               type="number"
               inputmode="numeric"
               min="1"
@@ -567,6 +802,7 @@ function handleSubmit() {
 
       <!-- 3. Dimensões -->
       <section
+        v-show="isStepVisible(2)"
         :id="FORM_SECTIONS[2].id"
         class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
         :aria-labelledby="`${FORM_SECTIONS[2].id}-title`"
@@ -590,7 +826,7 @@ function handleSubmit() {
             <div class="relative">
               <input
                 :id="dimension.id"
-                v-model="draft[dimension.key]"
+                v-model="form[dimension.key]"
                 type="number"
                 inputmode="numeric"
                 min="1"
@@ -607,7 +843,7 @@ function handleSubmit() {
               {{ fieldError(dimension.id) }}
             </p>
             <p :id="`${dimension.id}-hint`" :class="HINT_CLASS">
-              {{ formatMmAsCm(draft[dimension.key]) ? `= ${formatMmAsCm(draft[dimension.key])}` : "Equivalente em cm aparece aqui." }}
+              {{ formatMmAsCm(form[dimension.key]) ? `= ${formatMmAsCm(form[dimension.key])}` : "Equivalente em cm aparece aqui." }}
             </p>
           </div>
         </fieldset>
@@ -615,6 +851,7 @@ function handleSubmit() {
 
       <!-- 4. Variações de acabamento -->
       <section
+        v-show="isStepVisible(3)"
         :id="FORM_SECTIONS[3].id"
         class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
         :aria-labelledby="`${FORM_SECTIONS[3].id}-title`"
@@ -633,7 +870,7 @@ function handleSubmit() {
         </header>
 
         <ProdutoVariacoesSection
-          v-model="draft.variations"
+          v-model="form.variations"
           :errors="errors"
           :locked="locked"
           :upload-phase="uploadPhase"
@@ -646,6 +883,7 @@ function handleSubmit() {
 
       <!-- 5. Fotos -->
       <section
+        v-show="isStepVisible(4)"
         :id="FORM_SECTIONS[4].id"
         class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
         :aria-labelledby="`${FORM_SECTIONS[4].id}-title`"
@@ -665,8 +903,8 @@ function handleSubmit() {
         </header>
 
         <ProdutoFotosSection
-          v-model="draft.photos"
-          :variations="draft.variations"
+          v-model="form.photos"
+          :variations="form.variations"
           :locked="locked"
           :upload-phase="uploadPhase"
           :busy="busy"
@@ -678,6 +916,7 @@ function handleSubmit() {
 
       <!-- 6. Especificações técnicas -->
       <section
+        v-show="isStepVisible(5)"
         :id="FORM_SECTIONS[5].id"
         class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
         :aria-labelledby="`${FORM_SECTIONS[5].id}-title`"
@@ -697,7 +936,7 @@ function handleSubmit() {
         </header>
 
         <KeyValueEditor
-          v-model="draft.specifications"
+          v-model="form.specifications"
           :id-prefix="FIELD_IDS.specifications"
           :errors="errors"
           :disabled="locked"
@@ -711,11 +950,14 @@ function handleSubmit() {
       </section>
 
       <!-- Status no catálogo -->
-      <div class="rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs">
+      <div
+        v-show="isStepVisible(FORM_SECTIONS.length - 1)"
+        class="rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
+      >
         <label :for="FIELD_IDS.active" class="flex items-start gap-3 cursor-pointer select-none">
           <input
             :id="FIELD_IDS.active"
-            v-model="draft.active"
+            v-model="form.active"
             type="checkbox"
             :disabled="locked"
             class="mt-0.5 w-4 h-4 rounded border-stone-300 text-secondary focus:ring-secondary cursor-pointer disabled:cursor-not-allowed"
@@ -757,9 +999,10 @@ function handleSubmit() {
       <!-- Ações -->
       <div
         v-if="!uploadPhase"
-        class="pt-2 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3"
+        class="pt-2 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3"
       >
         <UiButton
+          type="button"
           variant="outline"
           size="md"
           :disabled="saving"
@@ -767,16 +1010,45 @@ function handleSubmit() {
         >
           Cancelar
         </UiButton>
-        <UiButton
-          variant="primary"
-          type="submit"
-          size="md"
-          :loading="saving"
-          :disabled="noSupplier || locked"
-        >
-          <Icon v-if="!saving" icon="mdi:content-save-outline" class="w-4 h-4" />
-          {{ submitLabel }}
-        </UiButton>
+
+        <div class="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
+          <span class="text-xs text-stone-500 text-center sm:mr-1">
+            Etapa {{ currentStep + 1 }} de {{ FORM_SECTIONS.length }}
+          </span>
+          <UiButton
+            v-if="currentStep > 0"
+            type="button"
+            variant="outline"
+            size="md"
+            :disabled="saving"
+            @click="goBack"
+          >
+            <Icon icon="mdi:arrow-left" class="w-4 h-4" />
+            Voltar
+          </UiButton>
+          <UiButton
+            v-if="!isLastStep"
+            type="button"
+            :variant="stepsUnlocked ? 'outline' : 'secondary'"
+            size="md"
+            :disabled="saving"
+            @click="goNext"
+          >
+            Próximo
+            <Icon icon="mdi:arrow-right" class="w-4 h-4" />
+          </UiButton>
+          <UiButton
+            v-if="isLastStep || stepsUnlocked"
+            variant="primary"
+            type="submit"
+            size="md"
+            :loading="saving"
+            :disabled="noSupplier || locked"
+          >
+            <Icon v-if="!saving" icon="mdi:content-save-outline" class="w-4 h-4" />
+            {{ submitLabel }}
+          </UiButton>
+        </div>
       </div>
 
       <slot name="after" />

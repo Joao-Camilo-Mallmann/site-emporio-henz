@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FieldErrors, VariationDraft } from "@/types";
+import type { FieldErrors, VariationFormItem } from "@/types";
 import {
   ACCEPTED_IMAGE_INPUT,
   formatFileSize,
@@ -8,23 +8,23 @@ import {
 } from "@/utils/uploads";
 import { Icon } from "@iconify/vue";
 import { computed, ref } from "vue";
-import ColorSwatch from "./ColorSwatch.vue";
-import KeyValueEditor from "./KeyValueEditor.vue";
 import {
   DEFAULT_VARIATION_COLOR,
   ERROR_TEXT_CLASS,
   fieldClass,
   HINT_CLASS,
-  isHexColor,
   LABEL_CLASS,
-  normalizeHexColor,
   UPLOAD_STATE_META,
   VARIATION_TYPE_OPTIONS,
   variationFieldId,
+} from "@/utils/produtos/produtoFormConstantes";
+import {
+  isHexColor,
+  normalizeHexColor,
   variationLabel,
-} from "./produtoDraft";
+} from "@/utils/produtos/produtoFormEstado";
 
-const variation = defineModel<VariationDraft>({ required: true });
+const variation = defineModel<VariationFormItem>({ required: true });
 
 const props = withDefaults(
   defineProps<{

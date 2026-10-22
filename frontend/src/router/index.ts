@@ -270,7 +270,7 @@ router.beforeEach(async (to) => {
     if (requiredRoles && !requiredRoles.includes(authStore.user.role)) {
       if (authStore.user.role === UserRole.Vendedor) {
         toast.warning(
-          "Acesso restrito: este módulo requer permissões de Administrador.",
+          "Este módulo é exclusivo do Administrador.",
         );
         return {
           path: "/admin",
@@ -278,7 +278,7 @@ router.beforeEach(async (to) => {
       }
 
       toast.warning(
-        "Acesso negado: a área administrativa é exclusiva para a equipe autorizada.",
+        "Acesso restrito à equipe autorizada.",
       );
       return {
         path: "/",

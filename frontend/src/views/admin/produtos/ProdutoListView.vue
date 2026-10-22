@@ -14,10 +14,12 @@ import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   AVAILABILITY_OPTIONS,
+} from "@/utils/produtos/produtoFormConstantes";
+import {
   availabilityLabel,
   formatCurrencyBRL,
   formatDimensions,
-} from "./formulario/produtoDraft";
+} from "@/utils/produtos/produtoFormatadores";
 
 type StatusFilter = "" | "active" | "inactive";
 
