@@ -100,31 +100,44 @@ O navegador confere só o `type` do `File`. Quem decide de verdade é o servidor
 - As duas cargas rodam em paralelo no `onMounted`. Se alguma falhar, a tela mostra o erro com o botão "Tentar de novo" e não exibe o formulário.
 
 ### D10. Especificações e detalhes de acabamento em chave e valor
-O componente `KeyValueEditor.vue` (em `src/views/admin/produtos/`) serve às especificações do produto e ao `finishDetails` da variação. Linhas vazias são descartadas, e chaves repetidas (comparadas sem caixa e sem espaços nas pontas) bloqueiam o envio. Os valores vão como texto, do jeito digitado. Converter `"6"` em `6` mudaria o que o usuário digitou, como em "06", e o JSONB aceita os dois.
+O componente `KeyValueEditor.vue` (em `src/components/produtos/`) serve às especificações do produto e ao `finishDetails` da variação. Linhas vazias são descartadas, e chaves repetidas (comparadas sem caixa e sem espaços nas pontas) bloqueiam o envio. Os valores vão como texto, do jeito digitado. Converter `"6"` em `6` mudaria o que o usuário digitou, como em "06", e o JSONB aceita os dois.
 
 ### D11. Cores definidas pelo usuário em `:style`
 A proibição de hex arbitrário vale para os tokens de estilo da interface. As cores das variações são dados do produto e entram por `:style` (`background` ou `conic-gradient` para três ou mais cores). O seletor usa `<input type="color">` junto a um campo de texto `#RRGGBB`.
 
 ### D12. Estrutura de arquivos
-Segue o padrão `views/admin/<domínio>/`, como em fornecedores e categorias, e não o caminho único `views/admin/ProdutoFormView.vue` citado no backlog. O backlog é ajustado.
+As telas seguem o padrão `views/admin/<domínio>/`, como em fornecedores e categorias, e não o caminho único `views/admin/ProdutoFormView.vue` citado no backlog. As peças visuais ficam em `src/components/produtos/`, resolvidas pelo auto-import, e a lógica sem Vue em `src/utils/produtos/`. Cada arquivo fica entre 150 e 500 linhas (regra do `frontend/agents.md`), o que define onde as peças pequenas foram juntadas.
 
 ```
-src/types/products.ts             tipos do contrato (DTOs e payloads), exportados no barrel
-src/types/productForm.ts         tipos do estado do formulário, exportados no barrel
-src/api/produtos.ts               + criar, enviarFoto, enviarAmostra; atualizar e deletar com o caminho corrigido
-src/utils/uploads.ts              validação de arquivo e toApiAssetUrl
+src/types/products.ts                   tipos do contrato (DTOs e payloads), exportados no barrel
+src/types/productForm.ts                tipos do estado do formulário, exportados no barrel
+src/api/produtos.ts                     listagem, detalhe, cadastro, edição, desativação e uploads
+src/utils/uploads.ts                    validação de arquivo e toApiAssetUrl
+src/utils/produtos/
+  produtoFormConstantes.ts              ids de campo, rótulos, limites, formatadores e apiErrorMessage
+  produtoFormEstado.ts                  criação do estado e conversão de e para a API (D3, D4)
+  produtoFormValidacao.ts               validação com as regras da API
+src/composables/useProdutoTela.ts       opções dos seletores, erro de gravação e envio dos arquivos (D5, D6, D9)
 src/views/admin/produtos/
-  ProdutoNewView.vue              casca da página, carga das opções e fluxo de gravação (D5, D6)
-  ProdutoForm.vue                 seções 1, 2, 3 e 6, e composição das seções 4 e 5
-  ProdutoVariacoesSection.vue     lista de variações (incluir, mover, remover)
-  ProdutoVariacaoCard.vue         uma variação: nome, tipo, cores, detalhes, estoque, amostra
-  ProdutoFotosSection.vue         grade de fotos com preview, variação, ordem, capa e estado do envio
-  ColorSwatch.vue                 círculo de pré-visualização (1, 2 ou N cores)
-  KeyValueEditor.vue              editor de chave e valor
-  (lógica em src/utils/produtos/: produtoFormEstado.ts, produtoFormValidacao.ts, ...)
+  ProdutoListView.vue                   listagem paginada com filtros e desativação
+  ProdutoNewView.vue                    cadastro: carga das opções e gravação
+  ProdutoEditView.vue                   edição: carga do produto, PUT e exclusões imediatas
+  ProdutoForm.vue                       formulário em etapas, validação por etapa e etapa 6
+src/components/produtos/
+  ProdutoTelaLayout.vue                 moldura do cadastro e da edição e painel de envio
+  ProdutoFormNavegacao.vue              indicador de etapas e rodapé de ações
+  ProdutoDadosBasicosSection.vue        etapa 1
+  ProdutoPrecoDimensoesSection.vue      etapas 2 e 3
+  ProdutoVariacoesSection.vue           etapa 4: lista de variações
+  ProdutoVariacaoAcabamento.vue         cores, detalhes de acabamento e estoque
+  ProdutoVariacaoAmostra.vue            amostra de textura nova ou publicada
+  ProdutoFotosSection.vue               etapa 5: fotos com preview, variação, ordem, capa e envio
+  KeyValueEditor.vue                    editor de chave e valor
+  ProdutoListCabecalho.vue              cabeçalho e filtros da listagem
+  ProdutoListTabela.vue                 tabela e estados da listagem
 ```
 
-Inputs e alertas reutilizam as classes dos formulários existentes (`FornecedorForm.vue`). Todas as ações usam `<UiButton>`, e diálogos usam `<UiModal>`, sem `<button>` nativo.
+Inputs e alertas reutilizam as classes dos formulários existentes (`FornecedorForm.vue`). Todas as ações usam `<UiButton>`, listas de escolha usam `<UiSelect>` e diálogos usam `<UiModal>`, sem `<button>` nem `<select>` nativos.
 
 ## Risks / Trade-offs
 

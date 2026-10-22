@@ -221,16 +221,18 @@ onMounted(() => {
             />
           </div>
 
-          <select
+          <UiSelect
             v-model="selectedRole"
+            size="sm"
+            :block="false"
+            aria-label="Filtrar por perfil"
             @change="handleRoleChange"
-            class="px-3 py-2 rounded-lg border border-stone-200 bg-white text-xs sm:text-sm text-neutral-dark focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors cursor-pointer"
           >
             <option :value="undefined">Todos os Perfis</option>
             <option :value="UserRole.Cliente">Clientes</option>
             <option :value="UserRole.Vendedor">Vendedores</option>
             <option :value="UserRole.Administrador">Administradores</option>
-          </select>
+          </UiSelect>
         </div>
 
         <div class="text-xs text-stone-500">

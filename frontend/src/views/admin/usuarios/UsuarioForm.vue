@@ -359,27 +359,26 @@ defineExpose({
 
     <!-- Nível de Acesso (Perfil) -->
     <div v-if="!hideRole">
-      <label
-        for="role"
-        class="block text-xs font-semibold text-neutral-dark mb-1.5"
-      >
-        Perfil de Acesso *
-      </label>
-      <select
+      <UiSelect
         id="role"
         v-model="form.role"
-        class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-neutral-dark bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors cursor-pointer"
-      >
-        <option :value="UserRole.Cliente">
-          Cliente (Acesso ao catálogo e favoritos)
-        </option>
-        <option :value="UserRole.Vendedor">
-          Vendedor (Acesso comercial e consulta de listas)
-        </option>
-        <option :value="UserRole.Administrador">
-          Administrador (Acesso total ao sistema)
-        </option>
-      </select>
+        label="Perfil de Acesso"
+        required
+        :options="[
+          {
+            value: UserRole.Cliente,
+            label: 'Cliente (Acesso ao catálogo e favoritos)',
+          },
+          {
+            value: UserRole.Vendedor,
+            label: 'Vendedor (Acesso comercial e consulta de listas)',
+          },
+          {
+            value: UserRole.Administrador,
+            label: 'Administrador (Acesso total ao sistema)',
+          },
+        ]"
+      />
     </div>
 
     <!-- Telefone e Cidade -->

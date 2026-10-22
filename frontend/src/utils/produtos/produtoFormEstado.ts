@@ -298,10 +298,25 @@ export function formFromProduct(product: ProductDto): ProductFormState {
 }
 
 /**
- * Monta o corpo de `PUT /produtos/:id`. É o mesmo corpo do cadastro: as
- * variações existentes vão com `id` (preservadas), as novas sem `id`
- * (inseridas) e as omitidas recebem soft delete na API.
+ * Monta o corpo de `PUT /produtos/:id`. Parte do mesmo corpo do cadastro
+ * (variações existentes com `id`, novas sem `id`, omitidas recebem soft
+ * delete na API), mas manda os campos opcionais vazios de forma explícita:
+ * a API ignora campo `undefined`, então sem isso a edição não conseguiria
+ * limpar subtipo, linha, material, descrição, especificações nem os detalhes
+ * de acabamento.
  */
 export function toUpdatePayload(form: ProductFormState): ProductUpdatePayload {
-  return toCreatePayload(form);
+  const base = toCreatePayload(form);
+  return {
+    ...base,
+    subtypeId: form.subtypeId || null,
+    collectionLine: optionalText(form.collectionLine) ?? null,
+    mainMaterial: optionalText(form.mainMaterial) ?? null,
+    description: optionalText(form.description) ?? null,
+    specifications: rowsToRecord(form.specifications) ?? {},
+    variations: base.variations.map((variation, index) => ({
+      ...variation,
+      finishDetails: rowsToRecord(form.variations[index].finishDetails) ?? {},
+    })),
+  };
 }

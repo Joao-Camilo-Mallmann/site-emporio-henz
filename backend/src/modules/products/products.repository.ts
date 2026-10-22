@@ -96,6 +96,10 @@ export function mapProductImageRow(r: ProductImageDbRow): ProductImageDto {
 }
 
 export class ProductsRepository {
+  // Cliente SQL injetável: os testes passam um cliente falso que registra os
+  // parâmetros enviados; o padrão é a conexão real.
+  constructor(private readonly db: typeof sql = sql) {}
+
   async listPaginated(
     filters: ProductQueryFilters = {},
   ): Promise<PaginatedProductsResult> {
@@ -119,7 +123,7 @@ export class ProductsRepository {
         : null;
 
     const [countRows, rows] = await Promise.all([
-      sql<{ count: string }[]>`
+      this.db<{ count: string }[]>`
         SELECT COUNT(*)::text as count
         FROM products p
         WHERE p.deleted_at IS NULL
@@ -138,7 +142,7 @@ export class ProductsRepository {
             OR COALESCE(p.collection_line, '') ILIKE ('%' || ${search} || '%')
           )
       `,
-      sql<ProductDbRow[]>`
+      this.db<ProductDbRow[]>`
         SELECT
           p.id, p.category_id, p.subtype_id, p.supplier_id, p.name, p.slug,
           p.collection_line, p.main_material, p.reference_price, p.max_installments,
@@ -175,7 +179,7 @@ export class ProductsRepository {
 
   // Consulta leve para autorização: sem a capa nem as demais colunas do produto.
   async findManageableById(id: string): Promise<ManageableProduct | null> {
-    const rows = await sql<
+    const rows = await this.db<
       { id: string; supplier_id: string | null; active: boolean }[]
     >`
       SELECT id, supplier_id, active
@@ -190,7 +194,7 @@ export class ProductsRepository {
   }
 
   async findById(id: string): Promise<ProductDto | null> {
-    const row = await this.selectProductRow(sql, id);
+    const row = await this.selectProductRow(this.db, id);
     return row ? this.mapRow(row) : null;
   }
 
@@ -201,7 +205,7 @@ export class ProductsRepository {
     }
 
     const [variationRows, imageRows] = await Promise.all([
-      sql<ProductVariationDbRow[]>`
+      this.db<ProductVariationDbRow[]>`
         SELECT
           id, product_id, name, variation_type, colors_hex,
           sample_image_path, finish_details, sort_order, in_stock,
@@ -210,7 +214,7 @@ export class ProductsRepository {
         WHERE product_id = ${id} AND deleted_at IS NULL
         ORDER BY sort_order ASC, created_at ASC
       `,
-      sql<ProductImageDbRow[]>`
+      this.db<ProductImageDbRow[]>`
         SELECT
           id, product_id, variation_id, thumbnail_path,
           full_image_path, sort_order, created_at
@@ -232,7 +236,7 @@ export class ProductsRepository {
     categoryId: string,
     limit = 4,
   ): Promise<ProductDto[]> {
-    const rows = await sql<ProductDbRow[]>`
+    const rows = await this.db<ProductDbRow[]>`
       SELECT
         p.id, p.category_id, p.subtype_id, p.supplier_id, p.name, p.slug,
         p.collection_line, p.main_material, p.reference_price, p.max_installments,
@@ -257,7 +261,7 @@ export class ProductsRepository {
     excludeId?: string,
   ): Promise<boolean> {
     const exclude = excludeId ?? null;
-    const rows = await sql<{ id: string }[]>`
+    const rows = await this.db<{ id: string }[]>`
       SELECT id FROM products
       WHERE slug = ${slug}
         AND deleted_at IS NULL
@@ -268,7 +272,7 @@ export class ProductsRepository {
   }
 
   async findActiveSupplierIdsByUserId(userId: string): Promise<string[]> {
-    const rows = await sql<{ supplier_id: string }[]>`
+    const rows = await this.db<{ supplier_id: string }[]>`
       SELECT us.supplier_id
       FROM user_suppliers us
       INNER JOIN suppliers s ON s.id = us.supplier_id AND s.deleted_at IS NULL
@@ -278,7 +282,7 @@ export class ProductsRepository {
   }
 
   async existsActiveCategory(categoryId: string): Promise<boolean> {
-    const rows = await sql<{ id: string }[]>`
+    const rows = await this.db<{ id: string }[]>`
       SELECT id FROM categories
       WHERE id = ${categoryId} AND deleted_at IS NULL
       LIMIT 1
@@ -287,7 +291,7 @@ export class ProductsRepository {
   }
 
   async findActiveSubtypeCategoryId(subtypeId: string): Promise<string | null> {
-    const rows = await sql<{ category_id: string }[]>`
+    const rows = await this.db<{ category_id: string }[]>`
       SELECT category_id FROM product_subtypes
       WHERE id = ${subtypeId} AND deleted_at IS NULL
       LIMIT 1
@@ -296,7 +300,7 @@ export class ProductsRepository {
   }
 
   async existsActiveSupplier(supplierId: string): Promise<boolean> {
-    const rows = await sql<{ id: string }[]>`
+    const rows = await this.db<{ id: string }[]>`
       SELECT id FROM suppliers
       WHERE id = ${supplierId} AND deleted_at IS NULL
       LIMIT 1
@@ -307,8 +311,10 @@ export class ProductsRepository {
   async createProduct(
     data: CreateProductDto & { slug: string },
   ): Promise<ProductDetailDto> {
-    return await sql.begin(async (tx) => {
-      const specificationsJson = JSON.stringify(data.specifications ?? {});
+    return await this.db.begin(async (tx) => {
+      // Objeto direto, sem JSON.stringify: o driver do Bun serializa o objeto
+      // para `jsonb`; um texto JSON seria gravado como string (migração 013).
+      const specifications = data.specifications ?? {};
       const subtypeId = data.subtypeId ?? null;
 
       const productRows = await tx<ProductDbRow[]>`
@@ -334,7 +340,7 @@ export class ProductsRepository {
           ${data.widthMm},
           ${data.depthMm},
           ${data.description ?? null},
-          ${specificationsJson}::jsonb,
+          ${specifications}::jsonb,
           ${data.active ?? true}
         )
         RETURNING
@@ -370,14 +376,14 @@ export class ProductsRepository {
     id: string,
     data: UpdateProductDto,
   ): Promise<ProductDetailDto | null> {
-    return await sql.begin(async (tx) => {
+    return await this.db.begin(async (tx) => {
       const hasSubtypeId = data.subtypeId !== undefined;
       const hasCollectionLine = data.collectionLine !== undefined;
       const hasMainMaterial = data.mainMaterial !== undefined;
       const hasDescription = data.description !== undefined;
       const hasSpecifications = data.specifications !== undefined;
-      const specificationsJson = hasSpecifications
-        ? JSON.stringify(data.specifications ?? {})
+      const specifications = hasSpecifications
+        ? (data.specifications ?? {})
         : null;
 
       const updatedRows = await tx<{ id: string }[]>`
@@ -398,7 +404,7 @@ export class ProductsRepository {
           width_mm = COALESCE(${data.widthMm ?? null}, width_mm),
           depth_mm = COALESCE(${data.depthMm ?? null}, depth_mm),
           description = CASE WHEN ${hasDescription}::boolean THEN ${data.description ?? null} ELSE description END,
-          specifications = CASE WHEN ${hasSpecifications}::boolean THEN ${specificationsJson}::jsonb ELSE specifications END,
+          specifications = CASE WHEN ${hasSpecifications}::boolean THEN ${specifications}::jsonb ELSE specifications END,
           active = COALESCE(${data.active ?? null}, active),
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ${id} AND deleted_at IS NULL
@@ -448,7 +454,7 @@ export class ProductsRepository {
   }
 
   async softDeleteProductWithCascade(id: string): Promise<boolean> {
-    return await sql.begin(async (tx) => {
+    return await this.db.begin(async (tx) => {
       const prodRows = await tx<{ id: string }[]>`
         UPDATE products
         SET deleted_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
@@ -504,7 +510,7 @@ export class ProductsRepository {
   ): Promise<ProductVariationDto> {
     const colorsCsv =
       v.colorsHex && v.colorsHex.length > 0 ? v.colorsHex.join(",") : null;
-    const finishDetailsJson = JSON.stringify(v.finishDetails ?? {});
+    const finishDetails = v.finishDetails ?? {};
     const rows = await tx<ProductVariationDbRow[]>`
       INSERT INTO product_variations (
         product_id, name, variation_type, colors_hex,
@@ -518,7 +524,7 @@ export class ProductsRepository {
           WHEN ${colorsCsv}::text IS NULL THEN '{}'::varchar(7)[]
           ELSE string_to_array(${colorsCsv}, ',')::varchar(7)[]
         END,
-        ${finishDetailsJson}::jsonb,
+        ${finishDetails}::jsonb,
         ${v.sortOrder ?? defaultSortOrder},
         ${v.inStock ?? true}
       )
@@ -574,7 +580,7 @@ export class ProductsRepository {
       if (v.id) {
         const colorsCsv =
           v.colorsHex && v.colorsHex.length > 0 ? v.colorsHex.join(",") : null;
-        const finishDetailsJson = JSON.stringify(v.finishDetails ?? {});
+        const finishDetails = v.finishDetails ?? {};
         // A amostra (sample_image_path) só muda pelo upload do arquivo.
         await tx`
           UPDATE product_variations
@@ -585,7 +591,7 @@ export class ProductsRepository {
               WHEN ${colorsCsv}::text IS NULL THEN '{}'::varchar(7)[]
               ELSE string_to_array(${colorsCsv}, ',')::varchar(7)[]
             END,
-            finish_details = ${finishDetailsJson}::jsonb,
+            finish_details = ${finishDetails}::jsonb,
             sort_order = ${v.sortOrder ?? i},
             in_stock = ${v.inStock ?? true},
             updated_at = CURRENT_TIMESTAMP

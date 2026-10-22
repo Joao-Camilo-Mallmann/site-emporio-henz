@@ -51,3 +51,15 @@
 - [x] 7.9 Frontend: `bun run lint`, `bun run check-types` e `bun run build` em `frontend/`
 - [x] 7.10 Atualizar a especificação técnica da US-FE-08 no backlog com as telas de listagem e edição
 - [x] 7.11 Transformar o `ProdutoForm.vue` em formulário em etapas: indicador de etapas, "Voltar" e "Próximo" com validação por etapa, `fieldStep` para abrir a etapa do primeiro erro e etapas livres na edição (design D2)
+- [x] 7.12 Componentizar as telas de produto em `src/components/produtos/`, com o composable `useProdutoEnvioArquivos` para o envio comum ao cadastro e à edição, e nenhum arquivo acima de 500 linhas
+- [x] 7.13 Criar o componente global `UiSelect` e trocar por ele todos os `<select>` do frontend
+- [x] 7.14 Reorganizar o módulo de produto para todos os arquivos ficarem entre 150 e 500 linhas, com `ProdutoTelaLayout`, `ProdutoFormNavegacao`, `ProdutoPrecoDimensoesSection`, `ProdutoVariacaoAcabamento`, `ProdutoVariacaoAmostra`, `ProdutoListCabecalho` e `ProdutoListTabela`
+- [x] 7.15 Corrigir os achados do code review: `PUT` com `null`/`{}` para limpar campos opcionais (`toUpdatePayload`), categoria e subtipo inativos do produto mantidos na edição, carga de opções e erro 409 compartilhados em `useProdutoTela`, rolagem do painel por callback explícito, validação calculada uma vez por mudança e mensagem de erro única na listagem
+
+## 8. [DB] e [BE] JSONB gravado como texto
+
+- [x] 8.1 [DB] Migração `013_fix_jsonb_string_values.sql`: converte `products.specifications` e `product_variations.finish_details` gravados como string de volta para objeto e cria `CHECK (jsonb_typeof(...) = 'object')` nas duas colunas
+- [x] 8.2 [BE] `products.repository.ts` envia o objeto direto às colunas `jsonb`, sem `JSON.stringify`, e recebe o cliente SQL no construtor para teste
+- [x] 8.3 [BE] Teste de regressão `tests/products-repository-jsonb.test.ts` (cadastro e edição enviam objeto, nunca texto JSON)
+- [x] 8.4 Atualizar `docs/database/README.md` com a regra de JSONB sempre objeto
+- [x] 8.5 Validação: migrações em banco vazio e segunda rodada sem pendências; `bun test`, `bun run lint` e `bun run check-types` no backend; teste de ponta a ponta de cadastro, edição e limpeza de campos contra a API

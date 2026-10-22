@@ -106,8 +106,20 @@ export interface ProductCreatePayload {
   variations: ProductVariationPayload[];
 }
 
-/** Corpo de `PUT /produtos/:id`. */
-export type ProductUpdatePayload = Partial<ProductCreatePayload>;
+/**
+ * Corpo de `PUT /produtos/:id`. A API só altera o campo que vem no corpo:
+ * `null` limpa os campos opcionais e `{}` limpa especificações e detalhes de
+ * acabamento. Campo omitido (`undefined`) mantém o valor gravado.
+ */
+export type ProductUpdatePayload = Omit<
+  Partial<ProductCreatePayload>,
+  "subtypeId" | "collectionLine" | "mainMaterial" | "description"
+> & {
+  subtypeId?: string | null;
+  collectionLine?: string | null;
+  mainMaterial?: string | null;
+  description?: string | null;
+};
 
 /** Filtros de `GET /produtos` (listagem pública e administrativa). */
 export interface ProductAdminFilterParams extends PaginationParams {

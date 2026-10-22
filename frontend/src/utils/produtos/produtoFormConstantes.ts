@@ -1,7 +1,8 @@
-// Constantes, rótulos, classes e ids de campo do formulário de produto.
+// Constantes, rótulos, classes, ids de campo e formatadores das telas de produto.
 
 import type {
   AvailabilityType,
+  ProductListItemDto,
   UploadState,
   VariationType,
 } from "@/types";
@@ -182,4 +183,52 @@ export function fieldStep(fieldId: string): number {
     return 5;
   }
   return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Rótulos da listagem
+// ---------------------------------------------------------------------------
+
+export function formatCurrencyBRL(value: number | null | undefined): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "—";
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+}
+
+export function availabilityLabel(product: ProductListItemDto): string {
+  const option = AVAILABILITY_OPTIONS.find(
+    (item) => item.value === product.availabilityType,
+  );
+  if (product.availabilityType === "ON_DEMAND" && product.estimatedDays > 0) {
+    return `${option?.label ?? "Sob encomenda"} (${product.estimatedDays} dias)`;
+  }
+  return option?.label ?? "—";
+}
+
+/** "2300 × 2700 × 600 mm" a partir das dimensões do produto. */
+export function formatDimensions(product: ProductListItemDto): string {
+  const parts = [product.heightMm, product.widthMm, product.depthMm];
+  if (parts.some((part) => typeof part !== "number" || part <= 0)) return "—";
+  return `${parts.join(" × ")} mm`;
+}
+
+// ---------------------------------------------------------------------------
+// Erros da API
+// ---------------------------------------------------------------------------
+
+/**
+ * Extrai a mensagem de uma falha de requisição: usa `message` do corpo da
+ * resposta (texto ou lista), depois a do próprio erro e, por fim, o texto
+ * padrão informado.
+ */
+export function apiErrorMessage(err: unknown, fallback: string): string {
+  const errorObj = err as {
+    response?: { data?: { message?: string | string[] } };
+    message?: string;
+  };
+  const message = errorObj.response?.data?.message;
+  if (Array.isArray(message)) return message.join(" ");
+  return message || errorObj.message || fallback;
 }

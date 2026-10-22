@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import type { PhotoFormItem, ProductImageDto, VariationFormItem } from "@/types";
+import type {
+  PhotoFormItem,
+  ProductImageDto,
+  UiSelectOption,
+  VariationFormItem,
+} from "@/types";
 import {
   ACCEPTED_IMAGE_INPUT,
   formatFileSize,
@@ -9,7 +14,6 @@ import {
 import { Icon } from "@iconify/vue";
 import { computed, ref } from "vue";
 import {
-  fieldClass,
   UPLOAD_STATE_META,
 } from "@/utils/produtos/produtoFormConstantes";
 import {
@@ -73,6 +77,10 @@ const variationOptions = computed(() =>
     key: variation.key,
     label: variationLabel(variation, index),
   })),
+);
+
+const variationSelectOptions = computed<UiSelectOption[]>(() =>
+  variationOptions.value.map((option) => ({ value: option.key, label: option.label })),
 );
 
 function photoSrc(photo: PhotoFormItem) {
@@ -366,27 +374,15 @@ function existingImageAlt(image: ProductImageDto, index: number) {
           </div>
 
           <div>
-            <label
-              :for="variationSelectId(photo)"
-              class="block text-xs font-semibold text-neutral-dark mb-1"
-            >
-              Variação
-            </label>
-            <select
+            <UiSelect
               :id="variationSelectId(photo)"
               v-model="photo.variationKey"
+              label="Variação"
+              placeholder="Foto geral do produto"
+              :placeholder-value="null"
+              :options="variationSelectOptions"
               :disabled="locked || variationOptions.length === 0"
-              :class="[fieldClass(false), 'py-2']"
-            >
-              <option :value="null">Foto geral do produto</option>
-              <option
-                v-for="option in variationOptions"
-                :key="option.key"
-                :value="option.key"
-              >
-                {{ option.label }}
-              </option>
-            </select>
+            />
           </div>
 
           <div

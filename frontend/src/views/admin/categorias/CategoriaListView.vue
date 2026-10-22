@@ -188,15 +188,18 @@ onMounted(() => {
             />
           </div>
 
-          <select
+          <UiSelect
             v-model="statusFilter"
+            size="sm"
+            :block="false"
+            aria-label="Filtrar por status"
+            :options="[
+              { value: 'todos', label: 'Todos os status' },
+              { value: 'ativos', label: 'Apenas ativos' },
+              { value: 'inativos', label: 'Apenas inativos' },
+            ]"
             @change="handleSearch"
-            class="py-2 px-3 rounded-lg border border-stone-200 bg-white text-xs text-neutral-dark focus:outline-none focus:border-secondary transition-colors shrink-0"
-          >
-            <option value="todos">Todos os status</option>
-            <option value="ativos">Apenas ativos</option>
-            <option value="inativos">Apenas inativos</option>
-          </select>
+          />
 
           <UiButton
             variant="outline"

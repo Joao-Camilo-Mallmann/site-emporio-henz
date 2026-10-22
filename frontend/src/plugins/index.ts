@@ -2,6 +2,7 @@ import UiButton from "@/components/ui/UiButton.vue";
 import UiFloatingActions from "@/components/ui/UiFloatingActions.vue";
 import UiFloatingButton from "@/components/ui/UiFloatingButton.vue";
 import UiModal from "@/components/ui/UiModal.vue";
+import UiSelect from "@/components/ui/UiSelect.vue";
 import router from "@/router";
 import { Icon } from "@iconify/vue";
 import type { App } from "vue";
@@ -24,6 +25,7 @@ export function registerPlugins(app: App): void {
   app.component("UiIcon", Icon);
   app.component("UiButton", UiButton);
   app.component("UiModal", UiModal);
+  app.component("UiSelect", UiSelect);
   app.component("UiFloatingButton", UiFloatingButton);
   app.component("UiFloatingActions", UiFloatingActions);
 }
