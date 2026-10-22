@@ -14,7 +14,7 @@ export async function handleRequest(req: Request): Promise<Response> {
       `Rota '${url.pathname}' com método '${req.method}' não encontrada.`,
     );
   } catch (error) {
-    return errorHandler(error);
+    return errorHandler(error, req);
   }
 }
 

@@ -5,7 +5,8 @@ const rawApiUrl =
   typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL
     ? import.meta.env.VITE_API_URL
     : "";
-const apiBase = rawApiUrl.replace(/\/$/, "");
+/** Origem da API (`VITE_API_URL` sem barra final). Também monta as URLs de imagem. */
+export const apiBase = rawApiUrl.replace(/\/$/, "");
 
 export const api = axios.create({
   baseURL: `${apiBase}/api/v1`,

@@ -15,7 +15,7 @@ export class SuppliersController {
 
   async list(_req: Request, ctx: RequestContext): Promise<Response> {
     const filters = validateSupplierQuery(ctx.url);
-    const result = await this.service.list(filters);
+    const result = await this.service.list(filters, ctx.user);
     return ok(result);
   }
 
