@@ -24,6 +24,7 @@ export class SuppliersRepository {
     const { page, limit, offset } = resolvePagination(filters);
     const search = filters.search ? escapeLike(filters.search) : null;
     const active = filters.active !== undefined ? filters.active : null;
+    const linkedUserId = filters.linkedUserId ?? null;
 
     const [countRows, rows] = await Promise.all([
       sql<{ count: string }[]>`
@@ -31,6 +32,10 @@ export class SuppliersRepository {
         FROM suppliers
         WHERE deleted_at IS NULL
           AND (${active}::boolean IS NULL OR active = ${active})
+          AND (${linkedUserId}::uuid IS NULL OR id IN (
+            SELECT us.supplier_id FROM user_suppliers us
+            WHERE us.user_id = ${linkedUserId}::uuid AND us.deleted_at IS NULL
+          ))
           AND (${search}::text IS NULL OR (
             name ILIKE ('%' || ${search} || '%') OR
             contact ILIKE ('%' || ${search} || '%')
@@ -41,6 +46,10 @@ export class SuppliersRepository {
         FROM suppliers
         WHERE deleted_at IS NULL
           AND (${active}::boolean IS NULL OR active = ${active})
+          AND (${linkedUserId}::uuid IS NULL OR id IN (
+            SELECT us.supplier_id FROM user_suppliers us
+            WHERE us.user_id = ${linkedUserId}::uuid AND us.deleted_at IS NULL
+          ))
           AND (${search}::text IS NULL OR (
             name ILIKE ('%' || ${search} || '%') OR
             contact ILIKE ('%' || ${search} || '%')

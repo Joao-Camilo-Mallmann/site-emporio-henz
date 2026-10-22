@@ -45,8 +45,9 @@ export function errorResponse(
   error: string,
   message: string,
   status = 400,
+  extra?: Record<string, unknown>,
 ): Response {
-  return jsonResponse({ error, message }, status);
+  return jsonResponse({ error, message, ...extra }, status);
 }
 
 export function badRequest(

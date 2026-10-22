@@ -9,6 +9,7 @@ import {
   UpdateSupplierDto,
 } from "@/modules/suppliers/suppliers.types";
 import { NotFoundError } from "@/lib/errors";
+import { ROLES } from "@/middlewares/role";
 import { paginate, resolvePagination } from "@/lib/pagination";
 import {
   validateCreateSupplier,
@@ -18,6 +19,9 @@ import {
 
 class MockSuppliersRepository extends SuppliersRepository {
   public suppliers: Map<string, SupplierDto & { deleted: boolean }> = new Map();
+  // Vínculos user_suppliers simulados; revokedAt preenchido equivale a deleted_at.
+  public links: { userId: string; supplierId: string; revokedAt?: string }[] =
+    [];
 
   async list(
     filters: SupplierQueryFilters = {},
@@ -26,6 +30,16 @@ class MockSuppliersRepository extends SuppliersRepository {
     const search = filters.search?.toLowerCase();
     const items = Array.from(this.suppliers.values())
       .filter((s) => !s.deleted)
+      .filter(
+        (s) =>
+          !filters.linkedUserId ||
+          this.links.some(
+            (l) =>
+              l.userId === filters.linkedUserId &&
+              l.supplierId === s.id &&
+              !l.revokedAt,
+          ),
+      )
       .filter((s) => filters.active === undefined || s.active === filters.active)
       .filter((s) => !search || s.name.toLowerCase().includes(search))
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -193,6 +207,67 @@ describe("Módulo de Fornecedores (SuppliersService)", () => {
     await expect(service.getById(supplier.id)).rejects.toBeInstanceOf(
       NotFoundError,
     );
+  });
+});
+
+describe("Listagem de fornecedores por perfil (RF16)", () => {
+  const admin = { id: "admin-1", email: "a@x.com", role: ROLES.ADMIN };
+  const seller = { id: "seller-1", email: "s@x.com", role: ROLES.SELLER };
+
+  async function setup() {
+    const repo = new MockSuppliersRepository();
+    const service = new SuppliersService(repo);
+    const alfa = await service.create({ name: "Alfa Móveis" });
+    const beta = await service.create({ name: "Beta Estofados" });
+    const gama = await service.create({ name: "Gama Decor", active: false });
+    return { repo, service, alfa, beta, gama };
+  }
+
+  it("Admin vê todos os fornecedores", async () => {
+    const { repo, service, alfa } = await setup();
+    repo.links.push({ userId: seller.id, supplierId: alfa.id });
+
+    const result = await service.list({}, admin);
+    expect(result.pagination.total).toBe(3);
+    expect(result.data).toHaveLength(3);
+  });
+
+  it("Vendedor vê só os fornecedores vinculados, com total correto", async () => {
+    const { repo, service, alfa, gama } = await setup();
+    repo.links.push(
+      { userId: seller.id, supplierId: gama.id },
+      { userId: seller.id, supplierId: alfa.id },
+      { userId: "outro-vendedor", supplierId: "qualquer" },
+    );
+
+    const result = await service.list({ page: 1, limit: 1 }, seller);
+    expect(result.pagination.total).toBe(2);
+    expect(result.pagination.totalPages).toBe(2);
+    expect(result.data.map((s) => s.name)).toEqual(["Alfa Móveis"]);
+
+    const onlyActive = await service.list({ active: true }, seller);
+    expect(onlyActive.data.map((s) => s.name)).toEqual(["Alfa Móveis"]);
+    expect(onlyActive.pagination.total).toBe(1);
+  });
+
+  it("Vendedor sem vínculo recebe lista vazia, sem erro", async () => {
+    const { service } = await setup();
+
+    const result = await service.list({}, seller);
+    expect(result.data).toEqual([]);
+    expect(result.pagination.total).toBe(0);
+  });
+
+  it("vínculo revogado deixa de aparecer para o Vendedor", async () => {
+    const { repo, service, alfa, beta } = await setup();
+    repo.links.push(
+      { userId: seller.id, supplierId: alfa.id, revokedAt: "2026-01-01" },
+      { userId: seller.id, supplierId: beta.id },
+    );
+
+    const result = await service.list({}, seller);
+    expect(result.data.map((s) => s.name)).toEqual(["Beta Estofados"]);
+    expect(result.pagination.total).toBe(1);
   });
 });
 

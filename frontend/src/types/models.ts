@@ -23,17 +23,6 @@ export interface ProductFilterParams {
   availableOnly?: boolean;
 }
 
-export interface ProductCreateInput {
-  name: string;
-  description: string;
-  category: string;
-  material: string;
-  dimensions?: ProductDimensions;
-  price?: number;
-  isAvailable: boolean;
-  images?: string[];
-}
-
 export class Product implements IProduct {
   id: string;
   name: string;

@@ -59,5 +59,6 @@ docs {
   - Dimensões em milímetros (`heightMm`, `widthMm`, `depthMm`) são inteiros obrigatórios `> 0`.
   - `availabilityType`: `IN_STOCK` (normaliza `estimatedDays = 0`) ou `ON_DEMAND` (exige `estimatedDays >= 1`).
   - O JSON não leva imagens: fotos e amostras de variação são enviadas como arquivo pelo upload da US-BE-10. Campos de imagem no corpo (ex.: `sampleImageBase64`) são ignorados.
-  - Retorna `201 Created`, `400 Bad Request` para dados inválidos, `401 Unauthorized` sem token, `403 Forbidden` se Cliente ou Vendedor sem vínculo com o `supplierId` e `409 Conflict` para `slug` ativo duplicado.
+  - Resposta `201 Created`: o `ProductDetailDto` do produto criado, com os campos do produto (`id`, `categoryId`, `subtypeId`, `supplierId`, `name`, `slug`, `referencePrice`, `availabilityType`, `estimatedDays`, dimensões, `specifications`, `active`, `thumbnailUrl: null`, `createdAt`, `updatedAt` etc.), `images: []` e `variations` ordenadas por `sortOrder`. Cada variação traz `id`, `productId`, `name`, `variationType`, `colorsHex`, `sampleImageUrl` (`null` até o upload da amostra), `finishDetails`, `sortOrder`, `inStock`, `createdAt` e `updatedAt`. O cliente usa `variations[].id` e `sortOrder` para enviar as amostras e as fotos em seguida.
+  - Status: `201 Created`, `400 Bad Request` para dados inválidos, `401 Unauthorized` sem token, `403 Forbidden` se Cliente ou Vendedor sem vínculo com o `supplierId` e `409 Conflict` para `slug` ativo duplicado.
 }
