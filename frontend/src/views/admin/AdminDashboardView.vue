@@ -14,99 +14,114 @@ const isUserAdmin = computed(() => {
   return authStore.user?.role === UserRole.Administrador;
 });
 
-// Definição dos Módulos Administrativos com Ícones Sofisticados
+// Seções do painel: agrupam os módulos pelo tipo de tarefa
+type SectionId = "catalog" | "people" | "store";
+
+interface AdminSection {
+  id: SectionId;
+  title: string;
+  description: string;
+}
+
+const sections: AdminSection[] = [
+  {
+    id: "catalog",
+    title: "Catálogo",
+    description: "O que a loja vende e como está organizado.",
+  },
+  {
+    id: "people",
+    title: "Parceiros e equipe",
+    description: "Quem fornece, quem vende e quem tem acesso ao painel.",
+  },
+  {
+    id: "store",
+    title: "Loja",
+    description: "Como os clientes enxergam o catálogo.",
+  },
+];
+
+// Definição dos Módulos Administrativos
 interface AdminModule {
   id: string;
+  section: SectionId;
   title: string;
-  group: string;
   description: string;
+  actionLabel: string;
   icon: string;
   iconClass: string;
   to: string;
-  newTo?: string;
-  newLabel?: string;
+  external?: boolean;
   adminOnly?: boolean;
 }
 
 const allModules: AdminModule[] = [
   {
     id: "products",
+    section: "catalog",
     title: "Produtos",
-    group: "Acervo do Catálogo",
-    description:
-      "Cadastre móveis com variações de acabamento, fotos e ficha técnica.",
+    description: "Móveis com variações de acabamento, fotos e ficha técnica.",
+    actionLabel: "Gerenciar produtos",
     icon: "mdi-table-furniture",
-    iconClass:
-      "bg-wood-honey/15 text-wood-dark border border-wood-honey/30 group-hover:bg-wood-dark group-hover:text-white",
+    iconClass: "bg-wood-honey/20 text-wood-dark",
     to: "/admin/produtos",
-    newTo: "/admin/produtos/novo",
-    newLabel: "Novo Produto",
     adminOnly: false,
   },
   {
+    id: "categories",
+    section: "catalog",
+    title: "Categorias",
+    description: "Ambientes da loja (Sala, Quarto…) e seus subtipos.",
+    actionLabel: "Gerenciar categorias",
+    icon: "mdi-sofa",
+    iconClass: "bg-wood-cherry/15 text-wood-dark",
+    to: "/admin/categorias",
+    adminOnly: true,
+  },
+  {
     id: "suppliers",
-    title: "Fornecedores & Marcas",
-    group: "Parceiros & Fábricas",
-    description:
-      "Cadastre e gerencie fabricantes parceiros de móveis nobres e alta decoração.",
+    section: "people",
+    title: "Fornecedores",
+    description: "Fábricas e marcas parceiras que abastecem o catálogo.",
+    actionLabel: "Gerenciar fornecedores",
     icon: "mdi-domain",
-    iconClass:
-      "bg-primary/10 text-primary border border-primary/15 group-hover:bg-primary group-hover:text-white",
+    iconClass: "bg-primary/10 text-primary",
     to: "/admin/fornecedores",
-    newTo: "/admin/fornecedores/novo",
-    newLabel: "Novo Fornecedor",
     adminOnly: true,
   },
   {
     id: "users",
-    title: "Usuários & Equipe",
-    group: "Acessos & Clientes",
-    description:
-      "Controle de contas, permissões de acesso, clientes e vendedores da loja.",
+    section: "people",
+    title: "Usuários",
+    description: "Contas de clientes, vendedores e administradores.",
+    actionLabel: "Gerenciar usuários",
     icon: "mdi-account-group",
-    iconClass:
-      "bg-secondary/10 text-secondary border border-secondary/15 group-hover:bg-secondary group-hover:text-white",
+    iconClass: "bg-secondary/10 text-secondary",
     to: "/admin/usuarios",
-    newTo: "/admin/usuarios/novo",
-    newLabel: "Novo Usuário",
-    adminOnly: true,
-  },
-  {
-    id: "categories",
-    title: "Categorias & Subtipos",
-    group: "Estrutura do Acervo",
-    description:
-      "Organize os ambientes da loja (Sala, Quarto, etc.) e seus subtipos vinculados.",
-    icon: "mdi-sofa",
-    iconClass:
-      "bg-amber-900/10 text-wood-dark border border-amber-900/15 group-hover:bg-wood-dark group-hover:text-white",
-    to: "/admin/categorias",
-    newTo: "/admin/categorias/nova",
-    newLabel: "Nova Categoria",
     adminOnly: true,
   },
   {
     id: "user-suppliers",
-    title: "Vínculos de Vendedores",
-    group: "Governança Multi-empresa",
+    section: "people",
+    title: "Vínculos de vendedores",
     description:
-      "Associe marcas e fabricantes autorizados aos vendedores para isolamento do catálogo.",
+      "Defina, no cadastro de cada vendedor, quais marcas ele pode ver e vender.",
+    actionLabel: "Escolher vendedor",
     icon: "mdi-handshake",
-    iconClass:
-      "bg-primary-dark/10 text-primary-dark border border-primary-dark/15 group-hover:bg-primary-dark group-hover:text-white",
+    iconClass: "bg-primary-dark/10 text-primary-dark",
     to: "/admin/usuarios",
     adminOnly: true,
   },
   {
     id: "catalog",
-    title: "Catálogo & Vitrine Digital",
-    group: "Experiência de Venda",
-    description:
-      "Consulte o mostruário público exatamente como seus clientes o visualizam no portal.",
+    section: "store",
+    title: "Vitrine pública",
+    description: "O catálogo exatamente como os clientes veem no site.",
+    actionLabel: "Abrir vitrine",
     icon: "mdi-storefront",
-    iconClass:
-      "bg-surface-tint text-primary border border-primary/10 group-hover:bg-primary group-hover:text-white",
+    iconClass: "bg-surface-tint/60 text-primary",
     to: "/catalogo",
+    external: true,
     adminOnly: false,
   },
 ];
@@ -118,6 +133,15 @@ const availableModules = computed(() => {
     }
     return true;
   });
+});
+
+const visibleSections = computed(() => {
+  return sections
+    .map((section) => ({
+      ...section,
+      modules: availableModules.value.filter((m) => m.section === section.id),
+    }))
+    .filter((section) => section.modules.length > 0);
 });
 
 // Acesso seguro ou feedback para rotas em desenvolvimento
@@ -146,78 +170,64 @@ function handleNavigate(to: string, label: string) {
   <div
     class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
   >
-    <div class="max-w-6xl mx-auto space-y-8">
-      <!-- Grid Unificado de Módulos Operacionais -->
-      <section aria-label="Módulos operacionais">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="mod in availableModules"
-            :key="mod.id"
-            class="bg-white rounded-2xl border border-stone-200/90 p-6 flex flex-col justify-between hover:border-secondary/60 hover:shadow-xs transition-all group"
+    <div class="max-w-6xl mx-auto space-y-10">
+      <!-- Módulos agrupados por seção -->
+      <section
+        v-for="section in visibleSections"
+        :key="section.id"
+        :aria-labelledby="`section-${section.id}`"
+        class="space-y-4"
+      >
+        <div class="border-b border-stone-200 pb-2">
+          <h2
+            :id="`section-${section.id}`"
+            class="text-lg font-semibold text-neutral-dark"
           >
-            <div>
-              <!-- Cabeçalho do Card: Tag de Grupo -->
-              <div class="flex items-center justify-between gap-2 mb-3">
-                <span
-                  class="text-[11px] font-semibold text-stone-500 uppercase tracking-wider"
-                >
-                  {{ mod.group }}
-                </span>
-              </div>
+            {{ section.title }}
+          </h2>
+          <p class="text-sm text-stone-500">{{ section.description }}</p>
+        </div>
 
-              <!-- Título e Ícone Destacado -->
-              <div class="flex items-start gap-4 mb-3">
-                <div
-                  class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 group-hover:shadow-xs transition-all duration-300"
-                  :class="mod.iconClass"
-                >
-                  <Icon :icon="mod.icon" class="w-6 h-6" />
-                </div>
-                <div>
-                  <h2
-                    class="text-base font-semibold text-neutral-dark leading-snug group-hover:text-primary transition-colors"
-                  >
-                    {{ mod.title }}
-                  </h2>
-                  <p class="text-xs text-stone-500 mt-1.5 leading-relaxed">
-                    {{ mod.description }}
-                  </p>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- O card inteiro é clicável: o botão principal se estende sobre ele -->
+          <article
+            v-for="mod in section.modules"
+            :key="mod.id"
+            class="group relative flex flex-col rounded-2xl border border-stone-200/90 bg-white p-5 transition-all hover:border-secondary/60 hover:shadow-sm focus-within:ring-2 focus-within:ring-secondary focus-within:ring-offset-2"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                :class="mod.iconClass"
+              >
+                <Icon :icon="mod.icon" class="w-6 h-6" />
               </div>
+              <h3
+                class="text-base font-semibold text-neutral-dark leading-snug group-hover:text-primary transition-colors"
+              >
+                {{ mod.title }}
+              </h3>
             </div>
 
-            <!-- Rodapé de Ações do Card -->
-            <div
-              class="pt-5 mt-5 border-t border-stone-100 flex items-center justify-between gap-3 text-xs"
+            <p class="mt-3 flex-1 text-sm text-stone-500 leading-relaxed">
+              {{ mod.description }}
+            </p>
+
+            <UiButton
+              variant="custom"
+              size="none"
+              class="mt-4 self-start inline-flex items-center gap-1.5 text-sm font-semibold text-secondary group-hover:text-secondary-hover after:absolute after:inset-0 after:rounded-2xl after:content-['']"
+              @click="handleNavigate(mod.to, mod.title)"
             >
-              <UiButton
-                variant="link"
-                size="none"
-                class="inline-flex items-center gap-1.5 font-medium text-xs sm:text-sm text-secondary hover:text-secondary-hover"
-                @click="handleNavigate(mod.to, mod.title)"
-              >
-                <span>Acessar</span>
-                <Icon
-                  icon="solar:arrow-right-linear"
-                  class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
-                />
-              </UiButton>
-
-              <UiButton
-                v-if="mod.newTo"
-                variant="ghost"
-                size="sm"
-                class="text-stone-600 hover:text-neutral-dark font-medium text-xs gap-1.5 px-3 h-8"
-                @click="handleNavigate(mod.newTo, mod.title)"
-              >
-                <Icon
-                  icon="solar:add-circle-linear"
-                  class="w-4 h-4 text-secondary"
-                />
-                <span>{{ mod.newLabel }}</span>
-              </UiButton>
-            </div>
-          </div>
+              <span>{{ mod.actionLabel }}</span>
+              <Icon
+                :icon="
+                  mod.external ? 'mdi:open-in-new' : 'solar:arrow-right-linear'
+                "
+                class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+              />
+            </UiButton>
+          </article>
         </div>
       </section>
     </div>
