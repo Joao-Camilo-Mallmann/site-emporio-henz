@@ -66,7 +66,7 @@ bun run check-types  # valida tipos com tsc --noEmit
 - `src/modules/`: regras de negócio por domínio (`auth`, `categories`, `product-images`, `products`, `subtypes`, `suppliers`, `uploads`, `user-suppliers`, `users`)
 - `src/routes/`: definição das rotas
 - `database/`: migrações SQL (`migrations/`), `migrate.ts` e `seed.ts`
-- `tests/`: testes automatizados (`tests/fixtures/` guarda as imagens usadas nos testes de upload)
+- `tests/`: testes automatizados, organizados por feature (`tests/modules/<feature>/`, `tests/lib/`, `tests/middlewares/`, `tests/http/`, `tests/config/`); `tests/mocks/` guarda os repositórios falsos por módulo, `tests/helpers/` utilitários compartilhados e `tests/fixtures/` as imagens usadas nos testes de upload
 - `uploads/`: fotos e amostras gravadas na execução local (ignorado pelo git; em produção é o volume `uploads_data`)
 
 Consulte a [documentação técnica do back-end](../docs/backend/README.md), a [documentação do banco de dados](../docs/database/README.md) e a [collection Bruno](../docs/backend/collections/bruno/), que é a fonte de consulta dos endpoints.

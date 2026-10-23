@@ -1,29 +1,31 @@
 import { describe, expect, it } from "bun:test";
 import path from "node:path";
-import { env, loadEnv } from "@/config/env";
+import { loadEnv } from "@/config/env";
 
-describe("Configuração de ambiente (env.ts)", () => {
-  it("UPLOADS_DIR usa <cwd>/uploads por padrão", () => {
-    const loaded = loadEnv({});
-    expect(loaded.UPLOADS_DIR).toBe(path.join(process.cwd(), "uploads"));
-    expect(env.UPLOADS_DIR).toBeString();
+describe("loadEnv", () => {
+  it("usa os padrões quando nada é informado", () => {
+    const env = loadEnv({});
+
+    expect(env.PORT).toBe(3001);
+    expect(env.NODE_ENV).toBe("development");
+    expect(env.UPLOADS_DIR).toBe(path.join(process.cwd(), "uploads"));
   });
 
-  it("a variável de ambiente UPLOADS_DIR sobrescreve o padrão", () => {
-    expect(loadEnv({ UPLOADS_DIR: "/srv/emporio/uploads" }).UPLOADS_DIR).toBe(
-      "/srv/emporio/uploads",
-    );
-    // Caminho relativo é resolvido a partir do cwd, para o path.join nunca
-    // depender do diretório atual depois do boot.
-    expect(loadEnv({ UPLOADS_DIR: "data/fotos" }).UPLOADS_DIR).toBe(
-      path.resolve(process.cwd(), "data/fotos"),
-    );
+  it("usa os valores informados", () => {
+    const env = loadEnv({
+      PORT: "4000",
+      NODE_ENV: "production",
+      UPLOADS_DIR: "/srv/uploads",
+    });
+
+    expect(env.PORT).toBe(4000);
+    expect(env.NODE_ENV).toBe("production");
+    expect(env.UPLOADS_DIR).toBe("/srv/uploads");
   });
 
-  it("mantém os padrões das demais variáveis", () => {
-    const loaded = loadEnv({});
-    expect(loaded.PORT).toBe(3001);
-    expect(loaded.NODE_ENV).toBe("development");
-    expect(loadEnv({ PORT: "4000", NODE_ENV: "production" }).PORT).toBe(4000);
+  it("resolve UPLOADS_DIR relativo a partir do cwd", () => {
+    const env = loadEnv({ UPLOADS_DIR: "data/fotos" });
+
+    expect(env.UPLOADS_DIR).toBe(path.resolve(process.cwd(), "data/fotos"));
   });
 });
