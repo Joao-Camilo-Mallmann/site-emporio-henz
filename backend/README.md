@@ -58,6 +58,22 @@ bun run lint         # executa o ESLint
 bun run check-types  # valida tipos com tsc --noEmit
 ```
 
+## Migrações e seed no Docker
+
+O container do backend roda `bun run migrate` sozinho ao iniciar, antes de subir o servidor. O seed não roda automaticamente: execute-o uma vez com o container no ar.
+
+```bash
+# Produção (VM)
+docker compose --profile prod exec backend bun run migrate
+docker compose --profile prod exec backend bun run seed
+
+# Desenvolvimento
+docker compose --profile dev exec backend-dev bun run migrate
+docker compose --profile dev exec backend-dev bun run seed
+```
+
+O seed cria o administrador padrão e, se ele já existir, redefine a senha para o valor fixo em `database/seed.ts`. Em produção, rode-o só na primeira instalação e troque a senha em seguida.
+
 ## Estrutura
 
 - `src/config/`: variáveis de ambiente e conexão com o banco
