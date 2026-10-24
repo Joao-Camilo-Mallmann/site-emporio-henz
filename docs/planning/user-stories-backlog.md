@@ -832,9 +832,9 @@ Atende ao **RF06**. A rota `GET /api/catalogo/:id` ou `:slug` retorna a entidade
 
 #### ✅ Critérios de Aceitação
 
-- [ ] Retorna todas as fotos do carrossel na ordem correta (`sort_order`).
-- [ ] Retorna o array de cores e amostras de tecido de cada variação.
-- [ ] Retorna especificações técnicas estruturadas prontas para renderização em tabela.
+- [x] Retorna todas as fotos do carrossel na ordem correta (`sort_order`).
+- [x] Retorna o array de cores e amostras de tecido de cada variação.
+- [x] Retorna especificações técnicas estruturadas prontas para renderização em tabela.
 
 ---
 

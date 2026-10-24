@@ -15,7 +15,8 @@ params:path {
 }
 
 docs {
-  Retorna os dados completos do produto, incluindo `variations` (acabamentos ativos ordenados por `sortOrder`) e `images` (fotos ativas ordenadas por `sortOrder`).
+  Retorna os dados completos do produto, incluindo os objetos aninhados `category` (`{ id, name, slug }`) e `supplier` (`{ id, name }`), as variações `variations` (acabamentos ativos ordenados por `sortOrder`), as fotos `images` (fotos ativas ordenadas por `sortOrder`) e a ficha técnica estruturada em `specifications` (JSONB).
+  - Preserva os campos escalares `categoryId`, `subtypeId` e `supplierId`.
   - Cada item de `images` traz `thumbnailUrl` e `fullImageUrl`, e cada variação traz `sampleImageUrl` (`null` enquanto não houver amostra enviada). São URLs relativas (`/api/v1/uploads/...`) para os arquivos do volume de uploads; o JSON nunca carrega o conteúdo da imagem.
   - Visitantes e Clientes visualizam apenas produtos ativos (`404 Not Found` se inativo ou deletado).
   - Vendedor autenticado só pode consultar produtos de seus fornecedores vinculados (`403 Forbidden` se pertencer a outro fornecedor ou se não tiver vínculos ativos).

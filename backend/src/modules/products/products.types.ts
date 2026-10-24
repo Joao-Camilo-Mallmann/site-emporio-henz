@@ -54,6 +54,25 @@ export interface ProductImageDbRow {
   created_at: Date;
 }
 
+export interface ProductMetaDbRow {
+  category_id: string;
+  category_name: string;
+  category_slug: string;
+  supplier_id: string;
+  supplier_name: string;
+}
+
+export interface ProductCategorySummaryDto {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface ProductSupplierSummaryDto {
+  id: string;
+  name: string;
+}
+
 export interface ProductVariationDto {
   id: string;
   productId: string;
@@ -108,6 +127,8 @@ export interface ProductDto {
 }
 
 export interface ProductDetailDto extends ProductDto {
+  category: ProductCategorySummaryDto;
+  supplier: ProductSupplierSummaryDto;
   variations: ProductVariationDto[];
   images: ProductImageDto[];
 }

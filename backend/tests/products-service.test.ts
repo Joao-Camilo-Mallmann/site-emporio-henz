@@ -163,8 +163,28 @@ class MockProductsRepository extends ProductsRepository {
         return img;
       });
 
+    const categoryName =
+      base.categoryId === CAT_QUARTO_ID ? "Quarto" : "Sala de Estar";
+    const categorySlug =
+      base.categoryId === CAT_QUARTO_ID ? "quarto" : "sala-de-estar";
+    const supplierName =
+      base.supplierId === SUP_B_ID
+        ? "Fornecedor B"
+        : base.supplierId === SUP_C_ID
+          ? "Fornecedor C"
+          : "Fornecedor A";
+
     return {
       ...base,
+      category: {
+        id: base.categoryId,
+        name: categoryName,
+        slug: categorySlug,
+      },
+      supplier: {
+        id: base.supplierId || SUP_A_ID,
+        name: supplierName,
+      },
       variations,
       images,
     };
@@ -1569,5 +1589,176 @@ describe("Capa da listagem (thumbnailUrl) no mapeador de produto", () => {
   it("devolve null sem foto ativa ou quando a consulta não traz a capa", () => {
     expect(mapper.product({ ...row, cover_thumbnail_path: null }).thumbnailUrl).toBeNull();
     expect(mapper.product(row).thumbnailUrl).toBeNull();
+  });
+});
+
+describe("Consulta de detalhes do produto (GET /api/v1/produtos/:id - US-BE-12 / RF06)", () => {
+  const adminActor = {
+    id: "admin-1",
+    email: "admin@emporio.com",
+    role: ROLES.ADMIN,
+  };
+
+  it("deve retornar o produto completo com os objetos aninhados category e supplier, mantendo categoryId e supplierId", async () => {
+    const mockRepo = new MockProductsRepository();
+    const service = new ProductsService(mockRepo);
+
+    mockRepo.products.set(
+      PROD_1_ID,
+      createDummyProduct({
+        id: PROD_1_ID,
+        categoryId: CAT_SALA_ID,
+        supplierId: SUP_A_ID,
+        name: "Sofá Milano",
+        slug: "sofa-milano",
+      }),
+    );
+
+    const detail = await service.getById(PROD_1_ID, adminActor);
+    expect(detail.id).toBe(PROD_1_ID);
+    expect(detail.categoryId).toBe(CAT_SALA_ID);
+    expect(detail.supplierId).toBe(SUP_A_ID);
+    expect(detail.category).toEqual({
+      id: CAT_SALA_ID,
+      name: "Sala de Estar",
+      slug: "sala-de-estar",
+    });
+    expect(detail.supplier).toEqual({
+      id: SUP_A_ID,
+      name: "Fornecedor A",
+    });
+  });
+
+  it("deve retornar todas as fotos do carrossel na ordem correta por sort_order (Critério 1 US-BE-12)", async () => {
+    const mockRepo = new MockProductsRepository();
+    const service = new ProductsService(mockRepo);
+
+    mockRepo.products.set(
+      PROD_1_ID,
+      createDummyProduct({ id: PROD_1_ID }),
+    );
+
+    mockRepo.images.set("img-3", {
+      id: "img-3",
+      productId: PROD_1_ID,
+      variationId: null,
+      thumbnailUrl: `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/foto3-thumb.webp`,
+      fullImageUrl: `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/foto3-full.webp`,
+      sortOrder: 2,
+      createdAt: new Date().toISOString(),
+      deleted: false,
+    });
+    mockRepo.images.set("img-1", {
+      id: "img-1",
+      productId: PROD_1_ID,
+      variationId: null,
+      thumbnailUrl: `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/foto1-thumb.webp`,
+      fullImageUrl: `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/foto1-full.webp`,
+      sortOrder: 0,
+      createdAt: new Date().toISOString(),
+      deleted: false,
+    });
+    mockRepo.images.set("img-2", {
+      id: "img-2",
+      productId: PROD_1_ID,
+      variationId: null,
+      thumbnailUrl: `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/foto2-thumb.webp`,
+      fullImageUrl: `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/foto2-full.webp`,
+      sortOrder: 1,
+      createdAt: new Date().toISOString(),
+      deleted: false,
+    });
+
+    const detail = await service.getById(PROD_1_ID, adminActor);
+    expect(detail.images).toHaveLength(3);
+    expect(detail.images[0]!.id).toBe("img-1");
+    expect(detail.images[0]!.sortOrder).toBe(0);
+    expect(detail.images[1]!.id).toBe("img-2");
+    expect(detail.images[1]!.sortOrder).toBe(1);
+    expect(detail.images[2]!.id).toBe("img-3");
+    expect(detail.images[2]!.sortOrder).toBe(2);
+    expect(detail.images[0]!.fullImageUrl).toContain("/products/");
+    expect(detail.images[0]!).not.toHaveProperty("full_base64");
+  });
+
+  it("deve retornar o array de cores e amostras de tecido de cada variação (Critério 2 US-BE-12)", async () => {
+    const mockRepo = new MockProductsRepository();
+    const service = new ProductsService(mockRepo);
+
+    mockRepo.products.set(
+      PROD_1_ID,
+      createDummyProduct({ id: PROD_1_ID }),
+    );
+
+    mockRepo.variations.set(VAR_1_ID, {
+      id: VAR_1_ID,
+      productId: PROD_1_ID,
+      name: "Carvalho Mel",
+      variationType: "WOOD",
+      colorsHex: ["#8B5A2B"],
+      sampleImageUrl: `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/amostra-carvalho.webp`,
+      finishDetails: { puxador: "Alumínio", acabamento: "Verniz fosco" },
+      sortOrder: 0,
+      inStock: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deleted: false,
+    });
+    mockRepo.variations.set(VAR_2_ID, {
+      id: VAR_2_ID,
+      productId: PROD_1_ID,
+      name: "Linho Bege / Off White",
+      variationType: "FABRIC",
+      colorsHex: ["#F5F5DC", "#EAE0C8"],
+      sampleImageUrl: `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/amostra-linho.webp`,
+      finishDetails: { trama: "Linho rústico", composicao: "100% poliéster" },
+      sortOrder: 1,
+      inStock: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deleted: false,
+    });
+
+    const detail = await service.getById(PROD_1_ID, adminActor);
+    expect(detail.variations).toHaveLength(2);
+    expect(detail.variations[0]!.colorsHex).toEqual(["#8B5A2B"]);
+    expect(detail.variations[0]!.sampleImageUrl).toBe(
+      `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/amostra-carvalho.webp`,
+    );
+    expect(detail.variations[1]!.colorsHex).toEqual(["#F5F5DC", "#EAE0C8"]);
+    expect(detail.variations[1]!.sampleImageUrl).toBe(
+      `${UPLOADS_PUBLIC_PREFIX}/products/${PROD_1_ID}/amostra-linho.webp`,
+    );
+    expect(detail.variations[0]!.finishDetails).toEqual({
+      puxador: "Alumínio",
+      acabamento: "Verniz fosco",
+    });
+  });
+
+  it("deve retornar especificações técnicas estruturadas prontas para renderização em tabela (Critério 3 US-BE-12)", async () => {
+    const mockRepo = new MockProductsRepository();
+    const service = new ProductsService(mockRepo);
+
+    const technicalSpecs = {
+      estrutura: "Madeira maciça de eucalipto tratado e reflorestado",
+      molas: "Molas espirais com percintas elásticas italianas",
+      assento: "Espuma D-28 soft com camada de fibra siliconada",
+      encosto: "Almofadas soltas 100% fibra siliconizada",
+      pes: "Madeira maciça cor imbuia altura 12cm",
+    };
+
+    mockRepo.products.set(
+      PROD_1_ID,
+      createDummyProduct({
+        id: PROD_1_ID,
+        specifications: technicalSpecs,
+      }),
+    );
+
+    const detail = await service.getById(PROD_1_ID, adminActor);
+    expect(detail.specifications).toEqual(technicalSpecs);
+    expect(detail.specifications["estrutura"]).toBe(
+      "Madeira maciça de eucalipto tratado e reflorestado",
+    );
   });
 });

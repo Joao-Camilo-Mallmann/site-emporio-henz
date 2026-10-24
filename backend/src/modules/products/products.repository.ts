@@ -5,12 +5,15 @@ import { toUploadUrl } from "@/lib/uploads";
 import {
   CreateProductDto,
   PaginatedProductsResult,
+  ProductCategorySummaryDto,
   ProductDbRow,
   ProductDetailDto,
   ProductDto,
   ProductImageDbRow,
   ProductImageDto,
+  ProductMetaDbRow,
   ProductQueryFilters,
+  ProductSupplierSummaryDto,
   ProductVariationDbRow,
   ManageableProduct,
   ProductVariationDto,
@@ -200,7 +203,7 @@ export class ProductsRepository {
       return null;
     }
 
-    const [variationRows, imageRows] = await Promise.all([
+    const [variationRows, imageRows, metaRows] = await Promise.all([
       sql<ProductVariationDbRow[]>`
         SELECT
           id, product_id, name, variation_type, colors_hex,
@@ -218,10 +221,41 @@ export class ProductsRepository {
         WHERE product_id = ${id} AND deleted_at IS NULL
         ORDER BY sort_order ASC, created_at ASC
       `,
+      sql<ProductMetaDbRow[]>`
+        SELECT
+          c.id AS category_id,
+          c.name AS category_name,
+          c.slug AS category_slug,
+          s.id AS supplier_id,
+          s.name AS supplier_name
+        FROM categories c
+        INNER JOIN suppliers s ON s.id = ${product.supplierId}
+        WHERE c.id = ${product.categoryId}
+        LIMIT 1
+      `,
     ]);
+
+    const meta = metaRows[0];
+    if (!meta) {
+      throw new Error(
+        `Inconsistência referencial: categoria '${product.categoryId}' ou fornecedor '${product.supplierId}' não encontrados para o produto '${id}'.`,
+      );
+    }
+
+    const category: ProductCategorySummaryDto = {
+      id: meta.category_id,
+      name: meta.category_name,
+      slug: meta.category_slug,
+    };
+    const supplier: ProductSupplierSummaryDto = {
+      id: meta.supplier_id,
+      name: meta.supplier_name,
+    };
 
     return {
       ...product,
+      category,
+      supplier,
       variations: variationRows.map((v) => this.mapVariationRow(v)),
       images: imageRows.map((img) => this.mapImageRow(img)),
     };
@@ -358,8 +392,36 @@ export class ProductsRepository {
 
       variations.sort((a, b) => a.sortOrder - b.sortOrder);
 
+      const metaRows = await tx<ProductMetaDbRow[]>`
+        SELECT
+          c.id AS category_id,
+          c.name AS category_name,
+          c.slug AS category_slug,
+          s.id AS supplier_id,
+          s.name AS supplier_name
+        FROM categories c
+        INNER JOIN suppliers s ON s.id = ${product.supplierId}
+        WHERE c.id = ${product.categoryId}
+        LIMIT 1
+      `;
+      const meta = metaRows[0];
+      if (!meta) {
+        throw new Error(
+          `Inconsistência referencial: categoria '${product.categoryId}' ou fornecedor '${product.supplierId}' não encontrados para o produto '${product.id}'.`,
+        );
+      }
+
       return {
         ...product,
+        category: {
+          id: meta.category_id,
+          name: meta.category_name,
+          slug: meta.category_slug,
+        },
+        supplier: {
+          id: meta.supplier_id,
+          name: meta.supplier_name,
+        },
         variations,
         images: [],
       };
@@ -414,7 +476,7 @@ export class ProductsRepository {
       }
 
       // Relê com a capa, pois o produto pode já ter fotos.
-      const [productRow, variationRows, imageRows] = await Promise.all([
+      const [productRow, variationRows, imageRows, metaRows] = await Promise.all([
         this.selectProductRow(tx, id),
         tx<ProductVariationDbRow[]>`
           SELECT
@@ -433,14 +495,43 @@ export class ProductsRepository {
           WHERE product_id = ${id} AND deleted_at IS NULL
           ORDER BY sort_order ASC, created_at ASC
         `,
+        tx<ProductMetaDbRow[]>`
+          SELECT
+            c.id AS category_id,
+            c.name AS category_name,
+            c.slug AS category_slug,
+            s.id AS supplier_id,
+            s.name AS supplier_name
+          FROM products p
+          INNER JOIN categories c ON c.id = p.category_id
+          INNER JOIN suppliers s ON s.id = p.supplier_id
+          WHERE p.id = ${id}
+          LIMIT 1
+        `,
       ]);
 
       if (!productRow) {
         return null;
       }
 
+      const meta = metaRows[0];
+      if (!meta) {
+        throw new Error(
+          `Inconsistência referencial: categoria ou fornecedor não encontrados para o produto '${id}'.`,
+        );
+      }
+
       return {
         ...this.mapRow(productRow),
+        category: {
+          id: meta.category_id,
+          name: meta.category_name,
+          slug: meta.category_slug,
+        },
+        supplier: {
+          id: meta.supplier_id,
+          name: meta.supplier_name,
+        },
         variations: variationRows.map((v) => this.mapVariationRow(v)),
         images: imageRows.map((img) => this.mapImageRow(img)),
       };
