@@ -38,21 +38,26 @@ Quando o usuário autenticado é `SELLER`, a listagem faz `JOIN` com `user_suppl
 - *Alternativas*: incluir `suppliers` no `/auth/me`, que mistura sessão com dado de domínio e fica velho quando o vínculo muda; ou abrir `GET /users/:userId/suppliers` ao próprio Vendedor, que é uma segunda rota com a mesma informação.
 - *Por quê*: é a mesma regra que `GET /produtos` já aplica ao Vendedor e é a menor mudança para o front.
 
-### D2. Página única com seções, não wizard
-O save é um único `POST` com todos os dados, e não há rascunho na API. Um wizard só esconderia campos e obrigaria a validar por etapa. A página única tem as seções numeradas em `<section id="...">` e um índice de âncoras fixo no topo, ou na lateral em telas largas.
+### D2. Formulário em etapas, com uma seção visível por vez
+O save continua sendo um único `POST` com todos os dados, e a API não tem rascunho. Um formulário com seis seções numa página só fica longo e cansativo, então a tela mostra uma seção por vez, num indicador de etapas (lateral em telas largas, faixa rolável no celular). Todas as seções ficam montadas no DOM, apenas escondidas, para o estado e os ids dos campos continuarem valendo.
 
-### D3. Estado do formulário num rascunho local, com funções puras
-Os tipos do rascunho (`ProductDraft`, `VariationDraft`, `PhotoDraft`, `KeyValueRow`, `UploadState`) ficam em `src/types/productDraft.ts`, exportados pelo barrel, porque o `frontend/agents.md` não permite tipos soltos nas views. O arquivo `src/views/admin/produtos/formulario/produtoDraft.ts` concentra as funções:
+- *Avanço*: "Próximo" valida só os campos da etapa atual (`fieldStep` mapeia o id do campo para a etapa) e bloqueia com a mensagem junto ao campo. As etapas já alcançadas ficam clicáveis; as futuras não.
+- *Salvar*: no cadastro o botão aparece na última etapa e valida tudo; se houver erro, a tela abre a etapa do primeiro campo com erro. Enter numa etapa intermediária avança em vez de salvar.
+- *Edição*: o produto já está completo, então todas as etapas ficam livres e "Salvar alterações" aparece em todas.
+- *Depois do `201`*: com o formulário travado para o envio dos arquivos, todas as seções voltam a aparecer, porque o estado e o "Tentar de novo" de amostras e fotos moram nas etapas 4 e 5.
 
-- `createEmptyDraft()`;
-- `validateDraft(draft, ctx)`, que devolve um mapa `campo → mensagem`;
-- `toCreatePayload(draft)`;
+### D3. Estado do formulário local, com funções puras
+Os tipos do estado do formulário (`ProductFormState`, `VariationFormItem`, `PhotoFormItem`, `KeyValueRow`, `UploadState`) ficam em `src/types/productForm.ts`, exportados pelo barrel, porque o `frontend/agents.md` não permite tipos soltos nas views. Os módulos de `src/utils/produtos/` concentram as funções:
+
+- `createEmptyForm()`;
+- `validateForm(form, ctx)`, que devolve um mapa `campo → mensagem`;
+- `toCreatePayload(form)`;
 - `resolveVariationIds(variations, product)` (D4).
 
 Cada variação e cada foto tem uma `key` local, gerada com `crypto.randomUUID()` quando existe. Sem HTTPS nem localhost, o navegador não oferece `randomUUID`, e o código usa um id aleatório no lugar. Uma foto aponta para a variação por `variationKey: string | null`, porque o `id` real só existe depois do `POST`. As funções puras deixam a view enxuta e facilitam testes quando o front tiver um runner.
 
 ### D4. Associação das variações pelo `sortOrder`
-`toCreatePayload` envia `sortOrder = índice` na ordem da tela. Depois do `201`, cada `VariationDraft` recebe o `id` de `response.variations.find(v => v.sortOrder === índice)`. O servidor não garante devolver as variações na ordem do array enviado, mas ordena por `sortOrder`, e os índices são únicos.
+`toCreatePayload` envia `sortOrder = índice` na ordem da tela. Depois do `201`, cada `VariationFormItem` recebe o `id` de `response.variations.find(v => v.sortOrder === índice)`. O servidor não garante devolver as variações na ordem do array enviado, mas ordena por `sortOrder`, e os índices são únicos.
 
 ### D5. Envio dos arquivos em sequência, amostras antes das fotos
 O fluxo é `POST /produtos`, depois as amostras e depois as fotos, com um `await` por vez, sem `Promise.all`:
@@ -95,31 +100,44 @@ O navegador confere só o `type` do `File`. Quem decide de verdade é o servidor
 - As duas cargas rodam em paralelo no `onMounted`. Se alguma falhar, a tela mostra o erro com o botão "Tentar de novo" e não exibe o formulário.
 
 ### D10. Especificações e detalhes de acabamento em chave e valor
-O componente `KeyValueEditor.vue` (em `src/views/admin/produtos/`) serve às especificações do produto e ao `finishDetails` da variação. Linhas vazias são descartadas, e chaves repetidas (comparadas sem caixa e sem espaços nas pontas) bloqueiam o envio. Os valores vão como texto, do jeito digitado. Converter `"6"` em `6` mudaria o que o usuário digitou, como em "06", e o JSONB aceita os dois.
+O componente `KeyValueEditor.vue` (em `src/components/produtos/`) serve às especificações do produto e ao `finishDetails` da variação. Linhas vazias são descartadas, e chaves repetidas (comparadas sem caixa e sem espaços nas pontas) bloqueiam o envio. Os valores vão como texto, do jeito digitado. Converter `"6"` em `6` mudaria o que o usuário digitou, como em "06", e o JSONB aceita os dois.
 
 ### D11. Cores definidas pelo usuário em `:style`
 A proibição de hex arbitrário vale para os tokens de estilo da interface. As cores das variações são dados do produto e entram por `:style` (`background` ou `conic-gradient` para três ou mais cores). O seletor usa `<input type="color">` junto a um campo de texto `#RRGGBB`.
 
 ### D12. Estrutura de arquivos
-Segue o padrão `views/admin/<domínio>/`, como em fornecedores e categorias, e não o caminho único `views/admin/ProdutoFormView.vue` citado no backlog. O backlog é ajustado.
+As telas seguem o padrão `views/admin/<domínio>/`, como em fornecedores e categorias, e não o caminho único `views/admin/ProdutoFormView.vue` citado no backlog. As peças visuais ficam em `src/components/produtos/`, resolvidas pelo auto-import, e a lógica sem Vue em `src/utils/produtos/`. Cada arquivo fica entre 150 e 500 linhas (regra do `frontend/agents.md`), o que define onde as peças pequenas foram juntadas.
 
 ```
-src/types/products.ts             tipos do contrato (DTOs e payloads), exportados no barrel
-src/types/productDraft.ts         tipos do rascunho do formulário, exportados no barrel
-src/api/produtos.ts               + criar, enviarFoto, enviarAmostra; atualizar e deletar com o caminho corrigido
-src/utils/uploads.ts              validação de arquivo e toApiAssetUrl
+src/types/products.ts                   tipos do contrato (DTOs e payloads), exportados no barrel
+src/types/productForm.ts                tipos do estado do formulário, exportados no barrel
+src/api/produtos.ts                     listagem, detalhe, cadastro, edição, desativação e uploads
+src/utils/uploads.ts                    validação de arquivo e toApiAssetUrl
+src/utils/produtos/
+  produtoFormConstantes.ts              ids de campo, rótulos, limites, formatadores e apiErrorMessage
+  produtoFormEstado.ts                  criação do estado e conversão de e para a API (D3, D4)
+  produtoFormValidacao.ts               validação com as regras da API
+src/composables/useProdutoTela.ts       opções dos seletores, erro de gravação e envio dos arquivos (D5, D6, D9)
 src/views/admin/produtos/
-  ProdutoNewView.vue              casca da página, carga das opções e fluxo de gravação (D5, D6)
-  ProdutoForm.vue                 seções 1, 2, 3 e 6, e composição das seções 4 e 5
-  ProdutoVariacoesSection.vue     lista de variações (incluir, mover, remover)
-  ProdutoVariacaoCard.vue         uma variação: nome, tipo, cores, detalhes, estoque, amostra
-  ProdutoFotosSection.vue         grade de fotos com preview, variação, ordem, capa e estado do envio
-  ColorSwatch.vue                 círculo de pré-visualização (1, 2 ou N cores)
-  KeyValueEditor.vue              editor de chave e valor
-  produtoDraft.ts                 rascunho, validação e payload (D3, D4)
+  ProdutoListView.vue                   listagem paginada com filtros e desativação
+  ProdutoNewView.vue                    cadastro: carga das opções e gravação
+  ProdutoEditView.vue                   edição: carga do produto, PUT e exclusões imediatas
+  ProdutoForm.vue                       formulário em etapas, validação por etapa e etapa 6
+src/components/produtos/
+  ProdutoTelaLayout.vue                 moldura do cadastro e da edição e painel de envio
+  ProdutoFormNavegacao.vue              indicador de etapas e rodapé de ações
+  ProdutoDadosBasicosSection.vue        etapa 1
+  ProdutoPrecoDimensoesSection.vue      etapas 2 e 3
+  ProdutoVariacoesSection.vue           etapa 4: lista de variações
+  ProdutoVariacaoAcabamento.vue         cores, detalhes de acabamento e estoque
+  ProdutoVariacaoAmostra.vue            amostra de textura nova ou publicada
+  ProdutoFotosSection.vue               etapa 5: fotos com preview, variação, ordem, capa e envio
+  KeyValueEditor.vue                    editor de chave e valor
+  ProdutoListCabecalho.vue              cabeçalho e filtros da listagem
+  ProdutoListTabela.vue                 tabela e estados da listagem
 ```
 
-Inputs e alertas reutilizam as classes dos formulários existentes (`FornecedorForm.vue`). Todas as ações usam `<UiButton>`, e diálogos usam `<UiModal>`, sem `<button>` nativo.
+Inputs e alertas reutilizam as classes dos formulários existentes (`FornecedorForm.vue`). Todas as ações usam `<UiButton>`, listas de escolha usam `<UiSelect>` e diálogos usam `<UiModal>`, sem `<button>` nem `<select>` nativos.
 
 ## Risks / Trade-offs
 

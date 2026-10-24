@@ -12,7 +12,7 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  imageSrc: "/images/products/amostras-showroom.png",
+  imageSrc: "/images/products/amostras-showroom.webp",
   title: "Experimente as amostras",
   description: "Visite nossa loja e conheça de perto a qualidade dos materiais",
   linkText: "Ver localização",

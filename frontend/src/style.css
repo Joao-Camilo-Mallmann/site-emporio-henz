@@ -42,3 +42,96 @@
     @apply min-h-screen bg-stone-50 text-stone-900;
   }
 }
+
+/*
+ * Toasts (vue3-toastify): cartão claro com faixa lateral na cor do tipo.
+ * Ficam fora de `@layer` porque o CSS da biblioteca também é global, e regra
+ * sem camada ganha de regra em camada.
+ */
+.Toastify__toast-container {
+  --toastify-toast-width: 22.5rem;
+  --toastify-toast-min-height: 3.5rem;
+  --toastify-text-color-light: var(--color-neutral-dark);
+
+  --toastify-color-success: #059669;
+  --toastify-color-error: #e11d48;
+  --toastify-color-warning: #d97706;
+  --toastify-color-info: #007cd8;
+
+  --toastify-icon-color-success: var(--toastify-color-success);
+  --toastify-icon-color-error: var(--toastify-color-error);
+  --toastify-icon-color-warning: var(--toastify-color-warning);
+  --toastify-icon-color-info: var(--toastify-color-info);
+
+  --toastify-color-progress-success: var(--toastify-color-success);
+  --toastify-color-progress-error: var(--toastify-color-error);
+  --toastify-color-progress-warning: var(--toastify-color-warning);
+  --toastify-color-progress-info: var(--toastify-color-info);
+}
+
+.Toastify__toast-container .Toastify__toast {
+  align-items: center;
+  margin-bottom: 0.625rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid #e7e5e4;
+  border-left-width: 4px;
+  border-radius: 0.75rem;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 24px -6px rgb(0 0 0 / 0.14);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.Toastify__toast-container .Toastify__toast--success {
+  border-left-color: var(--toastify-color-success);
+}
+.Toastify__toast-container .Toastify__toast--error {
+  border-left-color: var(--toastify-color-error);
+}
+.Toastify__toast-container .Toastify__toast--warning {
+  border-left-color: var(--toastify-color-warning);
+}
+.Toastify__toast-container .Toastify__toast--info {
+  border-left-color: var(--toastify-color-info);
+}
+
+.Toastify__toast-container .Toastify__toast-body {
+  margin: 0;
+  padding: 0;
+}
+
+.Toastify__toast-container .Toastify__toast-icon {
+  width: 1.25rem;
+  margin-inline-end: 0.75rem;
+}
+
+.Toastify__toast-container .Toastify__close-button--light {
+  align-self: center;
+  margin-inline-start: 0.5rem;
+  color: #78716c;
+  opacity: 0.55;
+}
+
+.Toastify__toast-container .Toastify__close-button--light:hover {
+  opacity: 1;
+}
+
+.Toastify__toast-container .Toastify__progress-bar {
+  height: 2px;
+  opacity: 0.45;
+}
+
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container {
+    padding: 0 1rem;
+    bottom: 1rem;
+  }
+
+  .Toastify__toast-container .Toastify__toast {
+    margin-bottom: 0.5rem;
+    border-radius: 0.75rem;
+  }
+}

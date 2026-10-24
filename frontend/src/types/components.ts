@@ -80,3 +80,35 @@ export interface UiModalProps {
   closeOnBackdrop?: boolean;
   closeOnEsc?: boolean;
 }
+
+/** Valor aceito por `<UiSelect>`; o `<option>` mantém o tipo original no `v-model`. */
+export type UiSelectValue = string | number | boolean | null;
+
+export interface UiSelectOption {
+  value: UiSelectValue;
+  label: string;
+  disabled?: boolean;
+}
+
+export interface UiSelectProps {
+  /** Opções; sem elas, o slot padrão recebe `<option>` e `<optgroup>` livres. */
+  options?: readonly UiSelectOption[];
+  /** Primeira opção, com `placeholderValue` (ex.: "Todas as categorias"). */
+  placeholder?: string;
+  placeholderValue?: UiSelectValue;
+  /** Deixa o placeholder desabilitado, para obrigar uma escolha. */
+  placeholderDisabled?: boolean;
+  id?: string;
+  name?: string;
+  /** Rótulo visível acima do campo. Sem ele, informe `ariaLabel`. */
+  label?: string;
+  ariaLabel?: string;
+  hint?: string;
+  /** Mensagem de erro: borda vermelha, `aria-invalid` e texto abaixo do campo. */
+  error?: string;
+  required?: boolean;
+  disabled?: boolean;
+  size?: "sm" | "md";
+  /** Largura total (padrão). Use `false` em barras de filtro. */
+  block?: boolean;
+}

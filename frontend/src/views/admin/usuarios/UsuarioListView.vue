@@ -7,6 +7,7 @@ import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import VendedorFornecedoresModal from "./VendedorFornecedoresModal.vue";
+import { formatPhone } from "@/utils/phone";
 
 const router = useRouter();
 const toast = useToast();
@@ -43,15 +44,6 @@ function fecharModalFornecedores() {
 const isDeleteModalOpen = ref(false);
 const userToDelete = ref<IUser | null>(null);
 const actionLoading = ref(false);
-
-function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (digits.length <= 2) return digits;
-  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  if (digits.length <= 10)
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-}
 
 async function carregarUsuarios(page = 1) {
   loading.value = true;
@@ -229,16 +221,18 @@ onMounted(() => {
             />
           </div>
 
-          <select
+          <UiSelect
             v-model="selectedRole"
+            size="sm"
+            :block="false"
+            aria-label="Filtrar por perfil"
             @change="handleRoleChange"
-            class="px-3 py-2 rounded-lg border border-stone-200 bg-white text-xs sm:text-sm text-neutral-dark focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors cursor-pointer"
           >
             <option :value="undefined">Todos os Perfis</option>
             <option :value="UserRole.Cliente">Clientes</option>
             <option :value="UserRole.Vendedor">Vendedores</option>
             <option :value="UserRole.Administrador">Administradores</option>
-          </select>
+          </UiSelect>
         </div>
 
         <div class="text-xs text-stone-500">

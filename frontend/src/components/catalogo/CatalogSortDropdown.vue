@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CatalogSortOption } from "@/types";
+import type { CatalogSortOption, UiSelectValue } from "@/types";
 
 interface Props {
   modelValue?: CatalogSortOption;
@@ -20,9 +20,8 @@ const sortOptions: { value: CatalogSortOption; label: string }[] = [
   { value: "recentes", label: "Mais Recentes" },
 ];
 
-function handleSelectChange(event: Event) {
-  const target = event.target as HTMLSelectElement;
-  emit("update:modelValue", target.value as CatalogSortOption);
+function handleSelectChange(value: UiSelectValue | undefined) {
+  emit("update:modelValue", value as CatalogSortOption);
 }
 </script>
 
@@ -34,31 +33,13 @@ function handleSelectChange(event: Event) {
     >
       Ordem:
     </label>
-    <div class="relative inline-flex items-center">
-      <select
-        id="catalog-sort"
-        :value="modelValue"
-        class="appearance-none bg-white border border-stone-300 hover:border-stone-400 rounded-xl pl-3 sm:pl-4 pr-8 py-2 text-xs sm:text-sm font-medium text-stone-800 cursor-pointer shadow-none focus:outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-colors"
-        @change="handleSelectChange"
-      >
-        <option
-          v-for="option in sortOptions"
-          :key="option.value"
-          :value="option.value"
-        >
-          {{ option.label }}
-        </option>
-      </select>
-      <div
-        class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-stone-500"
-        aria-hidden="true"
-      >
-        <!-- Ícone de setinhas verticais ⇅ / chevron duplo -->
-        <Icon
-          icon="mdi:unfold-more-horizontal"
-          class="w-3.5 h-3.5 sm:w-4 sm:h-4"
-        />
-      </div>
-    </div>
+    <UiSelect
+      id="catalog-sort"
+      :model-value="modelValue"
+      :options="sortOptions"
+      size="sm"
+      :block="false"
+      @update:model-value="handleSelectChange"
+    />
   </div>
 </template>

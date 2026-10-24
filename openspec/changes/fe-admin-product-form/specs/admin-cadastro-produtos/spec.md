@@ -1,11 +1,11 @@
 ## ADDED Requirements
 
 ### Requirement: Tela de cadastro de produto no painel
-A aplicação SHALL oferecer a tela `/admin/produtos/novo`, aberta a Administrador e Vendedor, com o formulário em seis seções numa página única: Dados Básicos, Preço e Disponibilidade, Dimensões, Variações de Acabamento, Fotos e Especificações Técnicas.
+A aplicação SHALL oferecer a tela `/admin/produtos/novo`, aberta a Administrador e Vendedor, com o formulário em seis seções, mostradas uma etapa por vez: Dados Básicos, Preço e Disponibilidade, Dimensões, Variações de Acabamento, Fotos e Especificações Técnicas.
 
 #### Scenario: Equipe acessa a tela
 - **WHEN** um Administrador ou Vendedor autenticado acessa `/admin/produtos/novo`
-- **THEN** a aplicação SHALL exibir o formulário vazio com as seis seções e os botões "Cancelar" e "Salvar produto"
+- **THEN** a aplicação SHALL exibir o formulário vazio na primeira etapa, com o indicador das seis etapas e os botões "Cancelar" e "Próximo"
 
 #### Scenario: Cliente é barrado
 - **WHEN** um Cliente ou visitante tenta acessar `/admin/produtos/novo`
@@ -196,3 +196,30 @@ A aplicação SHALL oferecer a tela `/admin/produtos/:id/editar`, aberta a Admin
 #### Scenario: Fornecedor atual fora da listagem de ativos
 - **WHEN** o fornecedor do produto não está entre os fornecedores ativos carregados no seletor
 - **THEN** a tela SHALL buscá-lo por `id` e incluí-lo no seletor, para que o envio não troque o fornecedor do produto
+
+### Requirement: Formulário em etapas
+O formulário de produto SHALL mostrar uma seção por vez, com indicador de etapas e botões "Voltar" e "Próximo", e SHALL validar a etapa atual antes de avançar.
+
+#### Scenario: Avançar com a etapa válida
+- **WHEN** o usuário clica em "Próximo" e os campos da etapa atual estão válidos
+- **THEN** a tela SHALL abrir a etapa seguinte e marcar a anterior como concluída no indicador
+
+#### Scenario: Avançar com erro na etapa
+- **WHEN** o usuário clica em "Próximo" com algum campo da etapa atual inválido
+- **THEN** a tela SHALL permanecer na etapa, mostrar a mensagem junto ao campo e levar o foco ao primeiro campo com erro
+
+#### Scenario: Etapas futuras bloqueadas no cadastro
+- **WHEN** o usuário ainda não alcançou uma etapa
+- **THEN** o indicador SHALL manter essa etapa desabilitada, e as etapas já alcançadas SHALL continuar clicáveis
+
+#### Scenario: Salvar na última etapa
+- **WHEN** o usuário aciona "Salvar produto" na última etapa e uma etapa anterior tem campo inválido
+- **THEN** a tela SHALL abrir a etapa do primeiro campo com erro e não chamar a API
+
+#### Scenario: Enter numa etapa intermediária
+- **WHEN** o usuário pressiona Enter num campo de uma etapa que não é a última, no cadastro
+- **THEN** a tela SHALL tratar como "Próximo" e não salvar o produto
+
+#### Scenario: Edição com etapas livres
+- **WHEN** o usuário abre a edição de um produto
+- **THEN** o indicador SHALL permitir ir a qualquer etapa e o botão "Salvar alterações" SHALL aparecer em todas elas

@@ -7,6 +7,7 @@ import {
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, reactive, ref, watch } from "vue";
+import { formatPhone, maskPhoneInput } from "@/utils/phone";
 
 interface Props {
   initialData?: Partial<IUser>;
@@ -34,16 +35,6 @@ const emit = defineEmits<{
   (e: "submit", data: UserCreateInput | UserUpdateInput): void;
   (e: "cancel"): void;
 }>();
-
-function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 11);
-  if (!digits) return "";
-  if (digits.length <= 2) return `(${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-  if (digits.length <= 10)
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-}
 
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
@@ -153,8 +144,7 @@ watch(
 );
 
 function handlePhoneInput(e: Event) {
-  const target = e.target as HTMLInputElement;
-  form.phone = formatPhone(target.value);
+  form.phone = maskPhoneInput(e);
   if (formErrors.phone) {
     const digits = form.phone.replace(/\D/g, "");
     if (digits.length === 0 || digits.length === 10 || digits.length === 11) {
@@ -369,27 +359,26 @@ defineExpose({
 
     <!-- Nível de Acesso (Perfil) -->
     <div v-if="!hideRole">
-      <label
-        for="role"
-        class="block text-xs font-semibold text-neutral-dark mb-1.5"
-      >
-        Perfil de Acesso *
-      </label>
-      <select
+      <UiSelect
         id="role"
         v-model="form.role"
-        class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-neutral-dark bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors cursor-pointer"
-      >
-        <option :value="UserRole.Cliente">
-          Cliente (Acesso ao catálogo e favoritos)
-        </option>
-        <option :value="UserRole.Vendedor">
-          Vendedor (Acesso comercial e consulta de listas)
-        </option>
-        <option :value="UserRole.Administrador">
-          Administrador (Acesso total ao sistema)
-        </option>
-      </select>
+        label="Perfil de Acesso"
+        required
+        :options="[
+          {
+            value: UserRole.Cliente,
+            label: 'Cliente (Acesso ao catálogo e favoritos)',
+          },
+          {
+            value: UserRole.Vendedor,
+            label: 'Vendedor (Acesso comercial e consulta de listas)',
+          },
+          {
+            value: UserRole.Administrador,
+            label: 'Administrador (Acesso total ao sistema)',
+          },
+        ]"
+      />
     </div>
 
     <!-- Telefone e Cidade -->

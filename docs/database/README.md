@@ -17,6 +17,7 @@ Documentação da persistência PostgreSQL do Empório Henz. O modelo conceitual
 4. **Migrações ordenadas:** arquivos SQL recebem prefixos numéricos e são aplicados pelo runner em ordem.
 5. **Idempotência:** uma migração já aplicada não deve ser executada novamente.
 6. **Imagens fora do banco:** fotos de produto e amostras de variação são arquivos no volume de uploads do backend. As tabelas guardam só o caminho relativo (`thumbnail_path`, `full_image_path` e `sample_image_path`, em `VARCHAR(255)`), nunca o conteúdo da imagem nem Base64.
+7. **JSONB sempre objeto:** `products.specifications` e `product_variations.finish_details` guardam um objeto JSON, garantido por `CHECK (jsonb_typeof(...) = 'object')` desde a migração `013`. O backend envia o objeto direto ao driver SQL do Bun, nunca `JSON.stringify(objeto)`: o driver codifica de novo um texto enviado a uma coluna JSON, e o valor seria gravado como string.
 
 ## Estrutura
 

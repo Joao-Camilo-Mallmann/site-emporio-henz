@@ -773,7 +773,7 @@ O formulário deve ser organizado por etapas ou seções lógicas:
 
 #### 🎨 Especificação Técnica (`frontend/src/views/admin/produtos/`)
 
-- Tela `/admin/produtos/novo` (`ProdutoNewView.vue` + `ProdutoForm.vue` e componentes das seções), aberta a Administrador e Vendedor, em página única com as seis seções e índice de âncoras. Detalhes na change OpenSpec `fe-admin-product-form`.
+- Tela `/admin/produtos/novo` (`ProdutoNewView.vue` + `ProdutoForm.vue` e componentes das seções), aberta a Administrador e Vendedor, em formulário de seis etapas, com uma seção visível por vez e validação ao avançar. Detalhes na change OpenSpec `fe-admin-product-form`.
 - Tela `/admin/produtos` (`ProdutoListView.vue`), aberta a Administrador e Vendedor: listagem paginada de `GET /api/v1/produtos` com busca, filtros por categoria, fornecedor, disponibilidade e status, miniatura da capa, atalho de edição e desativação lógica com confirmação (UC08, A1). O escopo por fornecedor vem da própria API.
 - Tela `/admin/produtos/:id/editar` (`ProdutoEditView.vue`), que reaproveita o `ProdutoForm.vue`: carrega o produto, grava com `PUT /api/v1/produtos/:id` (variações existentes com `id`, novas sem `id`, omitidas recebem soft delete) e envia depois só os arquivos novos. Excluir foto publicada, amostra publicada ou o próprio produto é imediato e pede confirmação, porque o JSON de edição não carrega imagem (UC08, A1 e A2).
 - Componentes de input estilizados com validação reativa.

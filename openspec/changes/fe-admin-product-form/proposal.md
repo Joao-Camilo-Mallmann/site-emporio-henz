@@ -6,7 +6,7 @@ O backend de produtos está pronto: cadastro (`POST /produtos`) e upload de foto
 
 - **[BE]** `GET /api/v1/suppliers` passa a devolver ao Vendedor só os fornecedores com vínculo ativo em `user_suppliers`. O envelope `{ data, pagination }` e os filtros continuam iguais. O Admin segue vendo todos.
 - **[BE]** A collection Bruno passa a documentar o corpo `201` de `POST /produtos` (`ProductDetailDto` com `variations[].id` e `sortOrder`) e o novo comportamento de `GET /suppliers` para o Vendedor.
-- **[FE]** Nova tela `/admin/produtos/novo`, aberta a Admin e Vendedor, com seis seções numa página única:
+- **[FE]** Nova tela `/admin/produtos/novo`, aberta a Admin e Vendedor, com seis seções, mostradas uma etapa por vez:
   - dados básicos;
   - preço e disponibilidade;
   - dimensões em mm;
