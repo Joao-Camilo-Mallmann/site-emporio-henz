@@ -15,7 +15,7 @@ O backend lê as variáveis do ambiente do processo. Para execução local, copi
 | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `PORT`                                                               | Porta do servidor. Padrão: `3001`.                                                                                                |
 | `NODE_ENV`                                                           | Ambiente de execução (`development` ou `production`).                                                                             |
-| `JWT_SECRET`                                                         | Segredo de assinatura dos tokens JWT. Se ausente, o código usa um valor padrão de desenvolvimento, que não deve ir para produção. |
+| `JWT_SECRET`                                                         | Segredo de assinatura dos tokens JWT. Obrigatório, sem valor padrão no código: o servidor não inicia sem ele. |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | Credenciais, banco e porta. O backend monta a URL de conexão com o PostgreSQL a partir delas e de `POSTGRES_HOST`.                 |
 | `POSTGRES_HOST`                                                      | Host do banco. Use `localhost` na execução local e `postgres` no Docker Compose.                                                  |
 | `UPLOADS_DIR`                                                        | Diretório das fotos de produto e amostras de variação. Padrão: `<cwd>/uploads` (`/app/uploads` no container, volume `uploads_data`). |
