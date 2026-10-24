@@ -14,12 +14,17 @@ export type EnvSource = Record<string, string | undefined>;
 // Monta a configuração a partir de um conjunto de variáveis. Os testes passam o
 // próprio conjunto para conferir padrões e sobrescritas sem mexer em process.env.
 export function loadEnv(source: EnvSource = process.env): AppEnv {
+  // Sem valor padrão: um segredo fixo no código é público e permite forjar tokens.
+  if (!source.JWT_SECRET) {
+    throw new Error(
+      "JWT_SECRET não definido. Configure-o no .env (ex.: openssl rand -hex 32).",
+    );
+  }
+
   return {
     PORT: Number(source.PORT) || 3001,
     NODE_ENV: source.NODE_ENV || "development",
-    JWT_SECRET:
-      source.JWT_SECRET ||
-      "emporio-henz-default-jwt-secret-at-least-32-chars-long",
+    JWT_SECRET: source.JWT_SECRET,
     JWT_EXPIRES_IN_SECONDS: 60 * 60 * 336, // 336 horas
     CORS_ORIGIN: "*",
     // Diretório das fotos de produto e amostras de variação (RNF02). Em produção
