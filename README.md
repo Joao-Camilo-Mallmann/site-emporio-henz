@@ -63,6 +63,12 @@ copy .env.example .env
 > [!NOTE]
 > As configurações contidas no [.env.example](.env.example) utilizam `NODE_ENV=development`. O sistema detecta o ambiente e seleciona os serviços adequados.
 
+Defina um `JWT_SECRET` próprio no `.env`. Ele assina os tokens de login e é repassado ao backend pelo `docker-compose.yml`:
+
+```bash
+openssl rand -hex 32
+```
+
 #### 3. Subir os serviços com Docker Compose
 
 Você pode subir a stack utilizando diretamente os comandos nativos do Docker Compose com os perfis configurados:
@@ -115,6 +121,17 @@ Após iniciar os containers:
   - **Frontend (Nginx Proxy)**: [http://localhost](http://localhost) (porta 80)
   - **Backend API**: [http://localhost/api](http://localhost/api)
   - **Healthcheck da API**: [http://localhost/api/v1/health](http://localhost/api/v1/health)
+
+### 🔑 Credenciais Padrão
+
+As migrações criam um administrador padrão:
+
+| Papel         | E-mail            | Senha      |
+| ------------- | ----------------- | ---------- |
+| Administrador | `admin@gmail.com` | `admin123` |
+
+> [!WARNING]
+> Essa senha é pública. No ambiente implantado, troque-a logo após o primeiro deploy: entre como administrador e altere a senha na tela **Meu Perfil** (`/perfil`).
 
 ---
 
