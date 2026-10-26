@@ -892,15 +892,16 @@ Atende aos requisitos **RF19** e **RNF09**. Casos de teste obrigatórios:
 3. Vendedor vinculado apenas à Empresa A tenta enviar produto com `supplier_id` da Empresa B -> recebe `403 Forbidden`.
 4. Vendedor tenta criar ou editar fornecedor -> recebe `403 Forbidden`.
 
-#### ⚙️ Especificação Técnica (`backend/tests/authorization.test.ts`)
+#### ⚙️ Especificação Técnica (`backend/tests/rbac.test.ts`)
 
 - Utiliza a suíte nativa `bun:test` (`describe`, `test`, `expect`).
-- Emite requisições HTTP simuladas contra os endpoints do backend utilizando tokens JWT assinados com diferentes papéis.
+- Exercita `requireRole` pelo roteador nativo com usuários de teste injetados no contexto; valida o payload JSON e os status HTTP sem depender do banco ou de tokens JWT.
+- Valida o escopo do Vendedor por fornecedor em `ProductsService.assertCanManageProduct`, cobrindo ausência de vínculos ativos, produto de outro fornecedor e produto de fornecedor vinculado.
 
 #### ✅ Critérios de Aceitação
 
-- [ ] O teste executa via `bun test backend/tests/authorization.test.ts` e passa com 100% de sucesso.
-- [ ] Todas as 4 violações de autorização são capturadas e confirmam o recebimento de HTTP 403.
+- [x] O teste executa via `bun test tests/rbac.test.ts` no diretório `backend` e passa com 100% de sucesso.
+- [x] Cliente em rota administrativa, Vendedor em alteração de fornecedor, Vendedor sem vínculo e Vendedor em produto de outro fornecedor são negados com status/código 403; produto de fornecedor vinculado e acesso Admin são permitidos.
 
 ---
 
@@ -1370,5 +1371,4 @@ Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por t
 - [ ] `/catalogo` usa `UiPagination` sem resumo, mantém `?page=` sincronizado e esconde a paginação com página única.
 - [x] `CatalogPagination.vue` removido e sem referências em `frontend/src`.
 - [x] `bun run check-types`, `bun run lint` e `bun run build` passam no diretório `frontend`.
-
 

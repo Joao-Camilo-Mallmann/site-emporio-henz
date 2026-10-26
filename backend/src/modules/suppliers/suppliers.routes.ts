@@ -1,6 +1,6 @@
 import { Router } from "@/lib/router";
 import { authMiddleware } from "@/middlewares/auth";
-import { requireRole, ROLES } from "@/middlewares/role";
+import { requireRole, ROLES } from "@/middlewares/rbac";
 import { suppliersController } from "@/modules/suppliers/suppliers.controller";
 
 export const suppliersRoutes = new Router();

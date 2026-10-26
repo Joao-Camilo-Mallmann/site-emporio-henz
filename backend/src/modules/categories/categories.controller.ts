@@ -1,7 +1,7 @@
 import { badRequest, created, ok } from "@/lib/response";
 import { RequestContext } from "@/lib/router";
 import { isValidUuid } from "@/lib/slug";
-import { isAdmin } from "@/middlewares/role";
+import { isAdmin } from "@/middlewares/rbac";
 import {
   validateCategoryQuery,
   validateCreateCategory,

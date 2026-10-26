@@ -7,7 +7,7 @@ import {
 } from "@/lib/errors";
 import { AuthenticatedUser } from "@/lib/router";
 import { slugify } from "@/lib/slug";
-import { ROLES } from "@/middlewares/role";
+import { ROLES } from "@/middlewares/rbac";
 import {
   productsRepository,
   ProductsRepository,
