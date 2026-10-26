@@ -45,6 +45,27 @@ Erros seguem o formato:
 }
 ```
 
+Falhas inesperadas (fora de `AppError`) passam pelo `errorHandler` (`src/middlewares/error.ts`), que acrescenta `code` e `requestId`. O `requestId` aparece também na linha de log do servidor (`[requestId] MÉTODO /rota → code: mensagem`), o que permite achar a causa a partir da tela. Com `NODE_ENV=development`, a resposta traz ainda `details` com a mensagem crua do driver (`message`, `sqlState`, `hint`, `table`, `column`); em produção esse bloco não é enviado.
+
+```json
+{
+  "error": "Internal Server Error",
+  "message": "A estrutura do banco de dados está desatualizada. Rode `bun run migrate` no backend.",
+  "code": "DATABASE_SCHEMA_OUTDATED",
+  "requestId": "a1b2c3d4"
+}
+```
+
+| `code` | Status | Causa |
+| --- | --- | --- |
+| `DATABASE_UNAVAILABLE` | 503 | Não conectou no PostgreSQL (host, porta ou rede) |
+| `DATABASE_AUTH_FAILED` | 503 | Usuário ou senha do banco incorretos (SQLSTATE 28P01/28000) |
+| `DATABASE_NOT_FOUND` | 503 | Banco de `POSTGRES_DB` não existe (3D000) |
+| `DATABASE_SCHEMA_OUTDATED` | 500 | Tabela, coluna ou função ausente: faltam migrations (42P01/42703/42883) |
+| `FOREIGN_KEY_VIOLATION` | 409 | Registro relacionado inexistente ou em uso (23503) |
+| `INVALID_DATA` | 400 | Valor inválido ou obrigatório ausente (23502/23514/22P02) |
+| `INTERNAL_ERROR` | 500 | Qualquer outra falha; consulte o log pelo `requestId` |
+
 Listagens são paginadas (RNF11 do PRD) e seguem o formato:
 
 ```json
@@ -56,7 +77,9 @@ Listagens são paginadas (RNF11 do PRD) e seguem o formato:
 
 Parâmetros `page` e `limit` de cada rota estão na collection Bruno.
 
-Status utilizados: `200`, `201`, `204`, `400`, `401`, `403`, `404`, `409` e `500`. O `Bun.serve` ainda responde `413` para qualquer corpo acima de 10 MiB (`maxRequestBodySize`, igual ao `client_max_body_size 10M` do nginx).
+A listagem de fornecedores (`GET /api/v1/suppliers`) depende do perfil: o Administrador vê todos; o Vendedor vê só os fornecedores com vínculo ativo em `user_suppliers` (RF16), e sem vínculo recebe `200` com `data: []` e `total: 0`, não `403`. O filtro é aplicado no `WHERE` da página e da contagem.
+
+Status utilizados: `200`, `201`, `204`, `400`, `401`, `403`, `404`, `409`, `500` e `503`. O `Bun.serve` ainda responde `413` para qualquer corpo acima de 10 MiB (`maxRequestBodySize`, igual ao `client_max_body_size 10M` do nginx).
 
 Papéis de acesso:
 

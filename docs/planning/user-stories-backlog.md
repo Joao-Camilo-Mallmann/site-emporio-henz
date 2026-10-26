@@ -771,12 +771,16 @@ O formulário deve ser organizado por etapas ou seções lógicas:
 5. Upload de Fotos com pré-visualização instantânea no navegador, enviando o arquivo original para a API (sem conversão para Base64).
 6. Especificações Técnicas flexíveis (chave e valor em JSONB).
 
-#### 🎨 Especificação Técnica (`frontend/src/views/admin/ProdutoFormView.vue`)
+#### 🎨 Especificação Técnica (`frontend/src/views/admin/produtos/`)
 
+- Tela `/admin/produtos/novo` (`ProdutoNewView.vue` + `ProdutoForm.vue` e componentes das seções), aberta a Administrador e Vendedor, em página única com as seis seções e índice de âncoras. Detalhes na change OpenSpec `fe-admin-product-form`.
+- Tela `/admin/produtos` (`ProdutoListView.vue`), aberta a Administrador e Vendedor: listagem paginada de `GET /api/v1/produtos` com busca, filtros por categoria, fornecedor, disponibilidade e status, miniatura da capa, atalho de edição e desativação lógica com confirmação (UC08, A1). O escopo por fornecedor vem da própria API.
+- Tela `/admin/produtos/:id/editar` (`ProdutoEditView.vue`), que reaproveita o `ProdutoForm.vue`: carrega o produto, grava com `PUT /api/v1/produtos/:id` (variações existentes com `id`, novas sem `id`, omitidas recebem soft delete) e envia depois só os arquivos novos. Excluir foto publicada, amostra publicada ou o próprio produto é imediato e pede confirmação, porque o JSON de edição não carrega imagem (UC08, A1 e A2).
 - Componentes de input estilizados com validação reativa.
 - Seletor de cores visual com suporte a círculo bicolor.
 - Input de arquivo local com validação de tamanho (até 2 MiB por imagem) e formato (JPEG, PNG ou WebP) antes do envio em `multipart/form-data`. O front não comprime a foto: acima do limite, mostra a mensagem e não envia.
-- As fotos são enviadas uma por requisição para `POST /api/v1/produtos/:id/imagens` depois que o produto é salvo e tem `id`, com progresso e erro por foto (US-BE-10).
+- Depois do `POST /api/v1/produtos`, o front envia as amostras de variação (`PUT /api/v1/produtos/:id/variacoes/:variationId/amostra`) e depois as fotos (`POST /api/v1/produtos/:id/imagens`), um arquivo por requisição e em sequência, com progresso e erro por arquivo (US-BE-10). Se algum arquivo falhar, o produto não é recriado: a tela reenvia só o arquivo com erro.
+- O seletor de fornecedor usa `GET /api/v1/suppliers`, que para o Vendedor devolve só as empresas vinculadas.
 - Os endereços das imagens devolvidos pela API (`/api/v1/uploads/...`) são montados com a mesma base da API (`VITE_API_URL`).
 
 #### ✅ Critérios de Aceitação

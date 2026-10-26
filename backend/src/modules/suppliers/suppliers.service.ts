@@ -1,4 +1,6 @@
 import { NotFoundError } from "@/lib/errors";
+import { AuthenticatedUser } from "@/lib/router";
+import { ROLES } from "@/middlewares/role";
 import { suppliersRepository, SuppliersRepository } from "@/modules/suppliers/suppliers.repository";
 import {
   CreateSupplierDto,
@@ -13,8 +15,13 @@ export class SuppliersService {
 
   async list(
     filters: SupplierQueryFilters = {},
+    actor?: AuthenticatedUser,
   ): Promise<PaginatedSuppliersResult> {
-    return await this.repo.list(filters);
+    // Vendedor enxerga só as empresas às quais está vinculado (RF16); sem vínculo = lista vazia.
+    if (actor?.role === ROLES.SELLER) {
+      return await this.repo.list({ ...filters, linkedUserId: actor.id });
+    }
+    return await this.repo.list({ ...filters, linkedUserId: undefined });
   }
 
   async getById(id: string): Promise<SupplierDto> {

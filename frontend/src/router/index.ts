@@ -193,6 +193,41 @@ const router = createRouter({
             roles: [UserRole.Administrador],
           },
         },
+
+        // CRUD Produtos (List, New, Edit) — Admin e Vendedor
+        {
+          path: "produtos",
+          name: "admin-produtos",
+          component: () =>
+            import("@/views/admin/produtos/ProdutoListView.vue"),
+          meta: {
+            title: "Gestão de Produtos | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Vendedor, UserRole.Administrador],
+          },
+        },
+        {
+          path: "produtos/novo",
+          name: "admin-produtos-novo",
+          component: () =>
+            import("@/views/admin/produtos/ProdutoNewView.vue"),
+          meta: {
+            title: "Novo Produto | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Vendedor, UserRole.Administrador],
+          },
+        },
+        {
+          path: "produtos/:id/editar",
+          name: "admin-produtos-editar",
+          component: () =>
+            import("@/views/admin/produtos/ProdutoEditView.vue"),
+          meta: {
+            title: "Editar Produto | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Vendedor, UserRole.Administrador],
+          },
+        },
       ],
     },
 

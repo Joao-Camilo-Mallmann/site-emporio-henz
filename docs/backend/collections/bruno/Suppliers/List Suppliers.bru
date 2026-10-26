@@ -23,6 +23,7 @@ auth:bearer {
 
 docs {
   Listagem paginada de fornecedores não deletados, em ordem alfabética. Permitida para Administrador e Vendedor.
+  Administrador vê todos os fornecedores. Vendedor vê apenas os fornecedores aos quais está vinculado ativamente (vínculo e fornecedor sem exclusão lógica); `search`, `active`, ordem, paginação e `pagination.total` valem sobre esse conjunto. Vendedor sem vínculo recebe `200` com `data: []` e `total: 0`, não `403`. Uso: seletor de fornecedor do cadastro de produto.
   `page` (1 a 10000, padrão 1) e `limit` (1 a 100, padrão 20) fora dos limites caem no padrão.
   `search` filtra por nome ou contato e é truncado em 100 caracteres. `active=true` ou `active=false` filtra pelo status; sem o parâmetro, retorna ambos.
   Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.

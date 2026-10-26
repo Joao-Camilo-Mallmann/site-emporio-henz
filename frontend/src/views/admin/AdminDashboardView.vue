@@ -30,6 +30,20 @@ interface AdminModule {
 
 const allModules: AdminModule[] = [
   {
+    id: "products",
+    title: "Produtos",
+    group: "Acervo do Catálogo",
+    description:
+      "Cadastre móveis com variações de acabamento, fotos e ficha técnica.",
+    icon: "mdi-table-furniture",
+    iconClass:
+      "bg-wood-honey/15 text-wood-dark border border-wood-honey/30 group-hover:bg-wood-dark group-hover:text-white",
+    to: "/admin/produtos",
+    newTo: "/admin/produtos/novo",
+    newLabel: "Novo Produto",
+    adminOnly: false,
+  },
+  {
     id: "suppliers",
     title: "Fornecedores & Marcas",
     group: "Parceiros & Fábricas",

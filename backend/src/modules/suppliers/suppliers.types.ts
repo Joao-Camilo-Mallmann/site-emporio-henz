@@ -26,6 +26,8 @@ export interface SupplierQueryFilters {
   limit?: number;
   search?: string;
   active?: boolean;
+  /** Definido só pelo service (nunca pela query): restringe aos fornecedores vinculados ativamente a este usuário. */
+  linkedUserId?: string;
 }
 
 export type PaginatedSuppliersResult = Paginated<SupplierDto>;
