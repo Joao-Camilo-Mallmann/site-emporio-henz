@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
-import { reactive, ref, onMounted } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
@@ -167,16 +167,6 @@ async function handleSubmit() {
             >
               Digite sua senha
             </label>
-            <a
-              href="#"
-              class="text-xs font-medium text-secondary hover:underline"
-              @click.prevent="
-                generalError =
-                  'Para redefinir a senha em ambiente de testes, utilize as credenciais padrão de teste abaixo.'
-              "
-            >
-              Esqueci minha senha
-            </a>
           </div>
           <div class="relative">
             <input
@@ -247,7 +237,7 @@ async function handleSubmit() {
             variant="link"
             size="none"
             class="ml-1"
-            @click="$router.push('/cadastro')"
+            @click="$router.push({ path: '/cadastro', query: $route.query })"
           >
             Criar conta
           </UiButton>

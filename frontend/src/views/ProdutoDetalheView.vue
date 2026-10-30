@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import { produtosApi } from "@/api";
 import { useListasStore } from "@/stores/listas";
+import { storeSiteUrl, storeWhatsappUrl } from "@/utils/phone";
 import type {
   ProductDetail,
   ProductVariationItem,
@@ -130,15 +131,11 @@ async function handleShare() {
 
 function handleWhatsAppContact() {
   if (!product.value) return;
-  const whatsappNumber = "5551998981063";
-  const currentUrl = window.location.href;
+  const currentUrl = storeSiteUrl(route.fullPath);
   const finishName = selectedVariation.value?.name || "Padrão";
   const formattedPrice = `R$ ${formattedPriceParts.value.integer},${formattedPriceParts.value.cents}`;
   const message = `Olá! Gostaria de mais informações sobre o ${product.value.name} (Acabamento: ${finishName}) no valor de ${formattedPrice}.\n\nLink: ${currentUrl}`;
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    message
-  )}`;
-  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  window.open(storeWhatsappUrl(message), "_blank", "noopener,noreferrer");
 }
 
 function navigateToRelated(related: CatalogProductItem) {

@@ -46,6 +46,7 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
   - `<UiModal>`: mandatório para diálogos, modais e alertas de confirmação.
   - `<UiCard>`, `<UiFloatingActions>` e `<UiFloatingButton>`: componentes canônicos para cartões e ações flutuantes.
   - `<UiPagination>`: obrigatório em toda listagem paginada; detalhes na seção "Paginação de listagens" de [frontend/agents.md](../../frontend/agents.md).
+- **Senha segura**: telas que criam ou redefinem senha usam `<PasswordStrengthPanel v-model:valid="ok" :password="form.password" :confirm-password="form.confirmPassword" />` (`src/components/auth/`). O componente concentra requisitos, força e confirmação; a tela só lê o `valid`. Detalhes e roteiro de teste em [002 · Senha segura](../feedback-usabilidade/002-senha-segura-cadastro-e-redefinicao.md).
 - Componentes em `src/components/` são importados automaticamente por `unplugin-vue-components`.
 - Feedbacks transitórios usam `useToast()` e `vue3-toastify`.
 - Estados de carregamento, erro, vazio e sucesso devem ser explícitos.

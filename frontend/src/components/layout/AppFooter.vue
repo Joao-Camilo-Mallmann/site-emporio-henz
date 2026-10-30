@@ -1,4 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import contato from "@/data/contato.json";
+import { storeWhatsappUrl } from "@/utils/phone";
+</script>
 
 <template>
   <footer
@@ -83,7 +86,7 @@
         <div class="flex items-center gap-3 pt-2">
           <!-- WhatsApp -->
           <UiFloatingButton
-            href="https://wa.me/5551998981063"
+            :href="storeWhatsappUrl()"
             target="_blank"
             size="sm"
             variant="primary"
@@ -94,7 +97,7 @@
 
           <!-- Instagram -->
           <UiFloatingButton
-            href="https://www.instagram.com/emporiohenz/"
+            :href="contato.instagram"
             target="_blank"
             size="sm"
             variant="primary"
