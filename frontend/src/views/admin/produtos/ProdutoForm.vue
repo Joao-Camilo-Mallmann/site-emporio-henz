@@ -8,12 +8,12 @@ import type {
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, nextTick, ref, watch } from "vue";
-import { FIELD_IDS, fieldStep, FORM_SECTIONS } from "@/utils/produtos/produtoFormConstantes";
-import { validateForm } from "@/utils/produtos/produtoFormValidacao";
+import { FIELD_IDS, fieldStep, FORM_SECTIONS } from "@/utils/admin/produtos/produtoFormConstantes";
+import { validateForm } from "@/utils/admin/produtos/produtoFormValidacao";
 
 // Formulário em etapas (uma seção visível por vez). Este componente é o dono
 // do estado das etapas e da validação; cada etapa é um componente próprio de
-// `components/produtos/`. A validação roda no navegador antes do envio e leva
+// `components/admin/produtos/`. A validação roda no navegador antes do envio e leva
 // até o primeiro campo com erro.
 
 const form = defineModel<ProductFormState>("form", { required: true });

@@ -13,8 +13,8 @@ import type {
 import {
   apiErrorMessage,
   FIELD_IDS,
-} from "@/utils/produtos/produtoFormConstantes";
-import { listUploadStates } from "@/utils/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormConstantes";
+import { listUploadStates } from "@/utils/admin/produtos/produtoFormEstado";
 import { computed, nextTick, ref, type Ref } from "vue";
 import { useRouter } from "vue-router";
 

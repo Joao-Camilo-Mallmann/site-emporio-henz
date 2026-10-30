@@ -6,10 +6,10 @@ import {
   ERROR_TEXT_CLASS,
   fieldClass,
   keyValueFieldId,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   createKeyValueRow,
-} from "@/utils/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormEstado";
 
 // Editor de pares chave/valor, usado nas especificações técnicas do produto
 // e nos detalhes de acabamento das variações (design D10). Linhas vazias são

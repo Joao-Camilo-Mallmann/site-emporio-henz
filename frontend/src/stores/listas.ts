@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/auth";
 import type { SavedItem, UserList } from "@/types";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
@@ -64,6 +65,10 @@ export const useListasStore = defineStore("listas", () => {
   const isManageModalOpen = ref(false);
   const activeProductToSave = ref<ActiveProductToSave | null>(null);
   const selectedListIdForManage = ref<string | null>(null);
+  // Convite de login para visitantes (PRD UC04, fluxo A1)
+  const isLoginPromptOpen = ref(false);
+  const pendingProductToSave = ref<ActiveProductToSave | null>(null);
+  const authStore = useAuthStore();
 
   // Inicializa o estado a partir do localStorage
   function initLists(): void {
@@ -120,8 +125,21 @@ export const useListasStore = defineStore("listas", () => {
   // Inicializa imediatamente
   initLists();
 
+  // Retoma o salvamento pendente assim que o visitante se autentica
+  watch(
+    () => authStore.isAuthenticated,
+    (isAuthenticated) => {
+      if (!isAuthenticated || !pendingProductToSave.value) return;
+      const product = pendingProductToSave.value;
+      pendingProductToSave.value = null;
+      isLoginPromptOpen.value = false;
+      openSaveModal(product);
+    },
+  );
+
   // Getters
   const totalSavedCount = computed(() => {
+    if (!authStore.isAuthenticated) return 0;
     const uniqueProductIds = new Set<string>();
     for (const list of lists.value) {
       for (const item of list.items) {
@@ -149,6 +167,7 @@ export const useListasStore = defineStore("listas", () => {
   }
 
   function isProductSavedAnywhere(productId: string): boolean {
+    if (!authStore.isAuthenticated) return false;
     return lists.value.some((list) =>
       list.items.some((item) => item.productId === productId),
     );
@@ -162,6 +181,11 @@ export const useListasStore = defineStore("listas", () => {
 
   // Modais
   function openSaveModal(product: ActiveProductToSave): void {
+    if (!authStore.isAuthenticated) {
+      pendingProductToSave.value = { ...product };
+      isLoginPromptOpen.value = true;
+      return;
+    }
     activeProductToSave.value = { ...product };
     isSaveModalOpen.value = true;
   }
@@ -171,7 +195,17 @@ export const useListasStore = defineStore("listas", () => {
     activeProductToSave.value = null;
   }
 
+  // Fecha o convite; mantém o produto pendente só quando o visitante segue para o login
+  function closeLoginPrompt(keepPending = false): void {
+    isLoginPromptOpen.value = false;
+    if (!keepPending) pendingProductToSave.value = null;
+  }
+
   function openManageModal(targetListId?: string): void {
+    if (!targetListId && !authStore.isAuthenticated) {
+      isLoginPromptOpen.value = true;
+      return;
+    }
     if (targetListId) {
       selectedListIdForManage.value = targetListId;
     } else {
@@ -288,6 +322,8 @@ export const useListasStore = defineStore("listas", () => {
     isManageModalOpen,
     activeProductToSave,
     selectedListIdForManage,
+    isLoginPromptOpen,
+    pendingProductToSave,
     totalSavedCount,
     systemLists,
     customLists,
@@ -299,6 +335,7 @@ export const useListasStore = defineStore("listas", () => {
     getListsContainingProduct,
     openSaveModal,
     closeSaveModal,
+    closeLoginPrompt,
     openManageModal,
     closeManageModal,
     addItemToList,

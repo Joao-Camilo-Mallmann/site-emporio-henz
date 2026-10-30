@@ -15,12 +15,12 @@ import { Icon } from "@iconify/vue";
 import { computed, ref } from "vue";
 import {
   UPLOAD_STATE_META,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   coverPhotoKey,
   createPhotoItem,
   variationLabel,
-} from "@/utils/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormEstado";
 
 // Fotos do produto: seleção múltipla com preview local (object URL, sem
 // Base64), associação opcional a uma variação, ordem de envio, indicação da

@@ -4,7 +4,7 @@ import {
   availabilityLabel,
   formatCurrencyBRL,
   formatDimensions,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import { toApiAssetUrl } from "@/utils/uploads";
 import { Icon } from "@iconify/vue";
 import { computed } from "vue";

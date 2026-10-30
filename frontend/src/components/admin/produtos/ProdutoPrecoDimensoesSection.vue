@@ -10,8 +10,8 @@ import {
   INSTALLMENTS_MAX,
   INSTALLMENTS_MIN,
   LABEL_CLASS,
-} from "@/utils/produtos/produtoFormConstantes";
-import { formatMmAsCm } from "@/utils/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormConstantes";
+import { formatMmAsCm } from "@/utils/admin/produtos/produtoFormEstado";
 
 // Etapas 2 e 3 do formulário de produto, como dois cartões irmãos. Etapa 2:
 // preço de referência, parcelas, disponibilidade e, só sob encomenda, o prazo

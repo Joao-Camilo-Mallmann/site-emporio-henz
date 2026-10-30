@@ -1,56 +1,13 @@
 <script setup lang="ts">
 import HeroBannerDesktop from "@/components/home/HeroBannerDesktop.vue";
 import HeroBannerMobile from "@/components/home/HeroBannerMobile.vue";
-import { useListasStore } from "@/stores/listas";
+import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
+import type { CatalogProductItem } from "@/types";
 import { Icon } from "@iconify/vue";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-const listasStore = useListasStore();
 
 const hoveredCategory = ref<string | null>(null);
 const selectedCategory = ref<string>("");
-const selectedFinishes = ref<Record<string, string>>({});
-
-function handleSaveProduct(item: ProductItem) {
-  const finishColor = selectedFinishes.value[item.id];
-  const finish = item.finishes.find((f) => f.color === finishColor) || item.finishes[0];
-
-  listasStore.openSaveModal({
-    productId: item.id,
-    productSlug: item.slug,
-    name: item.name,
-    price: item.price,
-    image: item.image,
-    finishLabel: finish?.label,
-    finishColor: finish?.color,
-  });
-}
-
-function selectFinish(productId: string, color: string) {
-  selectedFinishes.value[productId] = color;
-}
-
-function goToProduct(identifier: string) {
-  router.push(`/produtos/${identifier}`);
-}
-
-interface FinishColor {
-  color?: string;
-  label?: string;
-}
-
-interface ProductItem {
-  id: string;
-  slug: string;
-  name: string;
-  price: number;
-  installments: string;
-  image: string;
-  finishes: FinishColor[];
-  extraFinishesCount?: number;
-}
 
 interface CategoryItem {
   id: string;
@@ -100,10 +57,11 @@ const categories: CategoryItem[] = [
 ];
 
 // Destaques conforme Figma e catálogo mockado (p-12, p-9, p-10, p-11)
-const destaques: ProductItem[] = [
+const destaques: CatalogProductItem[] = [
   {
     id: "p-12",
     slug: "cristaleira-liara",
+    category: "sala-de-jantar",
     name: "Cristaleira Liara",
     price: 1900,
     installments: "Até 10x no cartão",
@@ -113,6 +71,7 @@ const destaques: ProductItem[] = [
   {
     id: "p-9",
     slug: "mesa-de-centro-petala",
+    category: "sala-de-estar",
     name: "Mesa de Centro Pétala",
     price: 720,
     installments: "Até 10x no cartão",
@@ -122,11 +81,11 @@ const destaques: ProductItem[] = [
       { color: "#EFC171", label: "Mel" },
       { color: "#D7D5CF", label: "Off White" },
     ],
-    extraFinishesCount: 2,
   },
   {
     id: "p-10",
     slug: "home-ripado-supremo",
+    category: "sala-de-estar",
     name: "Home Ripado Supremo",
     price: 1550,
     installments: "Até 10x no cartão",
@@ -139,6 +98,7 @@ const destaques: ProductItem[] = [
   {
     id: "p-11",
     slug: "poltrona-tissi",
+    category: "sala-de-estar",
     name: "Poltrona Tissi",
     price: 2370,
     installments: "Até 10x no cartão",
@@ -152,10 +112,11 @@ const destaques: ProductItem[] = [
 ];
 
 // Seção "Você também pode gostar" conforme footer.png e catálogo mockado (p-4, p-2, p-8, p-7)
-const recomendados: ProductItem[] = [
+const recomendados: CatalogProductItem[] = [
   {
     id: "p-4",
     slug: "roupeiro-milano",
+    category: "quarto",
     name: "Roupeiro Milano",
     price: 4900,
     installments: "Até 10x no cartão",
@@ -168,6 +129,7 @@ const recomendados: ProductItem[] = [
   {
     id: "p-2",
     slug: "roupeiro-veneza",
+    category: "quarto",
     name: "Roupeiro Veneza",
     price: 7300,
     installments: "Até 10x no cartão",
@@ -180,6 +142,7 @@ const recomendados: ProductItem[] = [
   {
     id: "p-8",
     slug: "comoda-italia",
+    category: "quarto",
     name: "Cômoda Itália",
     price: 1500,
     installments: "Até 10x no cartão",
@@ -192,6 +155,7 @@ const recomendados: ProductItem[] = [
   {
     id: "p-7",
     slug: "cabeceira-italia",
+    category: "quarto",
     name: "Cabeceira Itália",
     price: 550,
     installments: "Até 10x no cartão",
@@ -306,98 +270,11 @@ const recomendados: ProductItem[] = [
 
       <!-- Grid de 4 Cards de Produto com Hover Elevado e Navegação para Detalhes -->
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div
+        <CatalogoProdutoCard
           v-for="item in destaques"
           :key="item.id"
-          role="link"
-          tabindex="0"
-          @click="goToProduct(item.slug || item.id)"
-          @keydown.enter="goToProduct(item.slug || item.id)"
-          class="bg-white rounded-2xl shadow-[0px_4px_14px_rgba(0,0,0,0.05)] border border-stone-200/70 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col group cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary/50"
-        >
-          <!-- Imagem e Seletor de Acabamentos -->
-          <div
-            class="relative aspect-[4/3] sm:aspect-square w-full bg-stone-100 overflow-hidden rounded-t-2xl"
-          >
-            <img
-              :src="item.image"
-              :alt="item.name"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out select-none"
-            />
-
-            <!-- Botão Flutuante de Salvar/Favoritar -->
-            <UiButton
-              variant="ghost"
-              size="icon"
-              class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/85 hover:bg-white backdrop-blur-xs flex items-center justify-center text-stone-600 hover:text-rose-500 transition-all duration-200 shadow-sm hover:scale-110 cursor-pointer z-10 p-0 border-none"
-              @click.stop.prevent="handleSaveProduct(item)"
-              :title="
-                listasStore.isProductSavedAnywhere(item.id)
-                  ? 'Móvel salvo nas suas listas'
-                  : 'Salvar móvel em uma lista'
-              "
-              :aria-label="
-                listasStore.isProductSavedAnywhere(item.id)
-                  ? 'Móvel salvo nas suas listas'
-                  : 'Salvar móvel em uma lista'
-              "
-            >
-              <Icon
-                icon="mdi:heart"
-                class="w-4 h-4 transition-colors"
-                :class="
-                  listasStore.isProductSavedAnywhere(item.id)
-                    ? 'fill-rose-500 text-rose-500'
-                    : 'fill-transparent text-stone-600 group-hover:text-rose-500'
-                "
-              />
-            </UiButton>
-
-            <!-- Pílula de Acabamentos Flutuante no Canto Inferior Direito (Figma node #2:941) -->
-            <div
-              v-if="item.finishes.length"
-              class="absolute bottom-3 right-3 bg-neutral-dark/80 backdrop-blur-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/30 shadow-sm z-10"
-            >
-              <span
-                v-for="(finish, idx) in item.finishes"
-                :key="idx"
-                @click.stop.prevent="selectFinish(item.id, finish.color || '')"
-                class="w-4 h-4 rounded-full border border-white inline-block shrink-0 shadow-xs hover:scale-125 transition-all duration-150 cursor-pointer"
-                :class="{
-                  'ring-2 ring-white scale-110':
-                    selectedFinishes[item.id] === finish.color,
-                }"
-                :style="{ backgroundColor: finish.color || '#A58D63' }"
-                :title="finish.label"
-              ></span>
-              <span
-                v-if="item.extraFinishesCount"
-                class="text-[11px] font-medium text-white px-0.5 select-none"
-              >
-                +{{ item.extraFinishesCount }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Informações de Nome e Preço -->
-          <div class="p-4 flex-1 flex flex-col justify-between space-y-2">
-            <h3
-              class="text-neutral-dark text-[15px] font-medium leading-tight line-clamp-1 group-hover:text-secondary transition-colors"
-            >
-              {{ item.name }}
-            </h3>
-
-            <div class="space-y-0.5">
-              <div class="text-2xl font-bold text-secondary tracking-tight">
-                R$ {{ item.price.toLocaleString("pt-BR")
-                }}<span class="text-sm font-bold align-top">,00</span>
-              </div>
-              <p class="text-xs text-secondary/80 font-normal">
-                {{ item.installments }}
-              </p>
-            </div>
-          </div>
-        </div>
+          :product="item"
+        />
       </div>
     </section>
 
@@ -423,92 +300,11 @@ const recomendados: ProductItem[] = [
 
       <!-- Grid de 4 Cards de Produto (footer.png) com Navegação para Detalhes -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div
+        <CatalogoProdutoCard
           v-for="item in recomendados"
           :key="item.id"
-          role="link"
-          tabindex="0"
-          @click="goToProduct(item.slug || item.id)"
-          @keydown.enter="goToProduct(item.slug || item.id)"
-          class="bg-white rounded-2xl shadow-[0px_4px_14px_rgba(0,0,0,0.05)] border border-stone-200/70 overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col group cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary/50"
-        >
-          <!-- Imagem e Acabamentos -->
-          <div
-            class="relative aspect-[4/3] sm:aspect-square w-full bg-stone-100 overflow-hidden rounded-t-2xl"
-          >
-            <img
-              :src="item.image"
-              :alt="item.name"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out select-none"
-            />
-
-            <!-- Botão Flutuante de Salvar/Favoritar -->
-            <UiButton
-              variant="ghost"
-              size="icon"
-              class="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/85 hover:bg-white backdrop-blur-xs flex items-center justify-center text-stone-600 hover:text-rose-500 transition-all duration-200 shadow-sm hover:scale-110 cursor-pointer z-10 p-0 border-none"
-              @click.stop.prevent="handleSaveProduct(item)"
-              :title="
-                listasStore.isProductSavedAnywhere(item.id)
-                  ? 'Móvel salvo nas suas listas'
-                  : 'Salvar móvel em uma lista'
-              "
-              :aria-label="
-                listasStore.isProductSavedAnywhere(item.id)
-                  ? 'Móvel salvo nas suas listas'
-                  : 'Salvar móvel em uma lista'
-              "
-            >
-              <Icon
-                icon="mdi:heart"
-                class="w-4 h-4 transition-colors"
-                :class="
-                  listasStore.isProductSavedAnywhere(item.id)
-                    ? 'fill-rose-500 text-rose-500'
-                    : 'fill-transparent text-stone-600 group-hover:text-rose-500'
-                "
-              />
-            </UiButton>
-
-            <!-- Pílula de Acabamentos -->
-            <div
-              v-if="item.finishes.length"
-              class="absolute bottom-3 right-3 bg-neutral-dark/80 backdrop-blur-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 border border-white/30 shadow-sm z-10"
-            >
-              <span
-                v-for="(finish, idx) in item.finishes"
-                :key="idx"
-                @click.stop.prevent="selectFinish(item.id, finish.color || '')"
-                class="w-4 h-4 rounded-full border border-white inline-block shrink-0 shadow-xs hover:scale-125 transition-all duration-150 cursor-pointer"
-                :class="{
-                  'ring-2 ring-white scale-110':
-                    selectedFinishes[item.id] === finish.color,
-                }"
-                :style="{ backgroundColor: finish.color || '#A58D63' }"
-                :title="finish.label"
-              ></span>
-            </div>
-          </div>
-
-          <!-- Informações de Nome e Preço -->
-          <div class="p-4 flex-1 flex flex-col justify-between space-y-2">
-            <h3
-              class="text-neutral-dark text-[15px] font-medium leading-tight line-clamp-1 group-hover:text-secondary transition-colors"
-            >
-              {{ item.name }}
-            </h3>
-
-            <div class="space-y-0.5">
-              <div class="text-2xl font-bold text-secondary tracking-tight">
-                R$ {{ item.price.toLocaleString("pt-BR")
-                }}<span class="text-sm font-bold align-top">,00</span>
-              </div>
-              <p class="text-xs text-secondary/80 font-normal">
-                {{ item.installments }}
-              </p>
-            </div>
-          </div>
-        </div>
+          :product="item"
+        />
       </div>
     </section>
   </div>

@@ -10,7 +10,7 @@ import type {
 } from "@/types";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { apiErrorMessage } from "@/utils/produtos/produtoFormConstantes";
+import { apiErrorMessage } from "@/utils/admin/produtos/produtoFormConstantes";
 
 type StatusFilter = "" | "active" | "inactive";
 

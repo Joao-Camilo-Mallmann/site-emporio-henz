@@ -14,7 +14,7 @@ import {
   LABEL_CLASS,
   UPLOAD_STATE_META,
   variationFieldId,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 
 // Amostra de textura de uma variação: arquivo novo (com estado de envio) ou
 // amostra já publicada na edição.

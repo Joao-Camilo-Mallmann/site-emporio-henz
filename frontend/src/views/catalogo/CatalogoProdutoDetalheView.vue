@@ -4,16 +4,14 @@ import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import { produtosApi } from "@/api";
 import { useListasStore } from "@/stores/listas";
+import { storeSiteUrl, storeWhatsappUrl } from "@/utils/phone";
 import type {
   ProductDetail,
   ProductVariationItem,
   CatalogProductItem,
 } from "@/types";
-import ProductGallery from "@/components/produto/ProductGallery.vue";
-import ProductFinishesSelector from "@/components/produto/ProductFinishesSelector.vue";
-import ProductShowroomCard from "@/components/produto/ProductShowroomCard.vue";
-import ProductSpecsTable from "@/components/produto/ProductSpecsTable.vue";
-import CatalogProductCard from "@/components/catalogo/CatalogProductCard.vue";
+import CatalogoProdutoGaleria from "@/components/catalogo/produto/CatalogoProdutoGaleria.vue";
+import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -93,6 +91,11 @@ function onVariationChange(variation: ProductVariationItem) {
   }
 }
 
+function selectVariation(variation: ProductVariationItem) {
+  selectedVariationId.value = variation.id;
+  onVariationChange(variation);
+}
+
 function toggleFavorite() {
   if (!product.value) return;
 
@@ -130,24 +133,20 @@ async function handleShare() {
 
 function handleWhatsAppContact() {
   if (!product.value) return;
-  const whatsappNumber = "5551998981063";
-  const currentUrl = window.location.href;
+  const currentUrl = storeSiteUrl(route.fullPath);
   const finishName = selectedVariation.value?.name || "Padrão";
   const formattedPrice = `R$ ${formattedPriceParts.value.integer},${formattedPriceParts.value.cents}`;
   const message = `Olá! Gostaria de mais informações sobre o ${product.value.name} (Acabamento: ${finishName}) no valor de ${formattedPrice}.\n\nLink: ${currentUrl}`;
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    message
-  )}`;
-  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  window.open(storeWhatsappUrl(message), "_blank", "noopener,noreferrer");
 }
 
 function navigateToRelated(related: CatalogProductItem) {
   const identifier = related.slug || related.id;
-  router.push(`/produtos/${identifier}`);
+  router.push(`/catalogo/${identifier}`);
 }
 
 watch(
-  () => route.params.id,
+  () => route.params.slug,
   (newId) => {
     if (newId) {
       loadProduct(newId as string);
@@ -157,7 +156,7 @@ watch(
 );
 
 onMounted(() => {
-  const id = (route.params.id as string) || "p-1";
+  const id = (route.params.slug as string) || "p-1";
   loadProduct(id);
 });
 </script>
@@ -222,7 +221,7 @@ onMounted(() => {
       >
         <!-- Coluna Esquerda: Galeria de Fotos Interativa -->
         <div class="lg:col-span-7 w-full">
-          <ProductGallery
+          <CatalogoProdutoGaleria
             :images="product.images"
             v-model="activeImageIndex"
             :is-favorite="isFavorite"
@@ -259,12 +258,44 @@ onMounted(() => {
           </div>
 
           <!-- Seletor de Acabamentos -->
-          <ProductFinishesSelector
+          <div
             v-if="product.variations && product.variations.length > 0"
-            :variations="product.variations"
-            v-model="selectedVariationId"
-            @change="onVariationChange"
-          />
+            class="flex flex-col gap-2.5"
+          >
+            <div class="text-sm text-stone-700">
+              <span>Acabamento: </span>
+              <span class="font-bold text-neutral-dark">
+                {{ selectedVariation?.name || "Padrão" }}
+              </span>
+            </div>
+
+            <div
+              class="flex items-center gap-3"
+              role="radiogroup"
+              aria-label="Opções de acabamento"
+            >
+              <UiButton
+                v-for="variation in product.variations"
+                :key="variation.id"
+                variant="custom"
+                size="none"
+                role="radio"
+                :aria-checked="selectedVariation?.id === variation.id"
+                :aria-label="variation.name"
+                :title="variation.name"
+                class="w-9 h-9 sm:w-10 sm:h-10 rounded-full shrink-0 shadow-xs relative border border-black/10"
+                :class="
+                  selectedVariation?.id === variation.id
+                    ? 'ring-2 ring-secondary/80 ring-offset-2 ring-offset-white scale-105'
+                    : 'hover:border-black/25 hover:scale-105'
+                "
+                :style="{ backgroundColor: variation.colorHex || '#A58D63' }"
+                @click="selectVariation(variation)"
+              >
+                <span class="sr-only">{{ variation.name }}</span>
+              </UiButton>
+            </div>
+          </div>
 
           <!-- Bloco de Preço e Condições de Pagamento -->
           <div class="pt-1">
@@ -330,7 +361,41 @@ onMounted(() => {
 
           <!-- Card Oficial de Convite ao Showroom Físico (RF06) -->
           <div class="pt-2">
-            <ProductShowroomCard />
+            <div
+              class="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden flex flex-row items-stretch"
+            >
+              <div class="w-28 sm:w-36 shrink-0 relative bg-stone-100 overflow-hidden">
+                <img
+                  src="/images/products/amostras-showroom.webp"
+                  alt="Experimente as amostras"
+                  class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+
+              <div class="p-3.5 sm:p-5 flex flex-col justify-center flex-1">
+                <h4 class="text-neutral-dark font-bold text-sm sm:text-base leading-snug">
+                  Experimente as amostras
+                </h4>
+                <p class="text-stone-600 text-xs sm:text-sm mt-1 leading-relaxed">
+                  Visite nossa loja e conheça de perto a qualidade dos materiais
+                </p>
+                <div class="mt-2.5">
+                  <UiButton
+                    variant="custom"
+                    size="none"
+                    class="inline-flex items-center gap-1.5 text-secondary hover:text-secondary-hover font-semibold text-xs sm:text-sm transition-colors group"
+                    @click="router.push('/sobre-a-loja')"
+                  >
+                    <Icon
+                      icon="mdi:map-marker-outline"
+                      class="w-4 h-4 transition-transform group-hover:-translate-y-0.5 text-secondary"
+                    />
+                    <span>Ver localização</span>
+                  </UiButton>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -353,7 +418,32 @@ onMounted(() => {
 
         <!-- Tabela Técnica Zebrada -->
         <div class="max-w-4xl pt-2">
-          <ProductSpecsTable :specifications="product.specifications" />
+          <div
+            v-if="product.specifications && product.specifications.length > 0"
+            class="w-full overflow-hidden rounded-xl border border-stone-200 shadow-xs"
+          >
+            <table class="w-full text-left border-collapse">
+              <tbody>
+                <tr
+                  v-for="(spec, index) in product.specifications"
+                  :key="spec.label"
+                  class="transition-colors border-b border-stone-100 last:border-b-0"
+                  :class="index % 2 === 0 ? 'bg-white' : 'bg-stone-50'"
+                >
+                  <td
+                    class="py-3 px-4 sm:px-6 text-xs sm:text-sm font-medium text-stone-700 w-1/3 sm:w-1/4 align-top"
+                  >
+                    {{ spec.label }}
+                  </td>
+                  <td
+                    class="py-3 px-4 sm:px-6 text-xs sm:text-sm text-neutral-dark font-normal leading-relaxed align-top"
+                  >
+                    {{ spec.value }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -370,7 +460,7 @@ onMounted(() => {
         <div
           class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6"
         >
-          <CatalogProductCard
+          <CatalogoProdutoCard
             v-for="relProduct in product.relatedProducts"
             :key="relProduct.id"
             :product="relProduct"

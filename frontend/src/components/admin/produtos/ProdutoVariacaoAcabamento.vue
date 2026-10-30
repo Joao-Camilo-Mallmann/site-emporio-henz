@@ -8,11 +8,11 @@ import {
   fieldClass,
   LABEL_CLASS,
   variationFieldId,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   isHexColor,
   normalizeHexColor,
-} from "@/utils/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormEstado";
 
 // Aparência e disponibilidade de uma variação: cores, detalhes de acabamento
 // e estoque. Edita os campos direto no item recebido por `v-model`.

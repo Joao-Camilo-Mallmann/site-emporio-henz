@@ -14,6 +14,7 @@ Este diretório reúne a documentação de produto, planejamento e implementaç�
 | Escrever commits, abrir ou revisar Pull Requests | [Padrão de commits e PRs](./padrao-commits-e-pull-requests.md) |
 | Operar Docker, deploy ou backups | [Infraestrutura](./infra/README.md) |
 | Consultar materiais da apresentação | [Apresentação da Parcial 1](./slides/apresentacao-parcial-1.md) |
+| Registrar ou triar achados de usabilidade | [Feedback de usabilidade](./feedback-usabilidade/README.md) |
 
 ### Frontend
 

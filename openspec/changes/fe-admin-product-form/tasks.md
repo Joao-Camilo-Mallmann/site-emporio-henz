@@ -18,7 +18,7 @@
 
 ## 4. [FE] Tela de cadastro
 
-- [x] 4.1 Criar os módulos de `src/utils/produtos/` com os tipos do formulário, `createEmptyForm`, `validateForm` e `toCreatePayload` (design D3, D4 e D10)
+- [x] 4.1 Criar os módulos de `src/utils/admin/produtos/` com os tipos do formulário, `createEmptyForm`, `validateForm` e `toCreatePayload` (design D3, D4 e D10)
 - [x] 4.2 Criar `KeyValueEditor.vue` e `ColorSwatch.vue`
 - [x] 4.3 Criar `ProdutoVariacaoCard.vue` e `ProdutoVariacoesSection.vue`: incluir, mover e remover variações, cores com `<input type="color">` e texto hex, detalhes de acabamento, estoque e amostra com preview e validação
 - [x] 4.4 Criar `ProdutoFotosSection.vue`: seleção múltipla, preview local, recusa de arquivo inválido com mensagem, associação a variação, ordem, indicação de capa e estado do envio com "Tentar de novo"
@@ -42,7 +42,7 @@
 
 - [x] 7.1 Estender o contrato: `ProductListItemDto`, `ProductAdminFilterParams` e `PaginatedProductsResponse` em `src/types/products.ts`, e `existingSampleUrl` no `VariationFormItem`
 - [x] 7.2 Adicionar em `src/api/produtos.ts`: `listarAdmin`, `buscarDetalhe`, `removerFoto` e `removerAmostra`
-- [x] 7.3 Adicionar em `src/utils/produtos/`: `formFromProduct`, `toUpdatePayload`, `recordToRows` e os rótulos da listagem (`formatCurrencyBRL`, `availabilityLabel`, `formatDimensions`); enviar o `id` das variações no payload
+- [x] 7.3 Adicionar em `src/utils/admin/produtos/`: `formFromProduct`, `toUpdatePayload`, `recordToRows` e os rótulos da listagem (`formatCurrencyBRL`, `availabilityLabel`, `formatDimensions`); enviar o `id` das variações no payload
 - [x] 7.4 Criar `ProdutoListView.vue`: listagem paginada com busca, filtros por categoria, fornecedor, disponibilidade e status, miniatura da capa, estados de carga, erro e vazio, e desativação com confirmação
 - [x] 7.5 Criar `ProdutoEditView.vue`: carga do produto, `PUT /produtos/:id`, envio dos arquivos novos em sequência e exclusão imediata de foto, amostra e produto, cada uma com confirmação
 - [x] 7.6 Estender `ProdutoForm.vue`, `ProdutoFotosSection.vue`, `ProdutoVariacoesSection.vue` e `ProdutoVariacaoCard.vue` com `submitLabel`, as fotos já publicadas e a amostra já publicada
@@ -51,7 +51,7 @@
 - [x] 7.9 Frontend: `bun run lint`, `bun run check-types` e `bun run build` em `frontend/`
 - [x] 7.10 Atualizar a especificação técnica da US-FE-08 no backlog com as telas de listagem e edição
 - [x] 7.11 Transformar o `ProdutoForm.vue` em formulário em etapas: indicador de etapas, "Voltar" e "Próximo" com validação por etapa, `fieldStep` para abrir a etapa do primeiro erro e etapas livres na edição (design D2)
-- [x] 7.12 Componentizar as telas de produto em `src/components/produtos/`, com o composable `useProdutoEnvioArquivos` para o envio comum ao cadastro e à edição, e nenhum arquivo acima de 500 linhas
+- [x] 7.12 Componentizar as telas de produto em `src/components/admin/produtos/`, com o composable `useProdutoEnvioArquivos` para o envio comum ao cadastro e à edição, e nenhum arquivo acima de 500 linhas
 - [x] 7.13 Criar o componente global `UiSelect` e trocar por ele todos os `<select>` do frontend
 - [x] 7.14 Reorganizar o módulo de produto para todos os arquivos ficarem entre 150 e 500 linhas, com `ProdutoTelaLayout`, `ProdutoFormNavegacao`, `ProdutoPrecoDimensoesSection`, `ProdutoVariacaoAcabamento`, `ProdutoVariacaoAmostra`, `ProdutoListCabecalho` e `ProdutoListTabela`
 - [x] 7.15 Corrigir os achados do code review: `PUT` com `null`/`{}` para limpar campos opcionais (`toUpdatePayload`), categoria e subtipo inativos do produto mantidos na edição, carga de opções e erro 409 compartilhados em `useProdutoTela`, rolagem do painel por callback explícito, validação calculada uma vez por mudança e mensagem de erro única na listagem

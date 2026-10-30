@@ -805,7 +805,7 @@ O formulário deve ser organizado por etapas ou seções lógicas:
 
 Apresenta o catálogo público da Empório Henz conforme o layout do Figma. Possui sidebar lateral no desktop e botão de filtros em gaveta no mobile. Cada card de produto exibe foto principal nítida, selo de pronta entrega ou prazo em dias, preço de referência, acabamentos disponíveis e botão para ver detalhes.
 
-#### 🎨 Especificação Técnica (`frontend/src/views/CatalogoView.vue`)
+#### 🎨 Especificação Técnica (`frontend/src/views/catalogo/CatalogoView.vue`)
 
 - Componente de barra lateral com checkboxes de categorias, opções de disponibilidade e slider de preço.
 - Grid de cards responsivo (1 coluna mobile, 2 tablet, 3-4 desktop).
@@ -859,7 +859,7 @@ Atende ao **RF06**. Elementos obrigatórios na tela:
 5. **Card de Convite Oficial**: Convidando o cliente a visitar a loja física em Cruzeiro do Sul para ver e tocar nas amostras reais de tecidos e madeiras.
 6. Botão para Salvar em Lista e Botão "Comprar pelo WhatsApp".
 
-#### 🎨 Especificação Técnica (`frontend/src/views/ProdutoDetalheView.vue`)
+#### 🎨 Especificação Técnica (`frontend/src/views/catalogo/CatalogoProdutoDetalheView.vue`)
 
 - Carrossel de imagens com suporte a toque/swipe em telas mobile.
 - Seletores de cor com hexadecimais estilizados.
@@ -1010,6 +1010,7 @@ No card de cada produto e na página de detalhes, o botão "Salvar" abre um moda
 - [x] O usuário consegue salvar qualquer produto em qualquer uma de suas listas.
 - [x] Criação e remoção de pastas personalizadas funciona de forma reativa.
 - [x] A exclusão das listas padrão do sistema é devidamente bloqueada na UI.
+- [x] Visitante não autenticado que clica em salvar recebe o convite para entrar ou se cadastrar, e o salvamento é retomado após o login (PRD UC04, A1).
 
 ---
 
@@ -1359,7 +1360,7 @@ Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por t
 
 - **Tipos** (`src/types/pagination.ts`): `PaginationParams`, `PaginationMeta` e `Paginated<T>`, espelhando `backend/src/lib/pagination.ts`. Os `Paginated*Response` viram aliases e os `*FilterParams` estendem `PaginationParams`, sem mudar os nomes exportados.
 - **Componente** (`src/components/ui/UiPagination.vue`): props `page`, `totalPages`, `total?`, `itemLabel?` (padrão `"registros"`) e `disabled?`, evento `update:page`, declaradas em `UiPaginationProps` (`src/types/components.ts`). Usa só `UiButton`, `aria-current="page"` e tokens do design system.
-- **Consumidores**: as três `*ListView.vue` do admin e `src/views/CatalogoView.vue` passam a usar `<UiPagination>`; o estado e as funções de carga das views não mudam.
+- **Consumidores**: as três `*ListView.vue` do admin e `src/views/catalogo/CatalogoView.vue` passam a usar `<UiPagination>`; o estado e as funções de carga das views não mudam.
 - **Documentação**: seção "Paginação de listagens" em `frontend/agents.md` e `UiPagination` em `docs/frontend/README.md`.
 
 #### ✅ Critérios de Aceitação

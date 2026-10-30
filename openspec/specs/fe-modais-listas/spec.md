@@ -76,7 +76,7 @@ The system MUST provide in Level 2 of `MinhasListasModal.vue` actions to copy th
 ---
 
 ### Requirement: Integração dos Disparadores Globais na Interface
-The global interface MUST connect the save buttons in `CatalogProductCard.vue`, `HomeView.vue`, `ProdutoDetalheView.vue`, and the "Salvos" links in `AppNavbar.vue` to the respective modal states.
+The global interface MUST connect the save buttons in `CatalogoProdutoCard.vue`, `HomeView.vue`, `ProdutoDetalheView.vue`, and the "Salvos" links in `AppNavbar.vue` to the respective modal states.
 
 #### Scenario: Clique no botão Salvos na Navbar
 - **WHEN** o usuário clica em "Salvos" na navbar desktop, drawer mobile ou menu de usuário

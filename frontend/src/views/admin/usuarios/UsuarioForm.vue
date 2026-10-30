@@ -5,9 +5,9 @@ import {
   type UserCreateInput,
   type UserUpdateInput,
 } from "@/types";
-import { Icon } from "@iconify/vue";
-import { computed, reactive, ref, watch } from "vue";
 import { formatPhone, maskPhoneInput } from "@/utils/phone";
+import { Icon } from "@iconify/vue";
+import { reactive, ref, watch } from "vue";
 
 interface Props {
   initialData?: Partial<IUser>;
@@ -58,71 +58,13 @@ const formErrors = reactive({
   role: "",
 });
 
-// Requisitos de Senha Segura
-const passwordCriteria = computed(() => {
-  const p = form.password || "";
-  return [
-    { id: "length", label: "Mínimo de 8 caracteres", met: p.length >= 8 },
-    {
-      id: "uppercase",
-      label: "Pelo menos uma letra maiúscula (A-Z)",
-      met: /[A-Z]/.test(p),
-    },
-    {
-      id: "lowercase",
-      label: "Pelo menos uma letra minúscula (a-z)",
-      met: /[a-z]/.test(p),
-    },
-    {
-      id: "number",
-      label: "Pelo menos um número (0-9)",
-      met: /[0-9]/.test(p),
-    },
-    {
-      id: "special",
-      label: "Pelo menos um caractere especial (!@#$%...)",
-      met: /[^A-Za-z0-9]/.test(p),
-    },
-  ];
-});
+// Preenchido pelo PasswordStrengthPanel via v-model:valid
+const isPasswordSecure = ref(false);
 
-const passwordStrengthScore = computed(() => {
-  if (!form.password) return 0;
-  return passwordCriteria.value.filter((c) => c.met).length;
-});
-
-const isPasswordSecure = computed(() => {
-  return passwordCriteria.value.every((c) => c.met);
-});
-
-const passwordStrengthFeedback = computed(() => {
-  const score = passwordStrengthScore.value;
-  if (score === 0) {
-    return {
-      label: "",
-      colorClass: "text-stone-400",
-      barColor: "bg-stone-200",
-    };
-  }
-  if (score <= 2) {
-    return {
-      label: "Senha Fraca",
-      colorClass: "text-rose-600",
-      barColor: "bg-rose-500",
-    };
-  }
-  if (score <= 4) {
-    return {
-      label: "Senha Razoável",
-      colorClass: "text-amber-600",
-      barColor: "bg-amber-500",
-    };
-  }
-  return {
-    label: "Senha Forte e Segura",
-    colorClass: "text-emerald-600",
-    barColor: "bg-emerald-500",
-  };
+watch(isPasswordSecure, (secure) => {
+  if (!secure) return;
+  formErrors.password = "";
+  formErrors.confirmPassword = "";
 });
 
 watch(
@@ -161,7 +103,8 @@ function validateEmail(value: string): boolean {
     return false;
   }
   if (!EMAIL_REGEX.test(value.trim().toLowerCase())) {
-    formErrors.email = "Informe um endereço de e-mail válido (ex.: usuario@dominio.com).";
+    formErrors.email =
+      "Informe um endereço de e-mail válido (ex.: usuario@dominio.com).";
     return false;
   }
   formErrors.email = "";
@@ -175,8 +118,12 @@ function handleEmailInput() {
 }
 
 function handlePasswordInput() {
-  if (formErrors.password && isPasswordSecure.value) {
+  // Na edição, apagar a nova senha descarta a redefinição
+  if (props.isEditing && !form.password) {
+    form.confirmPassword = "";
     formErrors.password = "";
+    formErrors.confirmPassword = "";
+    return;
   }
   if (formErrors.confirmPassword && form.password === form.confirmPassword) {
     formErrors.confirmPassword = "";
@@ -208,23 +155,23 @@ function validate(): boolean {
     if (!form.password) {
       formErrors.password = "A senha de acesso é obrigatória.";
       valid = false;
+    } else if (form.password !== form.confirmPassword) {
+      formErrors.confirmPassword = "A confirmação da senha não coincide.";
+      valid = false;
     } else if (!isPasswordSecure.value) {
       formErrors.password =
         "A senha deve cumprir todos os requisitos de segurança abaixo.";
-      valid = false;
-    } else if (form.password !== form.confirmPassword) {
-      formErrors.confirmPassword = "A confirmação da senha não coincide.";
       valid = false;
     }
   } else {
     // Na edição, a senha é opcional: valida apenas se digitada
     if (form.password) {
-      if (!isPasswordSecure.value) {
+      if (form.password !== form.confirmPassword) {
+        formErrors.confirmPassword = "A confirmação da senha não coincide.";
+        valid = false;
+      } else if (!isPasswordSecure.value) {
         formErrors.password =
           "A nova senha deve cumprir todos os requisitos de segurança abaixo.";
-        valid = false;
-      } else if (form.password !== form.confirmPassword) {
-        formErrors.confirmPassword = "A confirmação da senha não coincide.";
         valid = false;
       }
     }
@@ -232,7 +179,8 @@ function validate(): boolean {
 
   const phoneDigits = form.phone.replace(/\D/g, "");
   if (phoneDigits.length > 0 && phoneDigits.length < 10) {
-    formErrors.phone = "Informe o telefone completo com DDD (10 ou 11 dígitos).";
+    formErrors.phone =
+      "Informe o telefone completo com DDD (10 ou 11 dígitos).";
     valid = false;
   }
 
@@ -347,13 +295,23 @@ defineExpose({
           <Icon icon="mdi:lock-outline" class="w-4 h-4" />
         </div>
       </div>
-      <p v-if="formErrors.email" class="mt-1 text-xs text-rose-600 flex items-center gap-1">
+      <p
+        v-if="formErrors.email"
+        class="mt-1 text-xs text-rose-600 flex items-center gap-1"
+      >
         <Icon icon="mdi:alert-circle-outline" class="w-3.5 h-3.5" />
         <span>{{ formErrors.email }}</span>
       </p>
-      <span v-if="isEditing" class="text-xs text-stone-500 mt-1 flex items-center gap-1">
-        <Icon icon="mdi:information-outline" class="w-3.5 h-3.5 text-stone-400" />
-        O e-mail é a credencial única de acesso da conta e não pode ser modificado.
+      <span
+        v-if="isEditing"
+        class="text-xs text-stone-500 mt-1 flex items-center gap-1"
+      >
+        <Icon
+          icon="mdi:information-outline"
+          class="w-3.5 h-3.5 text-stone-400"
+        />
+        O e-mail é a credencial única de acesso da conta e não pode ser
+        modificado.
       </span>
     </div>
 
@@ -412,7 +370,10 @@ defineExpose({
             <Icon icon="mdi:phone-check-outline" class="w-4 h-4" />
           </div>
         </div>
-        <p v-if="formErrors.phone" class="mt-1 text-xs text-rose-600 flex items-center gap-1">
+        <p
+          v-if="formErrors.phone"
+          class="mt-1 text-xs text-rose-600 flex items-center gap-1"
+        >
           <Icon icon="mdi:alert-circle-outline" class="w-3.5 h-3.5" />
           <span>{{ formErrors.phone }}</span>
         </p>
@@ -488,72 +449,13 @@ defineExpose({
         </button>
       </div>
 
-      <p v-if="formErrors.password" class="mt-1 text-xs text-rose-600 flex items-center gap-1">
+      <p
+        v-if="formErrors.password"
+        class="mt-1 text-xs text-rose-600 flex items-center gap-1"
+      >
         <Icon icon="mdi:alert-circle-outline" class="w-3.5 h-3.5 shrink-0" />
         <span>{{ formErrors.password }}</span>
       </p>
-
-      <!-- Painel de Requisitos e Força da Senha (Exibido na criação ou quando digitada na edição) -->
-      <div
-        v-if="!isEditing || form.password"
-        class="mt-3 p-3.5 rounded-lg bg-stone-50 border border-stone-200/80 space-y-3"
-      >
-        <!-- Barra de Força da Senha -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-medium text-stone-600 flex items-center gap-1.5">
-              <Icon icon="mdi:shield-check-outline" class="w-3.5 h-3.5 text-stone-500" />
-              Nível de Segurança:
-            </span>
-            <span
-              class="font-semibold"
-              :class="passwordStrengthFeedback.colorClass"
-            >
-              {{ passwordStrengthFeedback.label || "Não definida" }}
-            </span>
-          </div>
-
-          <!-- Medidor visual de 5 blocos -->
-          <div class="grid grid-cols-5 gap-1.5 h-1.5 w-full">
-            <div
-              v-for="index in 5"
-              :key="index"
-              class="rounded-full transition-all duration-300"
-              :class="
-                index <= passwordStrengthScore
-                  ? passwordStrengthFeedback.barColor
-                  : 'bg-stone-200'
-              "
-            ></div>
-          </div>
-        </div>
-
-        <!-- Checklist de Critérios de Senha Segura -->
-        <div>
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-500 block mb-2">
-            Requisitos para uma Senha Segura:
-          </span>
-          <ul class="space-y-1.5">
-            <li
-              v-for="criteria in passwordCriteria"
-              :key="criteria.id"
-              class="flex items-center gap-2 text-xs transition-colors duration-200"
-              :class="criteria.met ? 'text-emerald-700 font-medium' : 'text-stone-500'"
-            >
-              <Icon
-                :icon="
-                  criteria.met
-                    ? 'mdi:check-circle'
-                    : 'mdi:checkbox-blank-circle-outline'
-                "
-                class="w-3.5 h-3.5 shrink-0 transition-transform duration-200"
-                :class="criteria.met ? 'text-emerald-600 scale-110' : 'text-stone-400'"
-              />
-              <span>{{ criteria.label }}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
 
       <!-- Confirmação de Senha (Visível na criação ou quando digitada na edição) -->
       <div v-if="!isEditing || form.password" class="mt-4">
@@ -586,9 +488,7 @@ defineExpose({
           >
             <Icon
               :icon="
-                showConfirmPassword
-                  ? 'mdi:eye-off-outline'
-                  : 'mdi:eye-outline'
+                showConfirmPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'
               "
               class="w-4 h-4"
             />
@@ -602,6 +502,15 @@ defineExpose({
           <span>{{ formErrors.confirmPassword }}</span>
         </p>
       </div>
+
+      <!-- Painel de Requisitos e Força da Senha (Exibido na criação ou quando digitada na edição) -->
+      <PasswordStrengthPanel
+        v-if="!isEditing || form.password"
+        v-model:valid="isPasswordSecure"
+        :password="form.password"
+        :confirm-password="form.confirmPassword"
+        class="mt-3"
+      />
     </div>
 
     <!-- Barra de Ações com UiButton -->
