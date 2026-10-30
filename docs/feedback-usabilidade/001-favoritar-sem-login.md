@@ -26,7 +26,7 @@ Pelo PRD, UC04 tem como pré-condição "Cliente autenticado no portal". O fluxo
 ## Notas técnicas
 
 - `frontend/src/stores/listas.ts`: `openSaveModal` abre o modal de destino sem checar `useAuthStore().isAuthenticated`. As listas vivem em `localStorage` (`emporio_henz_listas_v1`), sem vínculo com usuário, então qualquer visitante "salva".
-- `frontend/src/components/catalogo/CatalogProductCard.vue` (`handleSaveClick`) chama o store direto; o mesmo vale para `ProdutoDetalheView.vue` e `ProductGallery.vue`.
+- `frontend/src/components/catalogo/CatalogoProdutoCard.vue` (`handleSaveClick`) chama o store direto; o mesmo vale para `CatalogoProdutoDetalheView.vue` e `CatalogoProdutoGaleria.vue`.
 - Correção sugerida: verificar a sessão no `openSaveModal`, abrir o convite de login quando não houver, guardar o `activeProductToSave` e retomar o salvamento depois do login.
 - Conferir também se as listas já são persistidas na API por usuário. Se ainda não forem, o problema é maior que o guard de UI: os itens salvos não seguem o cliente entre dispositivos nem ficam visíveis para o vendedor (UC06).
 

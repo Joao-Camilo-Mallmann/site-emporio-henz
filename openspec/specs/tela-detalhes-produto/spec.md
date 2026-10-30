@@ -78,7 +78,7 @@ The view SHALL render a rich textual description of the furniture and a structur
 ---
 
 ### Requirement: Seção de Recomendações Você Também Pode Gostar
-The view SHALL render a related products section titled "Você também pode gostar" displaying 4 complementary furniture cards utilizing the canonical `<CatalogProductCard>` component.
+The view SHALL render a related products section titled "Você também pode gostar" displaying 4 complementary furniture cards utilizing the canonical `<CatalogoProdutoCard>` component.
 
 #### Scenario: Clique em um produto recomendado
 - **WHEN** o usuário clica em um card da seção "Você também pode gostar"

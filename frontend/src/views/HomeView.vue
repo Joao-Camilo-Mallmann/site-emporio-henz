@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import HeroBannerDesktop from "@/components/home/HeroBannerDesktop.vue";
 import HeroBannerMobile from "@/components/home/HeroBannerMobile.vue";
-import CatalogProductCard from "@/components/catalogo/CatalogProductCard.vue";
+import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
 import type { CatalogProductItem } from "@/types";
 import { Icon } from "@iconify/vue";
 import { ref } from "vue";
@@ -270,7 +270,7 @@ const recomendados: CatalogProductItem[] = [
 
       <!-- Grid de 4 Cards de Produto com Hover Elevado e Navegação para Detalhes -->
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <CatalogProductCard
+        <CatalogoProdutoCard
           v-for="item in destaques"
           :key="item.id"
           :product="item"
@@ -300,7 +300,7 @@ const recomendados: CatalogProductItem[] = [
 
       <!-- Grid de 4 Cards de Produto (footer.png) com Navegação para Detalhes -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <CatalogProductCard
+        <CatalogoProdutoCard
           v-for="item in recomendados"
           :key="item.id"
           :product="item"

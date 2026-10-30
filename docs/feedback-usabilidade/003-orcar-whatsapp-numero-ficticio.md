@@ -33,7 +33,7 @@ O botão abre a conversa com o WhatsApp oficial da loja, com a mensagem pré-pre
 
 - `frontend/src/data/contato.json` centraliza o WhatsApp da loja (`whatsapp`) e a URL pública (`siteUrl`).
 - `frontend/src/utils/phone.ts`: `storeWhatsappUrl(message)` monta o `wa.me` com o número oficial; `storeSiteUrl(path)` monta o link usando `siteUrl` ou, se vazio, a origem atual.
-- `MinhasListasModal.vue` usa `storeWhatsappUrl` e `storeSiteUrl` em "Orçar no WhatsApp" e "Copiar Link". `UiFloatingActions`, `AppFooter`, `AboutView` e `ProdutoDetalheView` leem o mesmo `contato.json`.
+- `MinhasListasModal.vue` usa `storeWhatsappUrl` e `storeSiteUrl` em "Orçar no WhatsApp" e "Copiar Link". `UiFloatingActions`, `AppFooter`, `AboutView` e `CatalogoProdutoDetalheView` leem o mesmo `contato.json`.
 - Pendente: publicar esta branch no servidor e repetir o roteiro acima, conferindo se a conversa abre com o número oficial.
 
 ## Print

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { FORM_SECTIONS } from "@/utils/produtos/produtoFormConstantes";
+import { FORM_SECTIONS } from "@/utils/admin/produtos/produtoFormConstantes";
 import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 

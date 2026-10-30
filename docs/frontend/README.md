@@ -76,7 +76,7 @@ A API devolve ao Vendedor só os produtos dos fornecedores vinculados, então as
 
 ### Arquivos
 
-As quatro telas ficam em `src/views/admin/produtos/` e cuidam do estado, das chamadas à API e da navegação. As partes visuais ficam em `src/components/produtos/`, resolvidas pelo auto-import. A lógica sem Vue fica em `src/utils/produtos/` e o envio de arquivos depois de salvar, comum ao cadastro e à edição, fica no composable `useProdutoTela`.
+As quatro telas ficam em `src/views/admin/produtos/` e cuidam do estado, das chamadas à API e da navegação. As partes visuais ficam em `src/components/admin/produtos/`, resolvidas pelo auto-import. A lógica sem Vue fica em `src/utils/admin/produtos/` e o envio de arquivos depois de salvar, comum ao cadastro e à edição, fica no composable `useProdutoTela`.
 
 | Arquivo | Papel |
 | --- | --- |
@@ -84,18 +84,18 @@ As quatro telas ficam em `src/views/admin/produtos/` e cuidam do estado, das cha
 | `src/types/productForm.ts` | Estado local do formulário: `ProductFormState`, `VariationFormItem`, `PhotoFormItem`, `KeyValueRow`, `UploadState`, `FieldErrors` |
 | `src/api/produtos.ts` | `listarAdmin`, `buscarDetalhe`, `criar`, `atualizar`, `deletar`, `enviarFoto`, `enviarAmostra`, `removerFoto` e `removerAmostra` (`listar` e `buscarPorId`, usadas pelo catálogo público, seguem com mock de fallback) |
 | `src/utils/uploads.ts` | `MAX_IMAGE_BYTES`, `ACCEPTED_IMAGE_TYPES`, `validateImageFile` e `toApiAssetUrl` |
-| `src/utils/produtos/` | Lógica pura do formulário, sem Vue: `produtoFormConstantes.ts` (ids de campo, rótulos, limites, formatadores da listagem e `apiErrorMessage`), `produtoFormEstado.ts` (criação, conversão de e para a API), e `produtoFormValidacao.ts`. Principais funções: `createEmptyForm`, `formFromProduct`, `validateForm`, `toCreatePayload`, `toUpdatePayload`, `resolveVariationIds`, ids dos campos e rótulos da listagem |
+| `src/utils/admin/produtos/` | Lógica pura do formulário, sem Vue: `produtoFormConstantes.ts` (ids de campo, rótulos, limites, formatadores da listagem e `apiErrorMessage`), `produtoFormEstado.ts` (criação, conversão de e para a API), e `produtoFormValidacao.ts`. Principais funções: `createEmptyForm`, `formFromProduct`, `validateForm`, `toCreatePayload`, `toUpdatePayload`, `resolveVariationIds`, ids dos campos e rótulos da listagem |
 | `src/views/admin/produtos/ProdutoListView.vue` | Listagem: filtros, paginação, miniatura da capa e desativação com confirmação |
 | `src/views/admin/produtos/ProdutoNewView.vue` | Casca do cadastro: carga das opções, regra do fornecedor por perfil e gravação em etapas |
 | `src/views/admin/produtos/ProdutoEditView.vue` | Casca da edição: carga do produto, `PUT`, arquivos novos e exclusões imediatas |
 | `src/views/admin/produtos/ProdutoForm.vue` | Formulário em etapas: dono do estado das etapas, da validação por etapa e do foco no primeiro erro; compõe as seis seções |
-| `components/produtos/ProdutoTelaLayout.vue` | Moldura do cadastro e da edição: cabeçalho, status e Desativar, estados de carregando, não encontrado e erro, slot do formulário e painel de envio. Expõe `mostrarPainelEnvio`; a tela passa esse método ao envio como `mostrarPainel` |
-| `components/produtos/ProdutoFormNavegacao.vue` | Navegação entre etapas, usada em dois pontos pela prop `parte`: o indicador de etapas e o rodapé com Cancelar, Voltar, Próximo e Salvar |
-| `components/produtos/ProdutoDadosBasicosSection.vue`, `ProdutoPrecoDimensoesSection.vue` | Etapa 1, e etapas 2 e 3. As especificações (etapa 6) ficam no próprio `ProdutoForm.vue` |
-| `components/produtos/ProdutoVariacoesSection.vue`, `ProdutoVariacaoAcabamento.vue`, `ProdutoVariacaoAmostra.vue` | Etapa 4: lista e cabeçalho de cada variação com a prévia das cores, editor de cores, detalhes e estoque, e amostra de textura |
-| `components/produtos/ProdutoFotosSection.vue` | Etapa 5: seleção múltipla, preview, variação, ordem, capa, estado do envio e fotos já publicadas |
-| `components/produtos/KeyValueEditor.vue` | Editor de chave e valor das especificações e dos detalhes de acabamento |
-| `components/produtos/ProdutoListCabecalho.vue`, `ProdutoListTabela.vue` | Listagem: cabeçalho com busca e filtros, e tabela com os estados de carregando, erro e vazio |
+| `components/admin/produtos/ProdutoTelaLayout.vue` | Moldura do cadastro e da edição: cabeçalho, status e Desativar, estados de carregando, não encontrado e erro, slot do formulário e painel de envio. Expõe `mostrarPainelEnvio`; a tela passa esse método ao envio como `mostrarPainel` |
+| `components/admin/produtos/ProdutoFormNavegacao.vue` | Navegação entre etapas, usada em dois pontos pela prop `parte`: o indicador de etapas e o rodapé com Cancelar, Voltar, Próximo e Salvar |
+| `components/admin/produtos/ProdutoDadosBasicosSection.vue`, `ProdutoPrecoDimensoesSection.vue` | Etapa 1, e etapas 2 e 3. As especificações (etapa 6) ficam no próprio `ProdutoForm.vue` |
+| `components/admin/produtos/ProdutoVariacoesSection.vue`, `ProdutoVariacaoAcabamento.vue`, `ProdutoVariacaoAmostra.vue` | Etapa 4: lista e cabeçalho de cada variação com a prévia das cores, editor de cores, detalhes e estoque, e amostra de textura |
+| `components/admin/produtos/ProdutoFotosSection.vue` | Etapa 5: seleção múltipla, preview, variação, ordem, capa, estado do envio e fotos já publicadas |
+| `components/admin/produtos/KeyValueEditor.vue` | Editor de chave e valor das especificações e dos detalhes de acabamento |
+| `components/admin/produtos/ProdutoListCabecalho.vue`, `ProdutoListTabela.vue` | Listagem: cabeçalho com busca e filtros, e tabela com os estados de carregando, erro e vazio |
 | `src/composables/useProdutoTela.ts` | Lógica comum ao cadastro e à edição: `useProdutoOpcoes` (categorias e fornecedores ativos, regra do fornecedor por perfil e, na edição, a categoria, o subtipo e o fornecedor do produto mesmo inativos), `erroDeGravacao` (409 vira erro no slug) e `useProdutoEnvioArquivos` (envio sequencial, reenvio e progresso, com o callback `mostrarPainel`) |
 
 ### Fluxo do cadastro
@@ -111,7 +111,7 @@ As quatro telas ficam em `src/views/admin/produtos/` e cuidam do estado, das cha
 
 O `ProdutoForm.vue` mostra uma das seis seções por vez, com indicador de etapas à esquerda em telas largas e como faixa rolável no celular. Todas as seções ficam montadas (`v-show`), então o estado e os ids dos campos não se perdem. O indicador mostra a barra de progresso e o estado de cada etapa: atual, concluída, com erro (depois de tentar avançar) ou bloqueada. No celular ele vira uma versão compacta, com o título da etapa atual e os círculos numerados.
 
-- **Cadastro**: "Próximo" valida só a etapa atual (`fieldStep`, em `src/utils/produtos/produtoFormConstantes.ts`, liga o id do campo à etapa) e só libera a seguinte sem erros. Só as etapas já alcançadas ficam clicáveis. "Salvar produto" aparece na última etapa e valida tudo; com erro, a tela abre a etapa do primeiro campo inválido. Enter numa etapa intermediária avança.
+- **Cadastro**: "Próximo" valida só a etapa atual (`fieldStep`, em `src/utils/admin/produtos/produtoFormConstantes.ts`, liga o id do campo à etapa) e só libera a seguinte sem erros. Só as etapas já alcançadas ficam clicáveis. "Salvar produto" aparece na última etapa e valida tudo; com erro, a tela abre a etapa do primeiro campo inválido. Enter numa etapa intermediária avança.
 - **Edição**: a prop `steps-unlocked` libera todas as etapas e mostra "Salvar alterações" em todas.
 - **Depois do `201` ou do `200`**: o indicador some e todas as seções reaparecem, porque o "Tentar de novo" das amostras e fotos fica nas etapas 4 e 5.
 

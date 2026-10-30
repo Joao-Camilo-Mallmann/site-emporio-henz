@@ -32,15 +32,15 @@ const router = createRouter({
     {
       path: "/catalogo",
       name: "catalogo",
-      component: () => import("@/views/CatalogoView.vue"),
+      component: () => import("@/views/catalogo/CatalogoView.vue"),
       meta: {
         title: "Catálogo de Móveis | Empório Henz",
       },
     },
     {
-      path: "/produtos/:id",
-      name: "produto-detalhe",
-      component: () => import("@/views/ProdutoDetalheView.vue"),
+      path: "/catalogo/:slug",
+      name: "catalogo-produto",
+      component: () => import("@/views/catalogo/CatalogoProdutoDetalheView.vue"),
       meta: {
         title: "Detalhes do Produto | Empório Henz",
       },

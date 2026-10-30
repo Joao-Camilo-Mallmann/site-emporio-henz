@@ -15,7 +15,7 @@ import {
   HINT_CLASS,
   LABEL_CLASS,
   TEXT_MAX_LENGTH,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import { slugify } from "@/utils/slug";
 import { Icon } from "@iconify/vue";
 import { computed, watch } from "vue";

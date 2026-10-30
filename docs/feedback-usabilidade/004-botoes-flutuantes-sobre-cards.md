@@ -31,7 +31,7 @@ Nome, preço e seletor de cores dos cards ficam legíveis em qualquer posição 
   - Colocar "Voltar ao topo" ao lado do WhatsApp em vez de em cima, ocupando menos altura.
   - Esconder o WhatsApp flutuante enquanto a grade de produtos está visível, ou mostrá-lo só depois de parar a rolagem.
   - Garantir `padding-bottom` na página para o último card não ficar sempre embaixo dos botões.
-- Conferir também `ProdutoDetalheView`, onde o botão pode cobrir as ações do produto.
+- Conferir também `CatalogoProdutoDetalheView`, onde o botão pode cobrir as ações do produto.
 
 ## Print
 
