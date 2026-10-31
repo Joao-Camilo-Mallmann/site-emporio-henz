@@ -155,20 +155,51 @@ export class CategoriesRepository {
     return rows.length > 0 ? mapCategory(rows[0]!) : null;
   }
 
+  /**
+   * Produtos excluídos logicamente não prendem a categoria.
+   */
+  async countLinkedProducts(categoryId: string): Promise<number> {
+    const rows = await sql<{ count: number }[]>`
+      SELECT COUNT(*)::int AS count
+      FROM products
+      WHERE category_id = ${categoryId} AND deleted_at IS NULL
+    `;
+    return rows[0]?.count ?? 0;
+  }
+
+  /**
+   * Chamado depois que o service validou que não há produtos vinculados.
+   * Retorna `false` se a categoria sumiu ou se um produto foi vinculado
+   * entre a validação e esta transação; nesse caso nada é alterado.
+   */
   async softDeleteCategoryWithCascade(id: string): Promise<boolean> {
     return await sql.begin(async (tx) => {
-      // 1. Marca a categoria primeiro: o bloqueio da linha faz a criação ou
-      // movimentação concorrente de subtipos esperar e enxergar a exclusão.
+      // 1. `FOR UPDATE` conflita com o `FOR KEY SHARE` da chave estrangeira
+      // de um INSERT de produto em andamento (um UPDATE comum não conflita)
+      // e com o `FOR SHARE` da criação de subtipos: ambos esperam aqui.
       const catRows = await tx<{ id: string }[]>`
-        UPDATE categories
-        SET deleted_at = CURRENT_TIMESTAMP
+        SELECT id FROM categories
         WHERE id = ${id} AND deleted_at IS NULL
-        RETURNING id
+        FOR UPDATE
       `;
 
       if (catRows.length === 0) return false;
 
-      // 2. Marca subtipos vinculados como deletados logicamente
+      // 2. Marca a categoria, repetindo a checagem de produtos já com a linha
+      // bloqueada, e depois os subtipos vinculados.
+      const deletedRows = await tx<{ id: string }[]>`
+        UPDATE categories
+        SET deleted_at = CURRENT_TIMESTAMP
+        WHERE id = ${id}
+          AND NOT EXISTS (
+            SELECT 1 FROM products
+            WHERE category_id = ${id} AND deleted_at IS NULL
+          )
+        RETURNING id
+      `;
+
+      if (deletedRows.length === 0) return false;
+
       await tx`
         UPDATE product_subtypes
         SET deleted_at = CURRENT_TIMESTAMP

@@ -28,6 +28,7 @@ Este documento organiza a execução do portal da Empório Henz em histórias, r
   - [Processo e Robustez Final (2,0 pts)](#processo-e-robustez-final-20-pts)
 - [Segurança: sessão em cookie e travas de autorização](#segurança-sessão-em-cookie-e-travas-de-autorização)
 - [Interface: componente global de paginação](#interface-componente-global-de-paginação)
+- [Integridade: amarração de produtos à categoria](#integridade-amarração-de-produtos-à-categoria)
 
 ---
 
@@ -1370,5 +1371,44 @@ Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por t
 - [ ] `/catalogo` usa `UiPagination` sem resumo, mantém `?page=` sincronizado e esconde a paginação com página única.
 - [x] `CatalogPagination.vue` removido e sem referências em `frontend/src`.
 - [x] `bun run check-types`, `bun run lint` e `bun run build` passam no diretório `frontend`.
+
+---
+
+# Integridade: amarração de produtos à categoria
+
+Pacote definido a partir do [RF04 e da exceção E2 do UC09](../PRD.md): todo produto fica amarrado à sua categoria, e a categoria não pode ser excluída enquanto tiver produto vinculado. Não há mudança de schema; as chaves estrangeiras já existem na migração `010`, mas o `ON DELETE RESTRICT` não protege o soft delete. Acompanha o change OpenSpec `be-bloqueio-exclusao-categoria`.
+
+---
+
+### [US-BE-17] Bloquear a exclusão de categoria com produtos vinculados
+
+**Como** Administrador do Sistema,  
+**Quero** que a API recuse a exclusão de uma categoria que ainda tenha produtos,  
+**Para que** nenhum produto fique apontando para uma categoria excluída, sumindo dos filtros do catálogo e quebrando o formulário de edição.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF04** (UC09, E2). Hoje `DELETE /api/v1/categorias/:id` aplica soft delete na categoria e nos subtipos sem consultar `products`.
+
+- Conta como vínculo todo produto com `deleted_at IS NULL`, ativo ou inativo: o inativo continua no painel e pode ser reativado.
+- Produto já excluído logicamente não bloqueia.
+- Na recusa, nem a categoria nem os subtipos são alterados.
+- A checagem e o soft delete rodam na mesma transação, com a linha da categoria bloqueada por `FOR UPDATE`.
+- Fora de escopo: exclusão de subtipo com produtos vinculados e desativação (`active = false`) da categoria.
+
+#### ⚙️ Especificação Técnica (`backend`)
+
+- `DELETE /api/v1/categorias/:id` responde `409 Conflict` com a quantidade de produtos vinculados na mensagem.
+- O controller chama `assertCanDeleteCategory` (schema) antes do service, que só executa `softDeleteCategoryWithCascade`; o SQL do delete repete a checagem com a categoria bloqueada.
+- Collection Bruno: `Categories/Delete Category.bru` documenta o `409`.
+
+#### ✅ Critérios de Aceitação
+
+- [x] Categoria com produto ativo ou inativo vinculado responde `409` e informa a quantidade.
+- [x] Na recusa, a categoria e os subtipos continuam com `deleted_at` nulo.
+- [x] Categoria sem produtos, ou só com produtos excluídos logicamente, é excluída com os subtipos e responde `200`.
+- [x] Categoria inexistente ou já excluída responde `404`.
+- [x] `bun test`, `bun run check-types` e `bun run lint` passam no diretório `backend`.
+- [ ] Validação manual pela collection Bruno contra o PostgreSQL.
 
 

@@ -36,12 +36,11 @@ export class CategoriesService {
     return category;
   }
 
+  // As regras (slug livre, categoria existente, produtos vinculados) são
+  // validadas antes, em `categories.schema.ts`. Aqui só sobram as travas do
+  // banco para escritas concorrentes que passaram pela validação.
   async createCategory(dto: CreateCategoryDto): Promise<CategoryDto> {
     const slug = dto.slug || slugify(dto.name);
-    const slugExists = await this.repo.existsCategorySlugActive(slug);
-    if (slugExists) {
-      throw this.slugConflict(slug);
-    }
 
     try {
       return await this.repo.createCategory({
@@ -49,7 +48,7 @@ export class CategoriesService {
         slug,
       });
     } catch (error) {
-      // Requisição concorrente gravou o mesmo slug após a checagem acima.
+      // Requisição concorrente gravou o mesmo slug após a validação.
       if (isUniqueViolation(error)) {
         throw this.slugConflict(slug);
       }
@@ -67,18 +66,6 @@ export class CategoriesService {
     id: string,
     dto: UpdateCategoryDto,
   ): Promise<CategoryDto> {
-    const existing = await this.repo.findCategoryById(id);
-    if (!existing) {
-      throw new NotFoundError("Categoria não encontrada.");
-    }
-
-    if (dto.slug) {
-      const slugExists = await this.repo.existsCategorySlugActive(dto.slug, id);
-      if (slugExists) {
-        throw this.slugConflict(dto.slug);
-      }
-    }
-
     let updated: CategoryDto | null;
     try {
       updated = await this.repo.updateCategory(id, dto);
@@ -89,6 +76,7 @@ export class CategoriesService {
       throw error;
     }
 
+    // Excluída por outra requisição depois da validação.
     if (!updated) {
       throw new NotFoundError("Categoria não encontrada.");
     }
@@ -97,12 +85,15 @@ export class CategoriesService {
   }
 
   async deleteCategory(id: string): Promise<void> {
-    const existing = await this.repo.findCategoryById(id);
-    if (!existing) {
-      throw new NotFoundError("Categoria não encontrada.");
-    }
+    const deleted = await this.repo.softDeleteCategoryWithCascade(id);
 
-    await this.repo.softDeleteCategoryWithCascade(id);
+    // O SQL repete a checagem com a categoria bloqueada: chega aqui se outra
+    // requisição a excluiu ou vinculou um produto depois da validação.
+    if (!deleted) {
+      throw new ConflictError(
+        "A categoria foi alterada durante a exclusão. Atualize a página e tente novamente.",
+      );
+    }
   }
 }
 
