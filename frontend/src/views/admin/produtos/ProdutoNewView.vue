@@ -47,7 +47,7 @@ const saving = ref(false);
 const errorMessage = ref<string | null>(null);
 const serverErrors = ref<FieldErrors>({});
 const createdProduct = ref<ProductDto | null>(null);
-// A moldura expõe `mostrarPainelEnvio`; o envio chama ao começar.
+// O formulário expõe `mostrarPainelEnvio`; o envio chama ao começar.
 const layout = useTemplateRef<{ mostrarPainelEnvio: () => void }>("layout");
 
 const {
@@ -160,41 +160,33 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ProdutoTelaLayout
+  <ProdutoForm
     ref="layout"
+    v-model:form="form"
     modo="novo"
     :loading="loadingOptions"
-    loading-label="Carregando categorias e fornecedores..."
-    :error="optionsError"
-    voltar-label="Voltar ao painel"
-    :envio-visivel="createdProduct !== null"
+    :load-error="optionsError"
+    :categories="categories"
+    :suppliers="suppliers"
+    :supplier-locked="supplierLocked"
+    :no-supplier="noSupplier"
+    :locked="locked"
+    :upload-phase="createdProduct !== null"
+    :saving="saving"
+    :busy="uploading"
+    :error-message="errorMessage"
+    :server-errors="serverErrors"
     :envio-titulo="painelTitulo"
-    envio-orientacao-falha="complete as fotos depois, na edição do produto."
     :uploading="uploading"
     :total-files="totalFiles"
     :done-files="doneFiles"
     :failed-files="failedFiles"
     :progress-percent="progressPercent"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
     @retry="carregarOpcoes"
-    @voltar="handleCancel"
     @concluir="concluirAssimMesmo"
-  >
-    <ProdutoForm
-      v-model:form="form"
-      :categories="categories"
-      :suppliers="suppliers"
-      :supplier-locked="supplierLocked"
-      :no-supplier="noSupplier"
-      :locked="locked"
-      :upload-phase="createdProduct !== null"
-      :saving="saving"
-      :busy="uploading"
-      :error-message="errorMessage"
-      :server-errors="serverErrors"
-      @submit="handleSubmit"
-      @cancel="handleCancel"
-      @retry-sample="tentarAmostraDeNovo"
-      @retry-photo="tentarFotoDeNovo"
-    />
-  </ProdutoTelaLayout>
+    @retry-sample="tentarAmostraDeNovo"
+    @retry-photo="tentarFotoDeNovo"
+  />
 </template>

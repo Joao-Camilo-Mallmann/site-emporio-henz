@@ -18,6 +18,7 @@ Documentação da persistência PostgreSQL do Empório Henz. O modelo conceitual
 5. **Idempotência:** uma migração já aplicada não deve ser executada novamente.
 6. **Imagens fora do banco:** fotos de produto e amostras de variação são arquivos no volume de uploads do backend. As tabelas guardam só o caminho relativo (`thumbnail_path`, `full_image_path` e `sample_image_path`, em `VARCHAR(255)`), nunca o conteúdo da imagem nem Base64.
 7. **JSONB sempre objeto:** `products.specifications` e `product_variations.finish_details` guardam um objeto JSON, garantido por `CHECK (jsonb_typeof(...) = 'object')` desde a migração `013`. O backend envia o objeto direto ao driver SQL do Bun, nunca `JSON.stringify(objeto)`: o driver codifica de novo um texto enviado a uma coluna JSON, e o valor seria gravado como string.
+8. **Busca na forma de slug:** a migração `014` habilita a extensão `unaccent` (contrib do PostgreSQL, confiável desde o PG 13) e cria a função `search_slug(text)`, que aplica a mesma regra do `slugify` do backend: sem acentos, minúsculas, toda sequência fora de `[a-z0-9]` vira um único hífen, sem hífen nas pontas. A busca textual de produtos (RF05 do PRD) compara `search_slug(name)`, `search_slug(description)` e `search_slug(collection_line)` com o termo já normalizado via `LIKE '%termo%'`. A função é `IMMUTABLE` de propósito (o dicionário padrão do `unaccent` não muda), o que permite um índice de expressão no futuro; nenhum índice é criado nesta migração.
 
 ## Estrutura
 

@@ -4,19 +4,24 @@ import type {
   CatalogResponse,
 } from "@/types";
 import { MOCK_CATALOG_PRODUCTS } from "@/mocks/catalogo";
+import { slugify } from "@/utils/slug";
 
 export const catalogoApi = {
   /**
    * Envia os parâmetros de filtro para o endpoint REST via GET.
    * Toda a lógica de filtragem reside no servidor REST.
+   * O termo de busca (`name`) vai normalizado como slug (sem acento, caixa
+   * ou separadores) no parâmetro `search`, omitido quando fica vazio.
    * Mantém fallback mockado estático para navegação e testes de interface.
    */
   async buscarProdutos(
     params?: CatalogFilterParams,
   ): Promise<CatalogResponse> {
     try {
+      const { name, ...rest } = params ?? {};
+      const search = name ? slugify(name) || undefined : undefined;
       const response = await axios.get<CatalogResponse>("/produtos", {
-        params,
+        params: { ...rest, search },
       });
       if (response.data && Array.isArray(response.data.items)) {
         return response.data;
@@ -40,13 +45,15 @@ export const catalogoApi = {
     }
 
     if (params?.name) {
-      const q = params.name.toLowerCase().trim();
-      items = items.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          (p.subcategory && p.subcategory.toLowerCase().includes(q)),
-      );
+      const q = slugify(params.name);
+      if (q) {
+        items = items.filter(
+          (p) =>
+            slugify(p.name).includes(q) ||
+            slugify(p.category).includes(q) ||
+            (p.subcategory && slugify(p.subcategory).includes(q)),
+        );
+      }
     }
 
     if (params?.materiais && params.materiais.length > 0) {

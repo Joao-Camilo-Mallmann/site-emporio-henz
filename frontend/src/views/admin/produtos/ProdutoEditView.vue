@@ -71,7 +71,7 @@ const saving = ref(false);
 const saved = ref(false);
 const errorMessage = ref<string | null>(null);
 const serverErrors = ref<FieldErrors>({});
-// A moldura expõe `mostrarPainelEnvio`; o envio chama ao começar.
+// O formulário expõe `mostrarPainelEnvio`; o envio chama ao começar.
 const layout = useTemplateRef<{ mostrarPainelEnvio: () => void }>("layout");
 
 const {
@@ -314,76 +314,64 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ProdutoTelaLayout
+  <ProdutoForm
     ref="layout"
+    v-model:form="form"
     modo="editar"
     :produto="product"
-    :lista-url="LISTA_URL"
-    :bloqueado="locked || uploading"
     :loading="loading"
-    loading-label="Carregando produto..."
     :not-found="notFound"
-    :error="loadError"
-    voltar-label="Voltar para a lista"
-    :envio-visivel="saved"
+    :load-error="loadError"
+    :categories="categories"
+    :suppliers="suppliers"
+    :supplier-locked="supplierLocked"
+    :no-supplier="noSupplier"
+    :locked="locked"
+    :upload-phase="saved"
+    :saving="saving"
+    :busy="uploading || removing"
+    :error-message="errorMessage"
+    :server-errors="serverErrors"
+    :existing-images="existingImages"
     :envio-titulo="painelTitulo"
-    envio-orientacao-falha="complete as fotos em outra edição."
     :uploading="uploading"
     :total-files="totalFiles"
     :done-files="doneFiles"
     :failed-files="failedFiles"
     :progress-percent="progressPercent"
+    @submit="handleSubmit"
+    @cancel="handleCancel"
     @retry="carregarTela"
-    @voltar="handleCancel"
     @desativar="pedirDesativacao"
     @concluir="concluirAssimMesmo"
-  >
-    <ProdutoForm
-      v-model:form="form"
-      :categories="categories"
-      :suppliers="suppliers"
-      :supplier-locked="supplierLocked"
-      :no-supplier="noSupplier"
-      :locked="locked"
-      :upload-phase="saved"
-      :saving="saving"
-      :busy="uploading || removing"
-      :error-message="errorMessage"
-      :server-errors="serverErrors"
-      :existing-images="existingImages"
-      submit-label="Salvar alterações"
-      steps-unlocked
-      @submit="handleSubmit"
-      @cancel="handleCancel"
-      @retry-sample="tentarAmostraDeNovo"
-      @retry-photo="tentarFotoDeNovo"
-      @remove-image="pedirExclusaoFoto"
-      @remove-existing-sample="pedirExclusaoAmostra"
-    />
+    @retry-sample="tentarAmostraDeNovo"
+    @retry-photo="tentarFotoDeNovo"
+    @remove-image="pedirExclusaoFoto"
+    @remove-existing-sample="pedirExclusaoAmostra"
+  />
 
-    <!-- Confirmação das exclusões imediatas (foto, amostra ou produto) -->
-    <UiModal
-      :open="pendingRemoval !== null"
-      :title="tituloRemocao"
-      variant="danger"
-      :loading="removing"
-      @close="fecharModalRemocao"
-      @confirm="confirmarRemocao"
-    >
-      <template v-if="pendingRemoval?.kind === 'image'">
-        A foto sai do carrossel do produto assim que você confirmar, sem esperar
-        o botão de salvar. Para repor, envie o arquivo de novo.
-      </template>
-      <template v-else-if="pendingRemoval?.kind === 'sample'">
-        A amostra de textura desta variação será apagada agora, sem esperar o
-        botão de salvar. Para repor, escolha um arquivo novo.
-      </template>
-      <template v-else>
-        Deseja desativar
-        <strong class="text-neutral-dark">{{ product?.name }}</strong
-        >? O produto sai do catálogo e continua guardado no painel, com as
-        variações e fotos.
-      </template>
-    </UiModal>
-  </ProdutoTelaLayout>
+  <!-- Confirmação das exclusões imediatas (foto, amostra ou produto) -->
+  <UiModal
+    :open="pendingRemoval !== null"
+    :title="tituloRemocao"
+    variant="danger"
+    :loading="removing"
+    @close="fecharModalRemocao"
+    @confirm="confirmarRemocao"
+  >
+    <template v-if="pendingRemoval?.kind === 'image'">
+      A foto sai do carrossel do produto assim que você confirmar, sem esperar
+      o botão de salvar. Para repor, envie o arquivo de novo.
+    </template>
+    <template v-else-if="pendingRemoval?.kind === 'sample'">
+      A amostra de textura desta variação será apagada agora, sem esperar o
+      botão de salvar. Para repor, escolha um arquivo novo.
+    </template>
+    <template v-else>
+      Deseja desativar
+      <strong class="text-neutral-dark">{{ product?.name }}</strong
+      >? O produto sai do catálogo e continua guardado no painel, com as
+      variações e fotos.
+    </template>
+  </UiModal>
 </template>

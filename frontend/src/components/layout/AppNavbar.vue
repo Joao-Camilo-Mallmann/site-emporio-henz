@@ -203,11 +203,12 @@ async function handleLogoutDrawer() {
 }
 
 function handleSearch() {
-  if (!searchQuery.value.trim()) {
+  const termo = searchQuery.value.replace(/\s+/g, " ").trim();
+  if (!termo) {
     router.push("/catalogo");
     return;
   }
-  router.push({ path: "/catalogo", query: { name: searchQuery.value.trim() } });
+  router.push({ path: "/catalogo", query: { name: termo } });
 }
 
 function handleClickOutside(event: MouseEvent) {

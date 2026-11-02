@@ -669,10 +669,15 @@ export function validateProductQuery(url: URL): ProductQueryFilters {
       ? availabilityParam
       : undefined;
 
+  // O termo é cortado em 100 caracteres por parseSearch e só então vira slug
+  // (RF05): sem acentos, minúsculas, separadores viram hífen. Vazio é ignorado.
+  const rawSearch = parseSearch(url);
+  const search = rawSearch ? slugify(rawSearch) || undefined : undefined;
+
   return {
     page,
     limit,
-    search: parseSearch(url),
+    search,
     categoryId:
       categoryIdParam && isValidUuid(categoryIdParam)
         ? categoryIdParam

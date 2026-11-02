@@ -1,5 +1,6 @@
 import { BadRequestError } from "@/lib/errors";
 import { paginate, resolvePagination } from "@/lib/pagination";
+import { slugify } from "@/lib/slug";
 import { ProductsRepository } from "@/modules/products/products.repository";
 import {
   CreateProductDto,
@@ -64,7 +65,9 @@ export class MockProductsRepository extends ProductsRepository {
       return paginate([], 0, { page, limit });
     }
 
-    const search = filters.search?.toLowerCase();
+    // O termo já chega na forma de slug (normalizado pelo schema); só os campos
+    // são normalizados aqui, espelhando search_slug(...) do banco.
+    const search = filters.search;
 
     const filtered = this.products.filter((p) => {
       if (p.deleted) return false;
@@ -93,11 +96,10 @@ export class MockProductsRepository extends ProductsRepository {
         return false;
       }
       if (search) {
-        const matchesName = p.name.toLowerCase().includes(search);
-        const matchesDesc = (p.description ?? "")
-          .toLowerCase()
-          .includes(search);
-        if (!matchesName && !matchesDesc) return false;
+        const matchesName = slugify(p.name).includes(search);
+        const matchesDesc = slugify(p.description ?? "").includes(search);
+        const matchesLine = slugify(p.collectionLine ?? "").includes(search);
+        if (!matchesName && !matchesDesc && !matchesLine) return false;
       }
       return true;
     });

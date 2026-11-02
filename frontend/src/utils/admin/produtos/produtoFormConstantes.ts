@@ -93,28 +93,34 @@ export const FORM_SECTIONS = [
   {
     id: "secao-dados-basicos",
     title: "Dados básicos",
-    hint: "Nome, categoria e fornecedor",
+    description: "Identificação do móvel, onde ele aparece no catálogo e quem o fabrica.",
   },
   {
     id: "secao-preco",
     title: "Preço e disponibilidade",
-    hint: "Valor, parcelas e prazo",
+    description: "Valor base de referência; condições especiais são combinadas no atendimento.",
   },
   {
     id: "secao-dimensoes",
     title: "Dimensões",
-    hint: "Altura, largura e profundidade",
+    description: "Medidas externas em milímetros, números inteiros.",
   },
   {
     id: "secao-variacoes",
     title: "Variações de acabamento",
-    hint: "Cores, madeiras e amostras",
+    description: "Opcional. A ordem da lista é a ordem de exibição no catálogo.",
   },
-  { id: "secao-fotos", title: "Fotos", hint: "Imagens do carrossel" },
+  {
+    id: "secao-fotos",
+    title: "Fotos",
+    description:
+      "A ordem da tela é a ordem do carrossel. Associe a foto a uma variação para mostrá-la junto daquele acabamento.",
+  },
   {
     id: "secao-especificacoes",
     title: "Especificações técnicas",
-    hint: "Ficha técnica e status",
+    description:
+      "Ficha técnica livre, como portas, gavetas ou tipo de espuma. Linhas vazias são ignoradas.",
   },
 ] as const;
 

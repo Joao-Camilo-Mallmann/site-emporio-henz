@@ -1375,6 +1375,31 @@ Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por t
 
 ---
 
+### [US-FE-16] Busca da Navbar Normalizada para o Catálogo
+
+**Como** Cliente,  
+**Quero** digitar na busca da navbar com ou sem acento, em qualquer caixa e com underline,  
+**Para que** o catálogo encontre o produto mesmo assim.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF05** do lado do cliente, com a mesma regra de forma de slug do backend ([US-BE-18](#us-be-18-busca-de-produtos-normalizada-na-forma-de-slug-acentos-caixa-e-separadores)). `AppNavbar` envia o termo como digitado (aparado, com espaços repetidos juntados) em `?name=` para o resumo "Resultados para …". A integração completa do catálogo com a API real (mapear `categoria`, `materiais`, `cores`, `marcas` e o envelope `{ data, pagination }`) fica fora desta história.
+
+#### 🎨 Especificação Técnica (`frontend`)
+
+- **Navbar** (`src/components/layout/AppNavbar.vue`): `handleSearch` apara e junta espaços repetidos antes de enviar `name` para `/catalogo`.
+- **API** (`src/api/catalogo.ts`): `buscarProdutos` envia `search: slugify(name)` à API no lugar de `name`, omitido quando vazio, conforme o contrato da collection Bruno.
+- **Fallback mockado**: filtra comparando `slugify` de nome, categoria e subcategoria com o termo normalizado.
+
+#### ✅ Critérios de Aceitação
+
+- [x] "ROUPEIRO_ROMÃ" e "roupeiro roma" encontram o Roupeiro Roma no fallback mockado.
+- [x] A API recebe `search=roupeiro-roma`.
+- [x] O resumo "Resultados para …" mostra o termo como digitado.
+- [x] `bun run check-types` e `bun run lint` passam no diretório `frontend`.
+
+---
+
 # Integridade: amarração de produtos à categoria
 
 Pacote definido a partir do [RF04 e da exceção E2 do UC09](../PRD.md): todo produto fica amarrado à sua categoria, e a categoria não pode ser excluída enquanto tiver produto vinculado. Não há mudança de schema; as chaves estrangeiras já existem na migração `010`, mas o `ON DELETE RESTRICT` não protege o soft delete. Acompanha o change OpenSpec `be-bloqueio-exclusao-categoria`.
@@ -1412,4 +1437,39 @@ Atende ao **RF04** (UC09, E2). Hoje `DELETE /api/v1/categorias/:id` aplica soft 
 - [x] `bun test`, `bun run check-types` e `bun run lint` passam no diretório `backend`.
 - [ ] Validação manual pela collection Bruno contra o PostgreSQL.
 
+---
 
+### [US-BE-18] Busca de Produtos Normalizada na Forma de Slug (Acentos, Caixa e Separadores)
+
+**Como** Desenvolvedor Backend,  
+**Quero** que `GET /api/v1/produtos` compare o parâmetro `search` e os campos `name`, `description` e `collection_line` na forma de slug,  
+**Para que** "Sofá Retrátil", "sofa_retratil" e "SOFA RETRATIL" encontrem o mesmo produto.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF05**, cuja regra de busca textual (insensível a maiúsculas, acentos e separadores, comparada na forma de slug) está registrada no PRD. Hoje a busca usa `ILIKE`, que resolve só a caixa: não encontra termo sem acento para produto acentuado, nem underline ou espaço repetido. Acompanha o change OpenSpec `busca-produtos-slug`.
+
+- Termo e campos são comparados na forma de slug: sem acentos, minúsculas, toda sequência de caracteres fora de `[a-z0-9]` vira um único hífen, sem hífen nas pontas.
+- Comparação por trecho contido, com termo literal (curingas não têm efeito).
+- Limite de 100 caracteres aplicado antes da normalização.
+- Termo que fica vazio após normalizar (só símbolos) é ignorado.
+- Fora de escopo: normalização das demais listagens (usuários, fornecedores, categorias e subtipos), ranking e busca por palavras em qualquer ordem.
+
+#### ⚙️ Especificação Técnica (`backend`)
+
+- **Migração** (`backend/database/migrations/014_search_slug.sql`): extensão `unaccent` e função SQL imutável `search_slug(text)` com a mesma regra do `slugify`.
+- **Schema** (`backend/src/modules/products/products.schema.ts`): `validateProductQuery` normaliza `parseSearch(url)` com `slugify` e descarta o termo que ficar vazio.
+- **Repository** (`backend/src/modules/products/products.repository.ts`): `listPaginated` compara `search_slug(name)`, `search_slug(description)` e `search_slug(collection_line)` com `LIKE '%termo%'`, nas consultas de contagem e de página.
+- **Documentação**: `products.types.ts` documenta que `search` já chega na forma de slug; as collections Bruno `List Products.bru` e `List Products Admin.bru` descrevem a normalização; `docs/database/README.md` documenta a extensão e a função.
+
+#### ✅ Critérios de Aceitação
+
+- [x] Termo sem acento encontra produto com acento.
+- [x] Underline e caixa alta encontram "Roupeiro Roma".
+- [x] Termo com acento encontra linha gravada sem acento.
+- [x] Termo só de símbolos é ignorado.
+- [x] Curingas continuam literais.
+- [x] Testes de slug, schema e service passam no diretório `backend`.
+- [x] Collection Bruno documenta a normalização.
+
+---

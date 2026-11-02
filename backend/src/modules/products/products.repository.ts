@@ -109,6 +109,9 @@ export class ProductsRepository {
       return paginate([], 0, { page, limit });
     }
 
+    // filters.search já vem na forma de slug (schema); os campos são comparados
+    // com search_slug(...) (migração 014). search_slug(NULL) é NULL, e NULL LIKE
+    // é falso dentro do OR, então description e collection_line dispensam COALESCE.
     const search = filters.search ? escapeLike(filters.search) : null;
     const categoryId = filters.categoryId ?? null;
     const subtypeId = filters.subtypeId ?? null;
@@ -137,9 +140,9 @@ export class ProductsRepository {
           AND (${active}::boolean IS NULL OR p.active = ${active})
           AND (
             ${search}::text IS NULL
-            OR p.name ILIKE ('%' || ${search} || '%')
-            OR COALESCE(p.description, '') ILIKE ('%' || ${search} || '%')
-            OR COALESCE(p.collection_line, '') ILIKE ('%' || ${search} || '%')
+            OR search_slug(p.name) LIKE ('%' || ${search} || '%')
+            OR search_slug(p.description) LIKE ('%' || ${search} || '%')
+            OR search_slug(p.collection_line) LIKE ('%' || ${search} || '%')
           )
       `,
       this.db<ProductDbRow[]>`
@@ -162,9 +165,9 @@ export class ProductsRepository {
           AND (${active}::boolean IS NULL OR p.active = ${active})
           AND (
             ${search}::text IS NULL
-            OR p.name ILIKE ('%' || ${search} || '%')
-            OR COALESCE(p.description, '') ILIKE ('%' || ${search} || '%')
-            OR COALESCE(p.collection_line, '') ILIKE ('%' || ${search} || '%')
+            OR search_slug(p.name) LIKE ('%' || ${search} || '%')
+            OR search_slug(p.description) LIKE ('%' || ${search} || '%')
+            OR search_slug(p.collection_line) LIKE ('%' || ${search} || '%')
           )
         ORDER BY p.created_at DESC, p.name ASC
         LIMIT ${limit} OFFSET ${offset}
