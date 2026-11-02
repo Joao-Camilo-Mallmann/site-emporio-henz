@@ -3,6 +3,9 @@ import { RequestContext } from "@/lib/router";
 import { isValidUuid } from "@/lib/slug";
 import { isAdmin } from "@/middlewares/role";
 import {
+  assertCanCreateCategory,
+  assertCanDeleteCategory,
+  assertCanUpdateCategory,
   validateCategoryQuery,
   validateCreateCategory,
   validateUpdateCategory,
@@ -43,6 +46,7 @@ export class CategoriesController {
       return badRequest(error || "Dados da categoria inválidos.");
     }
 
+    await assertCanCreateCategory(value);
     const category = await this.service.createCategory(value);
     return created(category);
   }
@@ -67,6 +71,7 @@ export class CategoriesController {
       );
     }
 
+    await assertCanUpdateCategory(id, value);
     const category = await this.service.updateCategory(id, value);
     return ok(category);
   }
@@ -77,6 +82,7 @@ export class CategoriesController {
       return badRequest(INVALID_ID_MESSAGE);
     }
 
+    await assertCanDeleteCategory(id);
     await this.service.deleteCategory(id);
     return ok({ message: "Categoria desativada com sucesso." });
   }
