@@ -7,7 +7,7 @@ O formulário de produto do painel (cadastro e edição) não cabe na tela: o in
 - **[FE]** Um único componente de formulário, `views/admin/produtos/ProdutoForm.vue`, absorve `ProdutoTelaLayout.vue` e `ProdutoFormNavegacao.vue`: moldura da tela, indicador de etapas horizontal fixo no topo, cartão único da etapa, rodapé fixo e painel de envio dos arquivos.
 - **[FE]** `ProdutoNewView` e `ProdutoEditView` só carregam dados, chamam a API e renderizam `<ProdutoForm>`. As diferenças entre cadastro e edição passam por props.
 - **[FE]** Uma etapa por componente em `components/admin/produtos/etapas/`, com o número no nome (`Etapa1DadosBasicos` … `Etapa6Especificacoes`). `ProdutoPrecoDimensoesSection` é dividido em `Etapa2Preco` e `Etapa3Dimensoes`; o "Produto ativo" entra na etapa 6.
-- **[FE]** Componentes da listagem em `components/admin/produtos/listagem/`.
+- **[FE]** A listagem vira um arquivo só: `ProdutoListView.vue` absorve `ProdutoListCabecalho` e `ProdutoListTabela`.
 - **[FE]** Layout compacto: a etapa 1 cabe numa tela de notebook sem rolagem; nas etapas longas só o conteúdo do cartão rola.
 - **[FE]** Código enxuto: sem marcação duplicada, sem código morto e sem imports manuais de componentes auto-importados.
 - Sem mudança de regra de negócio, de API ou de PRD. Validação, foco no primeiro erro, envio de arquivos em fases e edição com etapas livres continuam iguais.
@@ -23,6 +23,7 @@ O formulário de produto do painel (cadastro e edição) não cabe na tela: o in
 ## Impact
 
 - `frontend/src/views/admin/produtos/` (`ProdutoForm`, `ProdutoNewView`, `ProdutoEditView`, `ProdutoListView`).
-- `frontend/src/components/admin/produtos/`: reorganizado em `etapas/` e `listagem/`; `ProdutoTelaLayout.vue`, `ProdutoFormNavegacao.vue` e `ProdutoPrecoDimensoesSection.vue` são removidos.
+- `frontend/src/components/admin/produtos/`: fica só com `etapas/`; `ProdutoTelaLayout.vue`, `ProdutoFormNavegacao.vue`, `ProdutoPrecoDimensoesSection.vue`, `ProdutoListCabecalho.vue` e `ProdutoListTabela.vue` são removidos.
 - `frontend/src/components.d.ts` regenerado pelo auto-import.
+- `docs/frontend/README.md` (mapa de arquivos do CRUD de produto).
 - Nenhum impacto em backend, banco, collection Bruno ou PRD.

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { categoriasApi } from "@/api";
+import { useToast } from "@/composables/useToast";
 import type {
   CategoryCreateInput,
   CategoryUpdateInput,
@@ -6,9 +8,16 @@ import type {
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { reactive, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import SubcategoriaTagManager from "./subcategorias/SubcategoriaTagManager.vue";
 
+// Formulário de categoria, dono da gravação: no cadastro faz o `POST` e em
+// seguida cria os subtipos rascunho; na edição (com `categoryId`) faz o `PUT`
+// e os subtipos são gravados na hora pelo `SubcategoriaTagManager`. Mostra o
+// toast e volta para a lista. As telas só carregam e renderizam.
+
 interface Props {
+  /** Id da categoria na edição; sem ele o envio cadastra uma nova. */
   categoryId?: string;
   initialData?: {
     id?: string;
@@ -17,8 +26,6 @@ interface Props {
     active?: boolean;
   };
   isEditing?: boolean;
-  loading?: boolean;
-  errorMessage?: string | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -29,18 +36,20 @@ const props = withDefaults(defineProps<Props>(), {
     active: true,
   }),
   isEditing: false,
-  loading: false,
-  errorMessage: null,
 });
 
 const emit = defineEmits<{
-  (
-    e: "submit",
-    data: CategoryCreateInput | CategoryUpdateInput,
-    draftSubtypes?: SubtypeDraftItem[],
-  ): void;
+  (e: "saved"): void;
   (e: "cancel"): void;
 }>();
+
+const LISTA_URL = "/admin/categorias";
+
+const router = useRouter();
+const toast = useToast();
+
+const saving = ref(false);
+const errorMessage = ref<string | null>(null);
 
 const form = reactive({
   name: props.initialData?.name || "",
@@ -83,8 +92,49 @@ function validate(): boolean {
   return valid;
 }
 
-function handleSubmit() {
-  if (!validate()) return;
+/** Cria os subtipos rascunho da categoria recém-cadastrada, um por vez. */
+async function criarSubtiposRascunho(categoryId: string): Promise<number> {
+  let createdCount = 0;
+  for (const draft of draftSubtypes.value) {
+    try {
+      await categoriasApi.criarSubtipo({
+        categoryId,
+        name: draft.name,
+        slug: draft.slug || undefined,
+        active: draft.active,
+      });
+      createdCount++;
+    } catch (subErr) {
+      console.error(`Erro ao criar subtipo "${draft.name}":`, subErr);
+    }
+  }
+  return createdCount;
+}
+
+async function cadastrar(payload: CategoryCreateInput) {
+  const createdCategory = await categoriasApi.criar(payload);
+  const total = draftSubtypes.value.length;
+
+  if (total === 0) {
+    toast.success("Categoria cadastrada com sucesso!");
+    return;
+  }
+
+  const createdCount = await criarSubtiposRascunho(createdCategory.id);
+  if (createdCount === total) {
+    toast.success(
+      `Categoria e ${createdCount} subtipo(s) cadastrados com sucesso!`,
+    );
+  } else {
+    toast.warning(
+      `Categoria criada com sucesso, mas apenas ${createdCount} de ${total} subtipos foram cadastrados.`,
+    );
+  }
+}
+
+async function handleSubmit() {
+  if (saving.value || !validate()) return;
+  if (props.isEditing && !props.categoryId) return;
 
   const payload: CategoryCreateInput | CategoryUpdateInput = {
     name: form.name.trim(),
@@ -92,7 +142,35 @@ function handleSubmit() {
     active: form.active,
   };
 
-  emit("submit", payload, draftSubtypes.value);
+  saving.value = true;
+  errorMessage.value = null;
+
+  try {
+    if (props.isEditing) {
+      await categoriasApi.atualizar(
+        props.categoryId,
+        payload as CategoryUpdateInput,
+      );
+      toast.success("Categoria atualizada com sucesso!");
+    } else {
+      await cadastrar(payload as CategoryCreateInput);
+    }
+    emit("saved");
+    router.push(LISTA_URL);
+  } catch (err: unknown) {
+    const errorObj = err as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    errorMessage.value =
+      errorObj.response?.data?.message ||
+      errorObj.message ||
+      (props.isEditing
+        ? "Ocorreu um erro ao atualizar a categoria."
+        : "Ocorreu um erro ao cadastrar a categoria.");
+  } finally {
+    saving.value = false;
+  }
 }
 </script>
 
@@ -193,6 +271,7 @@ function handleSubmit() {
         variant="outline"
         type="button"
         size="md"
+        :disabled="saving"
         @click="emit('cancel')"
       >
         Cancelar
@@ -202,8 +281,8 @@ function handleSubmit() {
         variant="primary"
         type="submit"
         size="md"
-        :loading="loading"
-        :disabled="loading"
+        :loading="saving"
+        :disabled="saving"
       >
         {{ isEditing ? "Salvar Alterações" : "Cadastrar Categoria" }}
       </UiButton>

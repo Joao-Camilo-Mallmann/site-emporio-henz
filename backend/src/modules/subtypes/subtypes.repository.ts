@@ -1,4 +1,5 @@
 import { sql } from "@/config/database";
+import { slugSearchCondition } from "@/lib/search";
 import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import {
   CreateSubtypeDto,
@@ -44,7 +45,7 @@ export class SubtypesRepository {
         WHERE s.deleted_at IS NULL
           AND (${categoryId}::uuid IS NULL OR s.category_id = ${categoryId}::uuid)
           AND (${active}::boolean IS NULL OR s.active = ${active})
-          AND (${search}::text IS NULL OR s.name ILIKE ('%' || ${search} || '%'))
+          AND ${slugSearchCondition(search, [sql`s.name`])}
           AND (NOT ${visibleOnly}::boolean OR (s.active = TRUE AND c.active = TRUE))
       `,
       sql<SubtypeDbRow[]>`
@@ -62,7 +63,7 @@ export class SubtypesRepository {
         WHERE s.deleted_at IS NULL
           AND (${categoryId}::uuid IS NULL OR s.category_id = ${categoryId}::uuid)
           AND (${active}::boolean IS NULL OR s.active = ${active})
-          AND (${search}::text IS NULL OR s.name ILIKE ('%' || ${search} || '%'))
+          AND ${slugSearchCondition(search, [sql`s.name`])}
           AND (NOT ${visibleOnly}::boolean OR (s.active = TRUE AND c.active = TRUE))
         ORDER BY s.name ASC
         LIMIT ${limit} OFFSET ${offset}

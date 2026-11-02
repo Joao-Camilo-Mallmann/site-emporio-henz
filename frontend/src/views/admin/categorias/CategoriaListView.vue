@@ -135,38 +135,12 @@ onMounted(() => {
     class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-5xl mx-auto space-y-6">
-      <!-- Cabeçalho e Navegação Superior -->
-      <div
-        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <UiButton
-            variant="custom"
-            size="none"
-            class="inline-flex items-center gap-1.5 text-xs font-normal text-stone-500 hover:text-neutral-dark transition-colors mb-2"
-            @click="router.push('/admin')"
-          >
-            <Icon icon="mdi:arrow-left" class="w-3.5 h-3.5" />
-            <span>Painel Administrativo</span>
-          </UiButton>
-          <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-            Categorias & Subtipos
-          </h1>
-          <p class="text-sm text-stone-500 mt-0.5">
-            Ambientes e tipologias de móveis vinculadas ao catálogo da loja
-          </p>
-        </div>
-
-        <UiButton
-          variant="secondary"
-          size="md"
-          class="shrink-0"
-          @click="router.push('/admin/categorias/nova')"
-        >
-          <Icon icon="mdi:plus" class="w-4 h-4" />
-          <span>Nova Categoria</span>
-        </UiButton>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[{ name: 'Painel', link: '/admin' }, { name: 'Categorias' }]"
+        title="Categorias & Subtipos"
+        description="Ambientes e tipologias de móveis vinculadas ao catálogo da loja"
+        :new-action="{ name: 'Nova Categoria', link: '/admin/categorias/nova' }"
+      />
 
       <!-- Barra de Filtros & Busca -->
       <div

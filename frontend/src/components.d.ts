@@ -14,7 +14,6 @@ declare module 'vue' {
     AppFooter: typeof import('./components/layout/AppFooter.vue')['default']
     AppNavbar: typeof import('./components/layout/AppNavbar.vue')['default']
     CatalogoFiltroLateral: typeof import('./components/catalogo/CatalogoFiltroLateral.vue')['default']
-    CatalogoOrdenacaoDropdown: typeof import('./components/catalogo/CatalogoOrdenacaoDropdown.vue')['default']
     CatalogoProdutoCard: typeof import('./components/catalogo/CatalogoProdutoCard.vue')['default']
     CatalogoProdutoGaleria: typeof import('./components/catalogo/produto/CatalogoProdutoGaleria.vue')['default']
     Etapa1DadosBasicos: typeof import('./components/admin/produtos/etapas/Etapa1DadosBasicos.vue')['default']
@@ -40,7 +39,9 @@ declare module 'vue' {
     UiFloatingActions: typeof import('./components/ui/UiFloatingActions.vue')['default']
     UiFloatingButton: typeof import('./components/ui/UiFloatingButton.vue')['default']
     UiModal: typeof import('./components/ui/UiModal.vue')['default']
+    UiPageHeader: typeof import('./components/ui/UiPageHeader.vue')['default']
     UiPagination: typeof import('./components/ui/UiPagination.vue')['default']
     UiSelect: typeof import('./components/ui/UiSelect.vue')['default']
+    UiStepper: typeof import('./components/ui/UiStepper.vue')['default']
   }
 }

@@ -165,24 +165,12 @@ onMounted(() => {
 <template>
   <div class="min-h-[calc(100vh-14rem)] bg-stone-50/70 px-4 py-6 sm:px-6 lg:px-8">
     <div class="mx-auto max-w-6xl space-y-4">
-      <!-- Cabeçalho -->
-      <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-        <div>
-          <RouterLink
-            to="/admin"
-            class="mb-1 inline-flex items-center gap-1.5 text-xs text-stone-500 transition-colors hover:text-neutral-dark"
-          >
-            <Icon icon="mdi:arrow-left" class="h-3.5 w-3.5" />
-            Painel Administrativo
-          </RouterLink>
-          <h1 class="text-xl font-bold tracking-tight text-neutral-dark">Produtos</h1>
-          <p class="mt-0.5 text-sm text-stone-500">Catálogo de móveis e decoração, com preços e disponibilidade</p>
-        </div>
-        <UiButton variant="secondary" size="md" class="shrink-0" @click="novoProduto">
-          <Icon icon="mdi:plus" class="h-4 w-4" />
-          Novo Produto
-        </UiButton>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[{ name: 'Painel', link: '/admin' }, { name: 'Produtos' }]"
+        title="Produtos"
+        description="Catálogo de móveis e decoração, com preços e disponibilidade"
+        :new-action="{ name: 'Novo Produto', link: '/admin/produtos/novo' }"
+      />
 
       <!-- Filtros -->
       <div class="flex flex-col gap-2 lg:flex-row lg:items-center">

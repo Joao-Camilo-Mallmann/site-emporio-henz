@@ -5,13 +5,14 @@
 
 ## 2. Backend `[BE]`
 
-- [x] 2.1 Em `products.schema.ts`, `validateProductQuery` normaliza `parseSearch(url)` com `slugify` e descarta o termo que ficar vazio
+- [x] 2.1 Criar `parseSearchSlug` em `src/lib/pagination.ts` (corte em 100 + `slugify`, vazio vira `undefined`) e chamá-la em `validateProductQuery` (`products.schema.ts`)
 - [x] 2.2 Em `products.repository.ts`, `listPaginated` compara `search_slug(p.name)`, `search_slug(p.description)` e `search_slug(p.collection_line)` com `LIKE '%termo%'` nas consultas de contagem e de página
 - [x] 2.3 Documentar em `products.types.ts` que `ProductQueryFilters.search` está na forma de slug
 - [x] 2.4 Atualizar `docs/backend/collections/bruno/Products/List Products.bru` e `List Products Admin.bru` com a normalização do `search`
 
 ## 3. Testes `[TEST]`
 
+- [x] 3.0 Criar `backend/tests/lib/pagination.test.ts` para `parseSearchSlug` e confirmar que `parseSearch` segue literal
 - [x] 3.1 Criar `backend/tests/lib/slug.test.ts` cobrindo acento, caixa, underline, espaços repetidos, símbolos e termo que vira vazio
 - [x] 3.2 Criar `backend/tests/modules/products/products.schema.test.ts` para `validateProductQuery`: termo normalizado, termo só de símbolos ignorado, limite de 100 caracteres aplicado antes da normalização
 - [x] 3.3 Ajustar `MockProductsRepository` para comparar `slugify` de nome, descrição e linha, e cobrir em `products.service.test.ts` uma busca com acento, caixa e underline
@@ -19,6 +20,7 @@
 
 ## 4. Frontend `[FE]`
 
+- [x] 4.0 Criar `limparTermoBusca` em `utils/slug.ts` e aplicá-la direto no campo da navbar (`watch` em `searchQuery`)
 - [x] 4.1 Em `AppNavbar.vue`, `handleSearch` apara e junta espaços repetidos antes de enviar `name` para `/catalogo`
 - [x] 4.2 Em `api/catalogo.ts`, enviar `search: slugify(name)` à API no lugar de `name` e filtrar o fallback mockado com `slugify` dos dois lados
 - [x] 4.3 Rodar `bun run check-types` e `bun run lint` no `frontend`

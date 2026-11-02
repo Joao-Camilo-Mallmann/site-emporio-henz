@@ -1,4 +1,4 @@
-import { parsePagination, parseSearch } from "@/lib/pagination";
+import { parsePagination, parseSearchSlug } from "@/lib/pagination";
 import {
   isValidUuid,
   NAME_MAX_LENGTH,
@@ -669,15 +669,11 @@ export function validateProductQuery(url: URL): ProductQueryFilters {
       ? availabilityParam
       : undefined;
 
-  // O termo é cortado em 100 caracteres por parseSearch e só então vira slug
-  // (RF05): sem acentos, minúsculas, separadores viram hífen. Vazio é ignorado.
-  const rawSearch = parseSearch(url);
-  const search = rawSearch ? slugify(rawSearch) || undefined : undefined;
-
   return {
     page,
     limit,
-    search,
+    // Termo já na forma de slug (RF05); a validação fica em parseSearchSlug.
+    search: parseSearchSlug(url),
     categoryId:
       categoryIdParam && isValidUuid(categoryIdParam)
         ? categoryIdParam

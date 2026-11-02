@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
 import { useListasStore } from "@/stores/listas";
+import { limparTermoBusca } from "@/utils/slug";
 import { Icon } from "@iconify/vue";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-
 const router = useRouter();
 const authStore = useAuthStore();
 const listasStore = useListasStore();
 
 const searchQuery = ref("");
+
+// Limpa o termo direto no campo, enquanto o usuário digita (RF05): sem acentos,
+// minúsculas e separadores (underline, pontuação) viram um único espaço.
+watch(searchQuery, (valor) => {
+  const limpo = limparTermoBusca(valor);
+  if (limpo !== valor) searchQuery.value = limpo;
+});
 const isUserMenuOpen = ref(false);
 const isDrawerOpen = ref(false);
 const activeDropdown = ref<string | null>(null);
@@ -117,7 +124,9 @@ function closeUserMenu() {
 }
 
 const accountPath = computed(() =>
-  authStore.isAdmin ? `/admin/usuarios/${authStore.user?.id}/editar` : "/perfil",
+  authStore.isAdmin
+    ? `/admin/usuarios/${authStore.user?.id}/editar`
+    : "/perfil",
 );
 const drawerAccountPath = computed(() =>
   authStore.isAuthenticated ? accountPath.value : "/login",
@@ -203,7 +212,8 @@ async function handleLogoutDrawer() {
 }
 
 function handleSearch() {
-  const termo = searchQuery.value.replace(/\s+/g, " ").trim();
+  const termo = limparTermoBusca(searchQuery.value);
+
   if (!termo) {
     router.push("/catalogo");
     return;
@@ -352,22 +362,13 @@ onUnmounted(() => {
             aria-label="Ver móveis salvos e pastas"
             class="flex-col gap-1 text-white hover:text-rose-200 hover:bg-white/10 px-3 py-1.5 rounded-xl group"
           >
-            <svg
+            <Icon
+              icon="mdi:cards-heart-outline"
               class="w-5 h-5 text-white transition-all duration-200 group-hover:scale-110 group-hover:text-rose-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.8"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-            <span class="text-xs font-semibold leading-tight tracking-tight"
-              >Salvos</span
-            >
+            />
+            <span class="text-xs font-semibold leading-tight tracking-tight">
+              Salvos
+            </span>
           </UiButton>
 
           <!-- Botão Painel Admin Desktop (Visível apenas para Vendedores e Administradores) -->
@@ -543,21 +544,10 @@ onUnmounted(() => {
               to="/login"
               class="flex flex-col items-center justify-center gap-1 text-white hover:text-sky-200 hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer"
             >
-              <svg
+              <Icon
+                icon="mdi:account-circle-outline"
                 class="w-5 h-5 text-white transition-all duration-200 group-hover:scale-110 group-hover:text-sky-200"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.8"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <circle cx="12" cy="10" r="3" />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.832 2.849"
-                />
-              </svg>
+              />
               <span class="text-xs font-semibold leading-tight tracking-tight"
                 >Minha conta</span
               >

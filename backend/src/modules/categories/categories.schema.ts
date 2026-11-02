@@ -1,5 +1,5 @@
 import { ConflictError, NotFoundError } from "@/lib/errors";
-import { parsePagination, parseSearch } from "@/lib/pagination";
+import { parsePagination, parseSearchSlug } from "@/lib/pagination";
 import {
   isValidUuid,
   NAME_MAX_LENGTH,
@@ -144,7 +144,7 @@ export function validateCategoryQuery(url: URL): CategoryQueryFilters {
   return {
     page,
     limit,
-    search: parseSearch(url),
+    search: parseSearchSlug(url),
     active,
   };
 }

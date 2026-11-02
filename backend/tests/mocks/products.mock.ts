@@ -66,7 +66,7 @@ export class MockProductsRepository extends ProductsRepository {
     }
 
     // O termo já chega na forma de slug (normalizado pelo schema); só os campos
-    // são normalizados aqui, espelhando search_slug(...) do banco.
+    // são normalizados aqui, espelhando a normalização feita na query do repositório.
     const search = filters.search;
 
     const filtered = this.products.filter((p) => {

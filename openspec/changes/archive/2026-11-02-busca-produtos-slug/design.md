@@ -52,13 +52,13 @@ Alternativa descartada: `translate(lower(x), 'áàâã…', 'aaaa…')` sem exte
 
 ### 3. Normalização no schema, comparação no repository
 
-- `validateProductQuery` (`products.schema.ts`) continua chamando `parseSearch(url)` (aparar e cortar em 100 caracteres) e aplica `slugify` no resultado; se sobrar vazio, `search` fica `undefined`. A validação do parâmetro fica inteira no schema, como manda a seção 6 de `backend/agents.md`.
+- A validação do termo é uma função própria da lib, `parseSearchSlug(url)` em `src/lib/pagination.ts`: chama `parseSearch` (aparar e cortar em 100 caracteres) e aplica `slugify`; se sobrar vazio, devolve `undefined`. `validateProductQuery` (`products.schema.ts`) a chama direto, e a validação do parâmetro continua inteira no schema, como manda a seção 6 de `backend/agents.md`. `parseSearch` segue literal para as outras listagens.
 - `listPaginated` troca os três `ILIKE` por `search_slug(p.name) LIKE ('%' || ${search} || '%')`, idem para `description` e `collection_line`, nas duas consultas. O `COALESCE` deixa de ser necessário porque `search_slug(NULL)` é `NULL` e `NULL LIKE …` é falso dentro de um `OR` com outras condições; o `escapeLike` continua, por segurança, embora o slug não contenha `%`, `_` nem `\`.
 - `ProductQueryFilters.search` passa a documentar que já está na forma de slug.
 
 ### 4. Frontend: URL legível, API no contrato
 
-- `AppNavbar.handleSearch` apara e junta espaços repetidos antes de mandar `name` na URL. O resumo da página mostra esse texto.
+- O campo da navbar limpa o termo direto no componente, enquanto o usuário digita: `limparTermoBusca` (`utils/slug.ts`) remove acentos, põe em minúsculas e troca sequências de separadores (underline, pontuação, símbolos) por um único espaço, mantendo o espaço final para seguir digitando. "SOFÁ_Retrátil!" aparece como "sofa retratil". `handleSearch` apara e manda `name` na URL; o resumo da página mostra esse texto limpo. A busca da listagem administrativa (`ProdutoListView`) não recebe a limpeza nesta mudança porque o arquivo está em edição na feature do formulário de produto; o backend normaliza do mesmo jeito.
 - `catalogoApi.buscarProdutos` monta os parâmetros da API com `search: slugify(params.name)` (omitido quando vazio) no lugar de `name`, porque `search` é o nome do parâmetro na collection Bruno. Os demais parâmetros seguem como estão até a integração do catálogo.
 - O fallback mockado compara `slugify(nome)`, `slugify(categoria)` e `slugify(subcategoria)` com o termo normalizado, para o comportamento ser o mesmo com ou sem backend.
 - A listagem administrativa (`ProdutoListView`) não muda: manda o texto aparado e o backend normaliza.

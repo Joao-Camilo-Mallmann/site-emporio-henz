@@ -1,10 +1,6 @@
-export type CatalogAvailability = "IN_STOCK" | "ON_DEMAND";
+import type { Paginated, PaginationParams } from "./pagination";
 
-export type CatalogSortOption =
-  | "relevancia"
-  | "menor-preco"
-  | "maior-preco"
-  | "recentes";
+export type CatalogAvailability = "IN_STOCK" | "ON_DEMAND";
 
 export interface CatalogVariationBadge {
   color: string;
@@ -27,32 +23,26 @@ export interface CatalogProductItem {
   estimatedDays?: number;
 }
 
-export interface CatalogFilterParams {
+/**
+ * Filtros do catálogo público, com os nomes usados na URL (`?categoria=`,
+ * `?subcategoria=`...). A camada `api/catalogo.ts` traduz para o contrato de
+ * `GET /produtos` (`categoryId`, `subtypeId`, `availabilityType`, `minPrice`,
+ * `maxPrice`, `search`).
+ */
+export interface CatalogFilterParams extends PaginationParams {
+  /** Termo como digitado; vai à API normalizado como slug em `search`. */
   name?: string;
+  /** Slug da categoria (ou nome, comparado na forma de slug). */
   categoria?: string;
+  /** Slug do subtipo (ou nome, comparado na forma de slug). */
   subcategoria?: string;
-  materiais?: string[];
-  cores?: string[];
-  marcas?: string[];
+  /** Com uma opção marcada filtra; com nenhuma ou as duas não filtra. */
   disponibilidade?: CatalogAvailability[];
   minPreco?: number;
   maxPreco?: number;
-  ordem?: CatalogSortOption;
-  page?: number;
-  limit?: number;
 }
 
-export interface CatalogPaginationMeta {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-}
-
-export interface CatalogResponse {
-  items: CatalogProductItem[];
-  meta: CatalogPaginationMeta;
-}
+export type CatalogResponse = Paginated<CatalogProductItem>;
 
 export interface ProductImageItem {
   id: string;

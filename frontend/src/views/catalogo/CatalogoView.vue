@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import CatalogoFiltroLateral from "@/components/catalogo/CatalogoFiltroLateral.vue";
 import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
-import CatalogoOrdenacaoDropdown from "@/components/catalogo/CatalogoOrdenacaoDropdown.vue";
 import UiButton from "@/components/ui/UiButton.vue";
-import { catalogoApi } from "@/api/catalogo";
+import {
+  CATALOGO_LIMITE_PADRAO,
+  catalogoApi,
+  encontrarCategoria,
+  encontrarSubtipo,
+} from "@/api/catalogo";
 import type {
   CatalogAvailability,
   CatalogFilterParams,
-  CatalogPaginationMeta,
   CatalogProductItem,
-  CatalogSortOption,
+  ICategory,
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
@@ -21,47 +24,41 @@ const router = useRouter();
 // Drawer mobile de filtros
 const isMobileFiltersOpen = ref(false);
 const isLoading = ref(false);
+const loadError = ref(false);
 
-// Filtros principais reativos sincronizados com a rota e enviados na requisição GET da API REST
+// Filtros reativos sincronizados com a rota e traduzidos pela camada de API para GET /produtos
 const filters = ref<CatalogFilterParams>({
   name: "",
   categoria: "",
   subcategoria: "",
-  materiais: [],
-  cores: [],
-  marcas: [],
   disponibilidade: [],
   minPreco: undefined,
   maxPreco: undefined,
-  ordem: "relevancia",
   page: 1,
-  limit: 9,
+  limit: CATALOGO_LIMITE_PADRAO,
 });
 
-// Lista de produtos e metadados de paginação recebidos da resposta da API REST (sem filtragem no front)
+// Lista de produtos e paginação recebidas do envelope { data, pagination } da API (sem filtragem no front)
 const products = ref<CatalogProductItem[]>([]);
-const paginationMeta = ref<CatalogPaginationMeta>({
-  currentPage: 1,
-  totalPages: 1,
-  totalItems: 0,
-  itemsPerPage: 9,
-});
+const currentPage = ref(1);
+const totalPages = ref(1);
 
-// Dispara requisição GET com parâmetros para a API REST
+// Categorias ativas, só para mostrar o nome real no resumo dos resultados
+const categorias = ref<ICategory[]>([]);
+
 async function fetchProducts() {
   isLoading.value = true;
+  loadError.value = false;
   try {
     const response = await catalogoApi.buscarProdutos(filters.value);
-    products.value = response.items;
-    paginationMeta.value = response.meta;
+    products.value = response.data;
+    currentPage.value = response.pagination.page;
+    totalPages.value = response.pagination.totalPages || 1;
   } catch {
     products.value = [];
-    paginationMeta.value = {
-      currentPage: filters.value.page || 1,
-      totalPages: 1,
-      totalItems: 0,
-      itemsPerPage: 9,
-    };
+    currentPage.value = filters.value.page || 1;
+    totalPages.value = 1;
+    loadError.value = true;
   } finally {
     isLoading.value = false;
   }
@@ -81,19 +78,7 @@ function syncFiltersFromRoute() {
     typeof route.query.subcategoria === "string"
       ? route.query.subcategoria
       : "";
-  const materiais =
-    typeof route.query.materiais === "string"
-      ? route.query.materiais.split(",").filter(Boolean)
-      : [];
-  const cores =
-    typeof route.query.cores === "string"
-      ? route.query.cores.split(",").filter(Boolean)
-      : [];
-  const marcas =
-    typeof route.query.marcas === "string"
-      ? route.query.marcas.split(",").filter(Boolean)
-      : [];
-        const disponibilidade = (
+  const disponibilidade = (
     typeof route.query.disponibilidade === "string"
       ? route.query.disponibilidade.split(",")
       : []
@@ -108,28 +93,31 @@ function syncFiltersFromRoute() {
     typeof route.query.maxPreco === "string"
       ? parseFloat(route.query.maxPreco)
       : undefined;
-  const ordem = (route.query.ordem as CatalogSortOption) || "relevancia";
   const page = route.query.page ? parseInt(route.query.page as string, 10) : 1;
 
   filters.value = {
     name: name || undefined,
     categoria: categoria || undefined,
     subcategoria: subcategoria || undefined,
-    materiais,
-    cores,
-    marcas,
     disponibilidade,
     minPreco: isNaN(minPreco as number) ? undefined : minPreco,
     maxPreco: isNaN(maxPreco as number) ? undefined : maxPreco,
-    ordem,
-    page: isNaN(page) ? 1 : page,
-    limit: 9,
+    page: isNaN(page) || page < 1 ? 1 : page,
+    limit: CATALOGO_LIMITE_PADRAO,
   };
 }
 
 onMounted(() => {
   syncFiltersFromRoute();
   fetchProducts();
+  catalogoApi
+    .carregarCategorias()
+    .then((lista) => {
+      categorias.value = lista;
+    })
+    .catch(() => {
+      categorias.value = [];
+    });
 });
 
 watch(
@@ -144,12 +132,6 @@ function handlePageChange(newPage: number) {
   filters.value.page = newPage;
   updateRouteQuery();
   window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function handleSortChange(newSort: CatalogSortOption) {
-  filters.value.ordem = newSort;
-  filters.value.page = 1;
-  updateRouteQuery();
 }
 
 function handleFiltersUpdate(updated: CatalogFilterParams) {
@@ -188,12 +170,6 @@ function updateRouteQuery() {
   if (filters.value.categoria) query.categoria = filters.value.categoria;
   if (filters.value.subcategoria)
     query.subcategoria = filters.value.subcategoria;
-  if (filters.value.materiais?.length)
-    query.materiais = filters.value.materiais.join(",");
-  if (filters.value.cores?.length)
-    query.cores = filters.value.cores.join(",");
-  if (filters.value.marcas?.length)
-    query.marcas = filters.value.marcas.join(",");
   if (filters.value.disponibilidade?.length)
     query.disponibilidade = filters.value.disponibilidade.join(",");
   if (filters.value.minPreco !== undefined && !isNaN(filters.value.minPreco)) {
@@ -201,9 +177,6 @@ function updateRouteQuery() {
   }
   if (filters.value.maxPreco !== undefined && !isNaN(filters.value.maxPreco)) {
     query.maxPreco = String(filters.value.maxPreco);
-  }
-  if (filters.value.ordem && filters.value.ordem !== "relevancia") {
-    query.ordem = filters.value.ordem;
   }
   if (filters.value.page && filters.value.page > 1) {
     query.page = String(filters.value.page);
@@ -218,15 +191,11 @@ function handleResetFilters() {
     name: undefined,
     categoria: undefined,
     subcategoria: undefined,
-    materiais: [],
-    cores: [],
-    marcas: [],
     disponibilidade: [],
     minPreco: undefined,
     maxPreco: undefined,
-    ordem: "relevancia",
     page: 1,
-    limit: 9,
+    limit: CATALOGO_LIMITE_PADRAO,
   };
   router.replace({ path: "/catalogo" });
   isMobileFiltersOpen.value = false;
@@ -236,10 +205,8 @@ const activeFiltersCount = computed(() => {
   let count = 0;
   if (filters.value.categoria) count++;
   if (filters.value.subcategoria) count++;
-  if (filters.value.materiais?.length) count += filters.value.materiais.length;
-  if (filters.value.cores?.length) count += filters.value.cores.length;
-  if (filters.value.marcas?.length) count += filters.value.marcas.length;
-  if (filters.value.disponibilidade?.length) count += filters.value.disponibilidade.length;
+  if (filters.value.disponibilidade?.length)
+    count += filters.value.disponibilidade.length;
   if (
     (typeof filters.value.minPreco === "number" &&
       !isNaN(filters.value.minPreco)) ||
@@ -249,6 +216,22 @@ const activeFiltersCount = computed(() => {
     count++;
   }
   return count;
+});
+
+// Nome real da categoria/subcategoria no resumo; cai no valor da URL enquanto a lista não chega
+const categoriaLabel = computed(() => {
+  const categoria = encontrarCategoria(categorias.value, filters.value.categoria);
+  return categoria?.name ?? filters.value.categoria ?? "";
+});
+
+const subcategoriaLabel = computed(() => {
+  const categoria = encontrarCategoria(categorias.value, filters.value.categoria);
+  const subtipo = encontrarSubtipo(
+    categorias.value,
+    filters.value.subcategoria,
+    categoria,
+  );
+  return subtipo?.name ?? filters.value.subcategoria ?? "";
 });
 </script>
 
@@ -278,20 +261,16 @@ const activeFiltersCount = computed(() => {
           </template>
           <template v-else-if="filters.subcategoria">
             Exibindo móveis de
-            <span class="font-bold text-stone-900"
-              >“{{ filters.subcategoria }}”</span
-            >
+            <span class="font-bold text-stone-900">“{{ subcategoriaLabel }}”</span>
           </template>
           <template v-else-if="filters.categoria">
             Exibindo móveis para
-            <span class="font-bold text-stone-900"
-              >“{{ filters.categoria }}”</span
-            >
+            <span class="font-bold text-stone-900">“{{ categoriaLabel }}”</span>
           </template>
           <template v-else> Todos os móveis do catálogo </template>
         </h1>
 
-        <!-- Linha 3: [ ⏚ Filtros (N) ] à esquerda e Ordem: [ Relevância ⇅ ] à direita -->
+        <!-- Linha 3: [ ⏚ Filtros (N) ] -->
         <div class="flex items-center justify-between gap-3">
           <UiButton
             variant="outline"
@@ -305,11 +284,6 @@ const activeFiltersCount = computed(() => {
               }}</span
             >
           </UiButton>
-
-          <CatalogoOrdenacaoDropdown
-            :model-value="filters.ordem"
-            @update:model-value="handleSortChange"
-          />
         </div>
       </div>
 
@@ -329,41 +303,29 @@ const activeFiltersCount = computed(() => {
 
         <!-- Coluna 2: Resultados e Grid de Produtos Desktop/Mobile -->
         <div class="flex-1 min-w-0 w-full lg:pl-8 xl:pl-10">
-          <!-- Cabeçalho de Resultados e Ordenação Desktop -->
-          <div
-            class="hidden lg:flex sm:items-center justify-between gap-3 mb-6"
-          >
-            <div>
-              <h1 class="text-sm sm:text-base text-stone-600 font-normal">
-                <template v-if="filters.name">
-                  Exibindo resultados para
-                  <span class="font-bold text-stone-900"
-                    >“{{ filters.name }}”</span
-                  >
-                </template>
-                <template v-else-if="filters.subcategoria">
-                  Exibindo móveis de
-                  <span class="font-bold text-stone-900">{{
-                    filters.subcategoria
-                  }}</span>
-                </template>
-                <template v-else-if="filters.categoria">
-                  Exibindo móveis para
-                  <span class="font-bold text-stone-900">{{
-                    filters.categoria
-                  }}</span>
-                </template>
-                <template v-else> Todos os móveis do catálogo </template>
-              </h1>
-            </div>
-
-            <!-- Dropdown de Ordenação Desktop -->
-            <div>
-              <CatalogoOrdenacaoDropdown
-                :model-value="filters.ordem"
-                @update:model-value="handleSortChange"
-              />
-            </div>
+          <!-- Cabeçalho de Resultados Desktop -->
+          <div class="hidden lg:flex sm:items-center justify-between gap-3 mb-6">
+            <h1 class="text-sm sm:text-base text-stone-600 font-normal">
+              <template v-if="filters.name">
+                Exibindo resultados para
+                <span class="font-bold text-stone-900"
+                  >“{{ filters.name }}”</span
+                >
+              </template>
+              <template v-else-if="filters.subcategoria">
+                Exibindo móveis de
+                <span class="font-bold text-stone-900">{{
+                  subcategoriaLabel
+                }}</span>
+              </template>
+              <template v-else-if="filters.categoria">
+                Exibindo móveis para
+                <span class="font-bold text-stone-900">{{
+                  categoriaLabel
+                }}</span>
+              </template>
+              <template v-else> Todos os móveis do catálogo </template>
+            </h1>
           </div>
 
           <!-- Estado de Carregamento (Skeleton) -->
@@ -382,6 +344,33 @@ const activeFiltersCount = computed(() => {
             </div>
           </div>
 
+          <!-- Estado de Erro: a API respondeu com erro -->
+          <div
+            v-else-if="loadError"
+            class="bg-white rounded-2xl border border-stone-200/80 p-12 text-center shadow-xs"
+          >
+            <div
+              class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4 text-stone-400"
+            >
+              <Icon icon="mdi:alert-circle-outline" class="w-8 h-8" />
+            </div>
+            <h3 class="text-lg font-bold text-neutral-dark mb-1">
+              Não foi possível carregar o catálogo
+            </h3>
+            <p class="text-sm text-stone-500 max-w-md mx-auto mb-6">
+              Ocorreu um erro ao buscar os produtos. Tente novamente em alguns
+              instantes.
+            </p>
+            <UiButton
+              variant="outline"
+              class="inline-flex items-center gap-2"
+              @click="fetchProducts"
+            >
+              <Icon icon="mdi:refresh" class="w-4 h-4" />
+              <span>Tentar de novo</span>
+            </UiButton>
+          </div>
+
           <!-- Grid de Produtos Responsivo (2 colunas no mobile, 3 no desktop) -->
           <div
             v-else-if="products.length > 0"
@@ -391,7 +380,6 @@ const activeFiltersCount = computed(() => {
               v-for="prod in products"
               :key="prod.id"
               :product="prod"
-              @click="router.push(`/catalogo/${prod.slug || prod.id}`)"
             />
           </div>
 
@@ -423,11 +411,11 @@ const activeFiltersCount = computed(() => {
             </UiButton>
           </div>
 
-          <!-- Paginação -->
+          <!-- Paginação sincronizada com ?page= -->
           <div v-if="products.length > 0 && !isLoading" class="mt-8">
             <UiPagination
-              :page="paginationMeta.currentPage"
-              :total-pages="paginationMeta.totalPages"
+              :page="currentPage"
+              :total-pages="totalPages"
               @update:page="handlePageChange"
             />
           </div>
@@ -472,6 +460,5 @@ const activeFiltersCount = computed(() => {
         </div>
       </div>
     </Teleport>
-
   </main>
 </template>

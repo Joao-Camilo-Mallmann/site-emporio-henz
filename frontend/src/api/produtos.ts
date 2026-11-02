@@ -1,4 +1,5 @@
 import { api as axios } from "@/plugins/axios";
+import { slugify } from "@/utils/slug";
 import type {
   IProduct,
   PaginatedProductsResponse,
@@ -36,18 +37,21 @@ export const produtosApi = {
     }));
 
     if (params?.category) {
-      const cat = params.category.toLowerCase().trim();
-      items = items.filter((p) => p.category.toLowerCase().trim() === cat);
+      const cat = slugify(params.category);
+      items = items.filter((p) => slugify(p.category) === cat);
     }
 
     if (params?.search) {
-      const s = params.search.toLowerCase().trim();
-      items = items.filter(
-        (p) =>
-          p.name.toLowerCase().includes(s) ||
-          p.category.toLowerCase().includes(s) ||
-          p.material.toLowerCase().includes(s),
-      );
+      // Mesma regra da API (RF05): termo e campos na forma de slug.
+      const s = slugify(params.search);
+      if (s) {
+        items = items.filter(
+          (p) =>
+            slugify(p.name).includes(s) ||
+            slugify(p.category).includes(s) ||
+            slugify(p.material).includes(s),
+        );
+      }
     }
 
     if (params?.availableOnly) {

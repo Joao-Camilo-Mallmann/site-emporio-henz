@@ -10,7 +10,8 @@
 ## 2. [FE] Formulário único
 
 - [x] 2.1 Incorporar a moldura e os estados de carga, erro, "não encontrado" e envio de `ProdutoTelaLayout` em `ProdutoForm.vue` e remover `ProdutoTelaLayout.vue`
-- [x] 2.2 Incorporar indicador de etapas horizontal `sticky` abaixo do `AppNavbar` (uma única marcação, títulos ocultos em telas estreitas exceto o atual)
+- [x] 2.2 Criar `components/ui/UiStepper.vue` (indicador de etapas horizontal, props em `UiStepperProps`) e usá-lo no `ProdutoForm` como `sticky` abaixo do `AppNavbar` (títulos ocultos em telas estreitas exceto o atual)
+- [x] 2.7 Documentar o `UiStepper` em `frontend/agents.md` e `docs/frontend/README.md`
 - [x] 2.3 Incorporar rodapé `sticky bottom-0` e remover `ProdutoFormNavegacao.vue`
 - [x] 2.4 Escrever o cabeçalho do cartão uma vez e renderizar a etapa atual com um `v-if` por etapa
 - [x] 2.5 Ocultar indicador e rodapé durante o envio dos arquivos, como hoje
@@ -19,7 +20,9 @@
 ## 3. [FE] Telas e listagem
 
 - [x] 3.1 Simplificar `ProdutoNewView` e `ProdutoEditView` para carregar dados, chamar a API e renderizar só `<ProdutoForm>` (o import de `ProdutoForm` continua, porque ele mora em `views/` e não é auto-importado)
-- [x] 3.2 Mover `ProdutoListCabecalho` e `ProdutoListTabela` para `components/admin/produtos/listagem/`
+- [x] 3.2 Incorporar `ProdutoListCabecalho` e `ProdutoListTabela` em `ProdutoListView.vue` e remover os dois arquivos
+- [x] 3.4 Atualizar o mapa de arquivos em `docs/frontend/README.md`
+- [x] 3.5 Conferir a listagem no navegador: filtros, busca, estado vazio, limpar filtros, edição e modal de desativação
 - [x] 3.3 Regenerar `components.d.ts` e conferir que não há nome de componente duplicado nem código morto
 
 ## 4. [FE] Validação

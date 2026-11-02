@@ -1,4 +1,10 @@
-import type { CatalogProductItem, ProductDetail } from "@/types";
+import type {
+  CatalogFilterParams,
+  CatalogProductItem,
+  CatalogResponse,
+  ProductDetail,
+} from "@/types";
+import { slugify } from "@/utils/slug";
 
 export const MOCK_CATALOG_PRODUCTS: CatalogProductItem[] = [
   {
@@ -337,5 +343,63 @@ export function getMockProductDetail(idOrSlug: string): ProductDetail | undefine
     relatedProducts: MOCK_CATALOG_PRODUCTS.filter(
       (p) => p.id !== found.id && p.category === found.category
     ).slice(0, 4),
+  };
+}
+
+/**
+ * Fallback usado só quando a API não responde: aplica ao catálogo mockado os
+ * mesmos filtros de `catalogoApi.buscarProdutos` (categoria e subcategoria na
+ * forma de slug, disponibilidade, faixa de preço e busca) e pagina no mesmo
+ * envelope `{ data, pagination }`.
+ */
+export function filtrarCatalogoMock(
+  params: CatalogFilterParams = {},
+): CatalogResponse {
+  let items = [...MOCK_CATALOG_PRODUCTS];
+
+  const categoria = params.categoria ? slugify(params.categoria) : "";
+  if (categoria) {
+    items = items.filter((p) => slugify(p.category) === categoria);
+  }
+
+  const subcategoria = params.subcategoria ? slugify(params.subcategoria) : "";
+  if (subcategoria) {
+    items = items.filter(
+      (p) => !!p.subcategory && slugify(p.subcategory) === subcategoria,
+    );
+  }
+
+  const termo = params.name ? slugify(params.name) : "";
+  if (termo) {
+    items = items.filter(
+      (p) =>
+        slugify(p.name).includes(termo) ||
+        slugify(p.category).includes(termo) ||
+        (!!p.subcategory && slugify(p.subcategory).includes(termo)),
+    );
+  }
+
+  const disponibilidade = params.disponibilidade ?? [];
+  if (disponibilidade.length === 1) {
+    items = items.filter((p) => p.availability === disponibilidade[0]);
+  }
+
+  if (typeof params.minPreco === "number" && !isNaN(params.minPreco)) {
+    const min = params.minPreco;
+    items = items.filter((p) => p.price >= min);
+  }
+  if (typeof params.maxPreco === "number" && !isNaN(params.maxPreco)) {
+    const max = params.maxPreco;
+    items = items.filter((p) => p.price <= max);
+  }
+
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 9;
+  const total = items.length;
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data: items.slice((page - 1) * limit, page * limit),
+    pagination: { page, limit, total, totalPages },
   };
 }
