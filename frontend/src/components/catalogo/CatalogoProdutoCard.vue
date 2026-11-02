@@ -76,7 +76,7 @@ function handleCardClick() {
   emit("click", props.product);
   const identifier = props.product.slug || props.product.id;
   if (identifier) {
-    router.push(`/produtos/${identifier}`);
+    router.push(`/catalogo/${identifier}`);
   }
 }
 

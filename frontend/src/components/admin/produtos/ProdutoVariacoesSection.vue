@@ -8,13 +8,13 @@ import {
   LABEL_CLASS,
   VARIATION_TYPE_OPTIONS,
   variationFieldId,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   createVariationItem,
   isHexColor,
   normalizeHexColor,
   variationLabel,
-} from "@/utils/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormEstado";
 
 // Lista de variações: incluir, mover e remover. A ordem da tela define o
 // `sortOrder` enviado à API (começando em 0). Cada cartão tem cabeçalho,

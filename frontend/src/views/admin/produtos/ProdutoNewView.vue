@@ -19,13 +19,13 @@ import ProdutoForm from "./ProdutoForm.vue";
 import {
   apiErrorMessage,
   FIELD_IDS,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   createEmptyForm,
   resolveVariationIds,
   revokeFormObjectUrls,
   toCreatePayload,
-} from "@/utils/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormEstado";
 
 // Casca da tela `/admin/produtos/novo`: carga das opções, regra do seletor de
 // fornecedor por perfil e gravação em etapas (design D5, D6 e D9):

@@ -5,7 +5,7 @@ import type {
   ISupplier,
   UiSelectOption,
 } from "@/types";
-import { AVAILABILITY_OPTIONS } from "@/utils/produtos/produtoFormConstantes";
+import { AVAILABILITY_OPTIONS } from "@/utils/admin/produtos/produtoFormConstantes";
 import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 

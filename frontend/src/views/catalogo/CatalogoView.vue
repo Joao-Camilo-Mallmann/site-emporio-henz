@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import CatalogFilterSidebar from "@/components/catalogo/CatalogFilterSidebar.vue";
-import CatalogProductCard from "@/components/catalogo/CatalogProductCard.vue";
-import CatalogSortDropdown from "@/components/catalogo/CatalogSortDropdown.vue";
+import CatalogoFiltroLateral from "@/components/catalogo/CatalogoFiltroLateral.vue";
+import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
+import CatalogoOrdenacaoDropdown from "@/components/catalogo/CatalogoOrdenacaoDropdown.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import { catalogoApi } from "@/api/catalogo";
 import type {
@@ -306,7 +306,7 @@ const activeFiltersCount = computed(() => {
             >
           </UiButton>
 
-          <CatalogSortDropdown
+          <CatalogoOrdenacaoDropdown
             :model-value="filters.ordem"
             @update:model-value="handleSortChange"
           />
@@ -319,7 +319,7 @@ const activeFiltersCount = computed(() => {
         <div
           class="hidden lg:block w-72 xl:w-80 shrink-0 pr-6 xl:pr-8 border-r border-stone-200"
         >
-          <CatalogFilterSidebar
+          <CatalogoFiltroLateral
             :filters="filters"
             @update:filters="handleDesktopFiltersUpdate"
             @apply="handleApplyFilters"
@@ -359,7 +359,7 @@ const activeFiltersCount = computed(() => {
 
             <!-- Dropdown de Ordenação Desktop -->
             <div>
-              <CatalogSortDropdown
+              <CatalogoOrdenacaoDropdown
                 :model-value="filters.ordem"
                 @update:model-value="handleSortChange"
               />
@@ -387,11 +387,11 @@ const activeFiltersCount = computed(() => {
             v-else-if="products.length > 0"
             class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"
           >
-            <CatalogProductCard
+            <CatalogoProdutoCard
               v-for="prod in products"
               :key="prod.id"
               :product="prod"
-              @click="router.push(`/produtos/${prod.slug || prod.id}`)"
+              @click="router.push(`/catalogo/${prod.slug || prod.id}`)"
             />
           </div>
 
@@ -457,7 +457,7 @@ const activeFiltersCount = computed(() => {
             </UiButton>
           </div>
 
-          <CatalogFilterSidebar
+          <CatalogoFiltroLateral
             :filters="filters"
             @update:filters="handleFiltersUpdate"
             @apply="
