@@ -115,16 +115,19 @@ function toggleFavorite() {
 }
 
 async function handleShare() {
+  if (!product.value) return;
+
+  const productRoute = router.resolve({
+    name: "produto-detalhe",
+    params: { id: product.value.slug || product.value.id },
+  });
+  const url = new URL(productRoute.href, window.location.origin).toString();
+
   try {
-    const url = window.location.href;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(url);
-      toast.success("Link copiado para a área de transferência!");
-    } else {
-      toast.info(`Link do produto: ${url}`);
-    }
+    await navigator.clipboard.writeText(url);
+    toast.success("Link copiado para a área de transferência!");
   } catch {
-    toast.info(`Link do produto: ${window.location.href}`);
+    toast.error("Não foi possível copiar o link do produto.");
   }
 }
 
