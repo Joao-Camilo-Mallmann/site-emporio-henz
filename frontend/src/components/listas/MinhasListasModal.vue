@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useListasStore } from "@/stores/listas";
 import type { UserList } from "@/types";
+import { storeSiteUrl, storeWhatsappUrl } from "@/utils/phone";
 import { Icon } from "@iconify/vue";
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -138,7 +139,7 @@ function handleRemoveItem(itemId: string) {
 
 async function copyPublicLink() {
   if (!activeList.value) return;
-  const shareUrl = `${window.location.origin}/catalogo?lista=${activeList.value.shareSlug}`;
+  const shareUrl = storeSiteUrl(`/catalogo?lista=${activeList.value.shareSlug}`);
 
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -158,8 +159,7 @@ function openWhatsApp() {
     return;
   }
 
-  const storePhone = "5551999999999"; // Número oficial de atendimento da loja
-  const shareUrl = `${window.location.origin}/catalogo?lista=${activeList.value.shareSlug}`;
+  const shareUrl = storeSiteUrl(`/catalogo?lista=${activeList.value.shareSlug}`);
 
   let message = `Olá! Gostaria de solicitar um orçamento para a minha lista "${activeList.value.name}" no Empório Henz:\n\n`;
 
@@ -172,8 +172,7 @@ function openWhatsApp() {
   message += `*Link da Lista:* ${shareUrl}\n\n`;
   message += `Gostaria de saber mais sobre as condições de pagamento e prazo de entrega.`;
 
-  const waUrl = `https://wa.me/${storePhone}?text=${encodeURIComponent(message)}`;
-  window.open(waUrl, "_blank");
+  window.open(storeWhatsappUrl(message), "_blank");
 }
 
 function goToCatalog() {

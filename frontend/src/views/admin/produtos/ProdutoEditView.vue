@@ -25,14 +25,14 @@ import ProdutoForm from "./ProdutoForm.vue";
 import {
   apiErrorMessage,
   FIELD_IDS,
-} from "@/utils/produtos/produtoFormConstantes";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   createEmptyForm,
   formFromProduct,
   resolveVariationIds,
   revokeFormObjectUrls,
   toUpdatePayload,
-} from "@/utils/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormEstado";
 
 // Casca da tela `/admin/produtos/:id/editar`. Reaproveita o `ProdutoForm` do
 // cadastro: carrega o produto no formulário, grava com `PUT /produtos/:id` e

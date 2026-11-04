@@ -18,6 +18,8 @@ const form = reactive({
 });
 
 const showPassword = ref(false);
+// Preenchido pelo PasswordStrengthPanel via v-model:valid
+const isPasswordSecure = ref(false);
 const showConfirmPassword = ref(false);
 const loading = ref(false);
 const generalError = ref("");
@@ -73,9 +75,6 @@ function validate(): boolean {
   if (!form.password) {
     formErrors.password = "Crie uma senha.";
     valid = false;
-  } else if (form.password.length < 8) {
-    formErrors.password = "A senha deve conter no mínimo 8 caracteres.";
-    valid = false;
   }
 
   if (!form.confirmPassword) {
@@ -83,6 +82,10 @@ function validate(): boolean {
     valid = false;
   } else if (form.password !== form.confirmPassword) {
     formErrors.confirmPassword = "As senhas não coincidem.";
+    valid = false;
+  } else if (!isPasswordSecure.value) {
+    formErrors.password =
+      "A senha deve cumprir todos os requisitos de segurança abaixo.";
     valid = false;
   }
 
@@ -251,7 +254,7 @@ async function handleSubmit() {
             for="password"
             class="block text-sm font-bold text-stone-900 mb-2"
           >
-            Senha (mínimo 8 caracteres)
+            Senha
           </label>
           <div class="relative">
             <input
@@ -283,6 +286,12 @@ async function handleSubmit() {
           <p v-if="formErrors.password" class="mt-1 text-xs text-rose-600">
             {{ formErrors.password }}
           </p>
+          <PasswordStrengthPanel
+            v-model:valid="isPasswordSecure"
+            :password="form.password"
+            :confirm-password="form.confirmPassword"
+            class="mt-3"
+          />
         </div>
 
         <!-- Confirmação de Senha -->
@@ -354,7 +363,7 @@ async function handleSubmit() {
             variant="link"
             size="none"
             class="ml-1"
-            @click="$router.push('/login')"
+            @click="$router.push({ path: '/login', query: $route.query })"
           >
             Fazer login
           </UiButton>

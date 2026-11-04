@@ -15,6 +15,7 @@ Este arquivo é o contexto completo do ambiente **frontend**: cobre `frontend/` 
 > - **DECOMPOSIÇÃO ESTRITA DE TAREFAS:** Telas e componentes correspondem a tarefas `[FE]` integradas a rotas `[BE]` e esquemas de dados previamente estruturados. Consulte [docs/padrao-historias-tarefas.md](../docs/padrao-historias-tarefas.md).
 > - **DESIGN SYSTEM E PADRONIZAÇÃO DE CORES (OBRIGATÓRIO):** É estritamente proibido usar valores hexadecimais arbitrários nas classes de estilo. Use apenas os tokens semânticos do tema Tailwind configurados em `src/style.css`. O catálogo canônico está em [docs/frontend/design-system-cores.md](../docs/frontend/design-system-cores.md).
 > - **COMPONENTES DE UI DO DESIGN SYSTEM (OBRIGATÓRIO):** Construa interfaces e disparadores de ação apenas com os componentes globais de `src/components/ui/`, conforme a seção 1.2. É estritamente proibido utilizar tags `<button>` ou `<select>` nativas soltas com estilos arbitrários: ações usam `<UiButton>` e listas de escolha usam `<UiSelect>`.
+> - **MODAIS EM COMPONENTE PRÓPRIO (OBRIGATÓRIO):** Toda modal é um componente separado (ex.: `components/listas/MinhasListasModal.vue`) construído sobre `<UiModal>`, nunca um bloco `<UiModal>` escrito dentro de uma tela ou componente maior. Antes de criar uma nova, procure uma modal existente que possa ser reaproveitada ou generalizada via props e slots. Veja a seção 1.3.
 > - **PAGINAÇÃO (OBRIGATÓRIO):** Toda listagem paginada usa `<UiPagination>`. Veja a seção 4.
 > - **TAMANHO DE ARQUIVO (OBRIGATÓRIO):** Telas, componentes, composables e utilitários novos ou alterados ficam entre 150 e 500 linhas. Acima de 500, divida por responsabilidade. Abaixo de 150, junte a uma peça vizinha da mesma área, sem enchimento de linhas vazias, comentários ou código morto. O módulo de produto (`views/admin/produtos/`, `components/produtos/`, `utils/produtos/`) segue essa faixa. Os componentes base de `src/components/ui/` (ex.: `UiButton`, `UiSelect`) só respeitam o máximo, porque são primitivas pequenas por natureza.
 > - **MANUTENÇÃO DOCUMENTAL:** Mudanças de comportamento do produto atualizam primeiro o PRD. Demais atualizações seguem a seção 5.
@@ -42,7 +43,7 @@ O frontend possui auto-import automático de componentes configurado no Vite via
 | Componente | Uso obrigatório em |
 | --- | --- |
 | `<UiButton>` | Qualquer botão, link com cara de botão ou ação interativa. Variantes: `'primary'`, `'secondary'`, `'outline'`, `'ghost'`, `'danger'` e `'link'`. Tamanhos: `'xs'`, `'sm'`, `'md'`, `'lg'`, `'xl'`, `'icon'` e `'none'`. Suporta `block` (largura total) e `:loading` (spinner integrado). |
-| `<UiModal>` | Diálogos, confirmações e modais. |
+| `<UiModal>` | Base de diálogos, confirmações e modais. Usado só dentro de um componente de modal próprio, conforme a seção 1.3. |
 | `<UiCard>` | Superfícies de conteúdo. |
 | `<UiFloatingActions>` e `<UiFloatingButton>` | Ações flutuantes. |
 | `<UiPagination>` | Paginação de qualquer listagem. Veja a seção 4. |
@@ -57,6 +58,13 @@ O frontend possui auto-import automático de componentes configurado no Vite via
 - **Paginação**: use `<UiPagination>`, nunca botões Anterior/Próxima montados à mão. Veja a seção 4.
 - **Select de Formulário**: `<UiSelect v-model="form.categoryId" id="product-category" label="Categoria" required :options="categoryOptions" placeholder="Selecione" :error="errors.category" />`
 - **Select de Filtro**: `<UiSelect v-model="status" size="sm" :block="false" aria-label="Status" :options="statusOptions" placeholder="Todos os status" />`
+
+### 1.3. Modais como Componentes Separados
+
+- Cada modal vive no seu próprio arquivo `*Modal.vue`, na pasta de componentes do domínio (ex.: `src/components/listas/SalvarEmListaModal.vue`), e usa `<UiModal>` como base.
+- A tela ou o componente pai só controla a abertura (`v-model` ou prop `open` + evento `close`) e recebe o resultado por eventos. Conteúdo, estado interno e ações da modal ficam no componente da modal.
+- É proibido declarar `<UiModal>` com conteúdo inline dentro de views ou de componentes maiores.
+- Reutilize antes de criar: se já existe uma modal parecida (confirmação, formulário, seleção), generalize-a com props e slots em vez de duplicar. Modais genéricas, sem regra de domínio, ficam em `src/components/ui/`.
 
 ---
 

@@ -28,6 +28,7 @@ Este documento organiza a execução do portal da Empório Henz em histórias, r
   - [Processo e Robustez Final (2,0 pts)](#processo-e-robustez-final-20-pts)
 - [Segurança: sessão em cookie e travas de autorização](#segurança-sessão-em-cookie-e-travas-de-autorização)
 - [Interface: componente global de paginação](#interface-componente-global-de-paginação)
+- [Integridade: amarração de produtos à categoria](#integridade-amarração-de-produtos-à-categoria)
 
 ---
 
@@ -805,7 +806,7 @@ O formulário deve ser organizado por etapas ou seções lógicas:
 
 Apresenta o catálogo público da Empório Henz conforme o layout do Figma. Possui sidebar lateral no desktop e botão de filtros em gaveta no mobile. Cada card de produto exibe foto principal nítida, selo de pronta entrega ou prazo em dias, preço de referência, acabamentos disponíveis e botão para ver detalhes.
 
-#### 🎨 Especificação Técnica (`frontend/src/views/CatalogoView.vue`)
+#### 🎨 Especificação Técnica (`frontend/src/views/catalogo/CatalogoView.vue`)
 
 - Componente de barra lateral com checkboxes de categorias, opções de disponibilidade e slider de preço.
 - Grid de cards responsivo (1 coluna mobile, 2 tablet, 3-4 desktop).
@@ -859,7 +860,7 @@ Atende ao **RF06**. Elementos obrigatórios na tela:
 5. **Card de Convite Oficial**: Convidando o cliente a visitar a loja física em Cruzeiro do Sul para ver e tocar nas amostras reais de tecidos e madeiras.
 6. Botão para Salvar em Lista e Botão "Comprar pelo WhatsApp".
 
-#### 🎨 Especificação Técnica (`frontend/src/views/ProdutoDetalheView.vue`)
+#### 🎨 Especificação Técnica (`frontend/src/views/catalogo/CatalogoProdutoDetalheView.vue`)
 
 - Carrossel de imagens com suporte a toque/swipe em telas mobile.
 - Seletores de cor com hexadecimais estilizados.
@@ -1010,6 +1011,7 @@ No card de cada produto e na página de detalhes, o botão "Salvar" abre um moda
 - [x] O usuário consegue salvar qualquer produto em qualquer uma de suas listas.
 - [x] Criação e remoção de pastas personalizadas funciona de forma reativa.
 - [x] A exclusão das listas padrão do sistema é devidamente bloqueada na UI.
+- [x] Visitante não autenticado que clica em salvar recebe o convite para entrar ou se cadastrar, e o salvamento é retomado após o login (PRD UC04, A1).
 
 ---
 
@@ -1359,7 +1361,7 @@ Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por t
 
 - **Tipos** (`src/types/pagination.ts`): `PaginationParams`, `PaginationMeta` e `Paginated<T>`, espelhando `backend/src/lib/pagination.ts`. Os `Paginated*Response` viram aliases e os `*FilterParams` estendem `PaginationParams`, sem mudar os nomes exportados.
 - **Componente** (`src/components/ui/UiPagination.vue`): props `page`, `totalPages`, `total?`, `itemLabel?` (padrão `"registros"`) e `disabled?`, evento `update:page`, declaradas em `UiPaginationProps` (`src/types/components.ts`). Usa só `UiButton`, `aria-current="page"` e tokens do design system.
-- **Consumidores**: as três `*ListView.vue` do admin e `src/views/CatalogoView.vue` passam a usar `<UiPagination>`; o estado e as funções de carga das views não mudam.
+- **Consumidores**: as três `*ListView.vue` do admin e `src/views/catalogo/CatalogoView.vue` passam a usar `<UiPagination>`; o estado e as funções de carga das views não mudam.
 - **Documentação**: seção "Paginação de listagens" em `frontend/agents.md` e `UiPagination` em `docs/frontend/README.md`.
 
 #### ✅ Critérios de Aceitação
@@ -1370,5 +1372,44 @@ Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por t
 - [ ] `/catalogo` usa `UiPagination` sem resumo, mantém `?page=` sincronizado e esconde a paginação com página única.
 - [x] `CatalogPagination.vue` removido e sem referências em `frontend/src`.
 - [x] `bun run check-types`, `bun run lint` e `bun run build` passam no diretório `frontend`.
+
+---
+
+# Integridade: amarração de produtos à categoria
+
+Pacote definido a partir do [RF04 e da exceção E2 do UC09](../PRD.md): todo produto fica amarrado à sua categoria, e a categoria não pode ser excluída enquanto tiver produto vinculado. Não há mudança de schema; as chaves estrangeiras já existem na migração `010`, mas o `ON DELETE RESTRICT` não protege o soft delete. Acompanha o change OpenSpec `be-bloqueio-exclusao-categoria`.
+
+---
+
+### [US-BE-17] Bloquear a exclusão de categoria com produtos vinculados
+
+**Como** Administrador do Sistema,  
+**Quero** que a API recuse a exclusão de uma categoria que ainda tenha produtos,  
+**Para que** nenhum produto fique apontando para uma categoria excluída, sumindo dos filtros do catálogo e quebrando o formulário de edição.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF04** (UC09, E2). Hoje `DELETE /api/v1/categorias/:id` aplica soft delete na categoria e nos subtipos sem consultar `products`.
+
+- Conta como vínculo todo produto com `deleted_at IS NULL`, ativo ou inativo: o inativo continua no painel e pode ser reativado.
+- Produto já excluído logicamente não bloqueia.
+- Na recusa, nem a categoria nem os subtipos são alterados.
+- A checagem e o soft delete rodam na mesma transação, com a linha da categoria bloqueada por `FOR UPDATE`.
+- Fora de escopo: exclusão de subtipo com produtos vinculados e desativação (`active = false`) da categoria.
+
+#### ⚙️ Especificação Técnica (`backend`)
+
+- `DELETE /api/v1/categorias/:id` responde `409 Conflict` com a quantidade de produtos vinculados na mensagem.
+- O controller chama `assertCanDeleteCategory` (schema) antes do service, que só executa `softDeleteCategoryWithCascade`; o SQL do delete repete a checagem com a categoria bloqueada.
+- Collection Bruno: `Categories/Delete Category.bru` documenta o `409`.
+
+#### ✅ Critérios de Aceitação
+
+- [x] Categoria com produto ativo ou inativo vinculado responde `409` e informa a quantidade.
+- [x] Na recusa, a categoria e os subtipos continuam com `deleted_at` nulo.
+- [x] Categoria sem produtos, ou só com produtos excluídos logicamente, é excluída com os subtipos e responde `200`.
+- [x] Categoria inexistente ou já excluída responde `404`.
+- [x] `bun test`, `bun run check-types` e `bun run lint` passam no diretório `backend`.
+- [ ] Validação manual pela collection Bruno contra o PostgreSQL.
 
 

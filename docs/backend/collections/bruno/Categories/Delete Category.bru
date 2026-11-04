@@ -22,4 +22,7 @@ docs {
   Exclusivo do Administrador (`401` sem token, `403` para outros perfis).
   Soft delete: preenche `deleted_at` na categoria e, na mesma transação, em todos os seus subtipos.
   `400` se `:id` não for um UUID válido. `404` se a categoria não existir.
+  `409` se houver produto não excluído (ativo ou inativo) vinculado à categoria. A mensagem traz a quantidade, por exemplo:
+  `{ "error": "Conflict", "message": "Não é possível excluir a categoria: há 2 produtos vinculados. Exclua os produtos ou mova-os para outra categoria antes." }`
+  Na recusa, nem a categoria nem os subtipos são alterados. Produtos já excluídos logicamente não bloqueiam.
 }
