@@ -2,59 +2,19 @@
 import HeroBannerDesktop from "@/components/home/HeroBannerDesktop.vue";
 import HeroBannerMobile from "@/components/home/HeroBannerMobile.vue";
 import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
+import { linkCategoria, useAppStore } from "@/stores/app";
 import type { CatalogProductItem } from "@/types";
 import { Icon } from "@iconify/vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
+const appStore = useAppStore();
 const hoveredCategory = ref<string | null>(null);
 const selectedCategory = ref<string>("");
 
-interface CategoryItem {
-  id: string;
-  name: string;
-  image: string;
-  slug: string;
-}
-
-// Categorias extraídas diretamente do Figma
-const categories: CategoryItem[] = [
-  {
-    id: "1",
-    name: "Quarto",
-    image: "/images/categories/cat-quarto.webp",
-    slug: "quarto",
-  },
-  {
-    id: "2",
-    name: "Sala de Estar",
-    image: "/images/categories/cat-sala-estar.webp",
-    slug: "sala-de-estar",
-  },
-  {
-    id: "3",
-    name: "Sala de Jantar",
-    image: "/images/categories/cat-sala-jantar.webp",
-    slug: "sala-de-jantar",
-  },
-  {
-    id: "4",
-    name: "Cozinha",
-    image: "/images/categories/cat-cozinha.webp",
-    slug: "cozinha",
-  },
-  {
-    id: "5",
-    name: "Escritório",
-    image: "/images/categories/cat-escritorio.webp",
-    slug: "escritorio",
-  },
-  {
-    id: "6",
-    name: "Banheiro",
-    image: "/images/categories/cat-banheiro.webp",
-    slug: "banheiro",
-  },
-];
+// Cards fixos do Figma, filtrados pelas categorias que existem na API (ver CARDS_HOME na store)
+onMounted(() => {
+  void appStore.carregarCategorias();
+});
 
 // Destaques conforme Figma e catálogo mockado (p-12, p-9, p-10, p-11)
 const destaques: CatalogProductItem[] = [
@@ -182,9 +142,9 @@ const recomendados: CatalogProductItem[] = [
         class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5"
       >
         <RouterLink
-          v-for="cat in categories"
-          :key="cat.id"
-          :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
+          v-for="cat in appStore.cardsHome"
+          :key="cat.slug"
+          :to="linkCategoria(cat)"
           @mouseenter="hoveredCategory = cat.slug"
           @mouseleave="hoveredCategory = null"
           @click="selectedCategory = cat.slug"
