@@ -19,11 +19,12 @@ A home tem 6 cards com imagens recortadas do Figma (`/images/categories/cat-*.we
 
 ## Decisions
 
-### 1. Estado e regras na store `app`
-- **Decisão:** Tudo fica em `useAppStore`, no mesmo padrão de `carregarProdutos()`:
-  - a carga: `categorias`, `categoriasLoading`, `categoriasError`, `categoriasCarregadas` e `carregarCategorias()`;
-  - os recortes: `categoriasBarra`, `categoriasMais` e `cardsHome`;
-  - os helpers e constantes exportados: `CARDS_HOME`, `MAX_ITENS_BARRA`, `encontrarCategoria`, `linkCategoria` e `linkSubcategoria`.
+### 1. Estado e regras na store `categorias`
+- **Decisão:** Tudo fica em `useCategoriasStore` (`frontend/src/stores/categorias.ts`):
+  - a carga: `lista`, `loading`, `error`, `carregadas` e `carregar()`;
+  - os recortes: `barra`, `mais` e `cardsHome`;
+  - os helpers e constantes exportados: `CARDS_HOME`, `MAX_ITENS_BARRA` e `encontrarCategoria`.
+  - os links para o catálogo não passam pela store: cada componente monta o `:to` direto (`/catalogo?categoria=<slug>` e `&subcategoria=<nome>`).
 - **Justificativa:** O `frontend/AGENTS.md` (§2.4) manda a store consumir só `src/api/`. Um composable só com as regras ficaria abaixo do mínimo de 150 linhas exigido para composables. Com tudo na store, home, barra e drawer usam a mesma regra.
 - **Carga única:** a primeira chamada guarda a promise; chamadas simultâneas a reaproveitam e, depois do sucesso, não há nova requisição. Em caso de erro, a próxima montagem tenta de novo.
 

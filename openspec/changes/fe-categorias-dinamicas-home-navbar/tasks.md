@@ -1,7 +1,7 @@
 ## 1. Carga e regras de navegação
 
-- [x] 1.1 `[FE]` Adicionar `categorias`, `categoriasLoading`, `categoriasError`, `categoriasCarregadas` e `carregarCategorias()` em `frontend/src/stores/app.ts` (todas as páginas, `limit` 100, filtro de ativos, promise compartilhada)
-- [x] 1.2 `[FE]` Adicionar na mesma store `CARDS_HOME`, `MAX_ITENS_BARRA`, `encontrarCategoria`, `linkCategoria`, `linkSubcategoria` e os recortes `cardsHome`, `categoriasBarra` e `categoriasMais`
+- [x] 1.1 `[FE]` Criar `useCategoriasStore` com `lista`, `loading`, `error`, `carregadas` e `carregar()` em `frontend/src/stores/categorias.ts` (todas as páginas, `limit` 100, filtro de ativos, promise compartilhada)
+- [x] 1.2 `[FE]` Adicionar na mesma store `CARDS_HOME`, `MAX_ITENS_BARRA`, `encontrarCategoria` e os recortes `cardsHome`, `barra` e `mais` (links para o catálogo ficam inline nos componentes)
 
 ## 2. Home
 

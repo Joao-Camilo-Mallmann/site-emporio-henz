@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { linkCategoria, linkSubcategoria, useCategoriasStore } from "@/stores/categorias";
+import { useCategoriasStore } from "@/stores/categorias";
 import { Icon } from "@iconify/vue";
 import { onMounted, onUnmounted, ref } from "vue";
 
@@ -95,7 +95,7 @@ onUnmounted(() => {
     >
       <!-- Botão da Categoria -->
       <RouterLink
-        :to="linkCategoria(cat)"
+        :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
         @click="fechar"
         class="flex items-center gap-1 font-medium text-white hover:bg-white/15 px-1 lg:px-3 py-1 rounded-md transition-all cursor-pointer whitespace-nowrap"
       >
@@ -127,7 +127,7 @@ onUnmounted(() => {
           <RouterLink
             v-for="sub in cat.subtypes"
             :key="sub.id"
-            :to="linkSubcategoria(cat, sub)"
+            :to="{ path: '/catalogo', query: { categoria: cat.slug, subcategoria: sub.name } }"
             @click="fechar"
             class="flex items-center justify-between px-3 py-1.5 text-xs text-stone-700 hover:bg-sky-50 hover:text-secondary rounded-lg transition-colors cursor-pointer group/item"
           >
@@ -179,7 +179,7 @@ onUnmounted(() => {
             :class="index > 0 && 'border-t border-stone-100 mt-1 pt-1'"
           >
             <RouterLink
-              :to="linkCategoria(cat)"
+              :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
               @click="fechar"
               class="flex items-center justify-between px-3 py-1.5 text-[10px] font-bold text-stone-500 uppercase tracking-wider hover:bg-sky-50 hover:text-secondary rounded-lg transition-colors cursor-pointer group/item"
             >
@@ -192,7 +192,7 @@ onUnmounted(() => {
             <RouterLink
               v-for="sub in cat.subtypes"
               :key="sub.id"
-              :to="linkSubcategoria(cat, sub)"
+              :to="{ path: '/catalogo', query: { categoria: cat.slug, subcategoria: sub.name } }"
               @click="fechar"
               class="flex items-center justify-between px-3 py-1.5 text-xs text-stone-700 hover:bg-sky-50 hover:text-secondary rounded-lg transition-colors cursor-pointer group/item"
             >

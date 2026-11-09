@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { linkCategoria, linkSubcategoria, useCategoriasStore } from "@/stores/categorias";
+import { useCategoriasStore } from "@/stores/categorias";
 import { useAuthStore } from "@/stores/auth";
 import { useListasStore } from "@/stores/listas";
 import { Icon } from "@iconify/vue";
@@ -140,7 +140,7 @@ onMounted(() => {
                 class="pb-3 pl-3 space-y-1 animate-in fade-in duration-200"
               >
                 <RouterLink
-                  :to="linkCategoria(cat)"
+                  :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
                   @click="close"
                   class="block py-1.5 px-2.5 text-xs font-semibold text-sky-200 hover:text-white hover:bg-white/15 rounded-md transition-colors"
                 >
@@ -149,7 +149,7 @@ onMounted(() => {
                 <RouterLink
                   v-for="sub in cat.subtypes"
                   :key="sub.id"
-                  :to="linkSubcategoria(cat, sub)"
+                  :to="{ path: '/catalogo', query: { categoria: cat.slug, subcategoria: sub.name } }"
                   @click="close"
                   class="block py-1.5 px-2.5 text-sm text-white/90 hover:text-white hover:bg-white/15 rounded-md transition-colors"
                 >

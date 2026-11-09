@@ -9,12 +9,12 @@ Quando o administrador cria, renomeia ou desativa uma categoria, a navegação p
 
 ## What Changes
 
-- **Carga única das categorias e regras de navegação (`frontend/src/stores/app.ts`)**:
-  - Estado `categorias` com `carregarCategorias()`. Busca todas as páginas de `GET /categorias` (`limit` 100), filtra `active` no cliente (o token de Admin traz inativos) e reaproveita a mesma promise entre navbar e home.
+- **Carga única das categorias e regras de navegação (`frontend/src/stores/categorias.ts`)**:
+  - Store `useCategoriasStore` com `lista` e `carregar()`. Busca todas as páginas de `GET /categorias` (`limit` 100), filtra `active` no cliente (o token de Admin traz inativos) e reaproveita a mesma promise entre navbar e home.
   - Os 6 cards fixos da home (`CARDS_HOME`), com as imagens do Figma.
   - O casamento card ↔ categoria por slug, com fallback no nome normalizado (`encontrarCategoria`).
-  - A divisão da barra (`categoriasBarra`, `categoriasMais`): até 6 itens; com 7 ou mais, 5 categorias + "Mais".
-  - Os links para o catálogo (`linkCategoria`, `linkSubcategoria`).
+  - A divisão da barra (`barra`, `mais`): até 6 itens; com 7 ou mais, 5 categorias + "Mais".
+  - Os links para o catálogo ficam direto em cada componente (`/catalogo?categoria=<slug>` e `&subcategoria=<nome>`), sem helper na store.
 - **Home (`HomeView.vue`)**: os cards continuam fixos, mas só aparecem os que têm categoria correspondente na listagem, com o slug real da API.
 - **Navbar**:
   - A barra desktop (`AppNavbarCategorias.vue`) e o drawer mobile (`AppNavbarDrawer.vue`) passam a usar as categorias e subcategorias reais.
@@ -33,7 +33,7 @@ Quando o administrador cria, renomeia ou desativa uma categoria, a navegação p
 
 ## Impact
 
-- Afeta `frontend/src/stores/app.ts`, `frontend/src/views/HomeView.vue` e `frontend/src/components/layout/AppNavbar.vue`.
+- Afeta `frontend/src/stores/categorias.ts`, `frontend/src/views/HomeView.vue` e `frontend/src/components/layout/AppNavbar.vue`.
 - Cria três componentes em `frontend/src/components/layout/`.
 - Atualiza `docs/frontend/README.md`.
 - Sem mudança no backend, no banco ou na collection Bruno: a rota pública já existe.

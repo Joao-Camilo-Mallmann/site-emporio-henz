@@ -2,7 +2,7 @@
 import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
 import HeroBannerDesktop from "@/components/home/HeroBannerDesktop.vue";
 import HeroBannerMobile from "@/components/home/HeroBannerMobile.vue";
-import { linkCategoria, useCategoriasStore } from "@/stores/categorias";
+import { useCategoriasStore } from "@/stores/categorias";
 import type { CatalogProductItem } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
@@ -144,7 +144,7 @@ const recomendados: CatalogProductItem[] = [
         <RouterLink
           v-for="cat in categoriasStore.cardsHome"
           :key="cat.slug"
-          :to="linkCategoria(cat)"
+          :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
           @mouseenter="hoveredCategory = cat.slug"
           @mouseleave="hoveredCategory = null"
           @click="selectedCategory = cat.slug"

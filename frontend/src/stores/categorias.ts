@@ -1,9 +1,8 @@
 import { categoriasApi } from "@/api";
-import type { ICategory, ISubtype } from "@/types";
+import type { ICategory } from "@/types";
 import { slugify } from "@/utils/slug";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import type { RouteLocationRaw } from "vue-router";
 
 const POR_PAGINA = 100;
 
@@ -59,44 +58,6 @@ export function encontrarCategoria(
   );
 }
 
-export function linkCategoria(
-  categoria: Pick<ICategory, "slug">,
-): RouteLocationRaw {
-  return { path: "/catalogo", query: { categoria: categoria.slug } };
-}
-
-export function linkSubcategoria(
-  categoria: Pick<ICategory, "slug">,
-  subtipo: Pick<ISubtype, "name">,
-): RouteLocationRaw {
-  return {
-    path: "/catalogo",
-    query: { categoria: categoria.slug, subcategoria: subtipo.name },
-  };
-}
-
-/** Percorre todas as páginas e devolve só categorias e subtipos ativos. */
-async function buscarCategoriasAtivas(): Promise<ICategory[]> {
-  const todas: ICategory[] = [];
-  let page = 1;
-  let totalPages = 1;
-  do {
-    const resposta = await categoriasApi.listar({ page, limit: POR_PAGINA });
-    todas.push(...resposta.data);
-    totalPages = resposta.pagination.totalPages || 1;
-    page += 1;
-  } while (page <= totalPages);
-
-  // Com token de Admin a API devolve também os inativos; o site público nunca os mostra
-  return todas
-    .filter((categoria) => categoria.active)
-    .map((categoria) => ({
-      ...categoria,
-      subtypes: (categoria.subtypes ?? []).filter((sub) => sub.active),
-    }));
-}
-
-/** Categorias públicas (navbar, drawer e vitrine da home), carregadas uma vez por sessão. */
 export const useCategoriasStore = defineStore("categorias", () => {
   const lista = ref<ICategory[]>([]);
   const loading = ref(false);
@@ -122,6 +83,26 @@ export const useCategoriasStore = defineStore("categorias", () => {
       }
     })();
     return pendente;
+  }
+
+  async function buscarCategoriasAtivas(): Promise<ICategory[]> {
+    const todas: ICategory[] = [];
+    let page = 1;
+    let totalPages = 1;
+    do {
+      const resposta = await categoriasApi.listar({ page, limit: POR_PAGINA });
+      todas.push(...resposta.data);
+      totalPages = resposta.pagination.totalPages || 1;
+      page += 1;
+    } while (page <= totalPages);
+
+    // Com token de Admin a API devolve também os inativos; o site público nunca os mostra
+    return todas
+      .filter((categoria) => categoria.active)
+      .map((categoria) => ({
+        ...categoria,
+        subtypes: (categoria.subtypes ?? []).filter((sub) => sub.active),
+      }));
   }
 
   // Até 6 categorias cabem na barra; a partir da 7ª, 5 ficam visíveis e o botão "Mais" ocupa o 6º espaço
