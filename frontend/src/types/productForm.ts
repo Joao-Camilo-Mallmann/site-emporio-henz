@@ -1,6 +1,6 @@
 // Estado local do formulário de produto (`/admin/produtos/novo` e `/:id/editar`).
 // As funções que operam sobre esses tipos ficam em
-// `src/utils/produtos/produtoFormEstado.ts` e
+// `src/utils/admin/produtos/produtoFormEstado.ts` e
 // `produtoFormValidacao.ts`.
 
 import type {

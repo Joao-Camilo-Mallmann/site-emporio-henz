@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import contato from "@/data/contato.json";
 import type { UiFloatingActionsProps } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
 const props = withDefaults(defineProps<UiFloatingActionsProps>(), {
-  whatsappNumber: "5551998981063",
+  whatsappNumber: contato.whatsapp,
   whatsappMessage:
     "Olá, gostaria de informações sobre o catálogo de móveis da Empório Henz.",
   showScrollTop: true,

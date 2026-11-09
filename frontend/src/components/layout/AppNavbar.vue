@@ -287,16 +287,18 @@ onUnmounted(() => {
               placeholder="Busque por móveis para sua casa"
               class="w-full bg-white text-stone-900 placeholder:text-stone-400 text-sm rounded-lg pl-4 pr-11 py-2.5 border border-transparent hover:border-sky-300 focus:border-secondary focus:outline-none focus:ring-2 focus:ring-sky-200 transition-all shadow-sm"
             />
-            <button
+            <UiButton
               type="submit"
-              class="absolute right-0 top-0 h-full px-3.5 flex items-center justify-center text-stone-400 hover:text-secondary hover:scale-110 transition-all cursor-pointer"
+              variant="custom"
+              size="none"
+              class="absolute right-0 top-0 h-full px-3.5 text-stone-400 hover:text-secondary hover:scale-110"
               aria-label="Buscar"
             >
               <Icon
                 icon="mdi:magnify"
                 class="w-5 h-5 transition-transform duration-200"
               />
-            </button>
+            </UiButton>
           </form>
         </div>
 

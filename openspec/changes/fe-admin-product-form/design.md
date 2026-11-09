@@ -47,7 +47,7 @@ O save continua sendo um único `POST` com todos os dados, e a API não tem rasc
 - *Depois do `201`*: com o formulário travado para o envio dos arquivos, todas as seções voltam a aparecer, porque o estado e o "Tentar de novo" de amostras e fotos moram nas etapas 4 e 5.
 
 ### D3. Estado do formulário local, com funções puras
-Os tipos do estado do formulário (`ProductFormState`, `VariationFormItem`, `PhotoFormItem`, `KeyValueRow`, `UploadState`) ficam em `src/types/productForm.ts`, exportados pelo barrel, porque o `frontend/agents.md` não permite tipos soltos nas views. Os módulos de `src/utils/produtos/` concentram as funções:
+Os tipos do estado do formulário (`ProductFormState`, `VariationFormItem`, `PhotoFormItem`, `KeyValueRow`, `UploadState`) ficam em `src/types/productForm.ts`, exportados pelo barrel, porque o `frontend/agents.md` não permite tipos soltos nas views. Os módulos de `src/utils/admin/produtos/` concentram as funções:
 
 - `createEmptyForm()`;
 - `validateForm(form, ctx)`, que devolve um mapa `campo → mensagem`;
@@ -100,20 +100,20 @@ O navegador confere só o `type` do `File`. Quem decide de verdade é o servidor
 - As duas cargas rodam em paralelo no `onMounted`. Se alguma falhar, a tela mostra o erro com o botão "Tentar de novo" e não exibe o formulário.
 
 ### D10. Especificações e detalhes de acabamento em chave e valor
-O componente `KeyValueEditor.vue` (em `src/components/produtos/`) serve às especificações do produto e ao `finishDetails` da variação. Linhas vazias são descartadas, e chaves repetidas (comparadas sem caixa e sem espaços nas pontas) bloqueiam o envio. Os valores vão como texto, do jeito digitado. Converter `"6"` em `6` mudaria o que o usuário digitou, como em "06", e o JSONB aceita os dois.
+O componente `KeyValueEditor.vue` (em `src/components/admin/produtos/`) serve às especificações do produto e ao `finishDetails` da variação. Linhas vazias são descartadas, e chaves repetidas (comparadas sem caixa e sem espaços nas pontas) bloqueiam o envio. Os valores vão como texto, do jeito digitado. Converter `"6"` em `6` mudaria o que o usuário digitou, como em "06", e o JSONB aceita os dois.
 
 ### D11. Cores definidas pelo usuário em `:style`
 A proibição de hex arbitrário vale para os tokens de estilo da interface. As cores das variações são dados do produto e entram por `:style` (`background` ou `conic-gradient` para três ou mais cores). O seletor usa `<input type="color">` junto a um campo de texto `#RRGGBB`.
 
 ### D12. Estrutura de arquivos
-As telas seguem o padrão `views/admin/<domínio>/`, como em fornecedores e categorias, e não o caminho único `views/admin/ProdutoFormView.vue` citado no backlog. As peças visuais ficam em `src/components/produtos/`, resolvidas pelo auto-import, e a lógica sem Vue em `src/utils/produtos/`. Cada arquivo fica entre 150 e 500 linhas (regra do `frontend/agents.md`), o que define onde as peças pequenas foram juntadas.
+As telas seguem o padrão `views/admin/<domínio>/`, como em fornecedores e categorias, e não o caminho único `views/admin/ProdutoFormView.vue` citado no backlog. As peças visuais ficam em `src/components/admin/produtos/`, resolvidas pelo auto-import, e a lógica sem Vue em `src/utils/admin/produtos/`. Cada arquivo fica entre 150 e 500 linhas (regra do `frontend/agents.md`), o que define onde as peças pequenas foram juntadas.
 
 ```
 src/types/products.ts                   tipos do contrato (DTOs e payloads), exportados no barrel
 src/types/productForm.ts                tipos do estado do formulário, exportados no barrel
 src/api/produtos.ts                     listagem, detalhe, cadastro, edição, desativação e uploads
 src/utils/uploads.ts                    validação de arquivo e toApiAssetUrl
-src/utils/produtos/
+src/utils/admin/produtos/
   produtoFormConstantes.ts              ids de campo, rótulos, limites, formatadores e apiErrorMessage
   produtoFormEstado.ts                  criação do estado e conversão de e para a API (D3, D4)
   produtoFormValidacao.ts               validação com as regras da API
@@ -123,7 +123,7 @@ src/views/admin/produtos/
   ProdutoNewView.vue                    cadastro: carga das opções e gravação
   ProdutoEditView.vue                   edição: carga do produto, PUT e exclusões imediatas
   ProdutoForm.vue                       formulário em etapas, validação por etapa e etapa 6
-src/components/produtos/
+src/components/admin/produtos/
   ProdutoTelaLayout.vue                 moldura do cadastro e da edição e painel de envio
   ProdutoFormNavegacao.vue              indicador de etapas e rodapé de ações
   ProdutoDadosBasicosSection.vue        etapa 1
