@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
 import HeroBannerDesktop from "@/components/home/HeroBannerDesktop.vue";
 import HeroBannerMobile from "@/components/home/HeroBannerMobile.vue";
-import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
-import { linkCategoria, useAppStore } from "@/stores/app";
+import { linkCategoria, useCategoriasStore } from "@/stores/categorias";
 import type { CatalogProductItem } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
 
-const appStore = useAppStore();
+const categoriasStore = useCategoriasStore();
 const hoveredCategory = ref<string | null>(null);
 const selectedCategory = ref<string>("");
 
-// Cards fixos do Figma, filtrados pelas categorias que existem na API (ver CARDS_HOME na store)
+// Cards fixos do Figma, filtrados pelas categorias que existem na API (ver CARDS_HOME em stores/categorias)
 onMounted(() => {
-  void appStore.carregarCategorias();
+  categoriasStore.carregar();
 });
 
 // Destaques conforme Figma e catálogo mockado (p-12, p-9, p-10, p-11)
@@ -142,7 +142,7 @@ const recomendados: CatalogProductItem[] = [
         class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5"
       >
         <RouterLink
-          v-for="cat in appStore.cardsHome"
+          v-for="cat in categoriasStore.cardsHome"
           :key="cat.slug"
           :to="linkCategoria(cat)"
           @mouseenter="hoveredCategory = cat.slug"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { linkCategoria, linkSubcategoria, useAppStore } from "@/stores/app";
+import { linkCategoria, linkSubcategoria, useCategoriasStore } from "@/stores/categorias";
 import { Icon } from "@iconify/vue";
 import { onMounted, onUnmounted, ref } from "vue";
 
@@ -7,7 +7,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 const MAIS = "__mais__";
 const FECHAMENTO_MS = 180;
 
-const appStore = useAppStore();
+const categoriasStore = useCategoriasStore();
 const activeDropdown = ref<string | null>(null);
 // "Mais" aberto por clique (toque/teclado) não fecha ao tirar o mouse, só com Esc, clique fora ou outro clique
 const maisFixado = ref(false);
@@ -52,8 +52,8 @@ function clicarMais() {
 function alinhamentoDropdown(index: number) {
   // O último item fica colado na borda direita: o dropdown abre para dentro da página
   const ultimo =
-    index === appStore.categoriasBarra.length - 1 &&
-    appStore.categoriasMais.length === 0;
+    index === categoriasStore.barra.length - 1 &&
+    categoriasStore.mais.length === 0;
   return ultimo ? "right-0" : "left-0";
 }
 
@@ -67,7 +67,7 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 onMounted(() => {
-  void appStore.carregarCategorias();
+  void categoriasStore.carregar();
   document.addEventListener("click", handleClickOutside);
   window.addEventListener("keydown", handleKeydown);
 });
@@ -82,12 +82,12 @@ onUnmounted(() => {
 <template>
   <!-- Links de Categorias Desktop (API) com Dropdowns no Hover: no máximo 6 itens, o excedente vai para "Mais" -->
   <nav
-    v-if="appStore.categoriasBarra.length"
+    v-if="categoriasStore.barra.length"
     aria-label="Categorias"
     class="hidden md:flex items-center gap-1 sm:gap-2"
   >
     <div
-      v-for="(cat, index) in appStore.categoriasBarra"
+      v-for="(cat, index) in categoriasStore.barra"
       :key="cat.id"
       class="relative group/cat py-2"
       @mouseenter="abrir(cat.slug)"
@@ -143,7 +143,7 @@ onUnmounted(() => {
 
     <!-- Botão "Mais": categorias que não cabem na barra, com suas subcategorias -->
     <div
-      v-if="appStore.categoriasMais.length"
+      v-if="categoriasStore.mais.length"
       ref="maisContainer"
       class="relative py-2"
       @mouseenter="abrir(MAIS)"
@@ -174,7 +174,7 @@ onUnmounted(() => {
           class="bg-white text-stone-800 rounded-xl shadow-2xl py-2 px-1 border border-stone-200 max-h-[70vh] overflow-y-auto"
         >
           <div
-            v-for="(cat, index) in appStore.categoriasMais"
+            v-for="(cat, index) in categoriasStore.mais"
             :key="cat.id"
             :class="index > 0 && 'border-t border-stone-100 mt-1 pt-1'"
           >

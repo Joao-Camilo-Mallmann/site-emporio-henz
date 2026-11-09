@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { linkCategoria, linkSubcategoria, useAppStore } from "@/stores/app";
+import { linkCategoria, linkSubcategoria, useCategoriasStore } from "@/stores/categorias";
 import { useAuthStore } from "@/stores/auth";
 import { useListasStore } from "@/stores/listas";
 import { Icon } from "@iconify/vue";
@@ -17,7 +17,7 @@ const emit = defineEmits<{
 }>();
 
 const router = useRouter();
-const appStore = useAppStore();
+const categoriasStore = useCategoriasStore();
 const authStore = useAuthStore();
 const listasStore = useListasStore();
 const activeAccordion = ref<string | null>(null);
@@ -53,7 +53,7 @@ watch(
 
 // O drawer existe também nas rotas do admin, onde a barra de categorias não é montada
 onMounted(() => {
-  void appStore.carregarCategorias();
+  void categoriasStore.carregar();
 });
 </script>
 
@@ -116,7 +116,7 @@ onMounted(() => {
             class="bg-secondary flex-1 overflow-y-auto px-5 py-4 space-y-1 text-white text-sm"
           >
             <!-- Lista de Categorias da API com Acordeão (sem limite de itens) -->
-            <div v-for="cat in appStore.categorias" :key="cat.id">
+            <div v-for="cat in categoriasStore.lista" :key="cat.id">
               <button
                 type="button"
                 @click="toggleAccordion(cat.slug)"
