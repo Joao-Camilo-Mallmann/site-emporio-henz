@@ -1,52 +1,54 @@
+import { listasApi } from "@/api/listas";
 import { useAuthStore } from "@/stores/auth";
-import type { SavedItem, UserList } from "@/types";
+import type {
+  ApiList,
+  ApiListItem,
+  SavedItem,
+  SharedList,
+  UserList,
+} from "@/types";
+import { isAxiosError } from "axios";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
+import { toast } from "vue3-toastify";
 
+// Chave onde as listas ficavam salvas no navegador antes de existir a API.
+// Hoje só é lida uma vez, para importar o que já estava salvo para a conta.
 export const LISTAS_STORAGE_KEY = "emporio_henz_listas_v1";
 
-function generateUUID(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
+function apiErrorMessage(err: unknown, fallback: string): string {
+  if (isAxiosError(err)) {
+    const message = (err.response?.data as { message?: unknown } | undefined)
+      ?.message;
+    return typeof message === "string" && message ? message : fallback;
   }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  return err instanceof Error && err.message ? err.message : fallback;
 }
 
-function createDefaultLists(): UserList[] {
-  const now = new Date().toISOString();
-  return [
-    {
-      id: "system-favoritos",
-      name: "Favoritos",
-      isSystem: true,
-      listType: "FAVORITES",
-      shareSlug: generateUUID(),
-      createdAt: now,
-      items: [],
-    },
-    {
-      id: "system-desejos",
-      name: "Lista de Desejos",
-      isSystem: true,
-      listType: "WISHLIST",
-      shareSlug: generateUUID(),
-      createdAt: now,
-      items: [],
-    },
-    {
-      id: "system-presentes",
-      name: "Lista de Presentes",
-      isSystem: true,
-      listType: "GIFT_LIST",
-      shareSlug: generateUUID(),
-      createdAt: now,
-      items: [],
-    },
-  ];
+function mapItem(item: ApiListItem): SavedItem {
+  return {
+    id: item.id,
+    productId: item.productId,
+    productSlug: item.productSlug ?? undefined,
+    name: item.name,
+    price: item.price,
+    image: item.image,
+    finishLabel: item.finishLabel ?? undefined,
+    finishColor: item.finishColor ?? undefined,
+    addedAt: item.addedAt,
+  };
+}
+
+function mapList(list: ApiList): UserList {
+  return {
+    id: list.id,
+    name: list.name,
+    isSystem: list.isSystem,
+    listType: list.listType,
+    shareSlug: list.shareSlug,
+    createdAt: list.createdAt,
+    items: (list.items ?? []).map(mapItem),
+  };
 }
 
 export interface ActiveProductToSave {
@@ -60,7 +62,10 @@ export interface ActiveProductToSave {
 }
 
 export const useListasStore = defineStore("listas", () => {
+  const authStore = useAuthStore();
+
   const lists = ref<UserList[]>([]);
+  const isLoading = ref(false);
   const isSaveModalOpen = ref(false);
   const isManageModalOpen = ref(false);
   const activeProductToSave = ref<ActiveProductToSave | null>(null);
@@ -68,62 +73,12 @@ export const useListasStore = defineStore("listas", () => {
   // Convite de login para visitantes (PRD UC04, fluxo A1)
   const isLoginPromptOpen = ref(false);
   const pendingProductToSave = ref<ActiveProductToSave | null>(null);
-  const authStore = useAuthStore();
 
-  // Inicializa o estado a partir do localStorage
-  function initLists(): void {
-    if (typeof window === "undefined") {
-      lists.value = createDefaultLists();
-      return;
-    }
+  // Lista aberta pelo link público (somente leitura)
+  const sharedList = ref<SharedList | null>(null);
+  const isSharedModalOpen = ref(false);
 
-    try {
-      const stored = localStorage.getItem(LISTAS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as UserList[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Garante que as 3 listas padrão essenciais do sistema sempre existam
-          const defaultDefaults = createDefaultLists();
-          for (const def of defaultDefaults) {
-            const exists = parsed.some(
-              (l) => l.isSystem && (l.id === def.id || l.listType === def.listType),
-            );
-            if (!exists) {
-              parsed.unshift(def);
-            }
-          }
-          lists.value = parsed;
-          return;
-        }
-      }
-    } catch (err) {
-      console.warn("Falha ao recuperar listas do localStorage, reinicializando padrão:", err);
-    }
-
-    lists.value = createDefaultLists();
-    persist();
-  }
-
-  function persist(): void {
-    if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem(LISTAS_STORAGE_KEY, JSON.stringify(lists.value));
-    } catch (err) {
-      console.error("Falha ao persistir listas no localStorage:", err);
-    }
-  }
-
-  // Monitora alterações profundas para salvar automaticamente
-  watch(
-    lists,
-    () => {
-      persist();
-    },
-    { deep: true },
-  );
-
-  // Inicializa imediatamente
-  initLists();
+  let isImporting = false;
 
   // Retoma o salvamento pendente assim que o visitante se autentica
   watch(
@@ -179,6 +134,24 @@ export const useListasStore = defineStore("listas", () => {
       .map((list) => list.id);
   }
 
+  // Carrega do servidor as listas (e itens) do cliente logado
+  async function loadLists(): Promise<void> {
+    if (!authStore.isAuthenticated) {
+      lists.value = [];
+      return;
+    }
+
+    isLoading.value = true;
+    try {
+      const data = await listasApi.listar();
+      lists.value = data.map(mapList);
+    } catch (err) {
+      toast.error(apiErrorMessage(err, "Não foi possível carregar suas listas."));
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   // Modais
   function openSaveModal(product: ActiveProductToSave): void {
     if (!authStore.isAuthenticated) {
@@ -202,15 +175,12 @@ export const useListasStore = defineStore("listas", () => {
   }
 
   function openManageModal(targetListId?: string): void {
-    if (!targetListId && !authStore.isAuthenticated) {
+    // As listas ficam na conta: visitantes recebem o convite de login
+    if (!authStore.isAuthenticated) {
       isLoginPromptOpen.value = true;
       return;
     }
-    if (targetListId) {
-      selectedListIdForManage.value = targetListId;
-    } else {
-      selectedListIdForManage.value = null;
-    }
+    selectedListIdForManage.value = targetListId ?? null;
     isManageModalOpen.value = true;
   }
 
@@ -219,115 +189,238 @@ export const useListasStore = defineStore("listas", () => {
     selectedListIdForManage.value = null;
   }
 
-  // Ações de Itens
-  function addItemToList(
+  // Ações de itens (todas gravam no servidor; erros chegam como `Error`)
+  async function addItemToList(
     listId: string,
     itemData: Omit<SavedItem, "id" | "addedAt">,
-  ): SavedItem | null {
+  ): Promise<SavedItem | null> {
     const list = getListById(listId);
     if (!list) return null;
 
-    // Evita duplicatas idênticas (mesmo produto e mesmo acabamento)
-    const existingIndex = list.items.findIndex(
-      (i) =>
-        i.productId === itemData.productId &&
-        i.finishLabel === itemData.finishLabel &&
-        i.finishColor === itemData.finishColor,
-    );
+    try {
+      const saved = await listasApi.adicionarItem(listId, {
+        productId: itemData.productId,
+        productSlug: itemData.productSlug,
+        name: itemData.name,
+        price: Number(itemData.price) || 0,
+        image: itemData.image ?? "",
+        finishLabel: itemData.finishLabel,
+        finishColor: itemData.finishColor,
+      });
 
-    if (existingIndex !== -1) {
-      return list.items[existingIndex]!;
+      const item = mapItem(saved);
+      // O servidor devolve o item existente quando já estava salvo
+      if (!list.items.some((i) => i.id === item.id)) {
+        list.items.unshift(item);
+      }
+      return item;
+    } catch (err) {
+      throw new Error(apiErrorMessage(err, "Não foi possível salvar o móvel."), { cause: err });
     }
-
-    const newItem: SavedItem = {
-      ...itemData,
-      id: generateUUID(),
-      addedAt: new Date().toISOString(),
-    };
-
-    list.items.unshift(newItem);
-    persist();
-    return newItem;
   }
 
-  function removeItemFromList(listId: string, itemId: string): boolean {
+  async function removeItemFromList(
+    listId: string,
+    itemId: string,
+  ): Promise<boolean> {
     const list = getListById(listId);
     if (!list) return false;
 
-    const initialLength = list.items.length;
-    list.items = list.items.filter((item) => item.id !== itemId);
-    if (list.items.length !== initialLength) {
-      persist();
-      return true;
+    try {
+      await listasApi.removerItem(listId, itemId);
+    } catch (err) {
+      throw new Error(apiErrorMessage(err, "Não foi possível remover o móvel."), { cause: err });
     }
-    return false;
+
+    list.items = list.items.filter((item) => item.id !== itemId);
+    return true;
   }
 
-  // Ações de Pastas
-  function createCustomList(name: string): UserList {
+  // Ações de pastas
+  async function createCustomList(name: string): Promise<UserList> {
     const trimmed = name.trim();
     if (!trimmed) {
       throw new Error("O nome da pasta não pode ser vazio.");
     }
 
-    const newList: UserList = {
-      id: generateUUID(),
-      name: trimmed,
-      isSystem: false,
-      listType: "CUSTOM",
-      shareSlug: generateUUID(),
-      createdAt: new Date().toISOString(),
-      items: [],
-    };
-
-    lists.value.push(newList);
-    persist();
-    return newList;
+    try {
+      const created = mapList(await listasApi.criar(trimmed));
+      lists.value.push(created);
+      return created;
+    } catch (err) {
+      throw new Error(apiErrorMessage(err, "Não foi possível criar a pasta."), { cause: err });
+    }
   }
 
-  function renameCustomList(listId: string, newName: string): boolean {
+  async function renameCustomList(
+    listId: string,
+    newName: string,
+  ): Promise<boolean> {
     const list = getListById(listId);
-    if (!list) return false;
-
-    if (list.isSystem) {
-      console.warn("Tentativa bloqueada de renomear lista padrão do sistema.");
-      return false;
-    }
+    if (!list || list.isSystem) return false;
 
     const trimmed = newName.trim();
     if (!trimmed) return false;
 
-    list.name = trimmed;
-    persist();
-    return true;
+    try {
+      const updated = await listasApi.renomear(listId, trimmed);
+      list.name = updated.name;
+      return true;
+    } catch (err) {
+      throw new Error(
+        apiErrorMessage(err, "Não foi possível renomear a pasta."),
+        { cause: err },
+      );
+    }
   }
 
-  function deleteCustomList(listId: string): boolean {
+  async function deleteCustomList(listId: string): Promise<boolean> {
     const list = getListById(listId);
-    if (!list) return false;
+    if (!list || list.isSystem) return false;
 
-    if (list.isSystem) {
-      console.warn("Tentativa bloqueada de excluir lista padrão do sistema.");
-      return false;
+    try {
+      await listasApi.excluir(listId);
+    } catch (err) {
+      throw new Error(apiErrorMessage(err, "Não foi possível excluir a pasta."), { cause: err });
     }
 
     lists.value = lists.value.filter((l) => l.id !== listId);
-    persist();
     return true;
   }
 
+  // Link público
+  async function openSharedList(shareSlug: string): Promise<void> {
+    try {
+      const data = await listasApi.buscarCompartilhada(shareSlug);
+      sharedList.value = {
+        name: data.name,
+        listType: data.listType,
+        items: data.items.map(mapItem),
+      };
+      isSharedModalOpen.value = true;
+    } catch {
+      toast.error("Esta lista não existe ou não está mais disponível.");
+    }
+  }
+
+  function closeSharedModal(): void {
+    isSharedModalOpen.value = false;
+    sharedList.value = null;
+  }
+
+  // Importa, uma única vez, as listas que o navegador guardava antes da API
+  async function importLocalLists(): Promise<void> {
+    if (typeof window === "undefined" || isImporting) return;
+
+    let stored: UserList[];
+    try {
+      const raw = localStorage.getItem(LISTAS_STORAGE_KEY);
+      if (!raw) return;
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        localStorage.removeItem(LISTAS_STORAGE_KEY);
+        return;
+      }
+      stored = parsed as UserList[];
+    } catch {
+      localStorage.removeItem(LISTAS_STORAGE_KEY);
+      return;
+    }
+
+    const withItems = stored.filter(
+      (l) => Array.isArray(l.items) && l.items.length > 0,
+    );
+    if (withItems.length === 0) {
+      localStorage.removeItem(LISTAS_STORAGE_KEY);
+      return;
+    }
+
+    isImporting = true;
+    let hasFailure = false;
+    let importedCount = 0;
+
+    try {
+      for (const local of withItems) {
+        try {
+          let target = local.isSystem
+            ? lists.value.find(
+                (l) => l.isSystem && l.listType === local.listType,
+              )
+            : lists.value.find(
+                (l) =>
+                  !l.isSystem &&
+                  l.name.toLowerCase() === local.name.trim().toLowerCase(),
+              );
+
+          if (!target) {
+            target = await createCustomList(local.name);
+          }
+
+          // Do mais antigo para o mais novo, para manter a ordem original
+          for (const item of [...local.items].reverse()) {
+            try {
+              await addItemToList(target.id, {
+                productId: item.productId,
+                productSlug: item.productSlug,
+                name: item.name,
+                price: item.price,
+                image: item.image,
+                finishLabel: item.finishLabel,
+                finishColor: item.finishColor,
+              });
+              importedCount++;
+            } catch {
+              hasFailure = true;
+            }
+          }
+        } catch {
+          hasFailure = true;
+        }
+      }
+    } finally {
+      isImporting = false;
+    }
+
+    // Se algo falhou, mantém os dados locais para tentar de novo no próximo login
+    if (!hasFailure) {
+      localStorage.removeItem(LISTAS_STORAGE_KEY);
+    }
+    if (importedCount > 0) {
+      toast.success("Importamos para a sua conta os móveis salvos neste navegador.");
+    }
+  }
+
+  // Ao entrar, carrega as listas da conta; ao sair, limpa tudo da tela
+  watch(
+    () => authStore.isAuthenticated,
+    async (isAuthenticated) => {
+      if (isAuthenticated) {
+        await loadLists();
+        await importLocalLists();
+      } else {
+        lists.value = [];
+        closeSaveModal();
+        closeManageModal();
+      }
+    },
+    { immediate: true },
+  );
+
   return {
     lists,
+    isLoading,
     isSaveModalOpen,
     isManageModalOpen,
     activeProductToSave,
     selectedListIdForManage,
     isLoginPromptOpen,
     pendingProductToSave,
+    sharedList,
+    isSharedModalOpen,
     totalSavedCount,
     systemLists,
     customLists,
-    initLists,
+    loadLists,
     getListById,
     getListBySlug,
     isProductSavedInList,
@@ -343,5 +436,7 @@ export const useListasStore = defineStore("listas", () => {
     createCustomList,
     renameCustomList,
     deleteCustomList,
+    openSharedList,
+    closeSharedModal,
   };
 });

@@ -51,7 +51,7 @@ function toggleListSelection(listId: string) {
   }
 }
 
-function handleCreateFolder() {
+async function handleCreateFolder() {
   const name = newFolderName.value.trim();
   if (!name) {
     toast.warning("Digite um nome para a pasta.");
@@ -59,7 +59,7 @@ function handleCreateFolder() {
   }
 
   try {
-    const created = listasStore.createCustomList(name);
+    const created = await listasStore.createCustomList(name);
     selectedListIds.value.add(created.id);
     newFolderName.value = "";
     isCreatingNewFolder.value = false;
@@ -70,7 +70,7 @@ function handleCreateFolder() {
   }
 }
 
-function handleSave() {
+async function handleSave() {
   if (!product.value) return;
 
   if (selectedListIds.value.size === 0) {
@@ -83,7 +83,7 @@ function handleSave() {
     const targetIds = Array.from(selectedListIds.value);
 
     for (const listId of targetIds) {
-      listasStore.addItemToList(listId, {
+      await listasStore.addItemToList(listId, {
         productId: product.value.productId,
         productSlug: product.value.productSlug,
         name: product.value.name,
@@ -106,7 +106,9 @@ function handleSave() {
     listasStore.closeSaveModal();
   } catch (err) {
     console.error("Erro ao salvar produto em listas:", err);
-    toast.error("Ocorreu um erro ao salvar o móvel.");
+    toast.error(
+      err instanceof Error ? err.message : "Ocorreu um erro ao salvar o móvel.",
+    );
   } finally {
     isSubmitting.value = false;
   }

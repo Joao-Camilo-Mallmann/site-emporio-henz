@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppFooter from "@/components/layout/AppFooter.vue";
 import AppNavbar from "@/components/layout/AppNavbar.vue";
+import ListaCompartilhadaModal from "@/components/listas/ListaCompartilhadaModal.vue";
 import LoginParaSalvarModal from "@/components/listas/LoginParaSalvarModal.vue";
 import MinhasListasModal from "@/components/listas/MinhasListasModal.vue";
 import SalvarEmListaModal from "@/components/listas/SalvarEmListaModal.vue";
@@ -15,10 +16,8 @@ const listasStore = useListasStore();
 
 function checkSharedListQuery(slug: unknown) {
   if (slug && typeof slug === "string") {
-    const list = listasStore.getListBySlug(slug);
-    if (list) {
-      listasStore.openManageModal(list.id);
-    }
+    // Busca a lista no servidor, então o link funciona para qualquer pessoa
+    void listasStore.openSharedList(slug);
   }
 }
 
@@ -57,5 +56,6 @@ watch(
     <SalvarEmListaModal />
     <LoginParaSalvarModal />
     <MinhasListasModal />
+    <ListaCompartilhadaModal />
   </div>
 </template>

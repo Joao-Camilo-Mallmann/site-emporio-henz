@@ -1,0 +1,38 @@
+meta {
+  name: Salvar Produto na Lista
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/listas/:id/itens
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "productId": "p-5",
+    "productSlug": "guarda-roupa-topazio",
+    "name": "Guarda-roupa Topázio",
+    "price": 5100,
+    "image": "/images/products/prod-comoda-italia.png",
+    "finishLabel": "Nogueira",
+    "finishColor": "#6b4a2f"
+  }
+}
+
+docs {
+  Salva um produto na lista. Obrigatórios: `productId` (texto de até 100 caracteres), `name` (até 255) e `price` (número maior ou igual a zero). Opcionais: `image` (até 2048; produto sem foto fica com texto vazio), `productSlug`, `finishLabel` (até 100), `finishColor` (até 50) e `variationId` (UUID).
+  Nesta versão não existe tabela de produtos: o `productId` é guardado como veio e os demais campos formam um retrato do produto no momento em que foi salvo. Quando `products` existir, `productId` passará a ser UUID de um produto real.
+  Salvar o mesmo produto com o mesmo acabamento (`finishLabel` e `finishColor`) na mesma lista não duplica: responde `200` com o item que já estava lá. Item novo responde `201`.
+  `400` para payload inválido. `404` se a lista não for do cliente. `401` sem token.
+}
