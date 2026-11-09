@@ -1,0 +1,25 @@
+meta {
+  name: Obter Lista com Itens
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/listas/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Devolve uma lista do cliente autenticado com os itens salvos, do mais recente para o mais antigo.
+  Resposta 200: os campos da lista mais `items: [{ id, productId, productSlug, variationId, name, price, image, finishLabel, finishColor, addedAt }]`.
+  `404` se a lista não existe, foi excluída, o `id` não é um UUID ou pertence a outro cliente (nunca revela que a lista existe). `401` sem token.
+}

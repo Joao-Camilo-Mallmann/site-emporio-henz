@@ -2,6 +2,7 @@ import authApi from "./auth";
 import catalogoApi from "./catalogo";
 import categoriasApi, { subtiposApi } from "./categorias";
 import fornecedoresApi from "./fornecedores";
+import listasApi from "./listas";
 import produtosApi from "./produtos";
 import sistemaApi from "./sistema";
 import usuariosApi from "./usuarios";
@@ -12,6 +13,7 @@ export {
   categoriasApi,
   subtiposApi,
   fornecedoresApi,
+  listasApi,
   produtosApi,
   sistemaApi,
   usuariosApi,
@@ -23,6 +25,7 @@ export default {
   categorias: categoriasApi,
   subtipos: subtiposApi,
   fornecedores: fornecedoresApi,
+  listas: listasApi,
   produtos: produtosApi,
   sistema: sistemaApi,
   usuarios: usuariosApi,

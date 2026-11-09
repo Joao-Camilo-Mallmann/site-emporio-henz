@@ -1,0 +1,31 @@
+meta {
+  name: Renomear Pasta
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/listas/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Sala de jantar"
+  }
+}
+
+docs {
+  Renomeia uma pasta personalizada. `name` é obrigatório, de 1 a 100 caracteres.
+  Resposta 200: a lista atualizada.
+  `403` para as listas padrão (Favoritos, Lista de Desejos e Lista de Presentes não podem ser renomeadas). `400` para payload inválido. `404` se a lista não for do cliente. `401` sem token.
+}

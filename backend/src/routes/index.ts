@@ -3,6 +3,7 @@ import { Router } from "@/lib/router";
 
 import { authRoutes } from "@/modules/auth/auth.routes";
 import { categoriesRoutes } from "@/modules/categories/categories.routes";
+import { listsRoutes } from "@/modules/lists/lists.routes";
 import { productImagesRoutes } from "@/modules/product-images/product-images.routes";
 import { productsRoutes } from "@/modules/products/products.routes";
 import { subtypesRoutes } from "@/modules/subtypes/subtypes.routes";
@@ -23,6 +24,7 @@ apiRouter.use("/subtipos", subtypesRoutes);
 apiRouter.use("/produtos", productsRoutes);
 apiRouter.use("/produtos", productImagesRoutes);
 apiRouter.use("/uploads", uploadsRoutes);
+apiRouter.use("/listas", listsRoutes);
 
 // Health check padrão V1
 apiRouter.get("/health", () => {
