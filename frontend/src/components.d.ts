@@ -13,6 +13,9 @@ declare module 'vue' {
   export interface GlobalComponents {
     AppFooter: typeof import('./components/layout/AppFooter.vue')['default']
     AppNavbar: typeof import('./components/layout/AppNavbar.vue')['default']
+    AppNavbarCategorias: typeof import('./components/layout/AppNavbarCategorias.vue')['default']
+    AppNavbarDrawer: typeof import('./components/layout/AppNavbarDrawer.vue')['default']
+    AppNavbarUserMenu: typeof import('./components/layout/AppNavbarUserMenu.vue')['default']
     CatalogoFiltroLateral: typeof import('./components/catalogo/CatalogoFiltroLateral.vue')['default']
     CatalogoOrdenacaoDropdown: typeof import('./components/catalogo/CatalogoOrdenacaoDropdown.vue')['default']
     CatalogoProdutoCard: typeof import('./components/catalogo/CatalogoProdutoCard.vue')['default']

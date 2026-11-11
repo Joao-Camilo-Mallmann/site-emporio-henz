@@ -10,121 +10,13 @@ const authStore = useAuthStore();
 const listasStore = useListasStore();
 
 const searchQuery = ref("");
-const isUserMenuOpen = ref(false);
 const isDrawerOpen = ref(false);
-const activeDropdown = ref<string | null>(null);
-const activeAccordion = ref<string | null>(null);
-
-let dropdownTimer: ReturnType<typeof setTimeout> | null = null;
-
-function handleCategoryMouseEnter(slug: string) {
-  if (dropdownTimer) {
-    clearTimeout(dropdownTimer);
-    dropdownTimer = null;
-  }
-  activeDropdown.value = slug;
-}
-
-function handleCategoryMouseLeave() {
-  dropdownTimer = setTimeout(() => {
-    activeDropdown.value = null;
-  }, 180);
-}
-
-function handleSubcategoryClick() {
-  activeDropdown.value = null;
-}
-
-interface CategoryDef {
-  name: string;
-  slug: string;
-  subcategories: string[];
-}
-
-const categories: CategoryDef[] = [
-  {
-    name: "Quarto",
-    slug: "quarto",
-    subcategories: [
-      "Camas",
-      "Roupeiros",
-      "Cabeceiras",
-      "Cômodas",
-      "Mesas de Cabeceira",
-    ],
-  },
-  {
-    name: "Sala de Estar",
-    slug: "sala-de-estar",
-    subcategories: [
-      "Sofás",
-      "Poltronas",
-      "Mesas de Centro",
-      "Racks e Painéis",
-      "Puffs",
-    ],
-  },
-  {
-    name: "Sala de Jantar",
-    slug: "sala-de-jantar",
-    subcategories: [
-      "Mesas de Jantar",
-      "Cadeiras",
-      "Aparadores",
-      "Cristaleiras",
-      "Buffets",
-    ],
-  },
-  {
-    name: "Cozinha",
-    slug: "cozinha",
-    subcategories: [
-      "Armários",
-      "Balcões",
-      "Bancadas",
-      "Banquetas",
-      "Ilhas Gourmet",
-    ],
-  },
-  {
-    name: "Escritório",
-    slug: "escritorio",
-    subcategories: [
-      "Mesas de Escritório",
-      "Cadeiras Presidente",
-      "Estantes de Livros",
-      "Gaveteiros",
-    ],
-  },
-  {
-    name: "Banheiro",
-    slug: "banheiro",
-    subcategories: [
-      "Gabinetes",
-      "Espelheiras",
-      "Armários Aéreos",
-      "Prateleiras",
-    ],
-  },
-];
-
-function toggleUserMenu() {
-  isUserMenuOpen.value = !isUserMenuOpen.value;
-}
-
-function closeUserMenu() {
-  isUserMenuOpen.value = false;
-}
 
 const accountPath = computed(() =>
   authStore.isAdmin ? `/admin/usuarios/${authStore.user?.id}/editar` : "/perfil",
 );
-const drawerAccountPath = computed(() =>
-  authStore.isAuthenticated ? accountPath.value : "/login",
-);
 
 function navigateTo(path: string) {
-  closeUserMenu();
   closeDrawer();
   router.push(path);
 }
@@ -136,12 +28,7 @@ function openDrawer() {
 
 function closeDrawer() {
   isDrawerOpen.value = false;
-  activeAccordion.value = null;
   document.body.style.overflow = "";
-}
-
-function toggleAccordion(slug: string) {
-  activeAccordion.value = activeAccordion.value === slug ? null : slug;
 }
 
 const isLoggingOut = ref(false);
@@ -170,23 +57,8 @@ function closeLogoutToast() {
   showLogoutToast.value = false;
 }
 
+// Usado pelo menu do usuário (desktop) e pelo drawer (mobile)
 async function handleLogout() {
-  if (isLoggingOut.value) return;
-  isLoggingOut.value = true;
-  const firstName = authStore.user?.name?.split(" ")[0] || "Usuário";
-
-  // Pequeno delay para feedback visual claro no botão ("Desconectando...")
-  await new Promise((resolve) => setTimeout(resolve, 450));
-
-  authStore.logout();
-  closeUserMenu();
-  isLoggingOut.value = false;
-
-  triggerLogoutToast(firstName);
-  router.push("/");
-}
-
-async function handleLogoutDrawer() {
   if (isLoggingOut.value) return;
   isLoggingOut.value = true;
   const firstName = authStore.user?.name?.split(" ")[0] || "Usuário";
@@ -210,33 +82,18 @@ function handleSearch() {
   router.push({ path: "/catalogo", query: { name: searchQuery.value.trim() } });
 }
 
-function handleClickOutside(event: MouseEvent) {
-  const target = event.target as HTMLElement;
-  if (!target.closest("#user-menu-container")) {
-    closeUserMenu();
-  }
-}
-
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === "Escape") {
-    if (isDrawerOpen.value) {
-      closeDrawer();
-    }
-    if (isUserMenuOpen.value) {
-      closeUserMenu();
-    }
+  if (event.key === "Escape" && isDrawerOpen.value) {
+    closeDrawer();
   }
 }
 
 onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
   window.addEventListener("keydown", handleKeydown);
 });
 
 onUnmounted(() => {
-  if (dropdownTimer) clearTimeout(dropdownTimer);
   if (logoutToastTimer) clearTimeout(logoutToastTimer);
-  document.removeEventListener("click", handleClickOutside);
   window.removeEventListener("keydown", handleKeydown);
   document.body.style.overflow = "";
 });
@@ -386,182 +243,10 @@ onUnmounted(() => {
             >
           </UiButton>
 
-          <!-- Menu de Usuário Desktop -->
-          <div id="user-menu-container" class="relative">
-            <!-- Usuário Autenticado -->
-            <button
-              v-if="authStore.isAuthenticated && authStore.user"
-              @click="toggleUserMenu"
-              class="flex flex-col sm:flex-row items-center gap-1.5 p-1.5 rounded-lg hover:bg-white/10 transition-all focus:outline-none cursor-pointer group"
-              aria-label="Abrir menu do usuário"
-            >
-              <div
-                class="w-7 h-7 rounded-full flex items-center border-white justify-center text-white font-bold text-xs uppercase transition-colors border"
-              >
-                {{ authStore.user.name.charAt(0) }}
-              </div>
-              <div class="hidden sm:block text-left">
-                <div
-                  class="font-bold text-xs leading-tight text-white truncate max-w-[100px]"
-                >
-                  {{ authStore.user.name.split(" ")[0] }}
-                </div>
-                <div class="text-[10px] text-amber-300 capitalize leading-none">
-                  {{
-                    authStore.user.roleName ||
-                    (authStore.isAdmin
-                      ? "Admin"
-                      : authStore.isVendedor
-                        ? "Vendedor"
-                        : "Cliente")
-                  }}
-                </div>
-              </div>
-              <Icon
-                :icon="isUserMenuOpen ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-                class="w-4 h-4 text-white/80 transition-transform duration-200"
-              />
-            </button>
-
-            <!-- Dropdown do Usuário Autenticado -->
-            <div
-              v-if="
-                isUserMenuOpen && authStore.isAuthenticated && authStore.user
-              "
-              class="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-stone-200 py-2 text-stone-800 z-50 text-sm animate-in fade-in slide-in-from-top-2 duration-150"
-            >
-              <div
-                class="px-4 py-3 border-b border-stone-100 bg-stone-50/50 rounded-t-xl"
-              >
-                <p class="font-bold text-stone-900 truncate">
-                  {{ authStore.user.name }}
-                </p>
-                <p class="text-xs text-stone-500 truncate">
-                  {{ authStore.user.email }}
-                </p>
-                <span
-                  class="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider"
-                  :class="
-                    authStore.isAdmin
-                      ? 'bg-purple-100 text-purple-800'
-                      : authStore.isVendedor
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-emerald-100 text-emerald-800'
-                  "
-                >
-                  Perfil
-                  {{
-                    authStore.user.roleName ||
-                    (authStore.isAdmin
-                      ? "Administrador"
-                      : authStore.isVendedor
-                        ? "Vendedor"
-                        : "Cliente")
-                  }}
-                </span>
-              </div>
-
-              <div class="py-1">
-                <UiButton
-                  variant="custom"
-                  size="none"
-                  block
-                  @click="navigateTo(accountPath)"
-                  class="w-full flex items-center justify-start gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors text-left font-normal rounded-none cursor-pointer"
-                >
-                  <Icon
-                    icon="mdi:account-edit-outline"
-                    class="w-4 h-4 text-stone-400 shrink-0"
-                  />
-                  <span>{{
-                    authStore.isAdmin ? "Editar Usuário" : "Meu Perfil"
-                  }}</span>
-                </UiButton>
-
-                <UiButton
-                  variant="ghost"
-                  size="none"
-                  block
-                  @click="
-                    closeUserMenu();
-                    listasStore.openManageModal();
-                  "
-                  class="w-full flex items-center justify-start gap-2.5 px-4 py-2 hover:bg-stone-50 text-stone-700 transition-colors text-left border-none bg-transparent cursor-pointer font-normal rounded-none"
-                >
-                  <div class="flex items-center gap-2.5">
-                    <Icon
-                      icon="mdi:heart-outline"
-                      class="w-4 h-4 text-stone-400 shrink-0"
-                    />
-                    <span>Móveis Salvos</span>
-                  </div>
-                  <span
-                    v-if="listasStore.totalSavedCount > 0"
-                    class="bg-stone-100 text-stone-600 text-xs px-2 py-0.5 rounded-full font-semibold"
-                  >
-                    {{ listasStore.totalSavedCount }}
-                  </span>
-                </UiButton>
-
-                <UiButton
-                  v-if="authStore.isEquipe"
-                  variant="custom"
-                  size="none"
-                  block
-                  @click="navigateTo('/admin')"
-                  class="w-full flex items-center justify-start gap-2.5 px-4 py-2 hover:bg-amber-50 text-amber-900 transition-colors font-medium text-left rounded-none cursor-pointer"
-                >
-                  <Icon
-                    icon="mdi:shield-account"
-                    class="w-4 h-4 text-amber-700 shrink-0"
-                  />
-                  <span>Painel Admin</span>
-                </UiButton>
-              </div>
-
-              <div class="border-t border-stone-100 pt-1">
-                <UiButton
-                  variant="custom"
-                  size="none"
-                  block
-                  @click="handleLogout"
-                  class="w-full flex items-center justify-start gap-2.5 px-4 py-2 text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer font-normal rounded-none"
-                >
-                  <Icon
-                    icon="mdi:logout"
-                    class="w-4 h-4 text-rose-600 shrink-0"
-                  />
-                  <span>Sair da conta</span>
-                </UiButton>
-              </div>
-            </div>
-
-            <!-- Visitante Não Autenticado Desktop -->
-            <RouterLink
-              v-if="!authStore.isAuthenticated"
-              to="/login"
-              class="flex flex-col items-center justify-center gap-1 text-white hover:text-sky-200 hover:bg-white/10 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer"
-            >
-              <svg
-                class="w-5 h-5 text-white transition-all duration-200 group-hover:scale-110 group-hover:text-sky-200"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.8"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <circle cx="12" cy="10" r="3" />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.832 2.849"
-                />
-              </svg>
-              <span class="text-xs font-semibold leading-tight tracking-tight"
-                >Minha conta</span
-              >
-            </RouterLink>
-          </div>
+          <AppNavbarUserMenu
+            :account-path="accountPath"
+            @logout="handleLogout"
+          />
         </div>
       </div>
 
@@ -701,308 +386,15 @@ onUnmounted(() => {
           </span>
         </div>
 
-        <!-- Links de Categorias Desktop com Dropdowns no Hover (hidden md:flex) -->
-        <nav class="hidden md:flex items-center gap-1 sm:gap-2">
-          <div
-            v-for="cat in categories"
-            :key="cat.slug"
-            class="relative group/cat py-2"
-            @mouseenter="handleCategoryMouseEnter(cat.slug)"
-            @mouseleave="handleCategoryMouseLeave"
-          >
-            <!-- Botão da Categoria -->
-            <RouterLink
-              :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
-              class="flex items-center gap-1 font-medium text-white hover:bg-white/15 px-1 lg:px-3 py-1 rounded-md transition-all cursor-pointer"
-            >
-              <span>{{ cat.name }}</span>
-              <Icon
-                :icon="
-                  activeDropdown === cat.slug
-                    ? 'mdi:chevron-up'
-                    : 'mdi:chevron-down'
-                "
-                class="w-4 h-4 text-white transition-transform duration-200"
-              />
-            </RouterLink>
-
-            <!-- Dropdown Menu Flutuante ao passar o mouse com ponte anti-flicker -->
-            <div
-              v-show="activeDropdown === cat.slug"
-              @mouseenter="handleCategoryMouseEnter(cat.slug)"
-              @mouseleave="handleCategoryMouseLeave"
-              class="absolute left-0 top-full pt-1.5 w-52 z-50 animate-in fade-in slide-in-from-top-1 duration-150"
-            >
-              <div
-                class="bg-white text-stone-800 rounded-xl shadow-2xl py-2 px-1 border border-stone-200"
-              >
-                <div
-                  class="px-3 py-1 text-[10px] font-bold text-stone-400 uppercase tracking-wider border-b border-stone-100 mb-1"
-                >
-                  {{ cat.name }}
-                </div>
-                <RouterLink
-                  v-for="sub in cat.subcategories"
-                  :key="sub"
-                  :to="{
-                    path: '/catalogo',
-                    query: { categoria: cat.slug, subcategoria: sub },
-                  }"
-                  @click="handleSubcategoryClick"
-                  class="flex items-center justify-between px-3 py-1.5 text-xs text-stone-700 hover:bg-sky-50 hover:text-secondary rounded-lg transition-colors cursor-pointer group/item"
-                >
-                  <span>{{ sub }}</span>
-                  <svg
-                    class="w-3 h-3 opacity-0 group-hover/item:opacity-100 group-hover/item:translate-x-0.5 transition-all text-secondary"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </RouterLink>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <AppNavbarCategorias />
       </div>
     </div>
 
-    <!-- 3. Drawer Lateral Mobile Oficial (munu-mobile.png) -->
-    <Teleport to="body">
-      <div v-if="isDrawerOpen" class="fixed inset-0 z-50 flex">
-        <!-- Backdrop Escurecido -->
-        <Transition
-          enter-active-class="transition-opacity duration-300 ease-out"
-          enter-from-class="opacity-0"
-          enter-to-class="opacity-100"
-          leave-active-class="transition-opacity duration-200 ease-in"
-          leave-from-class="opacity-100"
-          leave-to-class="opacity-0"
-          appear
-        >
-          <div
-            class="fixed inset-0 bg-black/60 backdrop-blur-xs"
-            @click="closeDrawer"
-          ></div>
-        </Transition>
-
-        <!-- Painel Deslizante Lateral -->
-        <Transition
-          enter-active-class="transition-transform duration-300 ease-out"
-          enter-from-class="-translate-x-full"
-          enter-to-class="translate-x-0"
-          leave-active-class="transition-transform duration-200 ease-in"
-          leave-from-class="translate-x-0"
-          leave-to-class="-translate-x-full"
-          appear
-        >
-          <div
-            class="relative w-[82%] max-w-xs sm:max-w-sm h-full flex flex-col shadow-2xl z-10 select-none overflow-hidden"
-          >
-            <!-- Cabeçalho do Drawer em bg-primary com a logo branca e botão fechar -->
-            <div
-              class="bg-primary px-5 py-5 flex items-center justify-between border-b border-primary-dark shrink-0"
-            >
-              <RouterLink to="/" @click="closeDrawer" class="flex items-center">
-                <img
-                  src="/images/logos/logo-horizontal.svg"
-                  alt="Empório Henz"
-                  class="h-8 w-auto object-contain filter brightness-0 invert"
-                />
-              </RouterLink>
-              <button
-                type="button"
-                @click="closeDrawer"
-                class="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                aria-label="Fechar menu"
-              >
-                <Icon icon="mdi:close" class="w-5 h-5"></Icon>
-              </button>
-            </div>
-
-            <!-- Corpo do Drawer em bg-secondary com Categorias e Ações -->
-            <div
-              class="bg-secondary flex-1 overflow-y-auto px-5 py-4 space-y-1 text-white text-sm"
-            >
-              <!-- Lista de Categorias com Acordeão -->
-              <div v-for="cat in categories" :key="cat.slug">
-                <button
-                  type="button"
-                  @click="toggleAccordion(cat.slug)"
-                  class="w-full flex items-center justify-between py-3.5 text-left font-bold text-white hover:text-white/90 text-base transition-colors cursor-pointer"
-                  :aria-expanded="activeAccordion === cat.slug"
-                >
-                  <span>{{ cat.name }}</span>
-                  <Icon
-                    :icon="
-                      activeAccordion === cat.slug
-                        ? 'mdi:chevron-up'
-                        : 'mdi:chevron-down'
-                    "
-                    class="w-5 h-5 text-white transition-transform duration-200"
-                  />
-                </button>
-
-                <!-- Subcategorias do Acordeão -->
-                <div
-                  v-if="activeAccordion === cat.slug"
-                  class="pb-3 pl-3 space-y-1 animate-in fade-in duration-200"
-                >
-                  <RouterLink
-                    :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
-                    @click="closeDrawer"
-                    class="block py-1.5 px-2.5 text-xs font-semibold text-sky-200 hover:text-white hover:bg-white/15 rounded-md transition-colors"
-                  >
-                    Ver todos em {{ cat.name }} →
-                  </RouterLink>
-                  <RouterLink
-                    v-for="sub in cat.subcategories"
-                    :key="sub"
-                    :to="{
-                      path: '/catalogo',
-                      query: { categoria: cat.slug, subcategoria: sub },
-                    }"
-                    @click="closeDrawer"
-                    class="block py-1.5 px-2.5 text-sm text-white/90 hover:text-white hover:bg-white/15 rounded-md transition-colors"
-                  >
-                    {{ sub }}
-                  </RouterLink>
-                </div>
-              </div>
-
-              <!-- Divisor Sutil -->
-              <div class="border-t border-white/25 my-4 pt-3 space-y-2">
-                <!-- Salvos -->
-                <UiButton
-                  variant="custom"
-                  size="none"
-                  block
-                  @click="
-                    closeDrawer();
-                    listasStore.openManageModal();
-                  "
-                  class="w-full flex items-center justify-start gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-left"
-                >
-                  <Icon
-                    icon="mdi:heart-outline"
-                    class="w-5 h-5 text-white shrink-0"
-                  />
-                  <span>Salvos</span>
-                  <span
-                    v-if="listasStore.totalSavedCount > 0"
-                    class="ml-auto bg-rose-500 text-white text-xs px-2 py-0.5 rounded-full font-bold"
-                  >
-                    {{ listasStore.totalSavedCount }}
-                  </span>
-                </UiButton>
-
-                <!-- Sobre a loja -->
-                <RouterLink
-                  to="/sobre-a-loja"
-                  @click="closeDrawer"
-                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                >
-                  <svg
-                    class="w-5 h-5 text-white shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M3 9l1.5-5h15l1.5 5"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M3 9a3 3 0 006 0 3 3 0 006 0 3 3 0 006 0"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M4 9.5V19a1 1 0 001 1h14a1 1 0 001-1V9.5"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M9 20v-5a1 1 0 011-1h4a1 1 0 011 1v5"
-                    />
-                  </svg>
-                  <span>Sobre a loja</span>
-                </RouterLink>
-
-                <!-- Painel Admin Mobile (Exclusivo para Equipe) -->
-                <UiButton
-                  v-if="authStore.isEquipe"
-                  variant="custom"
-                  size="none"
-                  block
-                  @click="navigateTo('/admin')"
-                  class="w-full flex items-center justify-start gap-3.5 py-2.5 px-1 font-semibold text-white hover:text-amber-200 hover:bg-white/10 rounded-lg transition-colors cursor-pointer group text-left"
-                >
-                  <Icon
-                    icon="mdi:shield-account"
-                    class="w-5 h-5 text-white shrink-0 transition-colors group-hover:text-amber-200"
-                  />
-                  <span>Painel Admin</span>
-                </UiButton>
-
-                <!-- Minha conta / Editar Usuário / Meu Perfil -->
-                <UiButton
-                  variant="custom"
-                  size="none"
-                  block
-                  @click="navigateTo(drawerAccountPath)"
-                  class="w-full flex items-center justify-start gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-left"
-                >
-                  <Icon
-                    :icon="
-                      authStore.isAdmin
-                        ? 'mdi:account-edit-outline'
-                        : 'mdi:account-circle-outline'
-                    "
-                    class="w-5 h-5 text-white shrink-0"
-                  />
-                  <span v-if="authStore.isAuthenticated && authStore.user">
-                    {{ authStore.isAdmin ? "Editar Usuário" : "Meu Perfil" }}
-                    ({{ authStore.user.name.split(" ")[0] }})
-                  </span>
-                  <span v-else>Minha conta</span>
-                </UiButton>
-
-                <!-- Sair / Entrar -->
-                <button
-                  v-if="authStore.isAuthenticated"
-                  type="button"
-                  @click="handleLogoutDrawer"
-                  class="w-full flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer text-left"
-                >
-                  <Icon icon="mdi:logout" class="w-5 h-5 text-white shrink-0" />
-                  <span>Sair</span>
-                </button>
-
-                <RouterLink
-                  v-else
-                  to="/login"
-                  @click="closeDrawer"
-                  class="flex items-center gap-3.5 py-2.5 px-1 font-semibold text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-                >
-                  <Icon icon="mdi:login" class="w-5 h-5 text-white shrink-0" />
-                  <span>Entrar</span>
-                </RouterLink>
-              </div>
-            </div>
-          </div>
-        </Transition>
-      </div>
-    </Teleport>
+    <AppNavbarDrawer
+      :open="isDrawerOpen"
+      :account-path="accountPath"
+      @close="closeDrawer"
+      @logout="handleLogout"
+    />
   </header>
 </template>

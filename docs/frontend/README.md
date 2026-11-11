@@ -62,6 +62,20 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
 | **Link Inline no Texto** | `<UiButton variant="link" size="none" @click="go">Criar conta</UiButton>` | Mantém no fluxo do texto sem estourar altura |
 | **Perigo / Desativar** | `<UiButton variant="danger" size="sm" @click="remove">Excluir</UiButton>` | Alertas críticos ou exclusão |
 
+## Categorias na navbar e na home
+
+A navbar e a vitrine da home montam o menu a partir de `GET /categorias`. A rota é pública e cada categoria já traz os seus `subtypes`.
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/stores/categorias.ts` | `useCategoriasStore().carregar()` busca todas as páginas (`limit` 100) uma vez por sessão e reaproveita a mesma promise em chamadas simultâneas. Também descarta categorias e subtipos inativos (com token de Admin a API devolve os inativos). Expõe `lista`, `barra`, `mais` e `cardsHome`, além do helper `encontrarCategoria` e das constantes `CARDS_HOME` e `MAX_ITENS_BARRA`. Não há helper de link: cada componente aponta direto para `/catalogo?categoria=<slug>` (e `&subcategoria=<nome>` nas subcategorias) |
+| `components/layout/AppNavbarCategorias.vue` | Barra desktop, na ordem da API (alfabética). Mostra no máximo 6 itens: com 7 ou mais categorias, ficam 5 + o botão "Mais". O "Mais" abre no hover e no clique, fecha com Esc, clique fora ou ao escolher um link, e lista cada categoria extra com as suas subcategorias. Categoria sem subtipo vira link simples. Durante a carga ou em caso de erro, só o aviso de entrega aparece |
+| `components/layout/AppNavbarDrawer.vue` | Drawer mobile: todas as categorias no acordeão, sem limite, com "Ver todos em X" e as subcategorias |
+| `components/layout/AppNavbarUserMenu.vue` | Menu do usuário desktop, separado do `AppNavbar.vue` para o arquivo ficar abaixo de 500 linhas |
+| `src/views/HomeView.vue` | Os 6 cards continuam fixos (imagens do Figma em `CARDS_HOME`), mas só aparecem os que casam com uma categoria. O casamento é pelo slug ou, se não achar, pelo `slugify(name)`, e o link usa o slug da API. Enquanto carrega ou se a API falhar, os 6 cards ficam visíveis |
+
+Os links seguem o contrato atual do catálogo: `/catalogo?categoria=<slug>&subcategoria=<nome do subtipo>`.
+
 ## CRUD de produto (`/admin/produtos`)
 
 Três telas abertas a Administrador e Vendedor, ligadas ao card "Produtos" do painel `/admin`: a listagem (`admin-produtos`), o cadastro (`admin-produtos-novo`) e a edição (`admin-produtos-editar`). Regras de negócio no [PRD](../PRD.md) (UC08, RF16, RF17); decisões técnicas na change OpenSpec `fe-admin-product-form`; contrato na pasta `Products/` da [collection Bruno](../backend/collections/bruno/).
