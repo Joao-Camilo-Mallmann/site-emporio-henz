@@ -24,6 +24,7 @@ declare module 'vue' {
     HeroBannerMobile: typeof import('./components/home/HeroBannerMobile.vue')['default']
     Icon: typeof import('@iconify/vue')['Icon']
     KeyValueEditor: typeof import('./components/admin/produtos/KeyValueEditor.vue')['default']
+    ListaCompartilhadaModal: typeof import('./components/listas/ListaCompartilhadaModal.vue')['default']
     LoginParaSalvarModal: typeof import('./components/listas/LoginParaSalvarModal.vue')['default']
     MinhasListasModal: typeof import('./components/listas/MinhasListasModal.vue')['default']
     PasswordStrengthPanel: typeof import('./components/auth/PasswordStrengthPanel.vue')['default']
