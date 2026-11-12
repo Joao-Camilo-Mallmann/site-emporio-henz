@@ -1,6 +1,7 @@
 import { categoriasApi, fornecedoresApi, produtosApi, subtiposApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import { useAuthStore } from "@/stores/auth";
+import { useCategoriasStore } from "@/stores/categorias";
 import type {
   FieldErrors,
   ICategory,
@@ -40,11 +41,10 @@ export interface ProdutoSelecaoAtual {
  */
 export function useProdutoOpcoes() {
   const authStore = useAuthStore();
+  const categoriasStore = useCategoriasStore();
 
   const categories = ref<ICategory[]>([]);
   const suppliers = ref<ISupplier[]>([]);
-  // Resposta sem filtro: com token de Admin ela inclui inativos.
-  let categoriasDaApi: ICategory[] = [];
 
   const isVendedor = computed(() => authStore.isVendedor);
   const supplierLocked = computed(
@@ -56,23 +56,33 @@ export function useProdutoOpcoes() {
 
   /** Carrega as listas. Erros sobem para a tela, que mostra a falha. */
   async function carregarListas() {
-    const [categoriesResponse, suppliersResponse] = await Promise.all([
-      categoriasApi.listar({ limit: 100, active: true }),
+    const [, suppliersResponse] = await Promise.all([
+      categoriasStore.carregar(),
       fornecedoresApi.listar({ limit: 100, active: true }),
     ]);
-    categoriasDaApi = categoriesResponse.data;
-    categories.value = categoriasDaApi
-      .filter((category) => category.active)
-      .map((category) => ({
-        ...category,
-        subtypes: (category.subtypes ?? []).filter((subtype) => subtype.active),
-      }));
+    if (!categoriasStore.carregadas) {
+      throw new Error(
+        categoriasStore.error ?? "Não foi possível carregar as categorias.",
+      );
+    }
+    // Copia superficial por item para `garantirSelecionados` poder anexar um
+    // subtipo inativo na edição sem alterar o estado da store.
+    categories.value = categoriasStore.lista.map((category) => ({
+      ...category,
+      subtypes: [...(category.subtypes ?? [])],
+    }));
     suppliers.value = suppliersResponse.data.filter((supplier) => supplier.active);
   }
 
   async function categoriaAtual(id: string): Promise<ICategory> {
-    const daApi = categoriasDaApi.find((category) => category.id === id);
-    if (daApi) return { ...daApi, name: `${daApi.name} (inativa)`, subtypes: [] };
+    const daStore = categoriasStore.todas.find((category) => category.id === id);
+    if (daStore) {
+      return {
+        ...daStore,
+        name: daStore.active ? daStore.name : `${daStore.name} (inativa)`,
+        subtypes: [],
+      };
+    }
     try {
       const category = await categoriasApi.buscarPorId(id);
       return { ...category, name: `${category.name} (inativa)`, subtypes: [] };
@@ -82,10 +92,15 @@ export function useProdutoOpcoes() {
   }
 
   async function subtipoAtual(id: string, categoryId: string): Promise<ISubtype> {
-    const daApi = categoriasDaApi
+    const daStore = categoriasStore.todas
       .flatMap((category) => category.subtypes ?? [])
       .find((subtype) => subtype.id === id);
-    if (daApi) return { ...daApi, name: `${daApi.name} (inativo)` };
+    if (daStore) {
+      return {
+        ...daStore,
+        name: daStore.active ? daStore.name : `${daStore.name} (inativo)`,
+      };
+    }
     try {
       const subtype = await subtiposApi.buscarPorId(id);
       return { ...subtype, name: `${subtype.name} (inativo)` };

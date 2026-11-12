@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { categoriasApi, fornecedoresApi, produtosApi } from "@/api";
+import { fornecedoresApi, produtosApi } from "@/api";
 import { useToast } from "@/composables/useToast";
+import { useCategoriasStore } from "@/stores/categorias";
 import type {
   AvailabilityType,
-  ICategory,
   ISupplier,
   ProductAdminFilterParams,
   ProductListItemDto,
@@ -16,6 +16,7 @@ type StatusFilter = "" | "active" | "inactive";
 
 const router = useRouter();
 const toast = useToast();
+const categoriasStore = useCategoriasStore();
 
 // Estado da listagem
 const products = ref<ProductListItemDto[]>([]);
@@ -23,7 +24,6 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 
 // Opções dos filtros (a falha na carga não bloqueia a listagem)
-const categories = ref<ICategory[]>([]);
 const suppliers = ref<ISupplier[]>([]);
 
 // Paginação
@@ -54,13 +54,10 @@ const hasActiveFilters = computed(
 );
 
 async function carregarOpcoesDeFiltro() {
-  const [categoriasResult, fornecedoresResult] = await Promise.allSettled([
-    categoriasApi.listar({ limit: 100, active: true }),
+  const [, fornecedoresResult] = await Promise.allSettled([
+    categoriasStore.carregar(),
     fornecedoresApi.listar({ limit: 100, active: true }),
   ]);
-  if (categoriasResult.status === "fulfilled") {
-    categories.value = categoriasResult.value.data;
-  }
   if (fornecedoresResult.status === "fulfilled") {
     suppliers.value = fornecedoresResult.value.data;
   }
@@ -158,7 +155,7 @@ onMounted(() => {
         v-model:supplier="selectedSupplier"
         v-model:availability="selectedAvailability"
         v-model:status="selectedStatus"
-        :categories="categories"
+        :categories="categoriasStore.lista"
         :suppliers="suppliers"
         :total="totalProducts"
         :has-active-filters="hasActiveFilters"
@@ -171,7 +168,7 @@ onMounted(() => {
       <!-- Carregando, erro, vazio ou tabela com paginação -->
       <ProdutoListTabela
         :products="products"
-        :categories="categories"
+        :categories="categoriasStore.todas"
         :suppliers="suppliers"
         :loading="loading"
         :error="error"

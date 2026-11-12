@@ -1,8 +1,10 @@
 import { categoriasApi } from "@/api";
 import type { ICategory } from "@/types";
+import { getAuthToken } from "@/utils/cookie";
 import { slugify } from "@/utils/slug";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import { useAuthStore } from "./auth";
 
 const POR_PAGINA = 100;
 
@@ -59,25 +61,47 @@ export function encontrarCategoria(
 }
 
 export const useCategoriasStore = defineStore("categorias", () => {
-  const lista = ref<ICategory[]>([]);
+  const authStore = useAuthStore();
+
+  const todas = ref<ICategory[]>([]);
   const loading = ref(false);
   const error = ref<string>();
   const carregadas = ref(false);
   let pendente: Promise<void> | null = null;
+  let tokenNaCarga: string | null = null;
 
-  async function executarCarga(verificarAtual: () => boolean): Promise<void> {
+  // Com token de Admin a API devolve também os inativos; o site público nunca os mostra
+  const lista = computed<ICategory[]>(() =>
+    todas.value
+      .filter((categoria) => categoria.active)
+      .map((categoria) => ({
+        ...categoria,
+        subtypes: (categoria.subtypes ?? []).filter((sub) => sub.active),
+      })),
+  );
+
+  function extrairErro(err: unknown): string {
+    const apiErr = err as { response?: { data?: { message?: string } } };
+    if (apiErr.response?.data?.message) return apiErr.response.data.message;
+    return err instanceof Error ? err.message : "Erro ao carregar categorias";
+  }
+
+  async function executarCarga(
+    token: string | null,
+    verificarAtual: () => boolean,
+  ): Promise<void> {
     loading.value = true;
     error.value = undefined;
     try {
-      const proximaLista = await buscarCategoriasAtivas();
+      const proximaLista = await buscarTodasCategorias();
       if (verificarAtual()) {
-        lista.value = proximaLista;
+        todas.value = proximaLista;
         carregadas.value = true;
+        tokenNaCarga = token;
       }
     } catch (err: unknown) {
       if (verificarAtual()) {
-        error.value =
-          err instanceof Error ? err.message : "Erro ao carregar categorias";
+        error.value = extrairErro(err);
       }
     } finally {
       if (verificarAtual()) {
@@ -88,15 +112,21 @@ export const useCategoriasStore = defineStore("categorias", () => {
   }
 
   function carregar(forcar = false): Promise<void> {
-    if (carregadas.value && !forcar) return Promise.resolve();
+    const tokenAtual = authStore.token ?? getAuthToken() ?? null;
+    const tokenMudou = carregadas.value && tokenAtual !== tokenNaCarga;
+    if (carregadas.value && !forcar && !tokenMudou) {
+      return Promise.resolve();
+    }
 
-    if (forcar) {
-      carregadas.value = false;
+    if (forcar || tokenMudou) {
       pendente = null;
     }
 
     if (!pendente) {
-      const requisicao = executarCarga(() => pendente === requisicao);
+      const requisicao = executarCarga(
+        tokenAtual,
+        () => pendente === requisicao,
+      );
       pendente = requisicao;
     }
 
@@ -107,24 +137,18 @@ export const useCategoriasStore = defineStore("categorias", () => {
     return carregar(true);
   }
 
-  async function buscarCategoriasAtivas(): Promise<ICategory[]> {
-    const todas: ICategory[] = [];
+  async function buscarTodasCategorias(): Promise<ICategory[]> {
+    const acumuladas: ICategory[] = [];
     let page = 1;
     let totalPages: number;
     do {
       const resposta = await categoriasApi.listar({ page, limit: POR_PAGINA });
-      todas.push(...resposta.data);
+      acumuladas.push(...resposta.data);
       totalPages = resposta.pagination.totalPages || 1;
       page += 1;
     } while (page <= totalPages);
 
-    // Com token de Admin a API devolve também os inativos; o site público nunca os mostra
-    return todas
-      .filter((categoria) => categoria.active)
-      .map((categoria) => ({
-        ...categoria,
-        subtypes: (categoria.subtypes ?? []).filter((sub) => sub.active),
-      }));
+    return acumuladas;
   }
 
   // Até 6 categorias cabem na barra; a partir da 7ª, 5 ficam visíveis e o botão "Mais" ocupa o 6º espaço
@@ -146,6 +170,7 @@ export const useCategoriasStore = defineStore("categorias", () => {
   });
 
   return {
+    todas,
     lista,
     loading,
     error,
