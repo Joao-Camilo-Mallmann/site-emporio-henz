@@ -17,7 +17,6 @@ declare module 'vue' {
     AppNavbarDrawer: typeof import('./components/layout/AppNavbarDrawer.vue')['default']
     AppNavbarUserMenu: typeof import('./components/layout/AppNavbarUserMenu.vue')['default']
     CatalogoFiltroLateral: typeof import('./components/catalogo/CatalogoFiltroLateral.vue')['default']
-    CatalogoOrdenacaoDropdown: typeof import('./components/catalogo/CatalogoOrdenacaoDropdown.vue')['default']
     CatalogoProdutoCard: typeof import('./components/catalogo/CatalogoProdutoCard.vue')['default']
     CatalogoProdutoGaleria: typeof import('./components/catalogo/produto/CatalogoProdutoGaleria.vue')['default']
     HeroBannerDesktop: typeof import('./components/home/HeroBannerDesktop.vue')['default']

@@ -38,7 +38,7 @@ const router = createRouter({
       },
     },
     {
-      path: "/catalogo/:slug",
+      path: "/catalogo/:id",
       name: "catalogo-produto",
       component: () => import("@/views/catalogo/CatalogoProdutoDetalheView.vue"),
       meta: {

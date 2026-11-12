@@ -28,4 +28,4 @@
   - API fora do ar mantém os 6 cards.
   - Drawer mobile com todas as categorias.
   - Larguras de 768, 1024 e 1280 px.
-- [ ] 5.3 `[FE]` Conferir com o backend real e categorias cadastradas pelo admin
+- [x] 5.3 `[FE]` Conferir com o backend real e categorias cadastradas pelo admin

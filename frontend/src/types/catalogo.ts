@@ -1,10 +1,6 @@
-export type CatalogAvailability = "IN_STOCK" | "ON_DEMAND";
+import type { PaginationParams } from "./pagination";
 
-export type CatalogSortOption =
-  | "relevancia"
-  | "menor-preco"
-  | "maior-preco"
-  | "recentes";
+export type CatalogAvailability = "IN_STOCK" | "ON_DEMAND";
 
 export interface CatalogVariationBadge {
   color: string;
@@ -27,31 +23,26 @@ export interface CatalogProductItem {
   estimatedDays?: number;
 }
 
+/** Estado de filtros da tela do catálogo, espelhado na URL (`?categoria=&subcategoria=&name=...`). */
 export interface CatalogFilterParams {
   name?: string;
   categoria?: string;
   subcategoria?: string;
-  materiais?: string[];
-  cores?: string[];
-  marcas?: string[];
   disponibilidade?: CatalogAvailability[];
   minPreco?: number;
   maxPreco?: number;
-  ordem?: CatalogSortOption;
   page?: number;
   limit?: number;
 }
 
-export interface CatalogPaginationMeta {
-  currentPage: number;
-  totalPages: number;
-  totalItems: number;
-  itemsPerPage: number;
-}
-
-export interface CatalogResponse {
-  items: CatalogProductItem[];
-  meta: CatalogPaginationMeta;
+/** Parâmetros de `GET /produtos` usados pelo catálogo público (collection Bruno `Products/List Products`). */
+export interface CatalogApiParams extends PaginationParams {
+  search?: string;
+  categoryId?: string;
+  subtypeId?: string;
+  availabilityType?: CatalogAvailability;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 export interface ProductImageItem {

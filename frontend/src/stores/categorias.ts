@@ -88,7 +88,7 @@ export const useCategoriasStore = defineStore("categorias", () => {
   async function buscarCategoriasAtivas(): Promise<ICategory[]> {
     const todas: ICategory[] = [];
     let page = 1;
-    let totalPages = 1;
+    let totalPages: number;
     do {
       const resposta = await categoriasApi.listar({ page, limit: POR_PAGINA });
       todas.push(...resposta.data);

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import UiButton from "@/components/ui/UiButton.vue";
-import type { CatalogAvailability, CatalogFilterParams } from "@/types";
-import { Icon } from "@iconify/vue";
-import { computed, ref, watch } from "vue";
-
+import { encontrarCategoria, useCategoriasStore } from "@/stores/categorias";
+import type { CatalogAvailability, CatalogFilterParams, ISubtype } from "@/types";
+import { slugify } from "@/utils/slug";
+import { storeToRefs } from "pinia";
+import { computed, onMounted, ref, watch } from "vue";
 
 const props = defineProps<{
   filters: CatalogFilterParams;
@@ -15,28 +16,32 @@ const emit = defineEmits<{
   (e: "reset"): void;
 }>();
 
+// Categorias e subtipos ativos vindos de GET /categorias (mesma fonte da navbar)
+const categoriasStore = useCategoriasStore();
+const {
+  lista: categorias,
+  loading: categoriasLoading,
+  error: categoriasError,
+} = storeToRefs(categoriasStore);
+
+onMounted(() => {
+  categoriasStore.carregar();
+});
+
 // Estado local reativo sincronizado com props.filters
 const localCategoria = ref(props.filters.categoria || "");
 const localSubcategoria = ref(props.filters.subcategoria || "");
-const localMateriais = ref<string[]>([...(props.filters.materiais || [])]);
-const localCores = ref<string[]>([...(props.filters.cores || [])]);
-const localMarcas = ref<string[]>([...(props.filters.marcas || [])]);
-const localDisponibilidade = ref<CatalogAvailability[]>([...(props.filters.disponibilidade || []),]);
+const localDisponibilidade = ref<CatalogAvailability[]>([
+  ...(props.filters.disponibilidade || []),
+]);
 const localMinPreco = ref<number | undefined>(props.filters.minPreco);
 const localMaxPreco = ref<number | undefined>(props.filters.maxPreco);
-
-// Toggles de expansão "Ver mais"
-const showAllColors = ref(false);
-const showAllBrands = ref(false);
 
 watch(
   () => props.filters,
   (newVal) => {
     localCategoria.value = newVal.categoria || "";
     localSubcategoria.value = newVal.subcategoria || "";
-    localMateriais.value = [...(newVal.materiais || [])];
-    localCores.value = [...(newVal.cores || [])];
-    localMarcas.value = [...(newVal.marcas || [])];
     localDisponibilidade.value = [...(newVal.disponibilidade || [])];
     localMinPreco.value = newVal.minPreco;
     localMaxPreco.value = newVal.maxPreco;
@@ -44,126 +49,36 @@ watch(
   { deep: true },
 );
 
-const categories = [
-  {
-    name: "Quarto",
-    slug: "quarto",
-    subcategories: ["Roupeiros", "Cabeceiras", "Cômodas", "Mesas de cabeceira"],
-  },
-  {
-    name: "Sala de Estar",
-    slug: "sala-de-estar",
-    subcategories: [
-      "Sofás",
-      "Poltronas",
-      "Mesas de Centro",
-      "Racks e Painéis",
-      "Puffs",
-    ],
-  },
-  {
-    name: "Sala de Jantar",
-    slug: "sala-de-jantar",
-    subcategories: [
-      "Mesas de Jantar",
-      "Cadeiras",
-      "Aparadores",
-      "Cristaleiras",
-      "Buffets",
-    ],
-  },
-  {
-    name: "Cozinha",
-    slug: "cozinha",
-    subcategories: [
-      "Armários",
-      "Balcões",
-      "Bancadas",
-      "Banquetas",
-      "Ilhas Gourmet",
-    ],
-  },
-  {
-    name: "Escritório",
-    slug: "escritorio",
-    subcategories: [
-      "Mesas de Escritório",
-      "Cadeiras Presidente",
-      "Estantes de Livros",
-      "Gaveteiros",
-    ],
-  },
-  {
-    name: "Banheiro",
-    slug: "banheiro",
-    subcategories: [
-      "Gabinetes",
-      "Espelheiras",
-      "Armários Aéreos",
-      "Prateleiras",
-    ],
-  },
-];
+// A URL guarda o slug da categoria e o nome (ou slug) do subtipo
+const categoriaSelecionada = computed(() =>
+  localCategoria.value
+    ? encontrarCategoria(categorias.value, slugify(localCategoria.value))
+    : undefined,
+);
 
-const availableSubcategories = computed(() => {
-  if (localCategoria.value) {
-    const found = categories.find((c) => c.slug === localCategoria.value);
-    if (found) return found.subcategories;
-  }
-  return ["Roupeiros", "Cabeceiras", "Cômodas", "Mesas de cabeceira"];
-});
+const subcategoriasDisponiveis = computed<ISubtype[]>(
+  () => categoriaSelecionada.value?.subtypes ?? [],
+);
 
-const materials = ["MDF", "MDP", "Madeira maciça"];
+function isCategoriaAtiva(slug: string) {
+  return categoriaSelecionada.value?.slug === slug;
+}
 
-// Cores exatas conforme mostruário do Figma e FrontBusca.png
-const defaultColors = [
-  { hex: "#A58D63", name: "Nogueira / Linho" },
-  { hex: "#4A3024", name: "Imbuia Escura" },
-  { hex: "#D7D5CF", name: "Off White" },
-  { hex: "#2B2B2B", name: "Grafite Escuro" },
-  { hex: "#9C6342", name: "Cerejeira / Mel" },
-];
-
-const extraColors = [
-  { hex: "#EFC171", name: "Mel Dourado" },
-  { hex: "#8C6239", name: "Freijó Âmbar" },
-  { hex: "#FFFFFF", name: "Branco Neve" },
-];
-
-const visibleColors = computed(() => {
-  return showAllColors.value
-    ? [...defaultColors, ...extraColors]
-    : defaultColors;
-});
-
-const defaultBrands = ["Móveis primavera", "DJ Móveis", "HB", "Patrimar"];
-
-const extraBrands = ["Madesa", "Kappesberg", "Henrique Móveis"];
-
-const visibleBrands = computed(() => {
-  return showAllBrands.value
-    ? [...defaultBrands, ...extraBrands]
-    : defaultBrands;
-});
+function isSubcategoriaAtiva(sub: ISubtype) {
+  if (!localSubcategoria.value) return false;
+  const alvo = slugify(localSubcategoria.value);
+  return sub.slug === alvo || slugify(sub.name) === alvo;
+}
 
 function toggleCategory(slug: string) {
-  if (localCategoria.value === slug) {
-    localCategoria.value = "";
-    localSubcategoria.value = "";
-  } else {
-    localCategoria.value = slug;
-    localSubcategoria.value = "";
-  }
+  localCategoria.value = isCategoriaAtiva(slug) ? "" : slug;
+  localSubcategoria.value = "";
   emitFilterChange();
   emit("apply");
 }
 
-function toggleSubcategory(sub: string) {
-  if (localSubcategoria.value.toLowerCase() === sub.toLowerCase()) {
-    localSubcategoria.value = "";
-  } else {
-    localSubcategoria.value = sub;
-  }
+function toggleSubcategory(sub: ISubtype) {
+  localSubcategoria.value = isSubcategoriaAtiva(sub) ? "" : sub.name;
   emitFilterChange();
   emit("apply");
 }
@@ -219,47 +134,14 @@ function formatPrice(value: number) {
   }).format(value);
 }
 
-function toggleMaterial(mat: string) {
-  const index = localMateriais.value.indexOf(mat);
-  if (index > -1) {
-    localMateriais.value.splice(index, 1);
-  } else {
-    localMateriais.value.push(mat);
-  }
-  emitFilterChange();
-}
-
-function toggleColor(hex: string) {
-  const index = localCores.value.indexOf(hex);
-  if (index > -1) {
-    localCores.value.splice(index, 1);
-  } else {
-    localCores.value.push(hex);
-  }
-  emitFilterChange();
-}
-
-function toggleBrand(brand: string) {
-  const index = localMarcas.value.indexOf(brand);
-  if (index > -1) {
-    localMarcas.value.splice(index, 1);
-  } else {
-    localMarcas.value.push(brand);
-  }
-  emitFilterChange();
-}
-
 function emitFilterChange() {
   const updated: CatalogFilterParams = {
     ...props.filters,
     categoria: localCategoria.value || undefined,
     subcategoria: localSubcategoria.value || undefined,
-    materiais: localMateriais.value.length
-      ? [...localMateriais.value]
+    disponibilidade: localDisponibilidade.value.length
+      ? [...localDisponibilidade.value]
       : undefined,
-    cores: localCores.value.length ? [...localCores.value] : undefined,
-    marcas: localMarcas.value.length ? [...localMarcas.value] : undefined,
-    disponibilidade: localDisponibilidade.value.length ? [...localDisponibilidade.value] : undefined,
     minPreco: localMinPreco.value,
     maxPreco: localMaxPreco.value,
     page: 1,
@@ -275,16 +157,12 @@ function handleApply() {
 function handleReset() {
   localCategoria.value = "";
   localSubcategoria.value = "";
-  localMateriais.value = [];
-  localCores.value = [];
-  localMarcas.value = [];
   localDisponibilidade.value = [];
   localMinPreco.value = undefined;
   localMaxPreco.value = undefined;
 
   const resetFilters: CatalogFilterParams = {
     name: props.filters.name,
-    ordem: props.filters.ordem,
     page: 1,
     limit: props.filters.limit,
   };
@@ -306,22 +184,45 @@ function handleReset() {
     <!-- Seção: Categoria -->
     <div class="mb-5">
       <h3 class="text-sm font-bold text-stone-900 mb-2.5">Categoria</h3>
-      <div class="flex flex-wrap gap-2">
+      <div
+        v-if="categoriasLoading && categorias.length === 0"
+        class="flex flex-wrap gap-2"
+        aria-hidden="true"
+      >
+        <span
+          v-for="n in 6"
+          :key="n"
+          class="h-7 w-20 rounded-lg bg-stone-100 animate-pulse"
+        ></span>
+      </div>
+      <p
+        v-else-if="categorias.length === 0"
+        class="text-xs text-stone-500"
+        role="status"
+      >
+        {{
+          categoriasError
+            ? "Não foi possível carregar as categorias."
+            : "Nenhuma categoria cadastrada."
+        }}
+      </p>
+      <div v-else class="flex flex-wrap gap-2">
         <UiButton
-          v-for="cat in categories"
-          :key="cat.slug"
+          v-for="cat in categorias"
+          :key="cat.id"
           variant="custom"
           size="xs"
           class="font-normal border text-xs py-1.5 px-3 rounded-lg transition-all"
           :class="
-            localCategoria === cat.slug
+            isCategoriaAtiva(cat.slug)
               ? 'bg-sky-50 border-secondary text-secondary font-medium'
               : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400 hover:bg-stone-50'
           "
+          :aria-pressed="isCategoriaAtiva(cat.slug)"
           @click="toggleCategory(cat.slug)"
         >
           <span
-            v-if="localCategoria === cat.slug"
+            v-if="isCategoriaAtiva(cat.slug)"
             class="text-xs font-bold leading-none mr-1"
             >✕</span
           >
@@ -333,35 +234,38 @@ function handleReset() {
     <!-- Divisória Sutil de Seção -->
     <hr class="border-stone-200 my-4" />
 
-    <!-- Seção: Subcategoria -->
-    <div class="mb-5">
-      <h3 class="text-sm font-bold text-stone-900 mb-2.5">Subcategoria</h3>
-      <div class="flex flex-wrap gap-2">
-        <UiButton
-          v-for="sub in availableSubcategories"
-          :key="sub"
-          variant="custom"
-          size="xs"
-          class="font-normal border text-xs py-1.5 px-3 rounded-lg transition-all"
-          :class="
-            localSubcategoria.toLowerCase() === sub.toLowerCase()
-              ? 'bg-sky-50 border-secondary text-secondary font-medium'
-              : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400 hover:bg-stone-50'
-          "
-          @click="toggleSubcategory(sub)"
-        >
-          <span
-            v-if="localSubcategoria.toLowerCase() === sub.toLowerCase()"
-            class="text-xs font-bold leading-none mr-1"
+    <!-- Seção: Subcategoria (subtipos da categoria escolhida) -->
+    <template v-if="subcategoriasDisponiveis.length > 0">
+      <div class="mb-5">
+        <h3 class="text-sm font-bold text-stone-900 mb-2.5">Subcategoria</h3>
+        <div class="flex flex-wrap gap-2">
+          <UiButton
+            v-for="sub in subcategoriasDisponiveis"
+            :key="sub.id"
+            variant="custom"
+            size="xs"
+            class="font-normal border text-xs py-1.5 px-3 rounded-lg transition-all"
+            :class="
+              isSubcategoriaAtiva(sub)
+                ? 'bg-sky-50 border-secondary text-secondary font-medium'
+                : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400 hover:bg-stone-50'
+            "
+            :aria-pressed="isSubcategoriaAtiva(sub)"
+            @click="toggleSubcategory(sub)"
           >
-            ✕
-          </span>
-          <span>{{ sub }}</span>
-        </UiButton>
+            <span
+              v-if="isSubcategoriaAtiva(sub)"
+              class="text-xs font-bold leading-none mr-1"
+            >
+              ✕
+            </span>
+            <span>{{ sub.name }}</span>
+          </UiButton>
+        </div>
       </div>
-    </div>
 
-    <hr class="border-stone-200 my-4" />
+      <hr class="border-stone-200 my-4" />
+    </template>
 
      <!-- Seção: Disponibilidade -->
     <div class="mb-5">
@@ -383,102 +287,6 @@ function handleReset() {
           }}</span>
         </label>
       </div>
-    </div>
-
-    <hr class="border-stone-200 my-4" />
-
-    <!-- Seção: Material -->
-    <div class="mb-5">
-      <h3 class="text-sm font-bold text-stone-900 mb-2.5">Material</h3>
-      <div class="space-y-2.5">
-        <label
-          v-for="mat in materials"
-          :key="mat"
-          class="flex items-center gap-2.5 text-xs sm:text-sm text-stone-700 cursor-pointer select-none group"
-        >
-          <input
-            type="checkbox"
-            :checked="localMateriais.includes(mat)"
-            @change="toggleMaterial(mat)"
-            class="w-4 h-4 rounded border-stone-300 text-secondary focus:ring-secondary/20 cursor-pointer"
-          />
-          <span class="group-hover:text-stone-900 transition-colors">{{
-            mat
-          }}</span>
-        </label>
-      </div>
-    </div>
-
-    <hr class="border-stone-200 my-4" />
-
-    <!-- Seção: Cor / Swatches -->
-    <div class="mb-5">
-      <h3 class="text-sm font-bold text-stone-900 mb-2.5">Cor</h3>
-      <div class="flex flex-wrap items-center gap-2.5">
-        <UiButton
-          v-for="c in visibleColors"
-          :key="c.hex"
-          variant="custom"
-          size="xs"
-          class="w-8 h-8 rounded-full p-0 border border-stone-300/80 transition-all cursor-pointer shadow-2xs shrink-0"
-          :class="
-            localCores.includes(c.hex)
-              ? 'ring-2 ring-secondary ring-offset-2 scale-110'
-              : 'hover:scale-105'
-          "
-          :style="{ backgroundColor: c.hex }"
-          :title="c.name"
-          @click="toggleColor(c.hex)"
-        />
-      </div>
-      <UiButton
-        variant="ghost"
-        size="none"
-        class="mt-2.5 p-0 h-auto text-xs text-stone-600 hover:text-stone-900 font-normal transition-colors cursor-pointer inline-flex items-center gap-1"
-        @click="showAllColors = !showAllColors"
-      >
-        <Icon
-          :icon="showAllColors ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-          class="w-4 h-4"
-        />
-        <span>{{ showAllColors ? "Ver menos" : "Ver mais" }}</span>
-      </UiButton>
-    </div>
-
-    <hr class="border-stone-200 my-4" />
-
-    <!-- Seção: Marca -->
-    <div class="mb-5">
-      <h3 class="text-sm font-bold text-stone-900 mb-2.5">Marca</h3>
-      <div class="space-y-2.5">
-        <label
-          v-for="brand in visibleBrands"
-          :key="brand"
-          class="flex items-center gap-2.5 text-xs sm:text-sm text-stone-700 cursor-pointer select-none group"
-        >
-          <input
-            type="checkbox"
-            :checked="localMarcas.includes(brand)"
-            @change="toggleBrand(brand)"
-            class="w-4 h-4 rounded border-stone-300 text-secondary focus:ring-secondary/20 cursor-pointer"
-          />
-          <span class="group-hover:text-stone-900 transition-colors">{{
-            brand
-          }}</span>
-        </label>
-      </div>
-      <UiButton
-        variant="ghost"
-        size="none"
-        class="mt-2.5 p-0 h-auto text-xs text-stone-600 hover:text-stone-900 font-normal transition-colors cursor-pointer inline-flex items-center gap-1"
-        @click="showAllBrands = !showAllBrands"
-      >
-        <Icon
-          :icon="showAllBrands ? 'mdi:chevron-up' : 'mdi:chevron-down'"
-          class="w-4 h-4"
-        />
-        <span>{{ showAllBrands ? "Ver menos" : "Ver mais" }}</span>
-      </UiButton>
     </div>
 
     <hr class="border-stone-200 my-4" />
@@ -585,8 +393,8 @@ function handleReset() {
   height: 18px;
   margin-top: -7px;
   border-radius: 9999px;
-  background: #fff;
-  border: 2px solid var(--color-secondary, #007cd8);
+  background: white;
+  border: 2px solid var(--color-secondary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
@@ -596,8 +404,8 @@ function handleReset() {
   width: 14px;
   height: 14px;
   border-radius: 9999px;
-  background: #fff;
-  border: 2px solid var(--color-secondary, #007cd8);
+  background: white;
+  border: 2px solid var(--color-secondary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }

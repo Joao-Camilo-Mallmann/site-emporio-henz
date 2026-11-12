@@ -76,6 +76,20 @@ A navbar e a vitrine da home montam o menu a partir de `GET /categorias`. A rota
 
 Os links seguem o contrato atual do catálogo: `/catalogo?categoria=<slug>&subcategoria=<nome do subtipo>`.
 
+## Catálogo público (`/catalogo`)
+
+O catálogo e as vitrines "Destaques" e "Recomendados" da home leem os produtos de `GET /produtos` (pasta `Products/` da [collection Bruno](../backend/collections/bruno/)). Não há mock de fallback. Decisões técnicas na change OpenSpec `fe-catalogo-api-real`.
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/api/catalogo.ts` | `catalogoApi.buscarProdutos(params)` envia `page`, `limit`, `search`, `categoryId`, `subtypeId`, `availabilityType`, `minPrice` e `maxPrice` e devolve o envelope `Paginated<ProductListItemDto>` |
+| `src/composables/useCatalogoProdutos.ts` | Traduz a URL para o contrato da API e expõe `products`, `pagination`, `loading` e `error`. O slug de `categoria` e o nome ou slug de `subcategoria` viram `categoryId` e `subtypeId` pelo `useCategoriasStore`. Uma categoria que não existe gera lista vazia. A disponibilidade só é enviada com uma opção marcada. O mapper converte cada item para o `CatalogProductItem` do card (`referencePrice`, "Até Nx no cartão", foto por `toApiAssetUrl(thumbnailUrl)`) |
+| `src/views/catalogo/CatalogoView.vue` | Estado dos filtros sincronizado com a URL, paginação no servidor (9 por página), estado de erro com "Tentar novamente" |
+| `components/catalogo/CatalogoFiltroLateral.vue` | Categoria e subcategoria (vindas do store), disponibilidade e faixa de preço. Material, cor, marca e ordenação não aparecem porque a API não oferece esses filtros |
+| `components/catalogo/CatalogoProdutoCard.vue` | Card do catálogo e da home. Navega para `/catalogo/:id` (UUID do produto) |
+
+Contrato da URL: `/catalogo?name=<termo>&categoria=<slug>&subcategoria=<nome ou slug do subtipo>&disponibilidade=IN_STOCK,ON_DEMAND&minPreco=&maxPreco=&page=`. O termo legado `?q=` também é aceito. Ao filtrar, as outras chaves da URL (como `?lista=`) são mantidas.
+
 ## CRUD de produto (`/admin/produtos`)
 
 Três telas abertas a Administrador e Vendedor, ligadas ao card "Produtos" do painel `/admin`: a listagem (`admin-produtos`), o cadastro (`admin-produtos-novo`) e a edição (`admin-produtos-editar`). Regras de negócio no [PRD](../PRD.md) (UC08, RF16, RF17); decisões técnicas na change OpenSpec `fe-admin-product-form`; contrato na pasta `Products/` da [collection Bruno](../backend/collections/bruno/).
@@ -96,7 +110,7 @@ As quatro telas ficam em `src/views/admin/produtos/` e cuidam do estado, das cha
 | --- | --- |
 | `src/types/products.ts` | Contrato da API: `ProductListItemDto`, `ProductDto`, `ProductVariationDto`, `ProductImageDto`, `ProductCreatePayload`, `ProductUpdatePayload`, `ProductAdminFilterParams` |
 | `src/types/productForm.ts` | Estado local do formulário: `ProductFormState`, `VariationFormItem`, `PhotoFormItem`, `KeyValueRow`, `UploadState`, `FieldErrors` |
-| `src/api/produtos.ts` | `listarAdmin`, `buscarDetalhe`, `criar`, `atualizar`, `deletar`, `enviarFoto`, `enviarAmostra`, `removerFoto` e `removerAmostra` (`listar` e `buscarPorId`, usadas pelo catálogo público, seguem com mock de fallback) |
+| `src/api/produtos.ts` | `listarAdmin`, `buscarDetalhe`, `criar`, `atualizar`, `deletar`, `enviarFoto`, `enviarAmostra`, `removerFoto` e `removerAmostra` (`buscarPorId` é usada pela tela de detalhe do catálogo, que ainda será ligada à API em uma change própria) |
 | `src/utils/uploads.ts` | `MAX_IMAGE_BYTES`, `ACCEPTED_IMAGE_TYPES`, `validateImageFile` e `toApiAssetUrl` |
 | `src/utils/admin/produtos/` | Lógica pura do formulário, sem Vue: `produtoFormConstantes.ts` (ids de campo, rótulos, limites, formatadores da listagem e `apiErrorMessage`), `produtoFormEstado.ts` (criação, conversão de e para a API), e `produtoFormValidacao.ts`. Principais funções: `createEmptyForm`, `formFromProduct`, `validateForm`, `toCreatePayload`, `toUpdatePayload`, `resolveVariationIds`, ids dos campos e rótulos da listagem |
 | `src/views/admin/produtos/ProdutoListView.vue` | Listagem: filtros, paginação, miniatura da capa e desativação com confirmação |

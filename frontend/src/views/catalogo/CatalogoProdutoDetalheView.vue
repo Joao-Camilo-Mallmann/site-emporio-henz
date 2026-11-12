@@ -121,8 +121,8 @@ async function handleShare() {
   if (!product.value) return;
 
   const productRoute = router.resolve({
-    name: "produto-detalhe",
-    params: { id: product.value.slug || product.value.id },
+    name: "catalogo-produto",
+    params: { id: product.value.id },
   });
   const url = new URL(productRoute.href, window.location.origin).toString();
 
@@ -144,12 +144,11 @@ function handleWhatsAppContact() {
 }
 
 function navigateToRelated(related: CatalogProductItem) {
-  const identifier = related.slug || related.id;
-  router.push(`/catalogo/${identifier}`);
+  router.push({ name: "catalogo-produto", params: { id: related.id } });
 }
 
 watch(
-  () => route.params.slug,
+  () => route.params.id,
   (newId) => {
     if (newId) {
       loadProduct(newId as string);
@@ -159,8 +158,7 @@ watch(
 );
 
 onMounted(() => {
-  const id = (route.params.slug as string) || "p-1";
-  loadProduct(id);
+  loadProduct(route.params.id as string);
 });
 </script>
 

@@ -2,10 +2,12 @@
 import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
 import HeroBannerDesktop from "@/components/home/HeroBannerDesktop.vue";
 import HeroBannerMobile from "@/components/home/HeroBannerMobile.vue";
+import { catalogoApi } from "@/api";
+import { mapearProdutoCatalogo } from "@/composables/useCatalogoProdutos";
 import { useCategoriasStore } from "@/stores/categorias";
-import type { CatalogProductItem } from "@/types";
+import type { CatalogProductItem, ProductListItemDto } from "@/types";
 import { Icon } from "@iconify/vue";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const categoriasStore = useCategoriasStore();
 const hoveredCategory = ref<string | null>(null);
@@ -14,118 +16,40 @@ const selectedCategory = ref<string>("");
 // Cards fixos do Figma, filtrados pelas categorias que existem na API (ver CARDS_HOME em stores/categorias)
 onMounted(() => {
   categoriasStore.carregar();
+  carregarVitrines();
 });
 
-// Destaques conforme Figma e catálogo mockado (p-12, p-9, p-10, p-11)
-const destaques: CatalogProductItem[] = [
-  {
-    id: "p-12",
-    slug: "cristaleira-liara",
-    category: "sala-de-jantar",
-    name: "Cristaleira Liara",
-    price: 1900,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-cristaleira.webp",
-    finishes: [],
-  },
-  {
-    id: "p-9",
-    slug: "mesa-de-centro-petala",
-    category: "sala-de-estar",
-    name: "Mesa de Centro Pétala",
-    price: 720,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-mesa-petala.webp",
-    finishes: [
-      { color: "#C97C49", label: "Cerejeira" },
-      { color: "#EFC171", label: "Mel" },
-      { color: "#D7D5CF", label: "Off White" },
-    ],
-  },
-  {
-    id: "p-10",
-    slug: "home-ripado-supremo",
-    category: "sala-de-estar",
-    name: "Home Ripado Supremo",
-    price: 1550,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-home-ripado.webp",
-    finishes: [
-      { color: "#A58D63", label: "Nogueira" },
-      { color: "#4A3024", label: "Imbuia Escura" },
-    ],
-  },
-  {
-    id: "p-11",
-    slug: "poltrona-tissi",
-    category: "sala-de-estar",
-    name: "Poltrona Tissi",
-    price: 2370,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-poltrona-tissi.webp",
-    finishes: [
-      { color: "#4A3024", label: "Madeira Nobre" },
-      { color: "#A58D63", label: "Linho Bege" },
-      { color: "#2B2B2B", label: "Couro Preto" },
-    ],
-  },
-];
+// Vitrines de produtos: uma chamada a GET /produtos alimenta "Destaques" e "Você também pode gostar"
+const ITENS_POR_VITRINE = 4;
+const produtosVitrine = ref<ProductListItemDto[]>([]);
+const vitrinesLoading = ref(true);
 
-// Seção "Você também pode gostar" conforme footer.png e catálogo mockado (p-4, p-2, p-8, p-7)
-const recomendados: CatalogProductItem[] = [
-  {
-    id: "p-4",
-    slug: "roupeiro-milano",
-    category: "quarto",
-    name: "Roupeiro Milano",
-    price: 4900,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-milano.webp",
-    finishes: [
-      { color: "#4A3025", label: "Freijó Âmbar" },
-      { color: "#A58D66", label: "Carvalho Claro" },
-    ],
-  },
-  {
-    id: "p-2",
-    slug: "roupeiro-veneza",
-    category: "quarto",
-    name: "Roupeiro Veneza",
-    price: 7300,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-roupeiro-veneza.webp",
-    finishes: [
-      { color: "#4A3025", label: "Madeira Maciça" },
-      { color: "#A58D66", label: "Champagne" },
-    ],
-  },
-  {
-    id: "p-8",
-    slug: "comoda-italia",
-    category: "quarto",
-    name: "Cômoda Itália",
-    price: 1500,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-comoda-italia.webp",
-    finishes: [
-      { color: "#4A3025", label: "Carvalho Escuro" },
-      { color: "#A58D66", label: "Freijó Claro" },
-    ],
-  },
-  {
-    id: "p-7",
-    slug: "cabeceira-italia",
-    category: "quarto",
-    name: "Cabeceira Itália",
-    price: 550,
-    installments: "Até 10x no cartão",
-    image: "/images/products/prod-cabeceira-italia.webp",
-    finishes: [
-      { color: "#4A3025", label: "Linho Areia" },
-      { color: "#A58D66", label: "Cinza Chumbo" },
-    ],
-  },
-];
+async function carregarVitrines() {
+  try {
+    const resposta = await catalogoApi.buscarProdutos({
+      page: 1,
+      limit: ITENS_POR_VITRINE * 2,
+    });
+    produtosVitrine.value = resposta.data;
+  } catch {
+    // Sem produtos a vitrine some; o resto da home continua visível
+    produtosVitrine.value = [];
+  } finally {
+    vitrinesLoading.value = false;
+  }
+}
+
+const cardsVitrine = computed<CatalogProductItem[]>(() =>
+  produtosVitrine.value.map((produto) =>
+    mapearProdutoCatalogo(produto, categoriasStore.lista),
+  ),
+);
+const destaques = computed(() =>
+  cardsVitrine.value.slice(0, ITENS_POR_VITRINE),
+);
+const recomendados = computed(() =>
+  cardsVitrine.value.slice(ITENS_POR_VITRINE, ITENS_POR_VITRINE * 2),
+);
 </script>
 
 <template>
@@ -209,7 +133,10 @@ const recomendados: CatalogProductItem[] = [
     </section>
 
     <!-- Seção Destaques (Figma node #50:5154) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4">
+    <section
+      v-if="vitrinesLoading || destaques.length > 0"
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4"
+    >
       <div class="flex items-center justify-between">
         <h2
           class="text-2xl sm:text-3xl font-serif font-bold text-neutral-dark tracking-tight"
@@ -230,16 +157,33 @@ const recomendados: CatalogProductItem[] = [
 
       <!-- Grid de 4 Cards de Produto com Hover Elevado e Navegação para Detalhes -->
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <CatalogoProdutoCard
-          v-for="item in destaques"
-          :key="item.id"
-          :product="item"
-        />
+        <template v-if="vitrinesLoading">
+          <div
+            v-for="n in 4"
+            :key="n"
+            class="bg-stone-50 rounded-2xl p-4 animate-pulse h-80 flex flex-col justify-between border border-stone-100"
+            aria-hidden="true"
+          >
+            <div class="w-full h-48 bg-stone-200 rounded-xl"></div>
+            <div class="h-4 bg-stone-200 rounded w-3/4 mt-4"></div>
+            <div class="h-6 bg-stone-200 rounded w-1/2 mt-2"></div>
+          </div>
+        </template>
+        <template v-else>
+          <CatalogoProdutoCard
+            v-for="item in destaques"
+            :key="item.id"
+            :product="item"
+          />
+        </template>
       </div>
     </section>
 
     <!-- Seção "Você também pode gostar" (footer.png) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4">
+    <section
+      v-if="vitrinesLoading || recomendados.length > 0"
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4"
+    >
       <div class="flex items-center justify-between">
         <h2
           class="text-2xl sm:text-3xl font-serif font-bold text-neutral-dark tracking-tight"
@@ -260,11 +204,25 @@ const recomendados: CatalogProductItem[] = [
 
       <!-- Grid de 4 Cards de Produto (footer.png) com Navegação para Detalhes -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <CatalogoProdutoCard
-          v-for="item in recomendados"
-          :key="item.id"
-          :product="item"
-        />
+        <template v-if="vitrinesLoading">
+          <div
+            v-for="n in 4"
+            :key="n"
+            class="bg-stone-50 rounded-2xl p-4 animate-pulse h-80 flex flex-col justify-between border border-stone-100"
+            aria-hidden="true"
+          >
+            <div class="w-full h-48 bg-stone-200 rounded-xl"></div>
+            <div class="h-4 bg-stone-200 rounded w-3/4 mt-4"></div>
+            <div class="h-6 bg-stone-200 rounded w-1/2 mt-2"></div>
+          </div>
+        </template>
+        <template v-else>
+          <CatalogoProdutoCard
+            v-for="item in recomendados"
+            :key="item.id"
+            :product="item"
+          />
+        </template>
       </div>
     </section>
   </div>

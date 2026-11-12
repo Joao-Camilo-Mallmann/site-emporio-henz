@@ -1,155 +1,70 @@
 <script setup lang="ts">
 import CatalogoFiltroLateral from "@/components/catalogo/CatalogoFiltroLateral.vue";
 import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
-import CatalogoOrdenacaoDropdown from "@/components/catalogo/CatalogoOrdenacaoDropdown.vue";
 import UiButton from "@/components/ui/UiButton.vue";
-import { catalogoApi } from "@/api/catalogo";
-import type {
-  CatalogAvailability,
-  CatalogFilterParams,
-  CatalogPaginationMeta,
-  CatalogProductItem,
-  CatalogSortOption,
-} from "@/types";
+import {
+  CATALOGO_POR_PAGINA,
+  lerFiltrosDaRota,
+  montarQueryDaRota,
+  useCatalogoProdutos,
+} from "@/composables/useCatalogoProdutos";
+import { encontrarCategoria, useCategoriasStore } from "@/stores/categorias";
+import type { CatalogFilterParams } from "@/types";
+import { slugify } from "@/utils/slug";
 import { Icon } from "@iconify/vue";
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
+const categoriasStore = useCategoriasStore();
+
+// Produtos e paginação vêm de GET /produtos; filtros e paginação ficam no servidor
+const {
+  products,
+  pagination,
+  loading: isLoading,
+  error,
+  carregar,
+} = useCatalogoProdutos();
 
 // Drawer mobile de filtros
 const isMobileFiltersOpen = ref(false);
-const isLoading = ref(false);
 
-// Filtros principais reativos sincronizados com a rota e enviados na requisição GET da API REST
-const filters = ref<CatalogFilterParams>({
-  name: "",
-  categoria: "",
-  subcategoria: "",
-  materiais: [],
-  cores: [],
-  marcas: [],
-  disponibilidade: [],
-  minPreco: undefined,
-  maxPreco: undefined,
-  ordem: "relevancia",
-  page: 1,
-  limit: 9,
-});
+// Filtros da tela, espelhados na URL
+const filters = ref<CatalogFilterParams>(lerFiltrosDaRota(route.query));
 
-// Lista de produtos e metadados de paginação recebidos da resposta da API REST (sem filtragem no front)
-const products = ref<CatalogProductItem[]>([]);
-const paginationMeta = ref<CatalogPaginationMeta>({
-  currentPage: 1,
-  totalPages: 1,
-  totalItems: 0,
-  itemsPerPage: 9,
-});
-
-// Dispara requisição GET com parâmetros para a API REST
-async function fetchProducts() {
-  isLoading.value = true;
-  try {
-    const response = await catalogoApi.buscarProdutos(filters.value);
-    products.value = response.items;
-    paginationMeta.value = response.meta;
-  } catch {
-    products.value = [];
-    paginationMeta.value = {
-      currentPage: filters.value.page || 1,
-      totalPages: 1,
-      totalItems: 0,
-      itemsPerPage: 9,
-    };
-  } finally {
-    isLoading.value = false;
-  }
+function fetchProducts() {
+  return carregar(filters.value);
 }
 
-// Sincroniza estado de filtros a partir dos parâmetros de consulta da rota (query GET)
-function syncFiltersFromRoute() {
-  const name =
-    typeof route.query.name === "string"
-      ? route.query.name
-      : typeof route.query.q === "string"
-        ? route.query.q
-        : "";
-  const categoria =
-    typeof route.query.categoria === "string" ? route.query.categoria : "";
-  const subcategoria =
-    typeof route.query.subcategoria === "string"
-      ? route.query.subcategoria
-      : "";
-  const materiais =
-    typeof route.query.materiais === "string"
-      ? route.query.materiais.split(",").filter(Boolean)
-      : [];
-  const cores =
-    typeof route.query.cores === "string"
-      ? route.query.cores.split(",").filter(Boolean)
-      : [];
-  const marcas =
-    typeof route.query.marcas === "string"
-      ? route.query.marcas.split(",").filter(Boolean)
-      : [];
-        const disponibilidade = (
-    typeof route.query.disponibilidade === "string"
-      ? route.query.disponibilidade.split(",")
-      : []
-  ).filter(
-    (v): v is CatalogAvailability => v === "IN_STOCK" || v === "ON_DEMAND",
-  );
-  const minPreco =
-    typeof route.query.minPreco === "string"
-      ? parseFloat(route.query.minPreco)
-      : undefined;
-  const maxPreco =
-    typeof route.query.maxPreco === "string"
-      ? parseFloat(route.query.maxPreco)
-      : undefined;
-  const ordem = (route.query.ordem as CatalogSortOption) || "relevancia";
-  const page = route.query.page ? parseInt(route.query.page as string, 10) : 1;
-
-  filters.value = {
-    name: name || undefined,
-    categoria: categoria || undefined,
-    subcategoria: subcategoria || undefined,
-    materiais,
-    cores,
-    marcas,
-    disponibilidade,
-    minPreco: isNaN(minPreco as number) ? undefined : minPreco,
-    maxPreco: isNaN(maxPreco as number) ? undefined : maxPreco,
-    ordem,
-    page: isNaN(page) ? 1 : page,
-    limit: 9,
-  };
-}
-
-onMounted(() => {
-  syncFiltersFromRoute();
-  fetchProducts();
-});
+// A URL é a fonte da verdade. Mudanças em chaves que não são filtro (ex.: ?lista=) não recarregam a lista
+let filtrosCarregados = "";
 
 watch(
   () => route.query,
-  () => {
-    syncFiltersFromRoute();
+  (query) => {
+    const daRota = lerFiltrosDaRota(query);
+    const chave = JSON.stringify(daRota);
+    if (chave === filtrosCarregados) return;
+    filtrosCarregados = chave;
+    filters.value = daRota;
     fetchProducts();
   },
+  { immediate: true },
 );
+
+function updateRouteQuery() {
+  router.replace({
+    path: "/catalogo",
+    query: montarQueryDaRota(filters.value, route.query),
+  });
+}
 
 function handlePageChange(newPage: number) {
   filters.value.page = newPage;
   updateRouteQuery();
   window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function handleSortChange(newSort: CatalogSortOption) {
-  filters.value.ordem = newSort;
-  filters.value.page = 1;
-  updateRouteQuery();
 }
 
 function handleFiltersUpdate(updated: CatalogFilterParams) {
@@ -182,69 +97,50 @@ function handleApplyFilters() {
 
 onBeforeUnmount(cancelPendingApply);
 
-function updateRouteQuery() {
-  const query: Record<string, string> = {};
-  if (filters.value.name) query.name = filters.value.name;
-  if (filters.value.categoria) query.categoria = filters.value.categoria;
-  if (filters.value.subcategoria)
-    query.subcategoria = filters.value.subcategoria;
-  if (filters.value.materiais?.length)
-    query.materiais = filters.value.materiais.join(",");
-  if (filters.value.cores?.length)
-    query.cores = filters.value.cores.join(",");
-  if (filters.value.marcas?.length)
-    query.marcas = filters.value.marcas.join(",");
-  if (filters.value.disponibilidade?.length)
-    query.disponibilidade = filters.value.disponibilidade.join(",");
-  if (filters.value.minPreco !== undefined && !isNaN(filters.value.minPreco)) {
-    query.minPreco = String(filters.value.minPreco);
-  }
-  if (filters.value.maxPreco !== undefined && !isNaN(filters.value.maxPreco)) {
-    query.maxPreco = String(filters.value.maxPreco);
-  }
-  if (filters.value.ordem && filters.value.ordem !== "relevancia") {
-    query.ordem = filters.value.ordem;
-  }
-  if (filters.value.page && filters.value.page > 1) {
-    query.page = String(filters.value.page);
-  }
-
-  router.replace({ path: "/catalogo", query });
-}
-
 function handleResetFilters() {
   cancelPendingApply();
-  filters.value = {
-    name: undefined,
-    categoria: undefined,
-    subcategoria: undefined,
-    materiais: [],
-    cores: [],
-    marcas: [],
-    disponibilidade: [],
-    minPreco: undefined,
-    maxPreco: undefined,
-    ordem: "relevancia",
-    page: 1,
-    limit: 9,
-  };
-  router.replace({ path: "/catalogo" });
+  filters.value = { page: 1, limit: CATALOGO_POR_PAGINA };
+  updateRouteQuery();
   isMobileFiltersOpen.value = false;
 }
+
+// Nomes para o resumo: a URL guarda o slug da categoria e o nome (ou slug) do subtipo
+const categoriaAtual = computed(() =>
+  filters.value.categoria
+    ? encontrarCategoria(
+        categoriasStore.lista,
+        slugify(filters.value.categoria),
+      )
+    : undefined,
+);
+
+const categoriaLabel = computed(
+  () => categoriaAtual.value?.name ?? filters.value.categoria ?? "",
+);
+
+const subcategoriaLabel = computed(() => {
+  const valor = filters.value.subcategoria;
+  if (!valor) return "";
+  const alvo = slugify(valor);
+  const subtipo = categoriaAtual.value?.subtypes?.find(
+    (item) => item.slug === alvo || slugify(item.name) === alvo,
+  );
+  return subtipo?.name ?? valor;
+});
+
+const totalLabel = computed(() => {
+  const total = pagination.value.total;
+  return total === 1 ? "1 móvel" : `${total} móveis`;
+});
 
 const activeFiltersCount = computed(() => {
   let count = 0;
   if (filters.value.categoria) count++;
   if (filters.value.subcategoria) count++;
-  if (filters.value.materiais?.length) count += filters.value.materiais.length;
-  if (filters.value.cores?.length) count += filters.value.cores.length;
-  if (filters.value.marcas?.length) count += filters.value.marcas.length;
-  if (filters.value.disponibilidade?.length) count += filters.value.disponibilidade.length;
+  count += filters.value.disponibilidade?.length ?? 0;
   if (
-    (typeof filters.value.minPreco === "number" &&
-      !isNaN(filters.value.minPreco)) ||
-    (typeof filters.value.maxPreco === "number" &&
-      !isNaN(filters.value.maxPreco))
+    filters.value.minPreco !== undefined ||
+    filters.value.maxPreco !== undefined
   ) {
     count++;
   }
@@ -279,19 +175,19 @@ const activeFiltersCount = computed(() => {
           <template v-else-if="filters.subcategoria">
             Exibindo móveis de
             <span class="font-bold text-stone-900"
-              >“{{ filters.subcategoria }}”</span
+              >“{{ subcategoriaLabel }}”</span
             >
           </template>
           <template v-else-if="filters.categoria">
             Exibindo móveis para
             <span class="font-bold text-stone-900"
-              >“{{ filters.categoria }}”</span
+              >“{{ categoriaLabel }}”</span
             >
           </template>
           <template v-else> Todos os móveis do catálogo </template>
         </h1>
 
-        <!-- Linha 3: [ ⏚ Filtros (N) ] à esquerda e Ordem: [ Relevância ⇅ ] à direita -->
+        <!-- Linha 3: [ ⏚ Filtros (N) ] à esquerda e total de resultados à direita -->
         <div class="flex items-center justify-between gap-3">
           <UiButton
             variant="outline"
@@ -306,10 +202,13 @@ const activeFiltersCount = computed(() => {
             >
           </UiButton>
 
-          <CatalogoOrdenacaoDropdown
-            :model-value="filters.ordem"
-            @update:model-value="handleSortChange"
-          />
+          <span
+            v-if="!isLoading && !error"
+            class="text-xs text-stone-500"
+            aria-live="polite"
+          >
+            {{ totalLabel }}
+          </span>
         </div>
       </div>
 
@@ -329,7 +228,7 @@ const activeFiltersCount = computed(() => {
 
         <!-- Coluna 2: Resultados e Grid de Produtos Desktop/Mobile -->
         <div class="flex-1 min-w-0 w-full lg:pl-8 xl:pl-10">
-          <!-- Cabeçalho de Resultados e Ordenação Desktop -->
+          <!-- Cabeçalho de Resultados Desktop -->
           <div
             class="hidden lg:flex sm:items-center justify-between gap-3 mb-6"
           >
@@ -344,26 +243,26 @@ const activeFiltersCount = computed(() => {
                 <template v-else-if="filters.subcategoria">
                   Exibindo móveis de
                   <span class="font-bold text-stone-900">{{
-                    filters.subcategoria
+                    subcategoriaLabel
                   }}</span>
                 </template>
                 <template v-else-if="filters.categoria">
                   Exibindo móveis para
                   <span class="font-bold text-stone-900">{{
-                    filters.categoria
+                    categoriaLabel
                   }}</span>
                 </template>
                 <template v-else> Todos os móveis do catálogo </template>
               </h1>
             </div>
 
-            <!-- Dropdown de Ordenação Desktop -->
-            <div>
-              <CatalogoOrdenacaoDropdown
-                :model-value="filters.ordem"
-                @update:model-value="handleSortChange"
-              />
-            </div>
+            <span
+              v-if="!isLoading && !error"
+              class="text-sm text-stone-500 shrink-0"
+              aria-live="polite"
+            >
+              {{ totalLabel }}
+            </span>
           </div>
 
           <!-- Estado de Carregamento (Skeleton) -->
@@ -382,6 +281,33 @@ const activeFiltersCount = computed(() => {
             </div>
           </div>
 
+          <!-- Estado de Erro: a requisição à API falhou -->
+          <div
+            v-else-if="error"
+            class="bg-white rounded-2xl border border-stone-200/80 p-12 text-center shadow-xs"
+            role="alert"
+          >
+            <div
+              class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mx-auto mb-4 text-stone-400"
+            >
+              <Icon icon="mdi:wifi-off" class="w-8 h-8" />
+            </div>
+            <h3 class="text-lg font-bold text-neutral-dark mb-1">
+              Não foi possível carregar os móveis
+            </h3>
+            <p class="text-sm text-stone-500 max-w-md mx-auto mb-6">
+              {{ error }}
+            </p>
+            <UiButton
+              variant="outline"
+              class="inline-flex items-center gap-2"
+              @click="fetchProducts"
+            >
+              <Icon icon="mdi:refresh" class="w-4 h-4" />
+              <span>Tentar novamente</span>
+            </UiButton>
+          </div>
+
           <!-- Grid de Produtos Responsivo (2 colunas no mobile, 3 no desktop) -->
           <div
             v-else-if="products.length > 0"
@@ -391,7 +317,6 @@ const activeFiltersCount = computed(() => {
               v-for="prod in products"
               :key="prod.id"
               :product="prod"
-              @click="router.push(`/catalogo/${prod.slug || prod.id}`)"
             />
           </div>
 
@@ -426,8 +351,9 @@ const activeFiltersCount = computed(() => {
           <!-- Paginação -->
           <div v-if="products.length > 0 && !isLoading" class="mt-8">
             <UiPagination
-              :page="paginationMeta.currentPage"
-              :total-pages="paginationMeta.totalPages"
+              :page="pagination.page"
+              :total-pages="pagination.totalPages"
+              :disabled="isLoading"
               @update:page="handlePageChange"
             />
           </div>
