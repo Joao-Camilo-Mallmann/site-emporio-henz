@@ -1,26 +1,27 @@
 <script setup lang="ts">
 import type {
   FieldErrors,
-  ICategory,
   ISupplier,
   ProductFormState,
   ProductImageDto,
 } from "@/types";
+import {
+  FIELD_IDS,
+  fieldStep,
+  FORM_SECTIONS,
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import { Icon } from "@iconify/vue";
 import { computed, nextTick, ref, watch } from "vue";
-import { FIELD_IDS, fieldStep, FORM_SECTIONS } from "@/utils/admin/produtos/produtoFormConstantes";
-import { validateForm } from "@/utils/admin/produtos/produtoFormValidacao";
 
 // Formulário em etapas (uma seção visível por vez). Este componente é o dono
-// do estado das etapas e da validação; cada etapa é um componente próprio de
-// `components/admin/produtos/`. A validação roda no navegador antes do envio e leva
-// até o primeiro campo com erro.
+// do estado das etapas; cada etapa é um componente próprio de
+// `components/admin/produtos/`. A validação fica na API, que devolve os campos
+// com erro para abrir a etapa e focar o input correspondente.
 
 const form = defineModel<ProductFormState>("form", { required: true });
 
 const props = withDefaults(
   defineProps<{
-    categories: ICategory[];
     suppliers: ISupplier[];
     /** Vendedor com um único vínculo: fornecedor pré-selecionado e travado. */
     supplierLocked?: boolean;
@@ -74,57 +75,46 @@ const emit = defineEmits<{
 const formRoot = ref<HTMLFormElement | null>(null);
 const alertRef = ref<HTMLElement | null>(null);
 
-// Etapas: `maxStep` é a mais avançada já liberada; `attemptedSteps` são as
-// etapas em que o usuário tentou avançar e que passam a mostrar os erros.
+// Etapas: `maxStep` é a mais avançada já liberada.
 const currentStep = ref(0);
 const maxStep = ref(0);
-const attemptedSteps = ref<number[]>([]);
+const clearedFields = ref<Record<string, true>>({});
 
-const isLastStep = computed(() => currentStep.value === FORM_SECTIONS.length - 1);
-
-const selectedCategory = computed(() =>
-  props.categories.find((category) => category.id === form.value.categoryId),
+const isLastStep = computed(
+  () => currentStep.value === FORM_SECTIONS.length - 1,
 );
 
-const subtypeOptions = computed(() => selectedCategory.value?.subtypes ?? []);
-
-const validationContext = computed(() => ({
-  subtypeIds: subtypeOptions.value.map((subtype) => subtype.id),
-}));
-
-// Uma validação por mudança do formulário, compartilhada pelos erros
-// exibidos, pelo "Próximo" e pelo envio.
-const allErrors = computed<FieldErrors>(() =>
-  validateForm(form.value, validationContext.value),
-);
-
-const clientErrors = computed<FieldErrors>(() => {
-  if (attemptedSteps.value.length === 0) return {};
-  return Object.fromEntries(
-    Object.entries(allErrors.value).filter(([id]) =>
-      attemptedSteps.value.includes(fieldStep(id)),
-    ),
-  );
+const errors = computed<FieldErrors>(() => {
+  const active: FieldErrors = {};
+  for (const [id, message] of Object.entries(props.serverErrors)) {
+    if (!clearedFields.value[id]) active[id] = message;
+  }
+  return active;
 });
 
-const errors = computed<FieldErrors>(() => ({
-  ...props.serverErrors,
-  ...clientErrors.value,
-}));
-
-const clientErrorCount = computed(
-  () =>
-    Object.keys(clientErrors.value).filter(
-      (id) => fieldStep(id) === currentStep.value,
-    ).length,
-);
-
-/** Índices das etapas com erro de validação do navegador. */
+/** Índices das etapas com erro devolvido pela API. */
 const errorSteps = computed(() =>
   FORM_SECTIONS.map((_, index) => index).filter((index) =>
-    Object.keys(clientErrors.value).some((id) => fieldStep(id) === index),
+    Object.keys(errors.value).some((id) => fieldStep(id) === index),
   ),
 );
+
+function clearFieldError(id: string) {
+  if (!(id in props.serverErrors) || clearedFields.value[id]) return;
+  clearedFields.value = { ...clearedFields.value, [id]: true };
+}
+
+function onFieldInteraction(event: Event) {
+  const target = event.target as HTMLElement | null;
+  if (!target?.id) return;
+
+  clearFieldError(target.id);
+  if (target.id === FIELD_IDS.category) {
+    clearFieldError(FIELD_IDS.subtype);
+  } else if (target.id === FIELD_IDS.name && !form.value.slugEdited) {
+    clearFieldError(FIELD_IDS.slug);
+  }
+}
 
 function focusField(id: string) {
   // O campo pode estar numa etapa escondida: abre a etapa antes de focar.
@@ -145,10 +135,6 @@ function canGoToStep(index: number): boolean {
   return props.stepsUnlocked || index <= maxStep.value;
 }
 
-function markAttempted(step: number) {
-  if (!attemptedSteps.value.includes(step)) attemptedSteps.value.push(step);
-}
-
 function showStep(index: number) {
   currentStep.value = index;
   maxStep.value = Math.max(maxStep.value, index);
@@ -165,21 +151,9 @@ function goBack() {
   if (currentStep.value > 0) showStep(currentStep.value - 1);
 }
 
-/** Avança para a próxima etapa se a atual não tem erros (na edição, sempre). */
+/** Avança para a próxima etapa. */
 function goNext() {
   if (isLastStep.value) return;
-
-  if (!props.stepsUnlocked) {
-    const step = currentStep.value;
-    markAttempted(step);
-    const firstError = Object.keys(allErrors.value).find(
-      (id) => fieldStep(id) === step,
-    );
-    if (firstError) {
-      focusField(firstError);
-      return;
-    }
-  }
   showStep(currentStep.value + 1);
 }
 
@@ -192,9 +166,15 @@ function onVariationRemoved(key: string) {
 watch(
   () => props.serverErrors,
   (current) => {
+    clearedFields.value = {};
     const first = Object.keys(current)[0];
     if (first) focusField(first);
   },
+);
+
+watch(
+  () => form.value.slug,
+  () => clearFieldError(FIELD_IDS.slug),
 );
 
 watch(
@@ -217,13 +197,6 @@ function handleSubmit() {
     return;
   }
 
-  FORM_SECTIONS.forEach((_, index) => markAttempted(index));
-  const firstError = Object.keys(allErrors.value)[0];
-  if (firstError) {
-    focusField(firstError);
-    return;
-  }
-
   emit("submit");
 }
 </script>
@@ -239,6 +212,8 @@ function handleSubmit() {
         : 'lg:grid lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-8 lg:items-start'
     "
     @submit.prevent="handleSubmit"
+    @input="onFieldInteraction"
+    @change="onFieldInteraction"
   >
     <ProdutoFormNavegacao
       v-if="!uploadPhase"
@@ -255,9 +230,7 @@ function handleSubmit() {
       <ProdutoDadosBasicosSection
         v-model="form"
         :visible="isStepVisible(0)"
-        :categories="categories"
         :suppliers="suppliers"
-        :subtype-options="subtypeOptions"
         :errors="errors"
         :locked="locked"
         :supplier-locked="supplierLocked"
@@ -285,7 +258,10 @@ function handleSubmit() {
             :id="`${FORM_SECTIONS[3].id}-title`"
             class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
           >
-            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">4</span>
+            <span
+              class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
+              >4</span
+            >
             {{ FORM_SECTIONS[3].title }}
           </h2>
           <p class="mt-1 text-xs text-stone-500">
@@ -317,11 +293,15 @@ function handleSubmit() {
             :id="`${FORM_SECTIONS[4].id}-title`"
             class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
           >
-            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">5</span>
+            <span
+              class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
+              >5</span
+            >
             {{ FORM_SECTIONS[4].title }}
           </h2>
           <p class="mt-1 text-xs text-stone-500">
-            A ordem da tela é a ordem do carrossel. Associe a foto a uma variação para mostrá-la junto daquele acabamento.
+            A ordem da tela é a ordem do carrossel. Associe a foto a uma
+            variação para mostrá-la junto daquele acabamento.
           </p>
         </header>
 
@@ -349,11 +329,15 @@ function handleSubmit() {
             :id="`${FORM_SECTIONS[5].id}-title`"
             class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
           >
-            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">6</span>
+            <span
+              class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
+              >6</span
+            >
             {{ FORM_SECTIONS[5].title }}
           </h2>
           <p class="mt-1 text-xs text-stone-500">
-            Ficha técnica livre, como portas, gavetas ou tipo de espuma. Linhas vazias são ignoradas.
+            Ficha técnica livre, como portas, gavetas ou tipo de espuma. Linhas
+            vazias são ignoradas.
           </p>
         </header>
 
@@ -376,7 +360,10 @@ function handleSubmit() {
         v-show="isStepVisible(FORM_SECTIONS.length - 1)"
         class="rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
       >
-        <label :for="FIELD_IDS.active" class="flex items-start gap-3 cursor-pointer select-none">
+        <label
+          :for="FIELD_IDS.active"
+          class="flex items-start gap-3 cursor-pointer select-none"
+        >
           <input
             :id="FIELD_IDS.active"
             v-model="form.active"
@@ -385,27 +372,16 @@ function handleSubmit() {
             class="mt-0.5 w-4 h-4 rounded border-stone-300 text-secondary focus:ring-secondary cursor-pointer disabled:cursor-not-allowed"
           />
           <span>
-            <span class="text-sm font-medium text-neutral-dark block">Produto ativo no catálogo</span>
+            <span class="text-sm font-medium text-neutral-dark block"
+              >Produto ativo no catálogo</span
+            >
             <span class="text-xs text-stone-500 block mt-0.5">
-              Produtos inativos ficam guardados no painel e não aparecem para os clientes.
+              Produtos inativos ficam guardados no painel e não aparecem para os
+              clientes.
             </span>
           </span>
         </label>
       </div>
-
-      <!-- Resumo de erros de validação -->
-      <p
-        v-if="clientErrorCount > 0"
-        role="status"
-        class="flex items-center gap-2 text-sm text-rose-700"
-      >
-        <Icon icon="mdi:alert-circle-outline" class="w-4 h-4 shrink-0" />
-        {{
-          clientErrorCount === 1
-            ? "Há 1 campo para corrigir."
-            : `Há ${clientErrorCount} campos para corrigir.`
-        }}
-      </p>
 
       <!-- Alerta geral (erros 400/403 da API) -->
       <div

@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useCategoriasStore } from "@/stores/categorias";
 import type {
   FieldErrors,
-  ICategory,
   ISubtype,
   ISupplier,
   ProductFormState,
@@ -30,7 +30,6 @@ const props = withDefaults(
   defineProps<{
     /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
     visible?: boolean;
-    categories: ICategory[];
     suppliers: ISupplier[];
     /** Subtipos da categoria escolhida. */
     subtypeOptions?: ISubtype[];
@@ -51,18 +50,31 @@ const props = withDefaults(
   },
 );
 
+const useCategorias = useCategoriasStore();
+
+const categories = useCategorias.todas;
+
 const secao = FORM_SECTIONS[0];
 
 const categoryOptions = computed<UiSelectOption[]>(() =>
-  props.categories.map((category) => ({ value: category.id, label: category.name })),
+  categories.map((category) => ({
+    value: category.id,
+    label: category.name,
+  })),
 );
 
 const subtypeSelectOptions = computed<UiSelectOption[]>(() =>
-  props.subtypeOptions.map((subtype) => ({ value: subtype.id, label: subtype.name })),
+  props.subtypeOptions.map((subtype) => ({
+    value: subtype.id,
+    label: subtype.name,
+  })),
 );
 
 const supplierOptions = computed<UiSelectOption[]>(() =>
-  props.suppliers.map((supplier) => ({ value: supplier.id, label: supplier.name })),
+  props.suppliers.map((supplier) => ({
+    value: supplier.id,
+    label: supplier.name,
+  })),
 );
 
 function fieldError(id: string): string {
@@ -70,7 +82,9 @@ function fieldError(id: string): string {
 }
 
 function describedBy(id: string, hintId?: string): string | undefined {
-  const parts = [fieldError(id) ? `${id}-error` : "", hintId ?? ""].filter(Boolean);
+  const parts = [fieldError(id) ? `${id}-error` : "", hintId ?? ""].filter(
+    Boolean,
+  );
   return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
@@ -112,7 +126,10 @@ watch(
         :id="`${secao.id}-title`"
         class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
       >
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span>
+        <span
+          class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
+          >1</span
+        >
         {{ secao.title }}
       </h2>
       <p class="mt-1 text-xs text-stone-500">
@@ -120,10 +137,15 @@ watch(
       </p>
     </header>
 
-    <fieldset :disabled="locked" class="min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <fieldset
+      :disabled="locked"
+      class="min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-4"
+    >
       <!-- Nome -->
       <div class="sm:col-span-2">
-        <label :for="FIELD_IDS.name" :class="LABEL_CLASS">Nome do produto *</label>
+        <label :for="FIELD_IDS.name" :class="LABEL_CLASS"
+          >Nome do produto *</label
+        >
         <input
           :id="FIELD_IDS.name"
           v-model="form.name"
@@ -135,14 +157,20 @@ watch(
           :aria-describedby="describedBy(FIELD_IDS.name)"
           :class="fieldClass(!!fieldError(FIELD_IDS.name))"
         />
-        <p v-if="fieldError(FIELD_IDS.name)" :id="`${FIELD_IDS.name}-error`" :class="ERROR_TEXT_CLASS">
+        <p
+          v-if="fieldError(FIELD_IDS.name)"
+          :id="`${FIELD_IDS.name}-error`"
+          :class="ERROR_TEXT_CLASS"
+        >
           {{ fieldError(FIELD_IDS.name) }}
         </p>
       </div>
 
       <!-- Slug -->
       <div class="sm:col-span-2">
-        <label :for="FIELD_IDS.slug" :class="LABEL_CLASS">Slug (identificador na URL) *</label>
+        <label :for="FIELD_IDS.slug" :class="LABEL_CLASS"
+          >Slug (identificador na URL) *</label
+        >
         <input
           :id="FIELD_IDS.slug"
           v-model="form.slug"
@@ -153,16 +181,30 @@ watch(
           autocomplete="off"
           aria-required="true"
           :aria-invalid="fieldError(FIELD_IDS.slug) ? 'true' : undefined"
-          :aria-describedby="describedBy(FIELD_IDS.slug, `${FIELD_IDS.slug}-hint`)"
-          :class="[fieldClass(!!fieldError(FIELD_IDS.slug)), 'font-mono text-xs']"
+          :aria-describedby="
+            describedBy(FIELD_IDS.slug, `${FIELD_IDS.slug}-hint`)
+          "
+          :class="[
+            fieldClass(!!fieldError(FIELD_IDS.slug)),
+            'font-mono text-xs',
+          ]"
           @input="onSlugInput"
         />
-        <p v-if="fieldError(FIELD_IDS.slug)" :id="`${FIELD_IDS.slug}-error`" :class="ERROR_TEXT_CLASS">
+        <p
+          v-if="fieldError(FIELD_IDS.slug)"
+          :id="`${FIELD_IDS.slug}-error`"
+          :class="ERROR_TEXT_CLASS"
+        >
           {{ fieldError(FIELD_IDS.slug) }}
         </p>
-        <p :id="`${FIELD_IDS.slug}-hint`" :class="[HINT_CLASS, 'flex flex-wrap items-center gap-x-2']">
+        <p
+          :id="`${FIELD_IDS.slug}-hint`"
+          :class="[HINT_CLASS, 'flex flex-wrap items-center gap-x-2']"
+        >
           <span v-if="form.slugEdited">Slug editado manualmente.</span>
-          <span v-else>Gerado a partir do nome. Edite se quiser outro endereço.</span>
+          <span v-else
+            >Gerado a partir do nome. Edite se quiser outro endereço.</span
+          >
           <UiButton
             v-if="form.slugEdited && !locked"
             variant="link"
@@ -186,7 +228,11 @@ watch(
           placeholder-disabled
           :options="categoryOptions"
           :error="fieldError(FIELD_IDS.category)"
-          :hint="categories.length === 0 ? 'Nenhuma categoria ativa cadastrada.' : undefined"
+          :hint="
+            categories.length === 0
+              ? 'Nenhuma categoria ativa cadastrada.'
+              : undefined
+          "
         />
       </div>
 
@@ -216,7 +262,9 @@ watch(
           :options="supplierOptions"
           :disabled="supplierLocked || noSupplier"
           :error="fieldError(FIELD_IDS.supplier)"
-          :aria-describedby="describedBy(FIELD_IDS.supplier, `${FIELD_IDS.supplier}-hint`)"
+          :aria-describedby="
+            describedBy(FIELD_IDS.supplier, `${FIELD_IDS.supplier}-hint`)
+          "
         />
         <div :id="`${FIELD_IDS.supplier}-hint`">
           <p
@@ -230,7 +278,10 @@ watch(
               para vincular você a um fornecedor antes de cadastrar produtos.
             </span>
           </p>
-          <p v-else-if="supplierLocked" :class="[HINT_CLASS, 'flex items-center gap-1.5']">
+          <p
+            v-else-if="supplierLocked"
+            :class="[HINT_CLASS, 'flex items-center gap-1.5']"
+          >
             <Icon icon="mdi:lock-outline" class="w-3.5 h-3.5" />
             Empresa vinculada ao seu usuário.
           </p>
@@ -242,43 +293,61 @@ watch(
 
       <!-- Linha / coleção -->
       <div>
-        <label :for="FIELD_IDS.collectionLine" :class="LABEL_CLASS">Linha / coleção</label>
+        <label :for="FIELD_IDS.collectionLine" :class="LABEL_CLASS"
+          >Linha / coleção</label
+        >
         <input
           :id="FIELD_IDS.collectionLine"
           v-model="form.collectionLine"
           type="text"
           :maxlength="TEXT_MAX_LENGTH"
           placeholder="Ex.: Linha Itália"
-          :aria-invalid="fieldError(FIELD_IDS.collectionLine) ? 'true' : undefined"
+          :aria-invalid="
+            fieldError(FIELD_IDS.collectionLine) ? 'true' : undefined
+          "
           :aria-describedby="describedBy(FIELD_IDS.collectionLine)"
           :class="fieldClass(!!fieldError(FIELD_IDS.collectionLine))"
         />
-        <p v-if="fieldError(FIELD_IDS.collectionLine)" :id="`${FIELD_IDS.collectionLine}-error`" :class="ERROR_TEXT_CLASS">
+        <p
+          v-if="fieldError(FIELD_IDS.collectionLine)"
+          :id="`${FIELD_IDS.collectionLine}-error`"
+          :class="ERROR_TEXT_CLASS"
+        >
           {{ fieldError(FIELD_IDS.collectionLine) }}
         </p>
       </div>
 
       <!-- Material principal -->
       <div>
-        <label :for="FIELD_IDS.mainMaterial" :class="LABEL_CLASS">Material principal</label>
+        <label :for="FIELD_IDS.mainMaterial" :class="LABEL_CLASS"
+          >Material principal</label
+        >
         <input
           :id="FIELD_IDS.mainMaterial"
           v-model="form.mainMaterial"
           type="text"
           :maxlength="TEXT_MAX_LENGTH"
           placeholder="Ex.: MDF 18mm"
-          :aria-invalid="fieldError(FIELD_IDS.mainMaterial) ? 'true' : undefined"
+          :aria-invalid="
+            fieldError(FIELD_IDS.mainMaterial) ? 'true' : undefined
+          "
           :aria-describedby="describedBy(FIELD_IDS.mainMaterial)"
           :class="fieldClass(!!fieldError(FIELD_IDS.mainMaterial))"
         />
-        <p v-if="fieldError(FIELD_IDS.mainMaterial)" :id="`${FIELD_IDS.mainMaterial}-error`" :class="ERROR_TEXT_CLASS">
+        <p
+          v-if="fieldError(FIELD_IDS.mainMaterial)"
+          :id="`${FIELD_IDS.mainMaterial}-error`"
+          :class="ERROR_TEXT_CLASS"
+        >
           {{ fieldError(FIELD_IDS.mainMaterial) }}
         </p>
       </div>
 
       <!-- Descrição -->
       <div class="sm:col-span-2">
-        <label :for="FIELD_IDS.description" :class="LABEL_CLASS">Descrição</label>
+        <label :for="FIELD_IDS.description" :class="LABEL_CLASS"
+          >Descrição</label
+        >
         <textarea
           :id="FIELD_IDS.description"
           v-model="form.description"

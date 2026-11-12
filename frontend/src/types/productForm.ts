@@ -1,7 +1,6 @@
 // Estado local do formulário de produto (`/admin/produtos/novo` e `/:id/editar`).
 // As funções que operam sobre esses tipos ficam em
-// `src/utils/admin/produtos/produtoFormEstado.ts` e
-// `produtoFormValidacao.ts`.
+// `src/utils/admin/produtos/produtoFormEstado.ts`.
 
 import type {
   AvailabilityType,
@@ -85,9 +84,4 @@ export interface ProductFormState {
   photos: PhotoFormItem[];
   specifications: KeyValueRow[];
   active: boolean;
-}
-
-export interface FormValidationContext {
-  /** Subtipos ativos da categoria escolhida. */
-  subtypeIds: string[];
 }

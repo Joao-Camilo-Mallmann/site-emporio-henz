@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useCategoriasStore } from "@/stores/categorias";
 import type {
   FieldErrors,
-  ICategory,
+  Category,
   ISubtype,
   ISupplier,
   PhotoFormItem,
@@ -14,6 +14,7 @@ import type {
 import {
   apiErrorMessage,
   FIELD_IDS,
+  variationFieldId,
 } from "@/utils/admin/produtos/produtoFormConstantes";
 import { listUploadStates } from "@/utils/admin/produtos/produtoFormEstado";
 import { computed, nextTick, ref, type Ref } from "vue";
@@ -43,7 +44,7 @@ export function useProdutoOpcoes() {
   const authStore = useAuthStore();
   const categoriasStore = useCategoriasStore();
 
-  const categories = ref<ICategory[]>([]);
+  const categories = ref<Category[]>([]);
   const suppliers = ref<ISupplier[]>([]);
 
   const isVendedor = computed(() => authStore.isVendedor);
@@ -74,7 +75,7 @@ export function useProdutoOpcoes() {
     suppliers.value = suppliersResponse.data.filter((supplier) => supplier.active);
   }
 
-  async function categoriaAtual(id: string): Promise<ICategory> {
+  async function categoriaAtual(id: string): Promise<Category> {
     const daStore = categoriasStore.todas.find((category) => category.id === id);
     if (daStore) {
       return {
@@ -155,27 +156,110 @@ export function useProdutoOpcoes() {
 // Erro de gravação (POST e PUT)
 // ---------------------------------------------------------------------------
 
+const BACKEND_FIELD_TO_ID: Record<string, string> = {
+  name: FIELD_IDS.name,
+  slug: FIELD_IDS.slug,
+  categoryId: FIELD_IDS.category,
+  subtypeId: FIELD_IDS.subtype,
+  supplierId: FIELD_IDS.supplier,
+  collectionLine: FIELD_IDS.collectionLine,
+  mainMaterial: FIELD_IDS.mainMaterial,
+  description: FIELD_IDS.description,
+  referencePrice: FIELD_IDS.referencePrice,
+  maxInstallments: FIELD_IDS.maxInstallments,
+  estimatedDays: FIELD_IDS.estimatedDays,
+  heightMm: FIELD_IDS.heightMm,
+  widthMm: FIELD_IDS.widthMm,
+  depthMm: FIELD_IDS.depthMm,
+  specifications: FIELD_IDS.specifications,
+  active: FIELD_IDS.active,
+};
+
+function resolveBackendFieldId(
+  backendField: string,
+  variations: readonly VariationFormItem[],
+): string | null {
+  if (backendField in BACKEND_FIELD_TO_ID) {
+    return BACKEND_FIELD_TO_ID[backendField];
+  }
+
+  const match = /^variations\.(\d+)\.([a-zA-Z]+)(?:\.(\d+))?$/.exec(backendField);
+  if (!match) return null;
+
+  const variation = variations[Number(match[1])];
+  if (!variation) return null;
+
+  const prop = match[2];
+  if (prop === "name" || prop === "id" || prop === "sortOrder") {
+    return variationFieldId.name(variation.key);
+  }
+  if (prop === "variationType") return variationFieldId.type(variation.key);
+  if (prop === "colorsHex") {
+    return variationFieldId.color(variation.key, match[3] ? Number(match[3]) : 0);
+  }
+  if (prop === "finishDetails") return variationFieldId.details(variation.key);
+  if (prop === "inStock") return variationFieldId.inStock(variation.key);
+  return null;
+}
+
 /**
- * Lê a falha do `POST` ou do `PUT`: `409` vira erro no campo slug; o resto
- * vira o alerta geral do formulário.
+ * Lê a falha do `POST` ou do `PUT`: mapeia `errors` e `field` devolvidos pela
+ * API (e `409` no slug) para os ids dos campos; falhas sem campo mapeado vão
+ * para o alerta geral do formulário.
  */
 export function erroDeGravacao(
   err: unknown,
   fallback: string,
+  variations: readonly VariationFormItem[] = [],
 ): { serverErrors: FieldErrors; errorMessage: string | null } {
-  const status = (err as { response?: { status?: number } }).response?.status;
-  if (status === 409) {
-    return {
-      serverErrors: {
-        [FIELD_IDS.slug]: apiErrorMessage(
-          err,
-          "Já existe um produto com este slug. Escolha outro.",
-        ),
-      },
-      errorMessage: null,
-    };
+  const response = (
+    err as {
+      response?: {
+        status?: number;
+        data?: {
+          field?: unknown;
+          errors?: unknown;
+        };
+      };
+    }
+  ).response;
+
+  const serverErrors: FieldErrors = {};
+  let hasUnmappedError = false;
+
+  const rawErrors = response?.data?.errors;
+  if (rawErrors && typeof rawErrors === "object" && !Array.isArray(rawErrors)) {
+    for (const [backendField, message] of Object.entries(rawErrors)) {
+      if (typeof message !== "string") continue;
+      const fieldId = resolveBackendFieldId(backendField, variations);
+      if (fieldId) {
+        serverErrors[fieldId] = message;
+      } else {
+        hasUnmappedError = true;
+      }
+    }
+  } else if (typeof response?.data?.field === "string") {
+    const fieldId = resolveBackendFieldId(response.data.field, variations);
+    if (fieldId) {
+      serverErrors[fieldId] = apiErrorMessage(err, fallback);
+    } else {
+      hasUnmappedError = true;
+    }
+  } else if (response?.status === 409) {
+    serverErrors[FIELD_IDS.slug] = apiErrorMessage(
+      err,
+      "Já existe um produto com este slug. Escolha outro.",
+    );
   }
-  return { serverErrors: {}, errorMessage: apiErrorMessage(err, fallback) };
+
+  const hasFieldErrors = Object.keys(serverErrors).length > 0;
+  return {
+    serverErrors,
+    errorMessage:
+      !hasFieldErrors || hasUnmappedError
+        ? apiErrorMessage(err, fallback)
+        : null,
+  };
 }
 
 // ---------------------------------------------------------------------------

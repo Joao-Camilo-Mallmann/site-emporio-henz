@@ -18,14 +18,10 @@ import {
   onMounted,
   ref,
   useTemplateRef,
-  watch,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ProdutoForm from "./ProdutoForm.vue";
-import {
-  apiErrorMessage,
-  FIELD_IDS,
-} from "@/utils/admin/produtos/produtoFormConstantes";
+import { apiErrorMessage } from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   createEmptyForm,
   formFromProduct,
@@ -193,7 +189,11 @@ async function handleSubmit() {
       toUpdatePayload(form.value),
     );
   } catch (err: unknown) {
-    const erro = erroDeGravacao(err, "Ocorreu um erro ao salvar as alterações.");
+    const erro = erroDeGravacao(
+      err,
+      "Ocorreu um erro ao salvar as alterações.",
+      form.value.variations,
+    );
     serverErrors.value = erro.serverErrors;
     errorMessage.value = erro.errorMessage;
     saving.value = false;
@@ -295,14 +295,6 @@ async function confirmarRemocao() {
 function handleCancel() {
   router.push(LISTA_URL);
 }
-
-// O erro de slug duplicado some quando o usuário edita o slug.
-watch(
-  () => form.value.slug,
-  () => {
-    if (serverErrors.value[FIELD_IDS.slug]) serverErrors.value = {};
-  },
-);
 
 onMounted(() => {
   carregarTela();

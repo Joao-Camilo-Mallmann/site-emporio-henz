@@ -2,7 +2,7 @@
 import { categoriasApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import { useCategoriasStore } from "@/stores/categorias";
-import type { ICategory } from "@/types";
+import type { Category } from "@/types";
 import { Icon } from "@iconify/vue";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, ref, watch } from "vue";
@@ -56,19 +56,19 @@ watch(totalPages, (pages) => {
 
 // Modal de Exclusão de Categoria
 const isDeleteCategoryModalOpen = ref(false);
-const categoryToDelete = ref<ICategory | null>(null);
+const categoryToDelete = ref<Category | null>(null);
 const actionLoading = ref(false);
 
 // Modal Modular de Subtipos
 const isSubtypesModalOpen = ref(false);
-const selectedCategory = ref<ICategory | null>(null);
+const selectedCategory = ref<Category | null>(null);
 
 function handleSearch() {
   currentPage.value = 1;
 }
 
 // Exclusão Lógica de Categoria (Soft Delete)
-function abrirModalExclusaoCategoria(category: ICategory) {
+function abrirModalExclusaoCategoria(category: Category) {
   categoryToDelete.value = category;
   isDeleteCategoryModalOpen.value = true;
 }
@@ -103,7 +103,7 @@ async function confirmarExclusaoCategoria() {
 }
 
 // Gestão de Subtipos via Modal Modular
-function abrirModalSubtipos(category: ICategory) {
+function abrirModalSubtipos(category: Category) {
   selectedCategory.value = category;
   isSubtypesModalOpen.value = true;
 }

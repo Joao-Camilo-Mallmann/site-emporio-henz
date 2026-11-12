@@ -5,7 +5,7 @@ import { useCategoriasStore } from "@/stores/categorias";
 import type {
   CategoryCreateInput,
   CategoryUpdateInput,
-  ICategory,
+  Category,
 } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
@@ -21,7 +21,7 @@ const categoryId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
 });
 
-const category = ref<ICategory | null>(null);
+const category = ref<Category | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
 const saving = ref(false);

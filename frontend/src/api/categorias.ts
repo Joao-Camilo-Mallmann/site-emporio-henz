@@ -3,7 +3,7 @@ import type {
   CategoryCreateInput,
   CategoryFilterParams,
   CategoryUpdateInput,
-  ICategory,
+  Category,
   ISubtype,
   PaginatedCategoriesResponse,
   PaginatedSubtypesResponse,
@@ -23,18 +23,18 @@ export const categoriasApi = {
     return response.data;
   },
 
-  async buscarPorId(id: string): Promise<ICategory> {
-    const response = await axios.get<ICategory>(`/categorias/${id}`);
+  async buscarPorId(id: string): Promise<Category> {
+    const response = await axios.get<Category>(`/categorias/${id}`);
     return response.data;
   },
 
-  async criar(dados: CategoryCreateInput): Promise<ICategory> {
-    const response = await axios.post<ICategory>("/categorias", dados);
+  async criar(dados: CategoryCreateInput): Promise<Category> {
+    const response = await axios.post<Category>("/categorias", dados);
     return response.data;
   },
 
-  async atualizar(id: string, dados: CategoryUpdateInput): Promise<ICategory> {
-    const response = await axios.put<ICategory>(`/categorias/${id}`, dados);
+  async atualizar(id: string, dados: CategoryUpdateInput): Promise<Category> {
+    const response = await axios.put<Category>(`/categorias/${id}`, dados);
     return response.data;
   },
 

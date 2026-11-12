@@ -13,7 +13,7 @@ import {
 
 // Editor de pares chave/valor, usado nas especificações técnicas do produto
 // e nos detalhes de acabamento das variações (design D10). Linhas vazias são
-// descartadas no envio; a validação fica em `validateForm`.
+// descartadas no envio.
 
 const rows = defineModel<KeyValueRow[]>({ required: true });
 

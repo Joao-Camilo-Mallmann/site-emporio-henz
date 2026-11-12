@@ -89,7 +89,7 @@ export interface ProductCreatePayload {
   subtypeId?: string;
   supplierId: string;
   name: string;
-  slug: string;
+  slug?: string;
   collectionLine?: string;
   mainMaterial?: string;
   referencePrice: number;

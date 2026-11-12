@@ -5,7 +5,7 @@ import type {
   CatalogAvailability,
   CatalogFilterParams,
   CatalogProductItem,
-  ICategory,
+  Category,
   PaginationMeta,
   ProductDetail,
   ProductDto,
@@ -101,7 +101,7 @@ export function montarQueryDaRota(
  */
 export function mapearProdutoCatalogo(
   dto: ProductListItemDto,
-  categorias: readonly ICategory[] = [],
+  categorias: readonly Category[] = [],
 ): CatalogProductItem {
   const categoria = categorias.find((item) => item.id === dto.categoryId);
   const subtipo = categoria?.subtypes?.find(
@@ -142,7 +142,7 @@ function formatarValorEspecificacao(valor: unknown): string {
 /** Converte `ProductDto` no formato exibido pela tela de detalhes do catálogo. */
 export function mapearDetalheProduto(
   dto: ProductDto,
-  categorias: readonly ICategory[] = [],
+  categorias: readonly Category[] = [],
   recomendados: readonly ProductListItemDto[] = [],
 ): ProductDetail {
   const categoria = categorias.find((item) => item.id === dto.categoryId);
@@ -242,7 +242,7 @@ export function mapearDetalheProduto(
 /** `undefined` quando a categoria ou o subtipo da URL não existem entre os ativos. */
 function resolverIds(
   filtros: CatalogFilterParams,
-  categorias: readonly ICategory[],
+  categorias: readonly Category[],
 ): Pick<CatalogApiParams, "categoryId" | "subtypeId"> | undefined {
   if (!filtros.categoria && !filtros.subcategoria) return {};
 

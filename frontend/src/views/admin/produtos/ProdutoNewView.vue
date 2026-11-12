@@ -12,14 +12,10 @@ import {
   onMounted,
   ref,
   useTemplateRef,
-  watch,
 } from "vue";
 import { useRouter } from "vue-router";
 import ProdutoForm from "./ProdutoForm.vue";
-import {
-  apiErrorMessage,
-  FIELD_IDS,
-} from "@/utils/admin/produtos/produtoFormConstantes";
+import { apiErrorMessage } from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   createEmptyForm,
   resolveVariationIds,
@@ -119,7 +115,11 @@ async function handleSubmit() {
   try {
     product = await produtosApi.criar(toCreatePayload(form.value));
   } catch (err: unknown) {
-    const erro = erroDeGravacao(err, "Ocorreu um erro ao cadastrar o produto.");
+    const erro = erroDeGravacao(
+      err,
+      "Ocorreu um erro ao cadastrar o produto.",
+      form.value.variations,
+    );
     serverErrors.value = erro.serverErrors;
     errorMessage.value = erro.errorMessage;
     saving.value = false;
@@ -141,14 +141,6 @@ async function handleSubmit() {
 function handleCancel() {
   router.push(DESTINO_URL);
 }
-
-// O erro de slug duplicado some quando o usuário edita o slug.
-watch(
-  () => form.value.slug,
-  () => {
-    if (serverErrors.value[FIELD_IDS.slug]) serverErrors.value = {};
-  },
-);
 
 onMounted(() => {
   carregarOpcoes();

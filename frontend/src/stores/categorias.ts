@@ -1,5 +1,5 @@
 import { categoriasApi } from "@/api";
-import type { ICategory } from "@/types";
+import type { Category } from "@/types";
 import { getAuthToken } from "@/utils/cookie";
 import { slugify } from "@/utils/slug";
 import { defineStore } from "pinia";
@@ -51,9 +51,9 @@ export const CARDS_HOME: readonly CardCategoriaHome[] = [
 
 /** Procura a categoria pelo slug e, se não achar, pelo nome normalizado. */
 export function encontrarCategoria(
-  lista: readonly ICategory[],
+  lista: readonly Category[],
   slug: string,
-): ICategory | undefined {
+): Category | undefined {
   return (
     lista.find((categoria) => categoria.slug === slug) ??
     lista.find((categoria) => slugify(categoria.name) === slug)
@@ -63,7 +63,7 @@ export function encontrarCategoria(
 export const useCategoriasStore = defineStore("categorias", () => {
   const authStore = useAuthStore();
 
-  const todas = ref<ICategory[]>([]);
+  const todas = ref<Category[]>([]);
   const loading = ref(false);
   const error = ref<string>();
   const carregadas = ref(false);
@@ -71,7 +71,7 @@ export const useCategoriasStore = defineStore("categorias", () => {
   let tokenNaCarga: string | null = null;
 
   // Com token de Admin a API devolve também os inativos; o site público nunca os mostra
-  const lista = computed<ICategory[]>(() =>
+  const lista = computed<Category[]>(() =>
     todas.value
       .filter((categoria) => categoria.active)
       .map((categoria) => ({
@@ -137,8 +137,8 @@ export const useCategoriasStore = defineStore("categorias", () => {
     return carregar(true);
   }
 
-  async function buscarTodasCategorias(): Promise<ICategory[]> {
-    const acumuladas: ICategory[] = [];
+  async function buscarTodasCategorias(): Promise<Category[]> {
+    const acumuladas: Category[] = [];
     let page = 1;
     let totalPages: number;
     do {

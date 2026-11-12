@@ -3,7 +3,7 @@ import type { ISubtype } from "./subtypes";
 
 export * from "./subtypes";
 
-export interface ICategory {
+export interface Category {
   id: string;
   name: string;
   slug: string;
@@ -30,4 +30,4 @@ export interface CategoryFilterParams extends PaginationParams {
   active?: boolean;
 }
 
-export type PaginatedCategoriesResponse = Paginated<ICategory>;
+export type PaginatedCategoriesResponse = Paginated<Category>;

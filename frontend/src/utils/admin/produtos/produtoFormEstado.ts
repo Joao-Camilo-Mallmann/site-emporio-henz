@@ -176,27 +176,28 @@ function optionalText(value: string): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-/** Monta o corpo de `POST /produtos`. Chame só com o formulário validado. */
+/** Monta o corpo de `POST /produtos`. Campos numéricos vazios vão como `null` para a API acusar o campo. */
 export function toCreatePayload(form: ProductFormState): ProductCreatePayload {
   const onDemand = form.availabilityType === "ON_DEMAND";
+  const missingNumber = null as unknown as number;
 
   return {
     categoryId: form.categoryId,
     subtypeId: form.subtypeId || undefined,
     supplierId: form.supplierId,
     name: form.name.trim(),
-    slug: form.slug.trim(),
+    slug: form.slugEdited ? form.slug.trim() : optionalText(form.slug),
     collectionLine: optionalText(form.collectionLine),
     mainMaterial: optionalText(form.mainMaterial),
-    referencePrice: toNumber(form.referencePrice) ?? 0,
-    maxInstallments: toNumber(form.maxInstallments) ?? INSTALLMENTS_MIN,
+    referencePrice: toNumber(form.referencePrice) ?? missingNumber,
+    maxInstallments: toNumber(form.maxInstallments) ?? missingNumber,
     availabilityType: form.availabilityType,
     estimatedDays: onDemand
-      ? (toNumber(form.estimatedDays) ?? undefined)
+      ? (toNumber(form.estimatedDays) ?? missingNumber)
       : undefined,
-    heightMm: toNumber(form.heightMm) ?? 0,
-    widthMm: toNumber(form.widthMm) ?? 0,
-    depthMm: toNumber(form.depthMm) ?? 0,
+    heightMm: toNumber(form.heightMm) ?? missingNumber,
+    widthMm: toNumber(form.widthMm) ?? missingNumber,
+    depthMm: toNumber(form.depthMm) ?? missingNumber,
     description: optionalText(form.description),
     specifications: rowsToRecord(form.specifications),
     active: form.active,
@@ -309,6 +310,7 @@ export function toUpdatePayload(form: ProductFormState): ProductUpdatePayload {
   const base = toCreatePayload(form);
   return {
     ...base,
+    slug: form.slug.trim(),
     subtypeId: form.subtypeId || null,
     collectionLine: optionalText(form.collectionLine) ?? null,
     mainMaterial: optionalText(form.mainMaterial) ?? null,

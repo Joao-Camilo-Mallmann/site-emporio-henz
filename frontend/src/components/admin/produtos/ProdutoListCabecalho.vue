@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type {
   AvailabilityType,
-  ICategory,
+  Category,
   ISupplier,
   UiSelectOption,
 } from "@/types";
@@ -24,7 +24,7 @@ const selectedAvailability = defineModel<AvailabilityType | "">("availability", 
 const selectedStatus = defineModel<StatusFilter>("status", { required: true });
 
 const props = defineProps<{
-  categories: ICategory[];
+  categories: Category[];
   suppliers: ISupplier[];
   total: number;
   hasActiveFilters: boolean;
