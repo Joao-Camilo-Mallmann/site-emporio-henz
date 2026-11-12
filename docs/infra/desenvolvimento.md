@@ -46,7 +46,7 @@ O `backend-dev` já roda as migrações ao subir. Com os containers no ar, para 
 docker compose exec backend-dev bun run migrate
 ```
 
-Recriar o administrador padrão:
+Recriar o administrador padrão e garantir as categorias e os produtos de exemplo com fotos:
 
 ```bash
 docker compose exec backend-dev bun run seed

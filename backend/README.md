@@ -52,7 +52,7 @@ bun run dev          # servidor com recarga automática (src/index.ts)
 bun run start        # executa o bundle gerado em dist/
 bun run build        # gera o bundle de produção em dist/
 bun run migrate      # aplica as migrações em database/migrations/
-bun run seed         # cria o administrador padrão de desenvolvimento
+bun run seed         # cria admin, categorias e, fora de produção, os produtos de exemplo com fotos
 bun test             # executa a suíte de testes (bun:test)
 bun run lint         # executa o ESLint
 bun run check-types  # valida tipos com tsc --noEmit
@@ -72,7 +72,7 @@ docker compose --profile dev exec backend-dev bun run migrate
 docker compose --profile dev exec backend-dev bun run seed
 ```
 
-O seed cria o administrador padrão e, se ele já existir, redefine a senha para o valor fixo em `database/seed.ts`. Em produção, rode-o só na primeira instalação e troque a senha em seguida.
+O seed cria o administrador padrão e, se ele já existir, redefine a senha para o valor fixo em `database/seed.ts`. Também garante as categorias e subtipos oficiais e, fora de produção (`NODE_ENV` diferente de `production`), cadastra os produtos de exemplo com fotos, sem duplicar o que já existe. Em produção, rode-o só na primeira instalação e troque a senha em seguida.
 
 ## Estrutura
 
@@ -81,7 +81,7 @@ O seed cria o administrador padrão e, se ele já existir, redefine a senha para
 - `src/middlewares/`: autenticação, papéis e tratamento de erros
 - `src/modules/`: regras de negócio por domínio (`auth`, `categories`, `product-images`, `products`, `subtypes`, `suppliers`, `uploads`, `user-suppliers`, `users`)
 - `src/routes/`: definição das rotas
-- `database/`: migrações SQL (`migrations/`), `migrate.ts` e `seed.ts`
+- `database/`: migrações SQL (`migrations/`), `migrate.ts`, `seed.ts` e `seed-products.ts` (produtos de exemplo, 3 por categoria, com a foto de `mock-images/<slug>.jpg`; chamado pelo seed, pode rodar de novo sem duplicar)
 - `tests/`: testes automatizados, organizados por feature (`tests/modules/<feature>/`, `tests/lib/`, `tests/middlewares/`, `tests/http/`, `tests/config/`); `tests/mocks/` guarda os repositórios falsos por módulo, `tests/helpers/` utilitários compartilhados e `tests/fixtures/` as imagens usadas nos testes de upload
 - `uploads/`: fotos e amostras gravadas na execução local (ignorado pelo git; em produção é o volume `uploads_data`)
 
