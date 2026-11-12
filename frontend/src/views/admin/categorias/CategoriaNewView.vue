@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { categoriasApi } from "@/api";
 import { useToast } from "@/composables/useToast";
+import { useCategoriasStore } from "@/stores/categorias";
 import type {
   CategoryCreateInput,
   CategoryUpdateInput,
@@ -12,6 +13,7 @@ import CategoriaForm from "./CategoriaForm.vue";
 
 const router = useRouter();
 const toast = useToast();
+const categoriasStore = useCategoriasStore();
 
 const saving = ref(false);
 const errorMessage = ref<string | null>(null);
@@ -57,6 +59,7 @@ async function handleCreate(
       toast.success("Categoria cadastrada com sucesso!");
     }
 
+    void categoriasStore.recarregar();
     router.push("/admin/categorias");
   } catch (err: unknown) {
     const errorObj = err as {

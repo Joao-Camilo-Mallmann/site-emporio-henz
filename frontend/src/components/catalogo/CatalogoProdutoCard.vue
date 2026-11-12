@@ -74,11 +74,11 @@ const availabilityBadge = computed(() => {
 
 function handleCardClick() {
   emit("click", props.product);
-  // A API só busca produto por UUID (GET /produtos/:id)
-  if (props.product.id) {
+  const slug = props.product.slug || props.product.id;
+  if (slug) {
     router.push({
       name: "catalogo-produto",
-      params: { id: props.product.id },
+      params: { slug },
     });
   }
 }

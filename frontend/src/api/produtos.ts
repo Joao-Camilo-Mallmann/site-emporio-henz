@@ -1,25 +1,25 @@
 import { api as axios } from "@/plugins/axios";
 import type {
-  IProduct,
   PaginatedProductsResponse,
   ProductAdminFilterParams,
   ProductCreatePayload,
-  ProductDetail,
   ProductDto,
-  ProductFilterParams,
   ProductImageDto,
+  ProductListItemDto,
   ProductUpdatePayload,
   ProductVariationDto,
 } from "@/types";
 
 export const produtosApi = {
-  async listar(params?: ProductFilterParams): Promise<IProduct[]> {
-    const response = await axios.get<IProduct[]>("/api/produtos", { params });
+  async buscarPorId(idOuSlug: string): Promise<ProductDto> {
+    const response = await axios.get<ProductDto>(`/produtos/${idOuSlug}`);
     return response.data;
   },
 
-  async buscarPorId(id: string): Promise<ProductDetail> {
-    const response = await axios.get<ProductDetail>(`/produtos/${id}`);
+  async buscarRecomendados(slugOuId: string): Promise<ProductListItemDto[]> {
+    const response = await axios.get<ProductListItemDto[]>(
+      `/produtos/${slugOuId}/recomendados`,
+    );
     return response.data;
   },
 

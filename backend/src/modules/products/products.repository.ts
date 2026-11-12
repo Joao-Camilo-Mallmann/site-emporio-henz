@@ -198,12 +198,30 @@ export class ProductsRepository {
     return row ? this.mapRow(row) : null;
   }
 
+  async findBySlug(slug: string): Promise<ProductDto | null> {
+    const row = await this.selectProductRowBySlug(this.db, slug);
+    return row ? this.mapRow(row) : null;
+  }
+
   async findDetailById(id: string): Promise<ProductDetailDto | null> {
     const product = await this.findById(id);
     if (!product) {
       return null;
     }
+    return this.loadDetailForProduct(product);
+  }
 
+  async findDetailBySlug(slug: string): Promise<ProductDetailDto | null> {
+    const product = await this.findBySlug(slug);
+    if (!product) {
+      return null;
+    }
+    return this.loadDetailForProduct(product);
+  }
+
+  private async loadDetailForProduct(
+    product: ProductDto,
+  ): Promise<ProductDetailDto> {
     const [variationRows, imageRows] = await Promise.all([
       this.db<ProductVariationDbRow[]>`
         SELECT
@@ -211,7 +229,7 @@ export class ProductsRepository {
           sample_image_path, finish_details, sort_order, in_stock,
           created_at, updated_at
         FROM product_variations
-        WHERE product_id = ${id} AND deleted_at IS NULL
+        WHERE product_id = ${product.id} AND deleted_at IS NULL
         ORDER BY sort_order ASC, created_at ASC
       `,
       this.db<ProductImageDbRow[]>`
@@ -219,7 +237,7 @@ export class ProductsRepository {
           id, product_id, variation_id, thumbnail_path,
           full_image_path, sort_order, created_at
         FROM product_images
-        WHERE product_id = ${id} AND deleted_at IS NULL
+        WHERE product_id = ${product.id} AND deleted_at IS NULL
         ORDER BY sort_order ASC, created_at ASC
       `,
     ]);
@@ -497,6 +515,25 @@ export class ProductsRepository {
       FROM products p
       ${COVER_JOIN}
       WHERE p.id = ${id} AND p.deleted_at IS NULL
+      LIMIT 1
+    `;
+    return rows.length > 0 ? rows[0]! : null;
+  }
+
+  private async selectProductRowBySlug(
+    executor: typeof sql,
+    slug: string,
+  ): Promise<ProductDbRow | null> {
+    const rows = await executor<ProductDbRow[]>`
+      SELECT
+        p.id, p.category_id, p.subtype_id, p.supplier_id, p.name, p.slug,
+        p.collection_line, p.main_material, p.reference_price, p.max_installments,
+        p.availability_type, p.estimated_days, p.height_mm, p.width_mm, p.depth_mm,
+        p.description, p.specifications, p.active, p.created_at, p.updated_at,
+        cover.thumbnail_path AS cover_thumbnail_path
+      FROM products p
+      ${COVER_JOIN}
+      WHERE p.slug = ${slug} AND p.deleted_at IS NULL
       LIMIT 1
     `;
     return rows.length > 0 ? rows[0]! : null;

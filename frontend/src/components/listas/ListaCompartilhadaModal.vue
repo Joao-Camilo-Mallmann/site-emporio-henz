@@ -17,9 +17,6 @@ const total = computed(() =>
   (list.value?.items ?? []).reduce((sum, item) => sum + (item.price || 0), 0),
 );
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 function formatPrice(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -27,10 +24,8 @@ function formatPrice(value: number): string {
   }).format(value);
 }
 
-// Produtos reais abrem pelo UUID; produtos de exemplo, pelo slug
 function productPath(productId: string, productSlug?: string): string {
-  const target = UUID_REGEX.test(productId) ? productId : productSlug || productId;
-  return `/produtos/${target}`;
+  return `/catalogo/${productSlug || productId}`;
 }
 
 function getListIcon(listType: string): string {

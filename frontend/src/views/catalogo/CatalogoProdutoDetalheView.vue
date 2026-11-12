@@ -3,6 +3,8 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { toast } from "vue3-toastify";
 import { produtosApi } from "@/api";
+import { mapearDetalheProduto } from "@/composables/useCatalogoProdutos";
+import { useCategoriasStore } from "@/stores/categorias";
 import { useListasStore } from "@/stores/listas";
 import { storeSiteUrl, storeWhatsappUrl } from "@/utils/phone";
 import type {
@@ -15,6 +17,7 @@ import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
 
 const route = useRoute();
 const router = useRouter();
+const categoriasStore = useCategoriasStore();
 const listasStore = useListasStore();
 
 const loading = ref(true);
@@ -55,18 +58,34 @@ const selectedVariation = computed(() => {
   );
 });
 
-async function loadProduct(id: string) {
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+async function loadProduct(identifier: string) {
   loading.value = true;
   error.value = null;
   try {
-    const data = await produtosApi.buscarPorId(id);
+    const isUuid = UUID_REGEX.test(identifier);
+    const [dto, recomendados] = await Promise.all([
+      produtosApi.buscarPorId(identifier),
+      produtosApi.buscarRecomendados(identifier).catch(() => []),
+      categoriasStore.carregar(),
+    ]);
+    const data = mapearDetalheProduto(dto, categoriasStore.lista, recomendados);
     product.value = data;
     activeImageIndex.value = 0;
-    if (data.variations && data.variations.length > 0) {
+    if (data.variations.length > 0) {
       selectedVariationId.value = data.variations[0]?.id ?? "";
     }
     // Define título dinâmico na aba
     document.title = `${data.name} | Empório Henz`;
+
+    if (isUuid && data.slug) {
+      void router.replace({
+        name: "catalogo-produto",
+        params: { slug: data.slug },
+      });
+    }
   } catch (err: unknown) {
     const msg =
       err instanceof Error
@@ -76,6 +95,25 @@ async function loadProduct(id: string) {
   } finally {
     loading.value = false;
   }
+}
+
+function variationSwatchStyle(variation: ProductVariationItem): Record<string, string> {
+  if (variation.sampleImageUrl) {
+    return {
+      backgroundImage: `url(${variation.sampleImageUrl})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    };
+  }
+  const colors = variation.colorsHex?.filter(Boolean) ?? [];
+  if (colors.length >= 2) {
+    return {
+      background: `linear-gradient(135deg, ${colors[0]} 50%, ${colors[1]} 50%)`,
+    };
+  }
+  return {
+    backgroundColor: colors[0] || variation.colorHex || "#A58D63",
+  };
 }
 
 function onVariationChange(variation: ProductVariationItem) {
@@ -122,7 +160,7 @@ async function handleShare() {
 
   const productRoute = router.resolve({
     name: "catalogo-produto",
-    params: { id: product.value.id },
+    params: { slug: product.value.slug || product.value.id },
   });
   const url = new URL(productRoute.href, window.location.origin).toString();
 
@@ -144,21 +182,31 @@ function handleWhatsAppContact() {
 }
 
 function navigateToRelated(related: CatalogProductItem) {
-  router.push({ name: "catalogo-produto", params: { id: related.id } });
+  router.push({
+    name: "catalogo-produto",
+    params: { slug: related.slug || related.id },
+  });
 }
 
 watch(
-  () => route.params.id,
-  (newId) => {
-    if (newId) {
-      loadProduct(newId as string);
+  () => route.params.slug,
+  (newSlug) => {
+    if (
+      typeof newSlug === "string" &&
+      newSlug &&
+      product.value?.slug !== newSlug
+    ) {
+      loadProduct(newSlug);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
 );
 
 onMounted(() => {
-  loadProduct(route.params.id as string);
+  const slug = route.params.slug as string;
+  if (slug) {
+    loadProduct(slug);
+  }
 });
 </script>
 
@@ -290,7 +338,7 @@ onMounted(() => {
                     ? 'ring-2 ring-secondary/80 ring-offset-2 ring-offset-white scale-105'
                     : 'hover:border-black/25 hover:scale-105'
                 "
-                :style="{ backgroundColor: variation.colorHex || '#A58D63' }"
+                :style="variationSwatchStyle(variation)"
                 @click="selectVariation(variation)"
               >
                 <span class="sr-only">{{ variation.name }}</span>
@@ -403,15 +451,16 @@ onMounted(() => {
 
       <!-- Bloco Médio: Descrição Detalhada e Ficha Técnica Zebrada -->
       <section
+        v-if="product.description || (product.specifications && product.specifications.length > 0)"
         class="border-t border-stone-200/80 pt-10 sm:pt-12 space-y-6"
         aria-label="Especificações e descrição do móvel"
       >
-        <div class="max-w-4xl space-y-3">
+        <div v-if="product.description" class="max-w-4xl space-y-3">
           <h2 class="text-lg sm:text-xl font-bold text-neutral-dark">
             Descrição do produto
           </h2>
           <p
-            class="text-sm sm:text-base text-stone-700 leading-relaxed font-normal"
+            class="text-sm sm:text-base text-stone-700 leading-relaxed font-normal whitespace-pre-line"
           >
             {{ product.description }}
           </p>

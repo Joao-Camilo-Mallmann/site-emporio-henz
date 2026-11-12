@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { categoriasApi } from "@/api";
 import { useToast } from "@/composables/useToast";
+import { useCategoriasStore } from "@/stores/categorias";
 import type { CategoryFilterParams, ICategory } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
@@ -9,6 +10,7 @@ import SubcategoriaListModal from "./subcategorias/SubcategoriaListModal.vue";
 
 const router = useRouter();
 const toast = useToast();
+const categoriasStore = useCategoriasStore();
 
 // Estado da Listagem de Categorias
 const categories = ref<ICategory[]>([]);
@@ -52,9 +54,19 @@ async function carregarCategorias(page = 1) {
     }
 
     const response = await categoriasApi.listar(params);
+    const totalPagesResposta = response.pagination.totalPages || 1;
+    if (
+      response.data.length === 0 &&
+      response.pagination.total > 0 &&
+      page > totalPagesResposta
+    ) {
+      await carregarCategorias(totalPagesResposta);
+      return;
+    }
+
     categories.value = response.data;
     currentPage.value = response.pagination.page;
-    totalPages.value = response.pagination.totalPages || 1;
+    totalPages.value = totalPagesResposta;
     totalCategories.value = response.pagination.total;
   } catch (err: unknown) {
     const errorObj = err as {
@@ -91,14 +103,14 @@ async function confirmarExclusaoCategoria() {
   actionLoading.value = true;
   try {
     await categoriasApi.deletar(categoryToDelete.value.id);
-    const index = categories.value.findIndex(
-      (c) => c.id === categoryToDelete.value?.id,
-    );
-    if (index !== -1) {
-      categories.value[index].active = false;
-    }
+    const nextPage =
+      categories.value.length === 1 && currentPage.value > 1
+        ? currentPage.value - 1
+        : currentPage.value;
     toast.info("Categoria desativada com sucesso.");
     fecharModalExclusaoCategoria();
+    await carregarCategorias(nextPage);
+    void categoriasStore.recarregar();
   } catch (err: unknown) {
     const errorObj = err as {
       response?: { data?: { message?: string } };

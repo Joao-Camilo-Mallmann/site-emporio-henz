@@ -65,24 +65,46 @@ export const useCategoriasStore = defineStore("categorias", () => {
   const carregadas = ref(false);
   let pendente: Promise<void> | null = null;
 
-  function carregar(): Promise<void> {
-    if (carregadas.value) return Promise.resolve();
-
-    pendente ??= (async () => {
-      loading.value = true;
-      error.value = undefined;
-      try {
-        lista.value = await buscarCategoriasAtivas();
+  async function executarCarga(verificarAtual: () => boolean): Promise<void> {
+    loading.value = true;
+    error.value = undefined;
+    try {
+      const proximaLista = await buscarCategoriasAtivas();
+      if (verificarAtual()) {
+        lista.value = proximaLista;
         carregadas.value = true;
-      } catch (err: unknown) {
+      }
+    } catch (err: unknown) {
+      if (verificarAtual()) {
         error.value =
           err instanceof Error ? err.message : "Erro ao carregar categorias";
-      } finally {
+      }
+    } finally {
+      if (verificarAtual()) {
         loading.value = false;
         pendente = null;
       }
-    })();
+    }
+  }
+
+  function carregar(forcar = false): Promise<void> {
+    if (carregadas.value && !forcar) return Promise.resolve();
+
+    if (forcar) {
+      carregadas.value = false;
+      pendente = null;
+    }
+
+    if (!pendente) {
+      const requisicao = executarCarga(() => pendente === requisicao);
+      pendente = requisicao;
+    }
+
     return pendente;
+  }
+
+  function recarregar(): Promise<void> {
+    return carregar(true);
   }
 
   async function buscarCategoriasAtivas(): Promise<ICategory[]> {
@@ -132,5 +154,6 @@ export const useCategoriasStore = defineStore("categorias", () => {
     mais,
     cardsHome,
     carregar,
+    recarregar,
   };
 });

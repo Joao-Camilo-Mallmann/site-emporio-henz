@@ -7,7 +7,10 @@ import type {
   CatalogProductItem,
   ICategory,
   PaginationMeta,
+  ProductDetail,
+  ProductDto,
   ProductListItemDto,
+  ProductSpecificationItem,
 } from "@/types";
 import { slugify } from "@/utils/slug";
 import { toApiAssetUrl } from "@/utils/uploads";
@@ -101,7 +104,9 @@ export function mapearProdutoCatalogo(
   categorias: readonly ICategory[] = [],
 ): CatalogProductItem {
   const categoria = categorias.find((item) => item.id === dto.categoryId);
-  const subtipo = categoria?.subtypes?.find((item) => item.id === dto.subtypeId);
+  const subtipo = categoria?.subtypes?.find(
+    (item) => item.id === dto.subtypeId,
+  );
 
   return {
     id: dto.id,
@@ -119,6 +124,121 @@ export function mapearProdutoCatalogo(
   };
 }
 
+function formatarCm(mm: number): string {
+  return (mm / 10).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+}
+
+function formatarRotuloEspecificacao(chave: string): string {
+  const separada = chave.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+  return separada.charAt(0).toUpperCase() + separada.slice(1);
+}
+
+function formatarValorEspecificacao(valor: unknown): string {
+  if (typeof valor === "boolean") return valor ? "Sim" : "Não";
+  if (Array.isArray(valor)) return valor.join(", ");
+  return String(valor);
+}
+
+/** Converte `ProductDto` no formato exibido pela tela de detalhes do catálogo. */
+export function mapearDetalheProduto(
+  dto: ProductDto,
+  categorias: readonly ICategory[] = [],
+  recomendados: readonly ProductListItemDto[] = [],
+): ProductDetail {
+  const categoria = categorias.find((item) => item.id === dto.categoryId);
+  const subtipo = categoria?.subtypes?.find(
+    (item) => item.id === dto.subtypeId,
+  );
+
+  const images = (dto.images ?? []).map((img, index) => ({
+    id: img.id,
+    url: toApiAssetUrl(img.fullImageUrl || img.thumbnailUrl),
+    thumbnailUrl: toApiAssetUrl(img.thumbnailUrl || img.fullImageUrl),
+    alt: `${dto.name} — foto ${index + 1}`,
+  }));
+
+  const variations = (dto.variations ?? []).map((v) => {
+    const linkedImage = (dto.images ?? []).find(
+      (img) => img.variationId === v.id,
+    );
+    const sampleUrl = v.sampleImageUrl
+      ? toApiAssetUrl(v.sampleImageUrl)
+      : undefined;
+    return {
+      id: v.id,
+      name: v.name,
+      colorHex: v.colorsHex?.[0],
+      colorsHex: v.colorsHex,
+      sampleImageUrl: sampleUrl ?? null,
+      imageRef: linkedImage
+        ? toApiAssetUrl(linkedImage.fullImageUrl || linkedImage.thumbnailUrl)
+        : undefined,
+      available: v.inStock,
+    };
+  });
+
+  const specifications: ProductSpecificationItem[] = [];
+  if (categoria?.name) {
+    specifications.push({ label: "Categoria", value: categoria.name });
+  }
+  if (subtipo?.name) {
+    specifications.push({ label: "Subcategoria", value: subtipo.name });
+  }
+  if (dto.collectionLine) {
+    specifications.push({ label: "Linha", value: dto.collectionLine });
+  }
+  if (dto.mainMaterial) {
+    specifications.push({
+      label: "Material principal",
+      value: dto.mainMaterial,
+    });
+  }
+  if (dto.heightMm > 0 && dto.widthMm > 0 && dto.depthMm > 0) {
+    specifications.push({
+      label: "Dimensões (Altura × Largura × Profundidade)",
+      value: `${formatarCm(dto.heightMm)} × ${formatarCm(dto.widthMm)} × ${formatarCm(dto.depthMm)} cm`,
+    });
+  }
+  if (dto.specifications) {
+    for (const [chave, valor] of Object.entries(dto.specifications)) {
+      if (valor === null || valor === undefined || valor === "") continue;
+      specifications.push({
+        label: formatarRotuloEspecificacao(chave),
+        value: formatarValorEspecificacao(valor),
+      });
+    }
+  }
+
+  const manufacturingTime =
+    dto.availabilityType === "IN_STOCK"
+      ? "Pronta entrega"
+      : dto.estimatedDays > 0
+        ? `Sob encomenda · ${dto.estimatedDays} dias`
+        : "Sob encomenda";
+
+  return {
+    id: dto.id,
+    name: dto.name,
+    slug: dto.slug,
+    price: Number(dto.referencePrice),
+    installments:
+      dto.maxInstallments > 1
+        ? `Até ${dto.maxInstallments}x no cartão`
+        : "À vista",
+    manufacturingTime,
+    description: dto.description ?? "",
+    category: categoria?.name ?? "",
+    subcategory: subtipo?.name,
+    line: dto.collectionLine ?? undefined,
+    images,
+    variations,
+    specifications,
+    relatedProducts: recomendados.map((item) =>
+      mapearProdutoCatalogo(item, categorias),
+    ),
+  };
+}
+
 /** `undefined` quando a categoria ou o subtipo da URL não existem entre os ativos. */
 function resolverIds(
   filtros: CatalogFilterParams,
@@ -129,7 +249,10 @@ function resolverIds(
   let candidatas = categorias;
   let categoryId: string | undefined;
   if (filtros.categoria) {
-    const categoria = encontrarCategoria(categorias, slugify(filtros.categoria));
+    const categoria = encontrarCategoria(
+      categorias,
+      slugify(filtros.categoria),
+    );
     if (!categoria) return undefined;
     categoryId = categoria.id;
     candidatas = [categoria];

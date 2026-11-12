@@ -56,6 +56,8 @@ export interface ProductVariationItem {
   id: string;
   name: string;
   colorHex?: string;
+  colorsHex?: string[];
+  sampleImageUrl?: string | null;
   imageRef?: string;
   available?: boolean;
 }

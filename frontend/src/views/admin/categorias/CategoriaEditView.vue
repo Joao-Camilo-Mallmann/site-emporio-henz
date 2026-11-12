@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { categoriasApi } from "@/api";
 import { useToast } from "@/composables/useToast";
+import { useCategoriasStore } from "@/stores/categorias";
 import type {
   CategoryCreateInput,
   CategoryUpdateInput,
@@ -14,6 +15,7 @@ import CategoriaForm from "./CategoriaForm.vue";
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
+const categoriasStore = useCategoriasStore();
 
 const categoryId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
@@ -60,6 +62,7 @@ async function handleUpdate(
       categoryId.value,
       payload as CategoryUpdateInput,
     );
+    void categoriasStore.recarregar();
     toast.success("Categoria atualizada com sucesso!");
     router.push("/admin/categorias");
   } catch (err: unknown) {

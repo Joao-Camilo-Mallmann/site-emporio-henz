@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Icon } from "@iconify/vue";
 import { ref, computed, watch } from "vue";
 import type { ProductImageItem } from "@/types";
 
@@ -37,13 +38,9 @@ function selectImage(index: number) {
 
 const currentImage = computed(() => {
   if (!props.images || props.images.length === 0) {
-    return {
-      id: "placeholder",
-      url: "/images/products/roupeiro-roma-clean-1.webp",
-      alt: "Produto Empório Henz",
-    };
+    return null;
   }
-  return props.images[internalIndex.value] || props.images[0];
+  return props.images[internalIndex.value] || props.images[0] || null;
 });
 
 // Suporte a swipe no mobile
@@ -126,7 +123,7 @@ function handleTouchEnd() {
       @touchend="handleTouchEnd"
     >
       <!-- Foto Principal -->
-      <transition name="fade" mode="out-in">
+      <transition v-if="currentImage" name="fade" mode="out-in">
         <img
           :key="currentImage.url"
           :src="currentImage.url"
@@ -135,13 +132,20 @@ function handleTouchEnd() {
           loading="eager"
         />
       </transition>
+      <div
+        v-else
+        class="w-full h-full flex items-center justify-center text-stone-300 bg-stone-100"
+      >
+        <Icon icon="mdi:image-outline" class="w-16 h-16" />
+      </div>
 
       <!-- Chip Indicador de Foto (Top-Left) -->
       <div
+        v-if="images.length > 0"
         class="absolute top-3.5 left-3.5 sm:top-4 sm:left-4 bg-white/95 backdrop-blur-xs text-neutral-dark text-xs sm:text-sm font-semibold px-2.5 py-1 rounded-md shadow-xs border border-stone-200/50 z-10"
         aria-live="polite"
       >
-        {{ internalIndex + 1 }}/{{ images.length || 1 }}
+        {{ internalIndex + 1 }}/{{ images.length }}
       </div>
 
       <!-- Botões de Ação Flutuantes (Top-Right) -->
