@@ -1,30 +1,11 @@
-import { api as axios } from "@/plugins/axios";
-import type {
-  CatalogFilterParams,
-  CatalogResponse,
-} from "@/types";
-import { MOCK_CATALOG_PRODUCTS } from "@/mocks/catalogo";
+import type { CatalogFilterParams, CatalogResponse } from "@/types";
+import { getMockProductDetail, MOCK_CATALOG_PRODUCTS } from "@/mocks/catalogo";
+import { matchesCatalogSearch } from "@/utils/catalog-search";
 
 export const catalogoApi = {
-  /**
-   * Envia os parâmetros de filtro para o endpoint REST via GET.
-   * Toda a lógica de filtragem reside no servidor REST.
-   * Mantém fallback mockado estático para navegação e testes de interface.
-   */
   async buscarProdutos(
     params?: CatalogFilterParams,
   ): Promise<CatalogResponse> {
-    try {
-      const response = await axios.get<CatalogResponse>("/produtos", {
-        params,
-      });
-      if (response.data && Array.isArray(response.data.items)) {
-        return response.data;
-      }
-    } catch {
-      // Fallback estático mockado para navegação e testes no frontend sem dependência do backend
-    }
-
     let items = [...MOCK_CATALOG_PRODUCTS];
 
     if (params?.categoria) {
@@ -39,14 +20,23 @@ export const catalogoApi = {
       );
     }
 
-    if (params?.name) {
-      const q = params.name.toLowerCase().trim();
-      items = items.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          (p.subcategory && p.subcategory.toLowerCase().includes(q)),
-      );
+    if (params?.name?.trim()) {
+      const query = params.name.trim();
+      items = items.filter((product) => {
+        const description = getMockProductDetail(product.id)?.description;
+        const searchableText = [
+          product.name,
+          description,
+          product.category,
+          product.subcategory,
+          product.material,
+          product.brand,
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        return matchesCatalogSearch(searchableText, query);
+      });
     }
 
     if (params?.materiais && params.materiais.length > 0) {

@@ -21,6 +21,7 @@ const router = useRouter();
 // Drawer mobile de filtros
 const isMobileFiltersOpen = ref(false);
 const isLoading = ref(false);
+const loadError = ref(false);
 
 // Filtros principais reativos sincronizados com a rota e enviados na requisição GET da API REST
 const filters = ref<CatalogFilterParams>({
@@ -50,11 +51,13 @@ const paginationMeta = ref<CatalogPaginationMeta>({
 // Dispara requisição GET com parâmetros para a API REST
 async function fetchProducts() {
   isLoading.value = true;
+  loadError.value = false;
   try {
     const response = await catalogoApi.buscarProdutos(filters.value);
     products.value = response.items;
     paginationMeta.value = response.meta;
   } catch {
+    loadError.value = true;
     products.value = [];
     paginationMeta.value = {
       currentPage: filters.value.page || 1,
@@ -406,20 +409,28 @@ const activeFiltersCount = computed(() => {
               <Icon icon="mdi:magnify-close" class="w-8 h-8" />
             </div>
             <h3 class="text-lg font-bold text-neutral-dark mb-1">
-              Nenhum móvel encontrado
+              {{
+                loadError
+                  ? "Não foi possível carregar os produtos"
+                  : "Nenhum móvel encontrado"
+              }}
             </h3>
             <p class="text-sm text-stone-500 max-w-md mx-auto mb-6">
-              Não encontramos nenhum produto com a combinação de filtros
-              selecionada. Experimente remover filtros ou buscar por outro
-              termo.
+              {{
+                loadError
+                  ? "Verifique sua conexão e tente novamente."
+                  : "Não encontramos nenhum produto com a combinação de filtros selecionada. Experimente remover filtros ou buscar por outro termo."
+              }}
             </p>
             <UiButton
               variant="outline"
               class="inline-flex items-center gap-2"
-              @click="handleResetFilters"
+              @click="loadError ? fetchProducts() : handleResetFilters()"
             >
               <Icon icon="mdi:refresh" class="w-4 h-4" />
-              <span>Limpar todos os filtros</span>
+              <span>{{
+                loadError ? "Tentar novamente" : "Limpar todos os filtros"
+              }}</span>
             </UiButton>
           </div>
 
