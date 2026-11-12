@@ -39,9 +39,12 @@ export class ProductsController {
       return badRequest("Corpo da requisição deve ser um JSON válido.");
     }
 
-    const { error, value } = validateCreateProduct(body);
+    const { error, field, errors, value } = validateCreateProduct(body);
     if (error || !value) {
-      return badRequest(error || "Dados do produto inválidos.");
+      return badRequest(
+        error || "Dados do produto inválidos.",
+        field || errors ? { field, errors } : undefined,
+      );
     }
 
     const product = await this.service.createProduct(value, ctx.user);
@@ -65,9 +68,12 @@ export class ProductsController {
       return badRequest("Corpo da requisição deve ser um JSON válido.");
     }
 
-    const { error, value } = validateUpdateProduct(body);
+    const { error, field, errors, value } = validateUpdateProduct(body);
     if (error || !value) {
-      return badRequest(error || "Dados de atualização do produto inválidos.");
+      return badRequest(
+        error || "Dados de atualização do produto inválidos.",
+        field || errors ? { field, errors } : undefined,
+      );
     }
 
     const product = await this.service.updateProduct(id, value, ctx.user);
