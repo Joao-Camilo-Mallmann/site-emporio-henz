@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   UserRole,
-  type IUser,
+  type User,
   type UserCreateInput,
   type UserUpdateInput,
 } from "@/types";
@@ -10,7 +10,7 @@ import { Icon } from "@iconify/vue";
 import { reactive, ref, watch } from "vue";
 
 interface Props {
-  initialData?: Partial<IUser>;
+  initialData?: Partial<User>;
   isEditing?: boolean;
   loading?: boolean;
   errorMessage?: string | null;

@@ -3,8 +3,8 @@ import { usuariosApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import {
   UserRole,
-  type IAssignedSupplier,
-  type IUser,
+  type AssignedSupplier,
+  type User,
   type UserCreateInput,
   type UserUpdateInput,
 } from "@/types";
@@ -22,14 +22,14 @@ const userId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
 });
 
-const user = ref<IUser | null>(null);
+const user = ref<User | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
 const saving = ref(false);
 const errorMessage = ref<string | null>(null);
 
 // Gestão de Marcas / Fornecedores Vinculados (Vendedores)
-const assignedSuppliers = ref<IAssignedSupplier[]>([]);
+const assignedSuppliers = ref<AssignedSupplier[]>([]);
 const loadingSuppliers = ref(false);
 const suppliersError = ref<string | null>(null);
 const isSuppliersModalOpen = ref(false);

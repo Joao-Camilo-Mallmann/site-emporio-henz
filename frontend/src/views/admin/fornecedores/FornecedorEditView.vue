@@ -2,7 +2,7 @@
 import { fornecedoresApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import type {
-  ISupplier,
+  Supplier,
   SupplierCreateInput,
   SupplierUpdateInput,
 } from "@/types";
@@ -19,7 +19,7 @@ const supplierId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
 });
 
-const supplier = ref<ISupplier | null>(null);
+const supplier = ref<Supplier | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
 const saving = ref(false);

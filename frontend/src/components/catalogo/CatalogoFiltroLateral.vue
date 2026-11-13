@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import UiButton from "@/components/ui/UiButton.vue";
 import { encontrarCategoria, useCategoriasStore } from "@/stores/categorias";
-import type { CatalogAvailability, CatalogFilterParams, ISubtype } from "@/types";
+import type { CatalogAvailability, CatalogFilterParams, Subtype } from "@/types";
 import { slugify } from "@/utils/slug";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, ref, watch } from "vue";
@@ -56,7 +56,7 @@ const categoriaSelecionada = computed(() =>
     : undefined,
 );
 
-const subcategoriasDisponiveis = computed<ISubtype[]>(
+const subcategoriasDisponiveis = computed<Subtype[]>(
   () => categoriaSelecionada.value?.subtypes ?? [],
 );
 
@@ -64,7 +64,7 @@ function isCategoriaAtiva(slug: string) {
   return categoriaSelecionada.value?.slug === slug;
 }
 
-function isSubcategoriaAtiva(sub: ISubtype) {
+function isSubcategoriaAtiva(sub: Subtype) {
   if (!localSubcategoria.value) return false;
   const alvo = slugify(localSubcategoria.value);
   return sub.slug === alvo || slugify(sub.name) === alvo;
@@ -77,7 +77,7 @@ function toggleCategory(slug: string) {
   emit("apply");
 }
 
-function toggleSubcategory(sub: ISubtype) {
+function toggleSubcategory(sub: Subtype) {
   localSubcategoria.value = isSubcategoriaAtiva(sub) ? "" : sub.name;
   emitFilterChange();
   emit("apply");

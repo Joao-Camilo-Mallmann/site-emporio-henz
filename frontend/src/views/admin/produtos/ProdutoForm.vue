@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type {
   FieldErrors,
-  ISupplier,
+  Supplier,
   ProductFormState,
   ProductImageDto,
 } from "@/types";
@@ -22,7 +22,7 @@ const form = defineModel<ProductFormState>("form", { required: true });
 
 const props = withDefaults(
   defineProps<{
-    suppliers: ISupplier[];
+    suppliers: Supplier[];
     /** Vendedor com um único vínculo: fornecedor pré-selecionado e travado. */
     supplierLocked?: boolean;
     /** Vendedor sem vínculo: aviso e "Salvar produto" desabilitado. */

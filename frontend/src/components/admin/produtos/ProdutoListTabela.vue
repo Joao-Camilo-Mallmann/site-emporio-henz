@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Category, ISupplier, ProductListItemDto } from "@/types";
+import type { Category, Supplier, ProductListItemDto } from "@/types";
 import {
   availabilityLabel,
   formatCurrencyBRL,
@@ -16,7 +16,7 @@ import { computed } from "vue";
 const props = defineProps<{
   products: ProductListItemDto[];
   categories: Category[];
-  suppliers: ISupplier[];
+  suppliers: Supplier[];
   loading: boolean;
   error: string | null;
   hasActiveFilters: boolean;

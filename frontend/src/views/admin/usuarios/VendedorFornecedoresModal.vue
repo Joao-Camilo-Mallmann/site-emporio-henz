@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { fornecedoresApi, usuariosApi } from "@/api";
 import { useToast } from "@/composables/useToast";
-import type { IAssignedSupplier, ISupplier } from "@/types";
+import type { AssignedSupplier, Supplier } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -31,7 +31,7 @@ const loading = ref(false);
 const saving = ref(false);
 const error = ref<string | null>(null);
 
-interface SupplierRow extends ISupplier {
+interface SupplierRow extends Supplier {
   // Vínculo existente com fornecedor desativado (não vem da listagem de ativos).
   inactiveLinked?: boolean;
 }
@@ -60,8 +60,8 @@ const hasChanges = computed(() => {
   return false;
 });
 
-async function listarTodosFornecedoresAtivos(): Promise<ISupplier[]> {
-  const items: ISupplier[] = [];
+async function listarTodosFornecedoresAtivos(): Promise<Supplier[]> {
+  const items: Supplier[] = [];
   let page = 1;
   let totalPages: number;
   do {
@@ -99,9 +99,9 @@ async function carregarDados() {
     // Vínculos com fornecedores inativos continuam visíveis e removíveis.
     const activeIds = new Set(ativos.map((s) => s.id));
     const inativosVinculados = vinculos
-      .filter((v: IAssignedSupplier) => !activeIds.has(v.id))
+      .filter((v: AssignedSupplier) => !activeIds.has(v.id))
       .map(
-        (v: IAssignedSupplier) =>
+        (v: AssignedSupplier) =>
           ({
             id: v.id,
             name: v.name,

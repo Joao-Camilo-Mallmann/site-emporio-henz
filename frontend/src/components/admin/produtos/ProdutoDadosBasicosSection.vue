@@ -2,8 +2,8 @@
 import { useCategoriasStore } from "@/stores/categorias";
 import type {
   FieldErrors,
-  ISubtype,
-  ISupplier,
+  Subtype,
+  Supplier,
   ProductFormState,
   UiSelectOption,
 } from "@/types";
@@ -30,9 +30,9 @@ const props = withDefaults(
   defineProps<{
     /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
     visible?: boolean;
-    suppliers: ISupplier[];
+    suppliers: Supplier[];
     /** Subtipos da categoria escolhida. */
-    subtypeOptions?: ISubtype[];
+    subtypeOptions?: Subtype[];
     errors?: FieldErrors;
     locked?: boolean;
     /** Vendedor com um único vínculo: fornecedor pré-selecionado e travado. */

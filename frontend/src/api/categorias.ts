@@ -4,7 +4,7 @@ import type {
   CategoryFilterParams,
   CategoryUpdateInput,
   Category,
-  ISubtype,
+  Subtype,
   PaginatedCategoriesResponse,
   PaginatedSubtypesResponse,
   SubtypeCreateInput,
@@ -55,21 +55,21 @@ export const categoriasApi = {
     return response.data;
   },
 
-  async buscarSubtipoPorId(id: string): Promise<ISubtype> {
-    const response = await axios.get<ISubtype>(`/subtipos/${id}`);
+  async buscarSubtipoPorId(id: string): Promise<Subtype> {
+    const response = await axios.get<Subtype>(`/subtipos/${id}`);
     return response.data;
   },
 
-  async criarSubtipo(dados: SubtypeCreateInput): Promise<ISubtype> {
-    const response = await axios.post<ISubtype>("/subtipos", dados);
+  async criarSubtipo(dados: SubtypeCreateInput): Promise<Subtype> {
+    const response = await axios.post<Subtype>("/subtipos", dados);
     return response.data;
   },
 
   async atualizarSubtipo(
     id: string,
     dados: SubtypeUpdateInput,
-  ): Promise<ISubtype> {
-    const response = await axios.put<ISubtype>(`/subtipos/${id}`, dados);
+  ): Promise<Subtype> {
+    const response = await axios.put<Subtype>(`/subtipos/${id}`, dados);
     return response.data;
   },
 

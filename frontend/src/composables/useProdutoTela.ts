@@ -5,8 +5,8 @@ import { useCategoriasStore } from "@/stores/categorias";
 import type {
   FieldErrors,
   Category,
-  ISubtype,
-  ISupplier,
+  Subtype,
+  Supplier,
   PhotoFormItem,
   ProductFormState,
   VariationFormItem,
@@ -45,7 +45,7 @@ export function useProdutoOpcoes() {
   const categoriasStore = useCategoriasStore();
 
   const categories = ref<Category[]>([]);
-  const suppliers = ref<ISupplier[]>([]);
+  const suppliers = ref<Supplier[]>([]);
 
   const isVendedor = computed(() => authStore.isVendedor);
   const supplierLocked = computed(
@@ -92,7 +92,7 @@ export function useProdutoOpcoes() {
     }
   }
 
-  async function subtipoAtual(id: string, categoryId: string): Promise<ISubtype> {
+  async function subtipoAtual(id: string, categoryId: string): Promise<Subtype> {
     const daStore = categoriasStore.todas
       .flatMap((category) => category.subtypes ?? [])
       .find((subtype) => subtype.id === id);

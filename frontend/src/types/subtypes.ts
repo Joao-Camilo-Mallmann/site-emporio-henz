@@ -1,6 +1,6 @@
 import type { Paginated, PaginationParams } from "./pagination";
 
-export interface ISubtype {
+export interface Subtype {
   id: string;
   categoryId: string;
   categoryName?: string;
@@ -38,4 +38,4 @@ export interface SubtypeFilterParams extends PaginationParams {
   active?: boolean;
 }
 
-export type PaginatedSubtypesResponse = Paginated<ISubtype>;
+export type PaginatedSubtypesResponse = Paginated<Subtype>;

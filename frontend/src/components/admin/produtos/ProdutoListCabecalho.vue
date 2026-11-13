@@ -2,7 +2,7 @@
 import type {
   AvailabilityType,
   Category,
-  ISupplier,
+  Supplier,
   UiSelectOption,
 } from "@/types";
 import { AVAILABILITY_OPTIONS } from "@/utils/admin/produtos/produtoFormConstantes";
@@ -25,7 +25,7 @@ const selectedStatus = defineModel<StatusFilter>("status", { required: true });
 
 const props = defineProps<{
   categories: Category[];
-  suppliers: ISupplier[];
+  suppliers: Supplier[];
   total: number;
   hasActiveFilters: boolean;
 }>();

@@ -4,13 +4,13 @@ import { useToast } from "@/composables/useToast";
 import { useCategoriasStore } from "@/stores/categorias";
 import type {
   AvailabilityType,
-  ISupplier,
+  Supplier,
   ProductAdminFilterParams,
   ProductListItemDto,
 } from "@/types";
+import { apiErrorMessage } from "@/utils/admin/produtos/produtoFormConstantes";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { apiErrorMessage } from "@/utils/admin/produtos/produtoFormConstantes";
 
 type StatusFilter = "" | "active" | "inactive";
 
@@ -24,7 +24,7 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 
 // Opções dos filtros (a falha na carga não bloqueia a listagem)
-const suppliers = ref<ISupplier[]>([]);
+const suppliers = ref<Supplier[]>([]);
 
 // Paginação
 const currentPage = ref(1);

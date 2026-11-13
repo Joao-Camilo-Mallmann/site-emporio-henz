@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { fornecedoresApi } from "@/api";
 import { useToast } from "@/composables/useToast";
-import type { ISupplier, SupplierFilterParams } from "@/types";
+import type { Supplier, SupplierFilterParams } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -10,7 +10,7 @@ const router = useRouter();
 const toast = useToast();
 
 // Estado da Listagem
-const suppliers = ref<ISupplier[]>([]);
+const suppliers = ref<Supplier[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
@@ -23,7 +23,7 @@ const searchTerm = ref("");
 
 // Modal de Exclusão Lógica (Soft Delete)
 const isDeleteModalOpen = ref(false);
-const supplierToDelete = ref<ISupplier | null>(null);
+const supplierToDelete = ref<Supplier | null>(null);
 const actionLoading = ref(false);
 
 async function carregarFornecedores(page = 1) {
@@ -61,7 +61,7 @@ function handleSearch() {
   carregarFornecedores(1);
 }
 
-function abrirModalExclusao(supplier: ISupplier) {
+function abrirModalExclusao(supplier: Supplier) {
   supplierToDelete.value = supplier;
   isDeleteModalOpen.value = true;
 }

@@ -2,7 +2,7 @@
 import { usuariosApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import { useAuthStore } from "@/stores/auth";
-import { UserRole, type IUser, type UserFilterParams } from "@/types";
+import { UserRole, type User, type UserFilterParams } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -14,7 +14,7 @@ const toast = useToast();
 const authStore = useAuthStore();
 
 // Estado da Listagem
-const users = ref<IUser[]>([]);
+const users = ref<User[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
@@ -28,9 +28,9 @@ const selectedRole = ref<number | undefined>(undefined);
 
 // Modal de Fornecedores Autorizados (Vendedores)
 const isSuppliersModalOpen = ref(false);
-const selectedVendedor = ref<IUser | null>(null);
+const selectedVendedor = ref<User | null>(null);
 
-function abrirModalFornecedores(user: IUser) {
+function abrirModalFornecedores(user: User) {
   selectedVendedor.value = user;
   isSuppliersModalOpen.value = true;
 }
@@ -42,7 +42,7 @@ function fecharModalFornecedores() {
 
 // Modal de Exclusão Lógica
 const isDeleteModalOpen = ref(false);
-const userToDelete = ref<IUser | null>(null);
+const userToDelete = ref<User | null>(null);
 const actionLoading = ref(false);
 
 async function carregarUsuarios(page = 1) {
@@ -85,7 +85,7 @@ function handleRoleChange() {
   carregarUsuarios(1);
 }
 
-function abrirModalExclusao(user: IUser) {
+function abrirModalExclusao(user: User) {
   if (user.id === authStore.user?.id) {
     toast.warning(
       "Você não pode desativar a sua própria conta de administrador.",

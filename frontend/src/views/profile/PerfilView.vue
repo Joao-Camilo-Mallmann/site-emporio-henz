@@ -2,7 +2,7 @@
 import { authApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import { useAuthStore } from "@/stores/auth";
-import type { IUser, UserCreateInput, UserUpdateInput, UserProfile } from "@/types";
+import type { User, UserCreateInput, UserUpdateInput, UserProfile } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -19,7 +19,7 @@ const initialError = ref<string | null>(null);
 const saving = ref(false);
 const errorMessage = ref<string | null>(null);
 
-const initialUserData = computed<Partial<IUser>>(() => {
+const initialUserData = computed<Partial<User>>(() => {
   if (!userProfile.value) return {};
   return {
     id: userProfile.value.id,
