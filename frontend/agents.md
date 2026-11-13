@@ -47,6 +47,8 @@ O frontend possui auto-import automático de componentes configurado no Vite via
 | `<UiCard>` | Superfícies de conteúdo. |
 | `<UiFloatingActions>` e `<UiFloatingButton>` | Ações flutuantes. |
 | `<UiPagination>` | Paginação de qualquer listagem. Veja a seção 4. |
+| `<UiPageHeader>` | Cabeçalho de tela (trilha de navegação, título e descrição). `breadcrumbs` recebe itens `{ name, link? }` só com strings; o item sem `link` é a página atual. O botão de cadastro usa a prop `newAction` (`{ name, link }`), que desenha o padrão "Novo X" com ícone `mdi:plus`; outras ações vão no slot `actions`, à direita. Toda tela do admin usa este cabeçalho; não escreva título, trilha ou link "voltar" à mão. Props tipadas em `UiPageHeaderProps`. |
+| `<UiStepper>` | Indicador de etapas de formulário em etapas: `steps` (títulos), `current`, `reached` (etapa mais avançada liberada), `free` (todas livres, ex.: edição), `errors` (índices com erro) e evento `select`. Posição e fundo (ex.: `sticky`) vêm pela `class` do pai. Props tipadas em `UiStepperProps`. |
 | `<UiSelect>` | Qualquer lista de escolha (`<select>`). `v-model` com valor de qualquer tipo, `options` (`{ value, label, disabled? }`) ou slot com `<option>`/`<optgroup>`, `placeholder`, `label` ou `ariaLabel`, `hint`, `error`, `required`, `disabled`, tamanhos `'sm'` (filtros) e `'md'` (formulários) e `block` (largura total, padrão). |
 
 #### Cheat Sheet de Reutilização (`<UiButton>`):

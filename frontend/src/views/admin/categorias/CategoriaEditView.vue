@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { categoriasApi } from "@/api";
-import { useToast } from "@/composables/useToast";
-import { useCategoriasStore } from "@/stores/categorias";
-import type {
-  CategoryCreateInput,
-  CategoryUpdateInput,
-  ICategory,
-} from "@/types";
+import type { ICategory } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -14,8 +8,6 @@ import CategoriaForm from "./CategoriaForm.vue";
 
 const route = useRoute();
 const router = useRouter();
-const toast = useToast();
-const categoriasStore = useCategoriasStore();
 
 const categoryId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
@@ -24,8 +16,6 @@ const categoryId = computed(() => {
 const category = ref<ICategory | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
-const saving = ref(false);
-const errorMessage = ref<string | null>(null);
 
 async function carregarCategoria() {
   if (!categoryId.value) return;
@@ -49,36 +39,6 @@ async function carregarCategoria() {
   }
 }
 
-async function handleUpdate(
-  payload: CategoryCreateInput | CategoryUpdateInput,
-) {
-  if (!categoryId.value) return;
-
-  saving.value = true;
-  errorMessage.value = null;
-
-  try {
-    await categoriasApi.atualizar(
-      categoryId.value,
-      payload as CategoryUpdateInput,
-    );
-    void categoriasStore.recarregar();
-    toast.success("Categoria atualizada com sucesso!");
-    router.push("/admin/categorias");
-  } catch (err: unknown) {
-    const errorObj = err as {
-      response?: { data?: { message?: string } };
-      message?: string;
-    };
-    errorMessage.value =
-      errorObj.response?.data?.message ||
-      errorObj.message ||
-      "Ocorreu um erro ao atualizar a categoria.";
-  } finally {
-    saving.value = false;
-  }
-}
-
 function handleCancel() {
   router.push("/admin/categorias");
 }
@@ -89,39 +49,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8">
+  <div
+    class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
+  >
     <div class="max-w-3xl mx-auto space-y-6">
-      <!-- Breadcrumbs e Cabeçalho Limpo -->
-      <div>
-        <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <UiButton
-            variant="custom"
-            size="none"
-            class="font-normal hover:text-neutral-dark transition-colors"
-            @click="router.push('/admin')"
-          >
-            Painel
-          </UiButton>
-          <span>/</span>
-          <UiButton
-            variant="custom"
-            size="none"
-            class="font-normal hover:text-neutral-dark transition-colors"
-            @click="router.push('/admin/categorias')"
-          >
-            Categorias
-          </UiButton>
-          <span>/</span>
-          <span class="text-neutral-dark font-medium">Editar Categoria</span>
-        </div>
-
-        <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-          Editar Categoria
-        </h1>
-        <p class="text-sm text-stone-500 mt-0.5">
-          Atualize as informações cadastrais do ambiente e gerencie seus subtipos
-        </p>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[
+          { name: 'Painel', link: '/admin' },
+          { name: 'Categorias', link: '/admin/categorias' },
+          { name: 'Editar Categoria' },
+        ]"
+        title="Editar Categoria"
+        description="Atualize as informações cadastrais do ambiente e gerencie seus subtipos"
+      />
 
       <!-- Estado de Carregamento Inicial -->
       <div
@@ -167,14 +107,13 @@ onMounted(() => {
 
       <div v-else-if="category" class="space-y-6">
         <!-- Formulário da Categoria com Bloco Integrado de Subtipos -->
-        <div class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs">
+        <div
+          class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs"
+        >
           <CategoriaForm
             :category-id="categoryId"
             :initial-data="category"
             is-editing
-            :loading="saving"
-            :error-message="errorMessage"
-            @submit="handleUpdate"
             @cancel="handleCancel"
           />
         </div>

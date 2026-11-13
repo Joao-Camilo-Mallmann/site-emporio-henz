@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import { usuariosApi } from "@/api";
-import { useToast } from "@/composables/useToast";
-import {
-  UserRole,
-  type IAssignedSupplier,
-  type IUser,
-  type UserCreateInput,
-  type UserUpdateInput,
-} from "@/types";
+import { UserRole, type IAssignedSupplier, type IUser } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import UsuarioForm from "./UsuarioForm.vue";
 import VendedorFornecedoresModal from "./VendedorFornecedoresModal.vue";
 
+// Tela `/admin/usuarios/:id/editar`: carrega o usuário e entrega ao
+// formulário, que faz o `PUT`. Para vendedores, gerencia também as marcas
+// vinculadas.
+
 const route = useRoute();
 const router = useRouter();
-const toast = useToast();
 
 const userId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
@@ -25,8 +21,6 @@ const userId = computed(() => {
 const user = ref<IUser | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
-const saving = ref(false);
-const errorMessage = ref<string | null>(null);
 
 // Gestão de Marcas / Fornecedores Vinculados (Vendedores)
 const assignedSuppliers = ref<IAssignedSupplier[]>([]);
@@ -86,30 +80,6 @@ async function carregarUsuario() {
   }
 }
 
-async function handleUpdate(payload: UserCreateInput | UserUpdateInput) {
-  if (!userId.value) return;
-
-  saving.value = true;
-  errorMessage.value = null;
-
-  try {
-    await usuariosApi.atualizar(userId.value, payload as UserUpdateInput);
-    toast.success("Usuário atualizado com sucesso!");
-    router.push("/admin/usuarios");
-  } catch (err: unknown) {
-    const errorObj = err as {
-      response?: { data?: { message?: string } };
-      message?: string;
-    };
-    errorMessage.value =
-      errorObj.response?.data?.message ||
-      errorObj.message ||
-      "Ocorreu um erro ao atualizar o usuário.";
-  } finally {
-    saving.value = false;
-  }
-}
-
 function handleCancel() {
   router.push("/admin/usuarios");
 }
@@ -124,37 +94,11 @@ onMounted(() => {
     class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-2xl mx-auto space-y-6">
-      <!-- Breadcrumbs e Cabeçalho Limpo -->
-      <div>
-        <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <UiButton
-            variant="custom"
-            size="none"
-            class="font-normal hover:text-neutral-dark transition-colors"
-            @click="router.push('/admin')"
-          >
-            Painel
-          </UiButton>
-          <span>/</span>
-          <UiButton
-            variant="custom"
-            size="none"
-            class="font-normal hover:text-neutral-dark transition-colors"
-            @click="router.push('/admin/usuarios')"
-          >
-            Usuários
-          </UiButton>
-          <span>/</span>
-          <span class="text-neutral-dark font-medium">Editar Usuário</span>
-        </div>
-
-        <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-          Editar Usuário
-        </h1>
-        <p class="text-sm text-stone-500 mt-0.5">
-          Atualize as permissões de acesso ou redefina a senha da conta
-        </p>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[{ name: 'Painel', link: '/admin' }, { name: 'Usuários', link: '/admin/usuarios' }, { name: 'Editar Usuário' }]"
+        title="Editar Usuário"
+        description="Atualize as permissões de acesso ou redefina a senha da conta"
+      />
 
       <!-- Container do Formulário -->
       <div
@@ -204,11 +148,9 @@ onMounted(() => {
 
         <UsuarioForm
           v-else-if="user"
+          :user-id="userId"
           :initial-data="user"
           is-editing
-          :loading="saving"
-          :error-message="errorMessage"
-          @submit="handleUpdate"
           @cancel="handleCancel"
         />
       </div>

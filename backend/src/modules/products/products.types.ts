@@ -167,6 +167,8 @@ export interface UpdateProductDto {
 export interface ProductQueryFilters {
   page?: number;
   limit?: number;
+  // Termo já na forma de slug (sem acentos, minúsculas, separadores viram hífen),
+  // comparado com nome, descrição e linha normalizados na query do repositório.
   search?: string;
   categoryId?: string;
   subtypeId?: string;

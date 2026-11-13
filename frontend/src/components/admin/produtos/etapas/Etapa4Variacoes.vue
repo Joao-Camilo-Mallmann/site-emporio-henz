@@ -18,8 +18,8 @@ import {
 
 // Lista de variações: incluir, mover e remover. A ordem da tela define o
 // `sortOrder` enviado à API (começando em 0). Cada cartão tem cabeçalho,
-// nome e tipo; cores, acabamento e estoque ficam em `ProdutoVariacaoAcabamento`
-// e a amostra de textura em `ProdutoVariacaoAmostra`.
+// nome e tipo; cores, acabamento e estoque ficam em `Etapa4VariacaoAcabamento`
+// e a amostra de textura em `Etapa4VariacaoAmostra`.
 
 const variations = defineModel<VariationFormItem[]>({ required: true });
 
@@ -225,13 +225,13 @@ const resumos = computed(() =>
         </div>
       </div>
 
-      <ProdutoVariacaoAcabamento
+      <Etapa4VariacaoAcabamento
         v-model="variations[index]"
         :errors="errors"
         :locked="locked"
       />
 
-      <ProdutoVariacaoAmostra
+      <Etapa4VariacaoAmostra
         v-model="variations[index]"
         :title="resumos[index].titulo"
         :locked="locked"

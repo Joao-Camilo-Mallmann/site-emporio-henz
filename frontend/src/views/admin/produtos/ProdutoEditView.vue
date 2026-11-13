@@ -1,43 +1,23 @@
 <script setup lang="ts">
 import { produtosApi } from "@/api";
-import {
-  erroDeGravacao,
-  useProdutoEnvioArquivos,
-  useProdutoOpcoes,
-} from "@/composables/useProdutoTela";
+import { useProdutoEnvioArquivos, useProdutoOpcoes } from "@/composables/useProdutoTela";
 import { useToast } from "@/composables/useToast";
-import type {
-  FieldErrors,
-  ProductFormState,
-  ProductDto,
-  ProductImageDto,
-} from "@/types";
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  useTemplateRef,
-  watch,
-} from "vue";
+import type { ProductFormState, ProductDto, ProductImageDto } from "@/types";
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ProdutoForm from "./ProdutoForm.vue";
-import {
-  apiErrorMessage,
-  FIELD_IDS,
-} from "@/utils/admin/produtos/produtoFormConstantes";
+import { apiErrorMessage } from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   createEmptyForm,
   formFromProduct,
   resolveVariationIds,
   revokeFormObjectUrls,
-  toUpdatePayload,
 } from "@/utils/admin/produtos/produtoFormEstado";
 
 // Casca da tela `/admin/produtos/:id/editar`. Reaproveita o `ProdutoForm` do
-// cadastro: carrega o produto no formulário, grava com `PUT /produtos/:id` e
-// envia os arquivos novos em sequência, um por requisição
-// (`useProdutoTela`).
+// cadastro: carrega o produto no formulário e, depois que o formulário grava
+// com `PUT /produtos/:id` e emite `saved`, envia os arquivos novos em
+// sequência, um por requisição (`useProdutoTela`).
 //
 // Fotos e amostras não entram no corpo do `PUT`: excluir uma foto publicada
 // ou a amostra de uma variação é uma chamada imediata à API, como no contrato
@@ -67,11 +47,9 @@ const loading = ref(true);
 const loadError = ref<string | null>(null);
 const notFound = ref(false);
 
-const saving = ref(false);
+// Produto salvo: o formulário trava e só os arquivos novos seguem.
 const saved = ref(false);
-const errorMessage = ref<string | null>(null);
-const serverErrors = ref<FieldErrors>({});
-// A moldura expõe `mostrarPainelEnvio`; o envio chama ao começar.
+// O formulário expõe `mostrarPainelEnvio`; o envio chama ao começar.
 const layout = useTemplateRef<{ mostrarPainelEnvio: () => void }>("layout");
 
 const {
@@ -107,7 +85,6 @@ type PendingRemoval =
 const pendingRemoval = ref<PendingRemoval | null>(null);
 const removing = ref(false);
 
-const locked = computed(() => saving.value || saved.value);
 const painelTitulo = computed(
   () => `Alterações de "${product.value?.name}" salvas`,
 );
@@ -176,31 +153,12 @@ async function carregarTela() {
 }
 
 // ---------------------------------------------------------------------------
-// Gravação: PUT e depois os arquivos novos
+// Depois do `PUT`: ids das variações e envio dos arquivos novos
 // ---------------------------------------------------------------------------
 
-async function handleSubmit() {
-  if (locked.value || !product.value) return;
+async function handleSaved(updated: ProductDto) {
+  if (!product.value) return;
 
-  saving.value = true;
-  errorMessage.value = null;
-  serverErrors.value = {};
-
-  let updated: ProductDto;
-  try {
-    updated = await produtosApi.atualizar(
-      product.value.id,
-      toUpdatePayload(form.value),
-    );
-  } catch (err: unknown) {
-    const erro = erroDeGravacao(err, "Ocorreu um erro ao salvar as alterações.");
-    serverErrors.value = erro.serverErrors;
-    errorMessage.value = erro.errorMessage;
-    saving.value = false;
-    return;
-  }
-
-  // Produto salvo: o formulário trava e só os arquivos novos seguem.
   product.value = { ...product.value, ...updated };
   saved.value = true;
 
@@ -209,7 +167,6 @@ async function handleSubmit() {
   for (const variation of form.value.variations) {
     variation.id = variationIds.get(variation.key) ?? variation.id;
   }
-  saving.value = false;
 
   await iniciarEnvio();
 }
@@ -296,14 +253,6 @@ function handleCancel() {
   router.push(LISTA_URL);
 }
 
-// O erro de slug duplicado some quando o usuário edita o slug.
-watch(
-  () => form.value.slug,
-  () => {
-    if (serverErrors.value[FIELD_IDS.slug]) serverErrors.value = {};
-  },
-);
-
 onMounted(() => {
   carregarTela();
 });
@@ -314,76 +263,61 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ProdutoTelaLayout
+  <ProdutoForm
     ref="layout"
+    v-model:form="form"
     modo="editar"
     :produto="product"
-    :lista-url="LISTA_URL"
-    :bloqueado="locked || uploading"
     :loading="loading"
-    loading-label="Carregando produto..."
     :not-found="notFound"
-    :error="loadError"
-    voltar-label="Voltar para a lista"
-    :envio-visivel="saved"
+    :load-error="loadError"
+    :categories="categories"
+    :suppliers="suppliers"
+    :supplier-locked="supplierLocked"
+    :no-supplier="noSupplier"
+    :locked="saved"
+    :upload-phase="saved"
+    :busy="uploading || removing"
+    :existing-images="existingImages"
     :envio-titulo="painelTitulo"
-    envio-orientacao-falha="complete as fotos em outra edição."
     :uploading="uploading"
     :total-files="totalFiles"
     :done-files="doneFiles"
     :failed-files="failedFiles"
     :progress-percent="progressPercent"
+    @saved="handleSaved"
+    @cancel="handleCancel"
     @retry="carregarTela"
-    @voltar="handleCancel"
     @desativar="pedirDesativacao"
     @concluir="concluirAssimMesmo"
-  >
-    <ProdutoForm
-      v-model:form="form"
-      :categories="categories"
-      :suppliers="suppliers"
-      :supplier-locked="supplierLocked"
-      :no-supplier="noSupplier"
-      :locked="locked"
-      :upload-phase="saved"
-      :saving="saving"
-      :busy="uploading || removing"
-      :error-message="errorMessage"
-      :server-errors="serverErrors"
-      :existing-images="existingImages"
-      submit-label="Salvar alterações"
-      steps-unlocked
-      @submit="handleSubmit"
-      @cancel="handleCancel"
-      @retry-sample="tentarAmostraDeNovo"
-      @retry-photo="tentarFotoDeNovo"
-      @remove-image="pedirExclusaoFoto"
-      @remove-existing-sample="pedirExclusaoAmostra"
-    />
+    @retry-sample="tentarAmostraDeNovo"
+    @retry-photo="tentarFotoDeNovo"
+    @remove-image="pedirExclusaoFoto"
+    @remove-existing-sample="pedirExclusaoAmostra"
+  />
 
-    <!-- Confirmação das exclusões imediatas (foto, amostra ou produto) -->
-    <UiModal
-      :open="pendingRemoval !== null"
-      :title="tituloRemocao"
-      variant="danger"
-      :loading="removing"
-      @close="fecharModalRemocao"
-      @confirm="confirmarRemocao"
-    >
-      <template v-if="pendingRemoval?.kind === 'image'">
-        A foto sai do carrossel do produto assim que você confirmar, sem esperar
-        o botão de salvar. Para repor, envie o arquivo de novo.
-      </template>
-      <template v-else-if="pendingRemoval?.kind === 'sample'">
-        A amostra de textura desta variação será apagada agora, sem esperar o
-        botão de salvar. Para repor, escolha um arquivo novo.
-      </template>
-      <template v-else>
-        Deseja desativar
-        <strong class="text-neutral-dark">{{ product?.name }}</strong
-        >? O produto sai do catálogo e continua guardado no painel, com as
-        variações e fotos.
-      </template>
-    </UiModal>
-  </ProdutoTelaLayout>
+  <!-- Confirmação das exclusões imediatas (foto, amostra ou produto) -->
+  <UiModal
+    :open="pendingRemoval !== null"
+    :title="tituloRemocao"
+    variant="danger"
+    :loading="removing"
+    @close="fecharModalRemocao"
+    @confirm="confirmarRemocao"
+  >
+    <template v-if="pendingRemoval?.kind === 'image'">
+      A foto sai do carrossel do produto assim que você confirmar, sem esperar
+      o botão de salvar. Para repor, envie o arquivo de novo.
+    </template>
+    <template v-else-if="pendingRemoval?.kind === 'sample'">
+      A amostra de textura desta variação será apagada agora, sem esperar o
+      botão de salvar. Para repor, escolha um arquivo novo.
+    </template>
+    <template v-else>
+      Deseja desativar
+      <strong class="text-neutral-dark">{{ product?.name }}</strong
+      >? O produto sai do catálogo e continua guardado no painel, com as
+      variações e fotos.
+    </template>
+  </UiModal>
 </template>
