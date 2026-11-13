@@ -1,12 +1,6 @@
 <script setup lang="ts">
-import type {
-  Category,
-  FieldErrors,
-  ProductFormState,
-  Subtype,
-  Supplier,
-  UiSelectOption,
-} from "@/types";
+import { useProdutoFormStore } from "@/stores/produtoForm";
+import type { Subtype, UiSelectOption } from "@/types";
 import {
   ERROR_TEXT_CLASS,
   FIELD_IDS,
@@ -17,39 +11,20 @@ import {
 } from "@/utils/admin/produtos/produtoFormConstantes";
 import { slugify } from "@/utils/slug";
 import { Icon } from "@iconify/vue";
+import { storeToRefs } from "pinia";
 import { computed, watch } from "vue";
 
 // Etapa 1 do formulário de produto: nome, slug, categoria, subtipo,
 // fornecedor, linha, material e descrição. O slug acompanha o nome até ser
 // editado, e trocar a categoria limpa o subtipo escolhido.
 
-const form = defineModel<ProductFormState>({ required: true });
-
-const props = withDefaults(
-  defineProps<{
-    /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
-    visible?: boolean;
-    /** Categorias selecionáveis, cada uma com os seus subtipos. */
-    categories: Category[];
-    suppliers: Supplier[];
-    errors?: FieldErrors;
-    locked?: boolean;
-    /** Vendedor com um único vínculo: fornecedor pré-selecionado e travado. */
-    supplierLocked?: boolean;
-    /** Vendedor sem vínculo: aviso e seletor de fornecedor desabilitado. */
-    noSupplier?: boolean;
-  }>(),
-  {
-    visible: true,
-    errors: () => ({}),
-    locked: false,
-    supplierLocked: false,
-    noSupplier: false,
-  },
-);
+const store = useProdutoFormStore();
+const { form, categories, suppliers, locked, supplierLocked, noSupplier } =
+  storeToRefs(store);
+const { fieldError, describedBy } = store;
 
 const categoryOptions = computed<UiSelectOption[]>(() =>
-  props.categories.map((category) => ({
+  categories.value.map((category) => ({
     value: category.id,
     label: category.name,
   })),
@@ -58,7 +33,7 @@ const categoryOptions = computed<UiSelectOption[]>(() =>
 // Subtipos da categoria escolhida.
 const subtypeOptions = computed<Subtype[]>(
   () =>
-    props.categories.find((category) => category.id === form.value.categoryId)
+    categories.value.find((category) => category.id === form.value.categoryId)
       ?.subtypes ?? [],
 );
 
@@ -70,22 +45,11 @@ const subtypeSelectOptions = computed<UiSelectOption[]>(() =>
 );
 
 const supplierOptions = computed<UiSelectOption[]>(() =>
-  props.suppliers.map((supplier) => ({
+  suppliers.value.map((supplier) => ({
     value: supplier.id,
     label: supplier.name,
   })),
 );
-
-function fieldError(id: string): string {
-  return props.errors[id] ?? "";
-}
-
-function describedBy(id: string, hintId?: string): string | undefined {
-  const parts = [fieldError(id) ? `${id}-error` : "", hintId ?? ""].filter(
-    Boolean,
-  );
-  return parts.length > 0 ? parts.join(" ") : undefined;
-}
 
 // Slug acompanha o nome até o usuário editá-lo.
 watch(
@@ -118,7 +82,6 @@ watch(
     id="secao-dados-basicos"
     :numero="1"
     titulo="Dados básicos"
-    :visible="visible"
     descricao="Identificação do móvel, onde ele aparece no catálogo e quem o fabrica."
   >
 
@@ -205,14 +168,14 @@ watch(
       <!-- Categoria -->
       <div>
         <UiSelect
-          :id="FIELD_IDS.category"
+          :id="FIELD_IDS.categoryId"
           v-model="form.categoryId"
           label="Categoria"
           required
           placeholder="Selecione a categoria"
           placeholder-disabled
           :options="categoryOptions"
-          :error="fieldError(FIELD_IDS.category)"
+          :error="fieldError(FIELD_IDS.categoryId)"
           :hint="
             categories.length === 0
               ? 'Nenhuma categoria ativa cadastrada.'
@@ -224,13 +187,13 @@ watch(
       <!-- Subtipo -->
       <div>
         <UiSelect
-          :id="FIELD_IDS.subtype"
+          :id="FIELD_IDS.subtypeId"
           v-model="form.subtypeId"
           label="Subtipo"
           placeholder="Sem subtipo"
           :options="subtypeSelectOptions"
           :disabled="!form.categoryId"
-          :error="fieldError(FIELD_IDS.subtype)"
+          :error="fieldError(FIELD_IDS.subtypeId)"
           :hint="form.categoryId ? undefined : 'Escolha a categoria primeiro.'"
         />
       </div>
@@ -238,7 +201,7 @@ watch(
       <!-- Fornecedor -->
       <div class="sm:col-span-2">
         <UiSelect
-          :id="FIELD_IDS.supplier"
+          :id="FIELD_IDS.supplierId"
           v-model="form.supplierId"
           label="Fornecedor / fabricante"
           required
@@ -246,12 +209,12 @@ watch(
           placeholder-disabled
           :options="supplierOptions"
           :disabled="supplierLocked || noSupplier"
-          :error="fieldError(FIELD_IDS.supplier)"
+          :error="fieldError(FIELD_IDS.supplierId)"
           :aria-describedby="
-            describedBy(FIELD_IDS.supplier, `${FIELD_IDS.supplier}-hint`)
+            describedBy(FIELD_IDS.supplierId, `${FIELD_IDS.supplierId}-hint`)
           "
         />
-        <div :id="`${FIELD_IDS.supplier}-hint`">
+        <div :id="`${FIELD_IDS.supplierId}-hint`">
           <p
             v-if="noSupplier"
             role="alert"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { FieldErrors, ProductFormState } from "@/types";
+import { useProdutoFormStore } from "@/stores/produtoForm";
+import type { NumericInput } from "@/types";
 import {
   ERROR_TEXT_CLASS,
   FIELD_IDS,
@@ -7,26 +8,14 @@ import {
   HINT_CLASS,
   LABEL_CLASS,
 } from "@/utils/admin/produtos/produtoFormConstantes";
-import { formatMmAsCm } from "@/utils/admin/produtos/produtoFormEstado";
+import { storeToRefs } from "pinia";
 
 // Etapa 3 do formulário de produto: altura, largura e profundidade em
 // milímetros, com o equivalente em centímetros abaixo de cada campo.
 
-const form = defineModel<ProductFormState>({ required: true });
-
-const props = withDefaults(
-  defineProps<{
-    /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
-    visible?: boolean;
-    errors?: FieldErrors;
-    locked?: boolean;
-  }>(),
-  {
-    visible: true,
-    errors: () => ({}),
-    locked: false,
-  },
-);
+const store = useProdutoFormStore();
+const { form, locked } = storeToRefs(store);
+const { fieldError, describedBy } = store;
 
 const dimensionFields = [
   { id: FIELD_IDS.heightMm, key: "heightMm", label: "Altura" },
@@ -34,13 +23,12 @@ const dimensionFields = [
   { id: FIELD_IDS.depthMm, key: "depthMm", label: "Profundidade" },
 ] as const;
 
-function fieldError(id: string): string {
-  return props.errors[id] ?? "";
-}
-
-function describedBy(id: string, hintId?: string): string | undefined {
-  const parts = [fieldError(id) ? `${id}-error` : "", hintId ?? ""].filter(Boolean);
-  return parts.length > 0 ? parts.join(" ") : undefined;
+/** "2300" mm → "230 cm"; `null` se o valor não é um número positivo. */
+function formatMmAsCm(value: NumericInput): string | null {
+  const mm = Number(value);
+  if (!(mm > 0)) return null;
+  const cm = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 1 });
+  return `${cm.format(mm / 10)} cm`;
 }
 </script>
 
@@ -49,7 +37,6 @@ function describedBy(id: string, hintId?: string): string | undefined {
     id="secao-dimensoes"
     :numero="3"
     titulo="Dimensões"
-    :visible="visible"
     descricao="Medidas externas em milímetros, números inteiros."
   >
 

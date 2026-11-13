@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import type {
-  PhotoFormItem,
-  ProductImageDto,
-  UiSelectOption,
-  VariationFormItem,
-} from "@/types";
-import { UPLOAD_STATE_META } from "@/utils/admin/produtos/produtoFormConstantes";
+import { useProdutoFormStore } from "@/stores/produtoForm";
+import type { PhotoFormItem, ProductImageDto, UiSelectOption } from "@/types";
 import {
-  coverPhotoKey,
-  createPhotoItem,
+  createLocalKey,
+  UPLOAD_STATE_META,
   variationLabel,
-} from "@/utils/admin/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 import {
   ACCEPTED_IMAGE_INPUT,
   formatFileSize,
@@ -18,6 +13,7 @@ import {
   validateImageFile,
 } from "@/utils/uploads";
 import { Icon } from "@iconify/vue";
+import { storeToRefs } from "pinia";
 import { computed, ref } from "vue";
 
 // Etapa 5 do formulário de produto.
@@ -25,32 +21,10 @@ import { computed, ref } from "vue";
 // Base64), associação opcional a uma variação, ordem de envio, indicação da
 // capa e estado do envio de cada arquivo.
 
-const photos = defineModel<PhotoFormItem[]>({ required: true });
-
-const props = withDefaults(
-  defineProps<{
-    /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
-    visible?: boolean;
-    variations: VariationFormItem[];
-    locked?: boolean;
-    uploadPhase?: boolean;
-    busy?: boolean;
-    /** Fotos já gravadas na API (só na edição). */
-    existingImages?: ProductImageDto[];
-  }>(),
-  {
-    visible: true,
-    locked: false,
-    uploadPhase: false,
-    busy: false,
-    existingImages: () => [],
-  },
-);
-
-const emit = defineEmits<{
-  (e: "retry-photo", key: string): void;
-  (e: "remove-image", imageId: string): void;
-}>();
+const store = useProdutoFormStore();
+const { form, existingImages, locked, busy, saved: uploadPhase } =
+  storeToRefs(store);
+const photos = computed(() => form.value.photos);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const rejections = ref<string[]>([]);
@@ -59,23 +33,26 @@ const dragging = ref(false);
 // Com fotos já publicadas, a capa está entre elas: as novas entram no fim do
 // carrossel e nenhuma foto local recebe o selo de capa.
 const existingCoverId = computed(() => {
-  const list = props.existingImages;
+  const list = existingImages.value;
   if (list.length === 0) return null;
   return (list.find((image) => !image.variationId) ?? list[0]).id;
 });
 
 const coverKey = computed(() =>
-  props.existingImages.length > 0 ? null : coverPhotoKey(photos.value),
+  existingImages.value.length > 0
+    ? null
+    : (photos.value.find((photo) => !photo.variationKey) ?? photos.value[0])
+        ?.key,
 );
 
 const hasGeneralPhoto = computed(
   () =>
     photos.value.some((photo) => !photo.variationKey) ||
-    props.existingImages.some((image) => !image.variationId),
+    existingImages.value.some((image) => !image.variationId),
 );
 
 const variationOptions = computed(() =>
-  props.variations.map((variation, index) => ({
+  form.value.variations.map((variation, index) => ({
     key: variation.key,
     label: variationLabel(variation, index),
   })),
@@ -120,7 +97,14 @@ function addFiles(files: FileList | File[]) {
       rejected.push(error);
       continue;
     }
-    photos.value.push(createPhotoItem(file, URL.createObjectURL(file)));
+    photos.value.push({
+      key: createLocalKey(),
+      file,
+      previewUrl: URL.createObjectURL(file),
+      variationKey: null,
+      uploadState: "pending",
+      uploaded: null,
+    });
   }
   rejections.value = rejected;
 }
@@ -132,12 +116,12 @@ function onFilesSelected(event: Event) {
 }
 
 function onDragOver() {
-  if (!props.locked) dragging.value = true;
+  if (!locked.value) dragging.value = true;
 }
 
 function onDrop(event: DragEvent) {
   dragging.value = false;
-  if (props.locked) return;
+  if (locked.value) return;
   const files = event.dataTransfer?.files;
   if (files && files.length > 0) addFiles(files);
 }
@@ -162,10 +146,10 @@ function variationSelectId(photo: PhotoFormItem) {
 /** Nome da variação de uma foto já publicada, pelo `id` real da variação. */
 function existingImageVariationName(image: ProductImageDto) {
   if (!image.variationId) return "";
-  const index = props.variations.findIndex(
+  const index = form.value.variations.findIndex(
     (variation) => variation.id === image.variationId,
   );
-  return index === -1 ? "" : variationLabel(props.variations[index], index);
+  return index === -1 ? "" : variationLabel(form.value.variations[index], index);
 }
 
 function existingImageAlt(image: ProductImageDto, index: number) {
@@ -180,7 +164,6 @@ function existingImageAlt(image: ProductImageDto, index: number) {
     id="secao-fotos"
     :numero="5"
     titulo="Fotos"
-    :visible="visible"
     descricao="A ordem da tela é a ordem do carrossel. Associe a foto a uma variação para mostrá-la junto daquele acabamento."
   >
     <div class="space-y-4">
@@ -244,7 +227,9 @@ function existingImageAlt(image: ProductImageDto, index: number) {
                 :disabled="locked || busy"
                 title="Excluir foto publicada"
                 :aria-label="`Excluir a foto ${index + 1} já publicada`"
-                @click="emit('remove-image', image.id)"
+                @click="
+                  store.pendingRemoval = { kind: 'image', imageId: image.id }
+                "
               >
                 <Icon icon="mdi:trash-can-outline" class="w-4 h-4" />
               </UiButton>
@@ -438,7 +423,7 @@ function existingImageAlt(image: ProductImageDto, index: number) {
                 variant="danger"
                 size="xs"
                 :disabled="busy"
-                @click="emit('retry-photo', photo.key)"
+                @click="store.enviarArquivos(photo.key)"
               >
                 <Icon icon="mdi:refresh" class="w-4 h-4" />
                 Tentar de novo

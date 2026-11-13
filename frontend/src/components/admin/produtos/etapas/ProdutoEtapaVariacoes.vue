@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import type { FieldErrors, VariationFormItem } from "@/types";
+import { useProdutoFormStore } from "@/stores/produtoForm";
+import type { VariationFormItem } from "@/types";
 import { Icon } from "@iconify/vue";
+import { storeToRefs } from "pinia";
 import { computed, nextTick } from "vue";
 import {
+  createLocalKey,
+  DEFAULT_VARIATION_COLOR,
   ERROR_TEXT_CLASS,
   fieldClass,
+  isHexColor,
   LABEL_CLASS,
+  normalizeHexColor,
   VARIATION_TYPE_OPTIONS,
   variationFieldId,
-} from "@/utils/admin/produtos/produtoFormConstantes";
-import {
-  createVariationItem,
-  isHexColor,
-  normalizeHexColor,
   variationLabel,
-} from "@/utils/admin/produtos/produtoFormEstado";
+} from "@/utils/admin/produtos/produtoFormConstantes";
 
 // Etapa 4 do formulário de produto.
 // Lista de variações: incluir, mover e remover. A ordem da tela define o
@@ -22,36 +23,28 @@ import {
 // nome e tipo; cores, acabamento e estoque ficam em `ProdutoVariacaoAcabamento`
 // e a amostra de textura em `ProdutoVariacaoAmostra`.
 
-const variations = defineModel<VariationFormItem[]>({ required: true });
-
-withDefaults(
-  defineProps<{
-    /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
-    visible?: boolean;
-    errors?: FieldErrors;
-    locked?: boolean;
-    uploadPhase?: boolean;
-    busy?: boolean;
-  }>(),
-  {
-    visible: true,
-    errors: () => ({}),
-    locked: false,
-    uploadPhase: false,
-    busy: false,
-  },
-);
-
-const emit = defineEmits<{
-  /** Variação removida: as fotos associadas voltam a ser gerais. */
-  (e: "removed", key: string): void;
-  (e: "retry-sample", key: string): void;
-  /** Edição: apaga na API a amostra já gravada da variação. */
-  (e: "remove-existing-sample", key: string): void;
-}>();
+const store = useProdutoFormStore();
+const {
+  form,
+  serverErrors: errors,
+  locked,
+  busy,
+  saved: uploadPhase,
+} = storeToRefs(store);
+const variations = computed(() => form.value.variations);
 
 function addVariation() {
-  const variation = createVariationItem();
+  const variation: VariationFormItem = {
+    key: createLocalKey(),
+    id: null,
+    name: "",
+    variationType: "COLOR",
+    colorsHex: [DEFAULT_VARIATION_COLOR],
+    finishDetails: [],
+    inStock: true,
+    sample: null,
+    existingSampleUrl: null,
+  };
   variations.value.push(variation);
   nextTick(() =>
     document.getElementById(variationFieldId.name(variation.key))?.focus(),
@@ -70,7 +63,10 @@ function removeVariation(index: number) {
   const [removed] = variations.value.splice(index, 1);
   if (!removed) return;
   if (removed.sample) URL.revokeObjectURL(removed.sample.previewUrl);
-  emit("removed", removed.key);
+  // As fotos da variação removida voltam a ser gerais.
+  form.value.photos.forEach((photo) => {
+    if (photo.variationKey === removed.key) photo.variationKey = null;
+  });
 }
 
 // Círculo de pré-visualização das cores: sólido (1 cor), dividido ao meio (2)
@@ -116,7 +112,6 @@ const resumos = computed(() =>
     id="secao-variacoes"
     :numero="4"
     titulo="Variações de acabamento"
-    :visible="visible"
     descricao="Opcional. A ordem da lista é a ordem de exibição no catálogo."
   >
     <div class="space-y-4">
@@ -248,8 +243,13 @@ const resumos = computed(() =>
           :locked="locked"
           :upload-phase="uploadPhase"
           :busy="busy"
-          @retry-sample="emit('retry-sample', variation.key)"
-          @remove-existing-sample="emit('remove-existing-sample', variation.key)"
+          @retry-sample="store.enviarArquivos(variation.key)"
+          @remove-existing-sample="
+            store.pendingRemoval = {
+              kind: 'sample',
+              variationKey: variation.key,
+            }
+          "
         />
       </article>
 

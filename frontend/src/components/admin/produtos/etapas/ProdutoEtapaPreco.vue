@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FieldErrors, ProductFormState } from "@/types";
+import { useProdutoFormStore } from "@/stores/produtoForm";
 import {
   AVAILABILITY_OPTIONS,
   ERROR_TEXT_CLASS,
@@ -10,34 +10,14 @@ import {
   INSTALLMENTS_MIN,
   LABEL_CLASS,
 } from "@/utils/admin/produtos/produtoFormConstantes";
+import { storeToRefs } from "pinia";
 
 // Etapa 2 do formulário de produto: preço de referência, parcelas,
 // disponibilidade e, só sob encomenda, o prazo de fabricação.
 
-const form = defineModel<ProductFormState>({ required: true });
-
-const props = withDefaults(
-  defineProps<{
-    /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
-    visible?: boolean;
-    errors?: FieldErrors;
-    locked?: boolean;
-  }>(),
-  {
-    visible: true,
-    errors: () => ({}),
-    locked: false,
-  },
-);
-
-function fieldError(id: string): string {
-  return props.errors[id] ?? "";
-}
-
-function describedBy(id: string, hintId?: string): string | undefined {
-  const parts = [fieldError(id) ? `${id}-error` : "", hintId ?? ""].filter(Boolean);
-  return parts.length > 0 ? parts.join(" ") : undefined;
-}
+const store = useProdutoFormStore();
+const { form, locked } = storeToRefs(store);
+const { fieldError, describedBy } = store;
 </script>
 
 <template>
@@ -45,7 +25,6 @@ function describedBy(id: string, hintId?: string): string | undefined {
     id="secao-preco"
     :numero="2"
     titulo="Preço e disponibilidade"
-    :visible="visible"
     descricao="Valor base de referência; condições especiais são combinadas no atendimento."
   >
 

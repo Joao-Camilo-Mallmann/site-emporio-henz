@@ -2,8 +2,10 @@
 
 import type {
   AvailabilityType,
+  KeyValueRow,
   ProductListItemDto,
   UploadState,
+  VariationFormItem,
   VariationType,
 } from "@/types";
 
@@ -12,13 +14,11 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const TEXT_MAX_LENGTH = 255;
-export const NAME_MIN_LENGTH = 2;
 export const INSTALLMENTS_MIN = 1;
 export const INSTALLMENTS_MAX = 48;
 export const DEFAULT_VARIATION_COLOR = "#FFFFFF";
 
-export const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
-export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
 export const VARIATION_TYPE_OPTIONS: ReadonlyArray<{
   value: VariationType;
@@ -95,15 +95,16 @@ export const FORM_STEP_COUNT = 6;
 
 // ---------------------------------------------------------------------------
 // Ids dos campos no DOM: as chaves de `FieldErrors` são esses ids, o que
-// permite marcar o campo e rolar até o primeiro erro.
+// permite marcar o campo e rolar até o primeiro erro. As chaves de `FIELD_IDS`
+// são os nomes dos campos na API, para ler os erros que ela devolve.
 // ---------------------------------------------------------------------------
 
 export const FIELD_IDS = {
   name: "product-name",
   slug: "product-slug",
-  category: "product-category",
-  subtype: "product-subtype",
-  supplier: "product-supplier",
+  categoryId: "product-category",
+  subtypeId: "product-subtype",
+  supplierId: "product-supplier",
   collectionLine: "product-collection-line",
   mainMaterial: "product-main-material",
   description: "product-description",
@@ -161,6 +162,43 @@ export function fieldStep(fieldId: string): number {
     return 5;
   }
   return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Itens do formulário
+// ---------------------------------------------------------------------------
+
+/**
+ * Chave local única. `crypto.randomUUID` só existe em contexto seguro
+ * (HTTPS ou localhost); fora dele, cai num identificador aleatório simples.
+ */
+export function createLocalKey(): string {
+  return (
+    globalThis.crypto?.randomUUID?.() ??
+    `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`
+  );
+}
+
+export function createKeyValueRow(key = "", value = ""): KeyValueRow {
+  return { id: createLocalKey(), key, value };
+}
+
+export function isHexColor(value: string): boolean {
+  return HEX_COLOR_PATTERN.test(value);
+}
+
+/** Completa o `#` e põe em maiúsculas quando o valor já é uma cor válida. */
+export function normalizeHexColor(value: string): string {
+  const trimmed = value.trim();
+  const withHash = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
+  return isHexColor(withHash) ? withHash.toUpperCase() : trimmed;
+}
+
+export function variationLabel(
+  variation: VariationFormItem,
+  index: number,
+): string {
+  return variation.name.trim() || `Variação ${index + 1}`;
 }
 
 // ---------------------------------------------------------------------------
