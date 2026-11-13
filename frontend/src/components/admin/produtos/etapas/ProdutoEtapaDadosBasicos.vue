@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { useCategoriasStore } from "@/stores/categorias";
 import type {
+  Category,
   FieldErrors,
+  ProductFormState,
   Subtype,
   Supplier,
-  ProductFormState,
   UiSelectOption,
 } from "@/types";
 import {
   ERROR_TEXT_CLASS,
   FIELD_IDS,
   fieldClass,
-  FORM_SECTIONS,
   HINT_CLASS,
   LABEL_CLASS,
   TEXT_MAX_LENGTH,
@@ -30,9 +29,9 @@ const props = withDefaults(
   defineProps<{
     /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
     visible?: boolean;
+    /** Categorias selecionáveis, cada uma com os seus subtipos. */
+    categories: Category[];
     suppliers: Supplier[];
-    /** Subtipos da categoria escolhida. */
-    subtypeOptions?: Subtype[];
     errors?: FieldErrors;
     locked?: boolean;
     /** Vendedor com um único vínculo: fornecedor pré-selecionado e travado. */
@@ -42,7 +41,6 @@ const props = withDefaults(
   }>(),
   {
     visible: true,
-    subtypeOptions: () => [],
     errors: () => ({}),
     locked: false,
     supplierLocked: false,
@@ -50,21 +48,22 @@ const props = withDefaults(
   },
 );
 
-const useCategorias = useCategoriasStore();
-
-const categories = useCategorias.todas;
-
-const secao = FORM_SECTIONS[0];
-
 const categoryOptions = computed<UiSelectOption[]>(() =>
-  categories.map((category) => ({
+  props.categories.map((category) => ({
     value: category.id,
     label: category.name,
   })),
 );
 
+// Subtipos da categoria escolhida.
+const subtypeOptions = computed<Subtype[]>(
+  () =>
+    props.categories.find((category) => category.id === form.value.categoryId)
+      ?.subtypes ?? [],
+);
+
 const subtypeSelectOptions = computed<UiSelectOption[]>(() =>
-  props.subtypeOptions.map((subtype) => ({
+  subtypeOptions.value.map((subtype) => ({
     value: subtype.id,
     label: subtype.name,
   })),
@@ -115,27 +114,11 @@ watch(
 </script>
 
 <template>
-  <section
-    v-show="visible"
-    :id="secao.id"
-    class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
-    :aria-labelledby="`${secao.id}-title`"
+  <ProdutoEtapaCartao
+    :etapa="0"
+    :visible="visible"
+    descricao="Identificação do móvel, onde ele aparece no catálogo e quem o fabrica."
   >
-    <header class="mb-5">
-      <h2
-        :id="`${secao.id}-title`"
-        class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
-      >
-        <span
-          class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
-          >1</span
-        >
-        {{ secao.title }}
-      </h2>
-      <p class="mt-1 text-xs text-stone-500">
-        Identificação do móvel, onde ele aparece no catálogo e quem o fabrica.
-      </p>
-    </header>
 
     <fieldset
       :disabled="locked"
@@ -357,5 +340,5 @@ watch(
         />
       </div>
     </fieldset>
-  </section>
+  </ProdutoEtapaCartao>
 </template>

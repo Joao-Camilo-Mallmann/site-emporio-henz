@@ -119,9 +119,11 @@ As quatro telas ficam em `src/views/admin/produtos/` e cuidam do estado, das cha
 | `src/views/admin/produtos/ProdutoForm.vue` | Formulário em etapas: dono do estado das etapas, da validação por etapa e do foco no primeiro erro; compõe as seis seções |
 | `components/admin/produtos/ProdutoTelaLayout.vue` | Moldura do cadastro e da edição: cabeçalho, status e Desativar, estados de carregando, não encontrado e erro, slot do formulário e painel de envio. Expõe `mostrarPainelEnvio`; a tela passa esse método ao envio como `mostrarPainel` |
 | `components/admin/produtos/ProdutoFormNavegacao.vue` | Navegação entre etapas, usada em dois pontos pela prop `parte`: o indicador de etapas e o rodapé com Cancelar, Voltar, Próximo e Salvar |
-| `components/admin/produtos/ProdutoDadosBasicosSection.vue`, `ProdutoPrecoDimensoesSection.vue` | Etapa 1, e etapas 2 e 3. As especificações (etapa 6) ficam no próprio `ProdutoForm.vue` |
-| `components/admin/produtos/ProdutoVariacoesSection.vue`, `ProdutoVariacaoAcabamento.vue`, `ProdutoVariacaoAmostra.vue` | Etapa 4: lista e cabeçalho de cada variação com a prévia das cores, editor de cores, detalhes e estoque, e amostra de textura |
-| `components/admin/produtos/ProdutoFotosSection.vue` | Etapa 5: seleção múltipla, preview, variação, ordem, capa, estado do envio e fotos já publicadas |
+| `components/admin/produtos/etapas/ProdutoEtapaCartao.vue` | Cartão comum às etapas: número, título, descrição e visibilidade |
+| `components/admin/produtos/etapas/ProdutoEtapaDadosBasicos.vue`, `ProdutoEtapaPreco.vue`, `ProdutoEtapaDimensoes.vue` | Etapas 1, 2 e 3 |
+| `components/admin/produtos/etapas/ProdutoEtapaVariacoes.vue`, com `ProdutoVariacaoAcabamento.vue` e `ProdutoVariacaoAmostra.vue` na pasta acima | Etapa 4: lista e cabeçalho de cada variação com a prévia das cores, editor de cores, detalhes e estoque, e amostra de textura |
+| `components/admin/produtos/etapas/ProdutoEtapaFotos.vue` | Etapa 5: seleção múltipla, preview, variação, ordem, capa, estado do envio e fotos já publicadas |
+| `components/admin/produtos/etapas/ProdutoEtapaEspecificacoes.vue` | Etapa 6: ficha técnica e status no catálogo |
 | `components/admin/produtos/KeyValueEditor.vue` | Editor de chave e valor das especificações e dos detalhes de acabamento |
 | `components/admin/produtos/ProdutoListCabecalho.vue`, `ProdutoListTabela.vue` | Listagem: cabeçalho com busca e filtros, e tabela com os estados de carregando, erro e vazio |
 | `src/composables/useProdutoTela.ts` | Lógica comum ao cadastro e à edição: `useProdutoOpcoes` (categorias e fornecedores ativos, regra do fornecedor por perfil e, na edição, a categoria, o subtipo e o fornecedor do produto mesmo inativos), `erroDeGravacao` (409 vira erro no slug) e `useProdutoEnvioArquivos` (envio sequencial, reenvio e progresso, com o callback `mostrarPainel`) |

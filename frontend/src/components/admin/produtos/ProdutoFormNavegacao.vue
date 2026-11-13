@@ -90,7 +90,9 @@ function selectStep(index: number) {
   if (canGoToStep(index)) emit("select", index);
 }
 
-const isLastStep = computed(() => props.currentStep === FORM_SECTIONS.length - 1);
+const isLastStep = computed(
+  () => props.currentStep === FORM_SECTIONS.length - 1,
+);
 </script>
 
 <template>
@@ -100,7 +102,9 @@ const isLastStep = computed(() => props.currentStep === FORM_SECTIONS.length - 1
     class="mb-6 lg:mb-0 lg:sticky lg:top-32"
   >
     <!-- Compacto (celular e tablet) -->
-    <div class="lg:hidden rounded-xl border border-stone-200 bg-white p-4 shadow-xs space-y-3">
+    <div
+      class="lg:hidden rounded-xl border border-stone-200 bg-white p-4 shadow-xs space-y-3"
+    >
       <div class="flex items-baseline justify-between gap-3">
         <p class="min-w-0 truncate text-sm font-semibold text-neutral-dark">
           {{ FORM_SECTIONS[currentStep].title }}
@@ -136,7 +140,11 @@ const isLastStep = computed(() => props.currentStep === FORM_SECTIONS.length - 1
             :class="STEP_CIRCLE_CLASS[stepState(index)]"
             @click="selectStep(index)"
           >
-            <Icon v-if="stepState(index) === 'done'" icon="mdi:check" class="w-4 h-4" />
+            <Icon
+              v-if="stepState(index) === 'done'"
+              icon="mdi:check"
+              class="w-4 h-4"
+            />
             <Icon
               v-else-if="stepState(index) === 'error'"
               icon="mdi:exclamation-thick"
@@ -149,10 +157,14 @@ const isLastStep = computed(() => props.currentStep === FORM_SECTIONS.length - 1
     </div>
 
     <!-- Lateral (telas largas) -->
-    <div class="hidden lg:block rounded-xl border border-stone-200 bg-white p-4 shadow-xs">
+    <div
+      class="hidden lg:block rounded-xl border border-stone-200 bg-white p-4 shadow-xs"
+    >
       <div class="mb-3 space-y-2 px-1">
         <div class="flex items-baseline justify-between">
-          <span class="text-xs font-semibold uppercase tracking-wider text-stone-500">
+          <span
+            class="text-xs font-semibold uppercase tracking-wider text-stone-500"
+          >
             Etapas
           </span>
           <span class="text-xs text-stone-500">
@@ -175,7 +187,11 @@ const isLastStep = computed(() => props.currentStep === FORM_SECTIONS.length - 1
       </div>
 
       <ol>
-        <li v-for="(section, index) in FORM_SECTIONS" :key="section.id" class="relative">
+        <li
+          v-for="(section, index) in FORM_SECTIONS"
+          :key="section.id"
+          class="relative"
+        >
           <!-- Linha que liga esta etapa à próxima -->
           <span
             v-if="index < FORM_SECTIONS.length - 1"
@@ -204,7 +220,11 @@ const isLastStep = computed(() => props.currentStep === FORM_SECTIONS.length - 1
               class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all"
               :class="STEP_CIRCLE_CLASS[stepState(index)]"
             >
-              <Icon v-if="stepState(index) === 'done'" icon="mdi:check" class="w-4 h-4" />
+              <Icon
+                v-if="stepState(index) === 'done'"
+                icon="mdi:check"
+                class="w-4 h-4"
+              />
               <Icon
                 v-else-if="stepState(index) === 'error'"
                 icon="mdi:exclamation-thick"
@@ -213,12 +233,19 @@ const isLastStep = computed(() => props.currentStep === FORM_SECTIONS.length - 1
               <template v-else>{{ index + 1 }}</template>
             </span>
             <span class="min-w-0 flex-1 pt-0.5">
-              <span class="block text-sm leading-tight" :class="STEP_TITLE_CLASS[stepState(index)]">
+              <span
+                class="block text-sm leading-tight"
+                :class="STEP_TITLE_CLASS[stepState(index)]"
+              >
                 {{ section.title }}
               </span>
               <span
                 class="mt-0.5 block text-xs leading-snug"
-                :class="stepState(index) === 'locked' ? 'text-stone-300' : 'text-stone-500'"
+                :class="
+                  stepState(index) === 'locked'
+                    ? 'text-stone-300'
+                    : 'text-stone-500'
+                "
               >
                 {{ section.hint }}
               </span>
@@ -229,7 +256,10 @@ const isLastStep = computed(() => props.currentStep === FORM_SECTIONS.length - 1
     </div>
   </nav>
 
-  <div v-else class="pt-2 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
+  <div
+    v-else
+    class="pt-2 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3"
+  >
     <UiButton
       type="button"
       variant="outline"

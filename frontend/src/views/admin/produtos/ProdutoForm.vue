@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type {
+  Category,
   FieldErrors,
-  Supplier,
   ProductFormState,
   ProductImageDto,
+  Supplier,
 } from "@/types";
 import {
   FIELD_IDS,
@@ -15,13 +16,14 @@ import { computed, nextTick, ref, watch } from "vue";
 
 // Formulário em etapas (uma seção visível por vez). Este componente é o dono
 // do estado das etapas; cada etapa é um componente próprio de
-// `components/admin/produtos/`. A validação fica na API, que devolve os campos
-// com erro para abrir a etapa e focar o input correspondente.
+// `components/admin/produtos/etapas/`. A validação fica na API, que devolve os
+// campos com erro para abrir a etapa e focar o input correspondente.
 
 const form = defineModel<ProductFormState>("form", { required: true });
 
 const props = withDefaults(
   defineProps<{
+    categories: Category[];
     suppliers: Supplier[];
     /** Vendedor com um único vínculo: fornecedor pré-selecionado e travado. */
     supplierLocked?: boolean;
@@ -226,10 +228,10 @@ function handleSubmit() {
     />
 
     <div class="min-w-0 space-y-6">
-      <!-- 1. Dados básicos -->
-      <ProdutoDadosBasicosSection
+      <ProdutoEtapaDadosBasicos
         v-model="form"
         :visible="isStepVisible(0)"
+        :categories="categories"
         :suppliers="suppliers"
         :errors="errors"
         :locked="locked"
@@ -237,151 +239,50 @@ function handleSubmit() {
         :no-supplier="noSupplier"
       />
 
-      <!-- 2. Preço e disponibilidade e 3. Dimensões -->
-      <ProdutoPrecoDimensoesSection
+      <ProdutoEtapaPreco
         v-model="form"
-        :price-visible="isStepVisible(1)"
-        :dimensions-visible="isStepVisible(2)"
+        :visible="isStepVisible(1)"
         :errors="errors"
         :locked="locked"
       />
 
-      <!-- 4. Variações de acabamento -->
-      <section
-        v-show="isStepVisible(3)"
-        :id="FORM_SECTIONS[3].id"
-        class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
-        :aria-labelledby="`${FORM_SECTIONS[3].id}-title`"
-      >
-        <header class="mb-5">
-          <h2
-            :id="`${FORM_SECTIONS[3].id}-title`"
-            class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
-          >
-            <span
-              class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
-              >4</span
-            >
-            {{ FORM_SECTIONS[3].title }}
-          </h2>
-          <p class="mt-1 text-xs text-stone-500">
-            Opcional. A ordem da lista é a ordem de exibição no catálogo.
-          </p>
-        </header>
+      <ProdutoEtapaDimensoes
+        v-model="form"
+        :visible="isStepVisible(2)"
+        :errors="errors"
+        :locked="locked"
+      />
 
-        <ProdutoVariacoesSection
-          v-model="form.variations"
-          :errors="errors"
-          :locked="locked"
-          :upload-phase="uploadPhase"
-          :busy="busy"
-          @removed="onVariationRemoved"
-          @retry-sample="(key) => emit('retry-sample', key)"
-          @remove-existing-sample="(key) => emit('remove-existing-sample', key)"
-        />
-      </section>
+      <ProdutoEtapaVariacoes
+        v-model="form.variations"
+        :visible="isStepVisible(3)"
+        :errors="errors"
+        :locked="locked"
+        :upload-phase="uploadPhase"
+        :busy="busy"
+        @removed="onVariationRemoved"
+        @retry-sample="(key) => emit('retry-sample', key)"
+        @remove-existing-sample="(key) => emit('remove-existing-sample', key)"
+      />
 
-      <!-- 5. Fotos -->
-      <section
-        v-show="isStepVisible(4)"
-        :id="FORM_SECTIONS[4].id"
-        class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
-        :aria-labelledby="`${FORM_SECTIONS[4].id}-title`"
-      >
-        <header class="mb-5">
-          <h2
-            :id="`${FORM_SECTIONS[4].id}-title`"
-            class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
-          >
-            <span
-              class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
-              >5</span
-            >
-            {{ FORM_SECTIONS[4].title }}
-          </h2>
-          <p class="mt-1 text-xs text-stone-500">
-            A ordem da tela é a ordem do carrossel. Associe a foto a uma
-            variação para mostrá-la junto daquele acabamento.
-          </p>
-        </header>
+      <ProdutoEtapaFotos
+        v-model="form.photos"
+        :visible="isStepVisible(4)"
+        :variations="form.variations"
+        :locked="locked"
+        :upload-phase="uploadPhase"
+        :busy="busy"
+        :existing-images="existingImages"
+        @retry-photo="(key) => emit('retry-photo', key)"
+        @remove-image="(imageId) => emit('remove-image', imageId)"
+      />
 
-        <ProdutoFotosSection
-          v-model="form.photos"
-          :variations="form.variations"
-          :locked="locked"
-          :upload-phase="uploadPhase"
-          :busy="busy"
-          :existing-images="existingImages"
-          @retry-photo="(key) => emit('retry-photo', key)"
-          @remove-image="(imageId) => emit('remove-image', imageId)"
-        />
-      </section>
-
-      <!-- 6. Especificações técnicas e status no catálogo -->
-      <section
-        v-show="isStepVisible(5)"
-        :id="FORM_SECTIONS[5].id"
-        class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
-        :aria-labelledby="`${FORM_SECTIONS[5].id}-title`"
-      >
-        <header class="mb-5">
-          <h2
-            :id="`${FORM_SECTIONS[5].id}-title`"
-            class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
-          >
-            <span
-              class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary"
-              >6</span
-            >
-            {{ FORM_SECTIONS[5].title }}
-          </h2>
-          <p class="mt-1 text-xs text-stone-500">
-            Ficha técnica livre, como portas, gavetas ou tipo de espuma. Linhas
-            vazias são ignoradas.
-          </p>
-        </header>
-
-        <KeyValueEditor
-          v-model="form.specifications"
-          :id-prefix="FIELD_IDS.specifications"
-          :errors="errors"
-          :disabled="locked"
-          key-label="Característica"
-          value-label="Valor"
-          key-placeholder="Ex.: Gavetas"
-          value-placeholder="Ex.: 4"
-          add-label="Adicionar especificação"
-          empty-text="Nenhuma especificação adicionada."
-        />
-      </section>
-
-      <!-- Status no catálogo (fica na última etapa) -->
-      <div
-        v-show="isStepVisible(FORM_SECTIONS.length - 1)"
-        class="rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
-      >
-        <label
-          :for="FIELD_IDS.active"
-          class="flex items-start gap-3 cursor-pointer select-none"
-        >
-          <input
-            :id="FIELD_IDS.active"
-            v-model="form.active"
-            type="checkbox"
-            :disabled="locked"
-            class="mt-0.5 w-4 h-4 rounded border-stone-300 text-secondary focus:ring-secondary cursor-pointer disabled:cursor-not-allowed"
-          />
-          <span>
-            <span class="text-sm font-medium text-neutral-dark block"
-              >Produto ativo no catálogo</span
-            >
-            <span class="text-xs text-stone-500 block mt-0.5">
-              Produtos inativos ficam guardados no painel e não aparecem para os
-              clientes.
-            </span>
-          </span>
-        </label>
-      </div>
+      <ProdutoEtapaEspecificacoes
+        v-model="form"
+        :visible="isStepVisible(5)"
+        :errors="errors"
+        :locked="locked"
+      />
 
       <!-- Alerta geral (erros 400/403 da API) -->
       <div

@@ -5,47 +5,30 @@ import {
   ERROR_TEXT_CLASS,
   FIELD_IDS,
   fieldClass,
-  FORM_SECTIONS,
   HINT_CLASS,
   INSTALLMENTS_MAX,
   INSTALLMENTS_MIN,
   LABEL_CLASS,
 } from "@/utils/admin/produtos/produtoFormConstantes";
-import { formatMmAsCm } from "@/utils/admin/produtos/produtoFormEstado";
 
-// Etapas 2 e 3 do formulário de produto, como dois cartões irmãos. Etapa 2:
-// preço de referência, parcelas, disponibilidade e, só sob encomenda, o prazo
-// de fabricação. Etapa 3: altura, largura e profundidade em milímetros, com o
-// equivalente em centímetros abaixo de cada campo. Cada cartão tem a própria
-// visibilidade e fica no DOM, escondido com `v-show`.
+// Etapa 2 do formulário de produto: preço de referência, parcelas,
+// disponibilidade e, só sob encomenda, o prazo de fabricação.
 
 const form = defineModel<ProductFormState>({ required: true });
 
 const props = withDefaults(
   defineProps<{
-    /** Etapa 2 visível. */
-    priceVisible?: boolean;
-    /** Etapa 3 visível. */
-    dimensionsVisible?: boolean;
+    /** Etapa visível (a seção fica no DOM e é escondida com `v-show`). */
+    visible?: boolean;
     errors?: FieldErrors;
     locked?: boolean;
   }>(),
   {
-    priceVisible: true,
-    dimensionsVisible: true,
+    visible: true,
     errors: () => ({}),
     locked: false,
   },
 );
-
-const secaoPreco = FORM_SECTIONS[1];
-const secaoDimensoes = FORM_SECTIONS[2];
-
-const dimensionFields = [
-  { id: FIELD_IDS.heightMm, key: "heightMm", label: "Altura" },
-  { id: FIELD_IDS.widthMm, key: "widthMm", label: "Largura" },
-  { id: FIELD_IDS.depthMm, key: "depthMm", label: "Profundidade" },
-] as const;
 
 function fieldError(id: string): string {
   return props.errors[id] ?? "";
@@ -58,25 +41,11 @@ function describedBy(id: string, hintId?: string): string | undefined {
 </script>
 
 <template>
-  <!-- Etapa 2: preço e disponibilidade -->
-  <section
-    v-show="priceVisible"
-    :id="secaoPreco.id"
-    class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
-    :aria-labelledby="`${secaoPreco.id}-title`"
+  <ProdutoEtapaCartao
+    :etapa="1"
+    :visible="visible"
+    descricao="Valor base de referência; condições especiais são combinadas no atendimento."
   >
-    <header class="mb-5">
-      <h2
-        :id="`${secaoPreco.id}-title`"
-        class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
-      >
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span>
-        {{ secaoPreco.title }}
-      </h2>
-      <p class="mt-1 text-xs text-stone-500">
-        Valor base de referência; condições especiais são combinadas no atendimento.
-      </p>
-    </header>
 
     <fieldset :disabled="locked" class="min-w-0 space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -181,54 +150,5 @@ function describedBy(id: string, hintId?: string): string | undefined {
         </p>
       </div>
     </fieldset>
-  </section>
-
-  <!-- Etapa 3: dimensões -->
-  <section
-    v-show="dimensionsVisible"
-    :id="secaoDimensoes.id"
-    class="scroll-mt-32 rounded-xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs"
-    :aria-labelledby="`${secaoDimensoes.id}-title`"
-  >
-    <header class="mb-5">
-      <h2
-        :id="`${secaoDimensoes.id}-title`"
-        class="flex items-center gap-2.5 text-base font-semibold text-neutral-dark"
-      >
-        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">3</span>
-        {{ secaoDimensoes.title }}
-      </h2>
-      <p class="mt-1 text-xs text-stone-500">
-        Medidas externas em milímetros, números inteiros.
-      </p>
-    </header>
-
-    <fieldset :disabled="locked" class="min-w-0 grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div v-for="dimension in dimensionFields" :key="dimension.id">
-        <label :for="dimension.id" :class="LABEL_CLASS">{{ dimension.label }} (mm) *</label>
-        <div class="relative">
-          <input
-            :id="dimension.id"
-            v-model="form[dimension.key]"
-            type="number"
-            inputmode="numeric"
-            min="1"
-            step="1"
-            placeholder="Ex.: 2300"
-            aria-required="true"
-            :aria-invalid="fieldError(dimension.id) ? 'true' : undefined"
-            :aria-describedby="describedBy(dimension.id, `${dimension.id}-hint`)"
-            :class="[fieldClass(!!fieldError(dimension.id)), 'pr-12']"
-          />
-          <span class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-xs text-stone-500" aria-hidden="true">mm</span>
-        </div>
-        <p v-if="fieldError(dimension.id)" :id="`${dimension.id}-error`" :class="ERROR_TEXT_CLASS">
-          {{ fieldError(dimension.id) }}
-        </p>
-        <p :id="`${dimension.id}-hint`" :class="HINT_CLASS">
-          {{ formatMmAsCm(form[dimension.key]) ? `= ${formatMmAsCm(form[dimension.key])}` : "Equivalente em cm aparece aqui." }}
-        </p>
-      </div>
-    </fieldset>
-  </section>
+  </ProdutoEtapaCartao>
 </template>
