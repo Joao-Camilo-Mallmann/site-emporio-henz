@@ -42,7 +42,9 @@ function describedBy(id: string, hintId?: string): string | undefined {
 
 <template>
   <ProdutoEtapaCartao
-    :etapa="1"
+    id="secao-preco"
+    :numero="2"
+    titulo="Preço e disponibilidade"
     :visible="visible"
     descricao="Valor base de referência; condições especiais são combinadas no atendimento."
   >

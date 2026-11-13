@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { FORM_SECTIONS } from "@/utils/admin/produtos/produtoFormConstantes";
 import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 
@@ -67,8 +66,18 @@ const STEP_TITLE_CLASS: Record<StepState, string> = {
   locked: "text-stone-400",
 };
 
+// Etapas na ordem do formulário (uma por componente de `etapas/`).
+const ETAPAS = [
+  "Dados básicos",
+  "Preço e disponibilidade",
+  "Dimensões",
+  "Variações de acabamento",
+  "Fotos",
+  "Especificações técnicas",
+];
+
 const progressPercent = computed(() =>
-  Math.round(((props.currentStep + 1) / FORM_SECTIONS.length) * 100),
+  Math.round(((props.currentStep + 1) / ETAPAS.length) * 100),
 );
 
 function canGoToStep(index: number): boolean {
@@ -91,7 +100,7 @@ function selectStep(index: number) {
 }
 
 const isLastStep = computed(
-  () => props.currentStep === FORM_SECTIONS.length - 1,
+  () => props.currentStep === ETAPAS.length - 1,
 );
 </script>
 
@@ -107,10 +116,10 @@ const isLastStep = computed(
     >
       <div class="flex items-baseline justify-between gap-3">
         <p class="min-w-0 truncate text-sm font-semibold text-neutral-dark">
-          {{ FORM_SECTIONS[currentStep].title }}
+          {{ ETAPAS[currentStep] }}
         </p>
         <span class="shrink-0 text-xs text-stone-500">
-          Etapa {{ currentStep + 1 }} de {{ FORM_SECTIONS.length }}
+          Etapa {{ currentStep + 1 }} de {{ ETAPAS.length }}
         </span>
       </div>
       <div
@@ -118,8 +127,8 @@ const isLastStep = computed(
         role="progressbar"
         :aria-valuenow="currentStep + 1"
         aria-valuemin="1"
-        :aria-valuemax="FORM_SECTIONS.length"
-        :aria-label="`Etapa ${currentStep + 1} de ${FORM_SECTIONS.length}`"
+        :aria-valuemax="ETAPAS.length"
+        :aria-label="`Etapa ${currentStep + 1} de ${ETAPAS.length}`"
       >
         <div
           class="h-full rounded-full bg-secondary transition-all duration-300"
@@ -127,15 +136,15 @@ const isLastStep = computed(
         ></div>
       </div>
       <ol class="flex items-center justify-between gap-1">
-        <li v-for="(section, index) in FORM_SECTIONS" :key="section.id">
+        <li v-for="(titulo, index) in ETAPAS" :key="titulo">
           <UiButton
             type="button"
             variant="custom"
             size="none"
             :disabled="!canGoToStep(index)"
             :aria-current="index === currentStep ? 'step' : undefined"
-            :aria-label="`Etapa ${index + 1}: ${section.title}`"
-            :title="section.title"
+            :aria-label="`Etapa ${index + 1}: ${titulo}`"
+            :title="titulo"
             class="h-8 w-8 rounded-full text-xs font-semibold transition-colors disabled:cursor-not-allowed"
             :class="STEP_CIRCLE_CLASS[stepState(index)]"
             @click="selectStep(index)"
@@ -168,7 +177,7 @@ const isLastStep = computed(
             Etapas
           </span>
           <span class="text-xs text-stone-500">
-            {{ currentStep + 1 }} de {{ FORM_SECTIONS.length }}
+            {{ currentStep + 1 }} de {{ ETAPAS.length }}
           </span>
         </div>
         <div
@@ -176,8 +185,8 @@ const isLastStep = computed(
           role="progressbar"
           :aria-valuenow="currentStep + 1"
           aria-valuemin="1"
-          :aria-valuemax="FORM_SECTIONS.length"
-          :aria-label="`Etapa ${currentStep + 1} de ${FORM_SECTIONS.length}`"
+          :aria-valuemax="ETAPAS.length"
+          :aria-label="`Etapa ${currentStep + 1} de ${ETAPAS.length}`"
         >
           <div
             class="h-full rounded-full bg-secondary transition-all duration-300"
@@ -188,13 +197,13 @@ const isLastStep = computed(
 
       <ol>
         <li
-          v-for="(section, index) in FORM_SECTIONS"
-          :key="section.id"
+          v-for="(titulo, index) in ETAPAS"
+          :key="titulo"
           class="relative"
         >
           <!-- Linha que liga esta etapa à próxima -->
           <span
-            v-if="index < FORM_SECTIONS.length - 1"
+            v-if="index < ETAPAS.length - 1"
             aria-hidden="true"
             class="pointer-events-none absolute left-6 top-[2.375rem] bottom-[-0.625rem] w-px"
             :class="isStepDone(index) ? 'bg-emerald-300' : 'bg-stone-200'"
@@ -237,17 +246,7 @@ const isLastStep = computed(
                 class="block text-sm leading-tight"
                 :class="STEP_TITLE_CLASS[stepState(index)]"
               >
-                {{ section.title }}
-              </span>
-              <span
-                class="mt-0.5 block text-xs leading-snug"
-                :class="
-                  stepState(index) === 'locked'
-                    ? 'text-stone-300'
-                    : 'text-stone-500'
-                "
-              >
-                {{ section.hint }}
+                {{ titulo }}
               </span>
             </span>
           </UiButton>
@@ -272,7 +271,7 @@ const isLastStep = computed(
 
     <div class="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
       <span class="text-xs text-stone-500 text-center sm:mr-1">
-        Etapa {{ currentStep + 1 }} de {{ FORM_SECTIONS.length }}
+        Etapa {{ currentStep + 1 }} de {{ ETAPAS.length }}
       </span>
       <UiButton
         v-if="currentStep > 0"

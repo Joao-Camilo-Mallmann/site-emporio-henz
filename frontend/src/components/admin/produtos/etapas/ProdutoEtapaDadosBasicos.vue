@@ -115,7 +115,9 @@ watch(
 
 <template>
   <ProdutoEtapaCartao
-    :etapa="0"
+    id="secao-dados-basicos"
+    :numero="1"
+    titulo="Dados básicos"
     :visible="visible"
     descricao="Identificação do móvel, onde ele aparece no catálogo e quem o fabrica."
   >

@@ -23,7 +23,9 @@ withDefaults(
 
 <template>
   <ProdutoEtapaCartao
-    :etapa="5"
+    id="secao-especificacoes"
+    :numero="6"
+    titulo="Especificações técnicas"
     :visible="visible"
     descricao="Ficha técnica livre, como portas, gavetas ou tipo de espuma. Linhas vazias são ignoradas."
   >

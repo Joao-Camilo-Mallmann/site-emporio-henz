@@ -46,7 +46,9 @@ function describedBy(id: string, hintId?: string): string | undefined {
 
 <template>
   <ProdutoEtapaCartao
-    :etapa="2"
+    id="secao-dimensoes"
+    :numero="3"
+    titulo="Dimensões"
     :visible="visible"
     descricao="Medidas externas em milímetros, números inteiros."
   >

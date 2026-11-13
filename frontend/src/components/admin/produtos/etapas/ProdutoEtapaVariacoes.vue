@@ -113,7 +113,9 @@ const resumos = computed(() =>
 
 <template>
   <ProdutoEtapaCartao
-    :etapa="3"
+    id="secao-variacoes"
+    :numero="4"
+    titulo="Variações de acabamento"
     :visible="visible"
     descricao="Opcional. A ordem da lista é a ordem de exibição no catálogo."
   >

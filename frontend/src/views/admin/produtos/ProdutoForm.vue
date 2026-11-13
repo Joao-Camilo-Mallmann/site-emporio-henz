@@ -9,7 +9,7 @@ import type {
 import {
   FIELD_IDS,
   fieldStep,
-  FORM_SECTIONS,
+  FORM_STEP_COUNT,
 } from "@/utils/admin/produtos/produtoFormConstantes";
 import { Icon } from "@iconify/vue";
 import { computed, nextTick, ref, watch } from "vue";
@@ -83,7 +83,7 @@ const maxStep = ref(0);
 const clearedFields = ref<Record<string, true>>({});
 
 const isLastStep = computed(
-  () => currentStep.value === FORM_SECTIONS.length - 1,
+  () => currentStep.value === FORM_STEP_COUNT - 1,
 );
 
 const errors = computed<FieldErrors>(() => {
@@ -96,7 +96,7 @@ const errors = computed<FieldErrors>(() => {
 
 /** Índices das etapas com erro devolvido pela API. */
 const errorSteps = computed(() =>
-  FORM_SECTIONS.map((_, index) => index).filter((index) =>
+  Array.from({ length: FORM_STEP_COUNT }, (_, index) => index).filter((index) =>
     Object.keys(errors.value).some((id) => fieldStep(id) === index),
   ),
 );

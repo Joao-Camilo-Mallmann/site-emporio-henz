@@ -177,7 +177,9 @@ function existingImageAlt(image: ProductImageDto, index: number) {
 
 <template>
   <ProdutoEtapaCartao
-    :etapa="4"
+    id="secao-fotos"
+    :numero="5"
+    titulo="Fotos"
     :visible="visible"
     descricao="A ordem da tela é a ordem do carrossel. Associe a foto a uma variação para mostrá-la junto daquele acabamento."
   >

@@ -75,7 +75,8 @@ export const UPLOAD_STATE_META: Record<
 };
 
 // Classes dos campos, iguais às dos formulários existentes (FornecedorForm).
-export const LABEL_CLASS = "block text-xs font-semibold text-neutral-dark mb-1.5";
+export const LABEL_CLASS =
+  "block text-xs font-semibold text-neutral-dark mb-1.5";
 export const HINT_CLASS = "mt-1 block text-xs text-stone-500";
 export const ERROR_TEXT_CLASS = "mt-1 text-xs text-rose-600";
 
@@ -89,34 +90,8 @@ export function fieldClass(hasError: boolean): string {
   ].join(" ");
 }
 
-export const FORM_SECTIONS = [
-  {
-    id: "secao-dados-basicos",
-    title: "Dados básicos",
-    hint: "Nome, categoria e fornecedor",
-  },
-  {
-    id: "secao-preco",
-    title: "Preço e disponibilidade",
-    hint: "Valor, parcelas e prazo",
-  },
-  {
-    id: "secao-dimensoes",
-    title: "Dimensões",
-    hint: "Altura, largura e profundidade",
-  },
-  {
-    id: "secao-variacoes",
-    title: "Variações de acabamento",
-    hint: "Cores, madeiras e amostras",
-  },
-  { id: "secao-fotos", title: "Fotos", hint: "Imagens do carrossel" },
-  {
-    id: "secao-especificacoes",
-    title: "Especificações técnicas",
-    hint: "Ficha técnica e status",
-  },
-] as const;
+/** Quantidade de etapas do formulário (ver `components/admin/produtos/etapas/`). */
+export const FORM_STEP_COUNT = 6;
 
 // ---------------------------------------------------------------------------
 // Ids dos campos no DOM: as chaves de `FieldErrors` são esses ids, o que
@@ -160,7 +135,7 @@ export function keyValueFieldId(
 }
 
 /**
- * Índice (em `FORM_SECTIONS`) da etapa que contém o campo de id `fieldId`.
+ * Índice (começando em 0) da etapa que contém o campo de id `fieldId`.
  * Serve para validar só a etapa atual e para abrir a etapa do primeiro erro.
  */
 export function fieldStep(fieldId: string): number {
@@ -179,7 +154,10 @@ export function fieldStep(fieldId: string): number {
     return 2;
   }
   if (fieldId.startsWith("variation-")) return 3;
-  if (fieldId.startsWith(FIELD_IDS.specifications) || fieldId === FIELD_IDS.active) {
+  if (
+    fieldId.startsWith(FIELD_IDS.specifications) ||
+    fieldId === FIELD_IDS.active
+  ) {
     return 5;
   }
   return 0;
