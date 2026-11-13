@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { produtosApi } from "@/api";
 import { toast } from "@/composables/useToast";
-import { formFromProduct, useProdutoFormStore } from "@/stores/produtoForm";
+import { useProdutoFormStore } from "@/stores/produtoForm";
 import { apiErrorMessage } from "@/utils/admin/produtos/produtoFormConstantes";
 import { onBeforeUnmount, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ProdutoForm from "./ProdutoForm.vue";
 
-// Tela `/admin/produtos/:id/editar`: busca o produto, monta o formulário com
-// ele, entrega à store e pede as opções dos seletores. Daí em diante o
-// formulário fala com a store.
+// Tela `/admin/produtos/:id/editar`: busca o produto, entrega à store e pede
+// as opções dos seletores. Daí em diante o formulário fala com a store.
 
 const store = useProdutoFormStore();
 const router = useRouter();
@@ -22,7 +21,7 @@ onMounted(() => {
     .buscarDetalhe(String(useRoute().params.id))
     .then((produto) => {
       if (!ativa) return;
-      store.setProduto(formFromProduct(produto), produto);
+      store.setProduto(produto);
       store.carregarOpcoes();
     })
     .catch((err: unknown) => {

@@ -37,8 +37,8 @@ import { useCategoriasStore } from "./categorias";
 
 // Telas de cadastro e edição de produto: estado do formulário, opções dos
 // seletores, gravação (POST ou PUT), envio dos arquivos e exclusões imediatas.
-// A tela monta o formulário (`createEmptyForm` ou `formFromProduct`), entrega
-// com `setProduto`, chama `carregarOpcoes` e, ao sair, `limpar`.
+// A tela chama `setProduto` (com o produto buscado, na edição; vazio, no
+// cadastro), depois `carregarOpcoes` e, ao sair, `limpar`.
 
 /** Exclusão que espera confirmação: foto publicada, amostra publicada ou o produto. */
 type Remocao =
@@ -46,8 +46,8 @@ type Remocao =
   | { kind: "sample"; variationKey: string }
   | { kind: "product" };
 
-/** Formulário do cadastro: o objeto que a tela de novo produto entrega à store. */
-export function createEmptyForm(): ProductFormState {
+/** Formulário em branco do cadastro. */
+function createEmptyForm(): ProductFormState {
   return {
     name: "",
     slug: "",
@@ -167,11 +167,10 @@ function montarPayload(
 }
 
 /**
- * Produto de `GET /produtos/:id` → formulário: o objeto que a tela de edição
- * entrega à store. As fotos publicadas ficam em `existingImages`;
- * `form.photos` guarda só os arquivos novos.
+ * Produto de `GET /produtos/:id` → formulário. As fotos publicadas ficam em
+ * `existingImages`; `form.photos` guarda só os arquivos novos.
  */
-export function formFromProduct(product: ProductDto): ProductFormState {
+function formFromProduct(product: ProductDto): ProductFormState {
   const numero = (value: number | null | undefined): NumericInput =>
     typeof value === "number" && Number.isFinite(value) ? value : "";
 
@@ -342,14 +341,11 @@ export const useProdutoFormStore = defineStore("produtoForm", () => {
   }
 
   /**
-   * Recebe da tela o formulário já montado: vazio no cadastro; na edição, o
-   * do produto carregado, que vem junto.
+   * Recebe da tela o produto buscado na API (edição) ou nada (cadastro) e
+   * monta o formulário a partir dele.
    */
-  function setProduto(
-    form: ProductFormState,
-    product: ProductDto | null = null,
-  ) {
-    s.form = form;
+  function setProduto(product: ProductDto | null = null) {
+    s.form = product ? formFromProduct(product) : createEmptyForm();
     s.product = product;
     s.existingImages = [...(product?.images ?? [])].sort(
       (a, b) => a.sortOrder - b.sortOrder,
