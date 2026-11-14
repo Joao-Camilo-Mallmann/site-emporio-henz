@@ -1,0 +1,26 @@
+meta {
+  name: Remover Produto da Lista
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/listas/:id/itens/:itemId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+  itemId: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Remove (soft delete) um item da lista. O `itemId` é o `id` do item na lista, não o do produto.
+  Resposta 200: `{ message }`.
+  `404` se a lista não for do cliente, o item não existir ou já tiver sido removido. `401` sem token.
+}

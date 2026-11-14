@@ -1,4 +1,4 @@
-import { parsePagination, parseSearch } from "@/lib/pagination";
+import { parsePagination, parseSearchSlug } from "@/lib/pagination";
 import {
   CreateSupplierDto,
   SupplierQueryFilters,
@@ -99,7 +99,7 @@ export function validateSupplierQuery(url: URL): SupplierQueryFilters {
   return {
     page,
     limit,
-    search: parseSearch(url),
+    search: parseSearchSlug(url),
     active,
   };
 }

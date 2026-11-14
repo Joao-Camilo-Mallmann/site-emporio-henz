@@ -1,4 +1,4 @@
-import { parsePagination, parseSearch } from "@/lib/pagination";
+import { parsePagination, parseSearchSlug } from "@/lib/pagination";
 import {
   isValidUuid,
   NAME_MAX_LENGTH,
@@ -672,7 +672,8 @@ export function validateProductQuery(url: URL): ProductQueryFilters {
   return {
     page,
     limit,
-    search: parseSearch(url),
+    // Termo já na forma de slug (RF05); a validação fica em parseSearchSlug.
+    search: parseSearchSlug(url),
     categoryId:
       categoryIdParam && isValidUuid(categoryIdParam)
         ? categoryIdParam

@@ -1,0 +1,27 @@
+meta {
+  name: Criar Pasta Personalizada
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/listas
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Sala de estar"
+  }
+}
+
+docs {
+  Cria uma pasta personalizada (`CUSTOM`) para o cliente autenticado. `name` é obrigatório, de 1 a 100 caracteres (espaços nas pontas são removidos).
+  Resposta 201: a lista criada, com `itemsCount` 0 e um `shareSlug` (UUID) próprio.
+  `400` para payload inválido. `401` sem token. `403` se o usuário não tem perfil de cliente.
+}

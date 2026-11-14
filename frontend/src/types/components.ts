@@ -26,6 +26,19 @@ export interface UiPaginationProps {
   disabled?: boolean;
 }
 
+export interface UiStepperProps {
+  /** Títulos das etapas, na ordem. */
+  steps: readonly string[];
+  /** Etapa atual (começa em 0). */
+  current: number;
+  /** Etapa mais avançada já liberada; as anteriores aparecem como concluídas. */
+  reached?: number;
+  /** Todas as etapas livres, sem marca de concluída (ex.: edição). */
+  free?: boolean;
+  /** Índices das etapas com erro. */
+  errors?: readonly number[];
+}
+
 export interface UiFloatingButtonProps {
   icon?: string;
   href?: string;
@@ -111,4 +124,19 @@ export interface UiSelectProps {
   size?: "sm" | "md";
   /** Largura total (padrão). Use `false` em barras de filtro. */
   block?: boolean;
+}
+
+export interface UiBreadcrumbItem {
+  name: string;
+  /** Rota do item; o último item (página atual) fica sem link. */
+  link?: string;
+}
+
+export interface UiPageHeaderProps {
+  /** Trilha de navegação, da raiz até a página atual. */
+  breadcrumbs: readonly UiBreadcrumbItem[];
+  title: string;
+  description?: string;
+  /** Botão de cadastro padrão ("Novo X"), com ícone `mdi:plus`, à direita. */
+  newAction?: { name: string; link: string };
 }

@@ -28,7 +28,7 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
 | `frontend/src/composables/` | Comportamentos reutilizáveis |
 | `frontend/src/plugins/` | Axios, Pinia e integrações globais |
 | `frontend/src/router/` | Rotas e guards de navegação |
-| `frontend/src/components/ui/` | Componentes do design system, incluindo `UiPagination.vue` para paginação de listagens |
+| `frontend/src/components/ui/` | Componentes do design system, incluindo `UiPagination.vue` para paginação de listagens e `UiStepper.vue` para indicador de etapas |
 | `frontend/src/stores/` | Estado global |
 | `frontend/src/types/` | Tipos e modelos de domínio; `pagination.ts` define o envelope `Paginated<T>` das listagens |
 | `frontend/src/utils/` | Funções utilitárias sem estado: cookies, `slugify` e validação/URLs de imagem (`uploads.ts`) |
@@ -46,6 +46,7 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
   - `<UiModal>`: mandatório para diálogos, modais e alertas de confirmação.
   - `<UiCard>`, `<UiFloatingActions>` e `<UiFloatingButton>`: componentes canônicos para cartões e ações flutuantes.
   - `<UiPagination>`: obrigatório em toda listagem paginada; detalhes na seção "Paginação de listagens" de [frontend/agents.md](../../frontend/agents.md).
+- **Senha segura**: telas que criam ou redefinem senha usam `<PasswordStrengthPanel v-model:valid="ok" :password="form.password" :confirm-password="form.confirmPassword" />` (`src/components/auth/`). O componente concentra requisitos, força e confirmação; a tela só lê o `valid`. Detalhes e roteiro de teste em [002 · Senha segura](../feedback-usabilidade/002-senha-segura-cadastro-e-redefinicao.md).
 - Componentes em `src/components/` são importados automaticamente por `unplugin-vue-components`.
 - Feedbacks transitórios usam `useToast()` e `vue3-toastify`.
 - Estados de carregamento, erro, vazio e sucesso devem ser explícitos.
@@ -61,6 +62,34 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
 | **Link Inline no Texto** | `<UiButton variant="link" size="none" @click="go">Criar conta</UiButton>` | Mantém no fluxo do texto sem estourar altura |
 | **Perigo / Desativar** | `<UiButton variant="danger" size="sm" @click="remove">Excluir</UiButton>` | Alertas críticos ou exclusão |
 
+## Categorias na navbar e na home
+
+A navbar e a vitrine da home montam o menu a partir de `GET /categorias`. A rota é pública e cada categoria já traz os seus `subtypes`.
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/stores/categorias.ts` | `useCategoriasStore().carregar()` busca todas as páginas (`limit` 100) uma vez por sessão e reaproveita a mesma promise em chamadas simultâneas. Também descarta categorias e subtipos inativos (com token de Admin a API devolve os inativos). Expõe `lista`, `barra`, `mais` e `cardsHome`, além do helper `encontrarCategoria` e das constantes `CARDS_HOME` e `MAX_ITENS_BARRA`. Não há helper de link: cada componente aponta direto para `/catalogo?categoria=<slug>` (e `&subcategoria=<nome>` nas subcategorias) |
+| `components/layout/AppNavbarCategorias.vue` | Barra desktop, na ordem da API (alfabética). Mostra no máximo 6 itens: com 7 ou mais categorias, ficam 5 + o botão "Mais". O "Mais" abre no hover e no clique, fecha com Esc, clique fora ou ao escolher um link, e lista cada categoria extra com as suas subcategorias. Categoria sem subtipo vira link simples. Durante a carga ou em caso de erro, só o aviso de entrega aparece |
+| `components/layout/AppNavbarDrawer.vue` | Drawer mobile: todas as categorias no acordeão, sem limite, com "Ver todos em X" e as subcategorias |
+| `components/layout/AppNavbarUserMenu.vue` | Menu do usuário desktop, separado do `AppNavbar.vue` para o arquivo ficar abaixo de 500 linhas |
+| `src/views/HomeView.vue` | Os 6 cards continuam fixos (imagens do Figma em `CARDS_HOME`), mas só aparecem os que casam com uma categoria. O casamento é pelo slug ou, se não achar, pelo `slugify(name)`, e o link usa o slug da API. Enquanto carrega ou se a API falhar, os 6 cards ficam visíveis |
+
+Os links seguem o contrato atual do catálogo: `/catalogo?categoria=<slug>&subcategoria=<nome do subtipo>`.
+
+## Catálogo público (`/catalogo`)
+
+O catálogo e as vitrines "Destaques" e "Recomendados" da home leem os produtos de `GET /produtos` (pasta `Products/` da [collection Bruno](../backend/collections/bruno/)). Não há mock de fallback. Decisões técnicas na change OpenSpec `fe-catalogo-api-real`.
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `src/api/catalogo.ts` | `catalogoApi.buscarProdutos(params)` envia `page`, `limit`, `search`, `categoryId`, `subtypeId`, `availabilityType`, `minPrice` e `maxPrice` e devolve o envelope `Paginated<ProductListItemDto>` |
+| `src/composables/useCatalogoProdutos.ts` | Traduz a URL para o contrato da API e expõe `products`, `pagination`, `loading` e `error`. O slug de `categoria` e o nome ou slug de `subcategoria` viram `categoryId` e `subtypeId` pelo `useCategoriasStore`. Uma categoria que não existe gera lista vazia. A disponibilidade só é enviada com uma opção marcada. O mapper converte cada item para o `CatalogProductItem` do card (`referencePrice`, "Até Nx no cartão", foto por `toApiAssetUrl(thumbnailUrl)`) |
+| `src/views/catalogo/CatalogoView.vue` | Estado dos filtros sincronizado com a URL, paginação no servidor (9 por página), estado de erro com "Tentar novamente" |
+| `components/catalogo/CatalogoFiltroLateral.vue` | Categoria e subcategoria (vindas do store), disponibilidade e faixa de preço. Material, cor, marca e ordenação não aparecem porque a API não oferece esses filtros |
+| `components/catalogo/CatalogoProdutoCard.vue` | Card do catálogo e da home. Navega para `/catalogo/:id` (UUID do produto) |
+
+Contrato da URL: `/catalogo?name=<termo>&categoria=<slug>&subcategoria=<nome ou slug do subtipo>&disponibilidade=IN_STOCK,ON_DEMAND&minPreco=&maxPreco=&page=`. O termo legado `?q=` também é aceito. Ao filtrar, as outras chaves da URL (como `?lista=`) são mantidas.
+
 ## CRUD de produto (`/admin/produtos`)
 
 Três telas abertas a Administrador e Vendedor, ligadas ao card "Produtos" do painel `/admin`: a listagem (`admin-produtos`), o cadastro (`admin-produtos-novo`) e a edição (`admin-produtos-editar`). Regras de negócio no [PRD](../PRD.md) (UC08, RF16, RF17); decisões técnicas na change OpenSpec `fe-admin-product-form`; contrato na pasta `Products/` da [collection Bruno](../backend/collections/bruno/).
@@ -75,26 +104,22 @@ A API devolve ao Vendedor só os produtos dos fornecedores vinculados, então as
 
 ### Arquivos
 
-As quatro telas ficam em `src/views/admin/produtos/` e cuidam do estado, das chamadas à API e da navegação. As partes visuais ficam em `src/components/produtos/`, resolvidas pelo auto-import. A lógica sem Vue fica em `src/utils/produtos/` e o envio de arquivos depois de salvar, comum ao cadastro e à edição, fica no composable `useProdutoTela`.
+As telas e o formulário ficam em `src/views/admin/produtos/` e cuidam do estado, das chamadas à API e da navegação. Como nos demais CRUDs do admin (fornecedores, categorias e usuários), a gravação (`POST`/`PUT`) é responsabilidade do componente de formulário, não das telas de cadastro e edição: elas carregam os dados iniciais, renderizam o formulário e reagem ao evento `saved`. As etapas do formulário ficam em `src/components/admin/produtos/etapas/`, resolvidas pelo auto-import. A lógica sem Vue fica em `src/utils/admin/produtos/` e o envio de arquivos depois de salvar, comum ao cadastro e à edição, fica no composable `useProdutoTela`.
 
 | Arquivo | Papel |
 | --- | --- |
 | `src/types/products.ts` | Contrato da API: `ProductListItemDto`, `ProductDto`, `ProductVariationDto`, `ProductImageDto`, `ProductCreatePayload`, `ProductUpdatePayload`, `ProductAdminFilterParams` |
 | `src/types/productForm.ts` | Estado local do formulário: `ProductFormState`, `VariationFormItem`, `PhotoFormItem`, `KeyValueRow`, `UploadState`, `FieldErrors` |
-| `src/api/produtos.ts` | `listarAdmin`, `buscarDetalhe`, `criar`, `atualizar`, `deletar`, `enviarFoto`, `enviarAmostra`, `removerFoto` e `removerAmostra` (`listar` e `buscarPorId`, usadas pelo catálogo público, seguem com mock de fallback) |
+| `src/api/produtos.ts` | `listarAdmin`, `buscarDetalhe`, `criar`, `atualizar`, `deletar`, `enviarFoto`, `enviarAmostra`, `removerFoto` e `removerAmostra` (`buscarPorId` é usada pela tela de detalhe do catálogo, que ainda será ligada à API em uma change própria) |
 | `src/utils/uploads.ts` | `MAX_IMAGE_BYTES`, `ACCEPTED_IMAGE_TYPES`, `validateImageFile` e `toApiAssetUrl` |
-| `src/utils/produtos/` | Lógica pura do formulário, sem Vue: `produtoFormConstantes.ts` (ids de campo, rótulos, limites, formatadores da listagem e `apiErrorMessage`), `produtoFormEstado.ts` (criação, conversão de e para a API), e `produtoFormValidacao.ts`. Principais funções: `createEmptyForm`, `formFromProduct`, `validateForm`, `toCreatePayload`, `toUpdatePayload`, `resolveVariationIds`, ids dos campos e rótulos da listagem |
-| `src/views/admin/produtos/ProdutoListView.vue` | Listagem: filtros, paginação, miniatura da capa e desativação com confirmação |
-| `src/views/admin/produtos/ProdutoNewView.vue` | Casca do cadastro: carga das opções, regra do fornecedor por perfil e gravação em etapas |
-| `src/views/admin/produtos/ProdutoEditView.vue` | Casca da edição: carga do produto, `PUT`, arquivos novos e exclusões imediatas |
-| `src/views/admin/produtos/ProdutoForm.vue` | Formulário em etapas: dono do estado das etapas, da validação por etapa e do foco no primeiro erro; compõe as seis seções |
-| `components/produtos/ProdutoTelaLayout.vue` | Moldura do cadastro e da edição: cabeçalho, status e Desativar, estados de carregando, não encontrado e erro, slot do formulário e painel de envio. Expõe `mostrarPainelEnvio`; a tela passa esse método ao envio como `mostrarPainel` |
-| `components/produtos/ProdutoFormNavegacao.vue` | Navegação entre etapas, usada em dois pontos pela prop `parte`: o indicador de etapas e o rodapé com Cancelar, Voltar, Próximo e Salvar |
-| `components/produtos/ProdutoDadosBasicosSection.vue`, `ProdutoPrecoDimensoesSection.vue` | Etapa 1, e etapas 2 e 3. As especificações (etapa 6) ficam no próprio `ProdutoForm.vue` |
-| `components/produtos/ProdutoVariacoesSection.vue`, `ProdutoVariacaoAcabamento.vue`, `ProdutoVariacaoAmostra.vue` | Etapa 4: lista e cabeçalho de cada variação com a prévia das cores, editor de cores, detalhes e estoque, e amostra de textura |
-| `components/produtos/ProdutoFotosSection.vue` | Etapa 5: seleção múltipla, preview, variação, ordem, capa, estado do envio e fotos já publicadas |
-| `components/produtos/KeyValueEditor.vue` | Editor de chave e valor das especificações e dos detalhes de acabamento |
-| `components/produtos/ProdutoListCabecalho.vue`, `ProdutoListTabela.vue` | Listagem: cabeçalho com busca e filtros, e tabela com os estados de carregando, erro e vazio |
+| `src/utils/admin/produtos/` | Lógica pura do formulário, sem Vue: `produtoFormConstantes.ts` (ids de campo, rótulos, limites, formatadores da listagem e `apiErrorMessage`), `produtoFormEstado.ts` (criação, conversão de e para a API), e `produtoFormValidacao.ts`. Principais funções: `createEmptyForm`, `formFromProduct`, `validateForm`, `toCreatePayload`, `toUpdatePayload`, `resolveVariationIds`, ids dos campos e rótulos da listagem |
+| `src/views/admin/produtos/ProdutoListView.vue` | Listagem completa num arquivo: cabeçalho, filtros, tabela com os estados de carregando, erro e vazio, paginação e desativação com confirmação |
+| `src/views/admin/produtos/ProdutoNewView.vue` | Casca do cadastro: carga das opções, regra do fornecedor por perfil e, depois do `saved` do formulário, ids das variações e envio dos arquivos. Renderiza só o `ProdutoForm` |
+| `src/views/admin/produtos/ProdutoEditView.vue` | Casca da edição: carga do produto, arquivos novos depois do `saved` e exclusões imediatas. Renderiza o `ProdutoForm` e o modal de confirmação |
+| `src/views/admin/produtos/ProdutoForm.vue` | Tela única de cadastro e edição (prop `modo`): cabeçalho com status e Desativar, estados de carregando, não encontrado e erro, indicador de etapas (`UiStepper`) fixo abaixo do navbar, um cartão por etapa, rodapé fixo com Cancelar, Voltar, Próximo e Salvar, e painel de envio. Dono do estado das etapas, da validação por etapa, do foco no primeiro erro e da gravação: faz o `POST /produtos` ou o `PUT /produtos/:id`, trata o erro de gravação (`erroDeGravacao`) e emite `saved` com o produto devolvido. Expõe `mostrarPainelEnvio`; a tela passa esse método ao envio como `mostrarPainel` |
+| `components/admin/produtos/etapas/Etapa1DadosBasicos.vue` … `Etapa6Especificacoes.vue` | Um componente por etapa, numerado na ordem da tela: dados básicos, preço, dimensões, variações, fotos e especificações com o status no catálogo. Recebem `v-model`, `errors` e `locked`; número, título e orientação de cada etapa vêm de `FORM_SECTIONS` |
+| `components/admin/produtos/etapas/Etapa4VariacaoAcabamento.vue`, `Etapa4VariacaoAmostra.vue` | Partes da etapa 4: editor de cores, detalhes e estoque, e amostra de textura |
+| `components/admin/produtos/etapas/KeyValueEditor.vue` | Editor de chave e valor das especificações (etapa 6) e dos detalhes de acabamento (etapa 4) |
 | `src/composables/useProdutoTela.ts` | Lógica comum ao cadastro e à edição: `useProdutoOpcoes` (categorias e fornecedores ativos, regra do fornecedor por perfil e, na edição, a categoria, o subtipo e o fornecedor do produto mesmo inativos), `erroDeGravacao` (409 vira erro no slug) e `useProdutoEnvioArquivos` (envio sequencial, reenvio e progresso, com o callback `mostrarPainel`) |
 
 ### Fluxo do cadastro
@@ -110,7 +135,7 @@ As quatro telas ficam em `src/views/admin/produtos/` e cuidam do estado, das cha
 
 O `ProdutoForm.vue` mostra uma das seis seções por vez, com indicador de etapas à esquerda em telas largas e como faixa rolável no celular. Todas as seções ficam montadas (`v-show`), então o estado e os ids dos campos não se perdem. O indicador mostra a barra de progresso e o estado de cada etapa: atual, concluída, com erro (depois de tentar avançar) ou bloqueada. No celular ele vira uma versão compacta, com o título da etapa atual e os círculos numerados.
 
-- **Cadastro**: "Próximo" valida só a etapa atual (`fieldStep`, em `src/utils/produtos/produtoFormConstantes.ts`, liga o id do campo à etapa) e só libera a seguinte sem erros. Só as etapas já alcançadas ficam clicáveis. "Salvar produto" aparece na última etapa e valida tudo; com erro, a tela abre a etapa do primeiro campo inválido. Enter numa etapa intermediária avança.
+- **Cadastro**: "Próximo" valida só a etapa atual (`fieldStep`, em `src/utils/admin/produtos/produtoFormConstantes.ts`, liga o id do campo à etapa) e só libera a seguinte sem erros. Só as etapas já alcançadas ficam clicáveis. "Salvar produto" aparece na última etapa e valida tudo; com erro, a tela abre a etapa do primeiro campo inválido. Enter numa etapa intermediária avança.
 - **Edição**: a prop `steps-unlocked` libera todas as etapas e mostra "Salvar alterações" em todas.
 - **Depois do `201` ou do `200`**: o indicador some e todas as seções reaparecem, porque o "Tentar de novo" das amostras e fotos fica nas etapas 4 e 5.
 
@@ -132,6 +157,30 @@ O `ProdutoForm.vue` mostra uma das seis seções por vez, com indicador de etapa
 - A instância do axios fixa `Content-Type: application/json`. Por isso `enviarFoto` e `enviarAmostra` passam `headers: { "Content-Type": "multipart/form-data" }`; sem isso, o axios 1.x serializaria o `FormData` como JSON. O navegador completa o `boundary`.
 - As URLs de imagem da API são relativas (`/api/v1/uploads/...`). `toApiAssetUrl` prefixa a mesma origem do axios (`apiBase`, de `VITE_API_URL`), porque o Vite não faz proxy de `/api`.
 - As cores das variações são dados do produto e entram por `:style` (cor sólida, `linear-gradient` para duas cores e `conic-gradient` para três ou mais), nunca como classe com hex.
+
+## Catálogo público (`/catalogo`)
+
+Tela pública de produtos sobre `GET /api/v1/produtos` e `GET /api/v1/categorias`, sem filtragem em memória. Regras de negócio no [PRD](../PRD.md) (RF05 e "Catálogo Público sobre a API", seção 9); decisões técnicas na change OpenSpec `catalogo-api-real`; contrato em `Products/List Products.bru` e `Categories/List Categories.bru` da [collection Bruno](../backend/collections/bruno/).
+
+| Arquivo | Papel |
+| --- | --- |
+| `src/views/catalogo/CatalogoView.vue` | Lê os filtros de `route.query`, chama `catalogoApi.buscarProdutos`, mostra skeleton, grid, vazio, erro e `UiPagination` |
+| `src/components/catalogo/CatalogoFiltroLateral.vue` | Chips de categoria e subcategoria vindos da API, disponibilidade e faixa de preço |
+| `src/components/catalogo/CatalogoProdutoCard.vue` | Card com miniatura, selo de disponibilidade, preço de referência e parcelas |
+| `src/api/catalogo.ts` | `buscarProdutos` (tradução dos filtros, conversão do envelope e dos itens, fallback), `carregarCategorias` (cache em módulo), `encontrarCategoria`, `encontrarSubtipo` |
+| `src/types/catalogo.ts` | `CatalogFilterParams` (nomes da URL) e `CatalogResponse = Paginated<CatalogProductItem>` |
+| `src/mocks/catalogo.ts` | `filtrarCatalogoMock`: mesmos filtros e paginação sobre o catálogo estático |
+
+### Fluxo
+
+1. **URL como estado**: os filtros ficam na query (`?name=`, `?categoria=<slug>`, `?subcategoria=<slug>`, `?disponibilidade=IN_STOCK,ON_DEMAND`, `?minPreco=`, `?maxPreco=`, `?page=`). A navbar e os links de categoria só precisam montar a URL. Página 1 e filtros vazios ficam fora da query.
+2. **Tradução para a API** (`montarParametrosApi`): `categoria` e `subcategoria` são comparadas na forma de slug (`slugify`) com `carregarCategorias()` e viram `categoryId`/`subtypeId`; slug sem correspondência devolve página vazia sem chamar `GET /produtos`. `disponibilidade` só vira `availabilityType` com uma opção marcada. `minPreco`/`maxPreco` viram `minPrice`/`maxPrice`; `name` vira `search` em slug. `page` e `limit` (9 por página, `CATALOGO_LIMITE_PADRAO`) passam direto.
+3. **Conversão** (`toCatalogProductItem`): `referencePrice` → `price`; `maxInstallments` → "Até Nx no cartão" (ou "À vista"); `thumbnailUrl` → `toApiAssetUrl`; `availabilityType` → selo, com `estimatedDays` só em `ON_DEMAND`; categoria e subtipo resolvidos pela lista de categorias. A listagem não traz variações, então o card fica sem a pílula de acabamentos.
+4. **Falhas**: sem resposta HTTP (rede, timeout, API parada) a camada devolve `filtrarCatalogoMock(params)`; resposta de erro da API rejeita e a view mostra "Não foi possível carregar o catálogo" com "Tentar de novo".
+5. **Paginação**: `UiPagination` sem resumo (some com página única); `@update:page` grava `?page=` e rola ao topo. Mudança de filtro volta à página 1.
+6. **Barra lateral**: no desktop os filtros aplicam sozinhos (debounce de 400 ms); no celular a gaveta tem o botão "Filtrar". Sem categoria selecionada a seção de subcategoria não aparece; sem categorias (API fora) só ela some.
+
+Fora do padrão atual: filtros de material, cor/acabamento, marca e ordenação ficam fora da interface até a API os aplicar (história `[BE]` no backlog). A página de detalhe (`produtosApi.buscarPorId`) ainda usa o mock de fallback e busca por slug, que a API não aceita em `GET /produtos/:id`.
 
 ## Executar
 

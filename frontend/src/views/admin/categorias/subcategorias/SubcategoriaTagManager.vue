@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { categoriasApi } from "@/api";
 import { useToast } from "@/composables/useToast";
+import { useCategoriasStore } from "@/stores/categorias";
 import type {
   ISubtype,
   SubtypeCreateInput,
@@ -30,6 +31,7 @@ const emit = defineEmits<{
 }>();
 
 const toast = useToast();
+const categoriasStore = useCategoriasStore();
 
 const inputValue = ref("");
 const loading = ref(false);
@@ -115,6 +117,7 @@ async function processarInclusaoTermos(rawText: string) {
     // Modo Live (Edição de Categoria Existente)
     if (!props.categoryId) return;
 
+    let criados = 0;
     for (const termo of termos) {
       const slug = slugify(termo);
       const payload: SubtypeCreateInput = {
@@ -126,6 +129,7 @@ async function processarInclusaoTermos(rawText: string) {
 
       try {
         await categoriasApi.criarSubtipo(payload);
+        criados++;
       } catch (err: unknown) {
         const errorObj = err as {
           response?: { data?: { message?: string } };
@@ -146,6 +150,9 @@ async function processarInclusaoTermos(rawText: string) {
     );
 
     await carregarSubtiposLive();
+    if (criados > 0) {
+      void categoriasStore.recarregar();
+    }
     emit("change");
   }
 }
@@ -197,6 +204,7 @@ async function handleUpdateSubtype(
       await categoriasApi.atualizarSubtipo(id, payload);
       toast.success("Subtipo atualizado com sucesso.");
       await carregarSubtiposLive();
+      void categoriasStore.recarregar();
       emit("change");
     } catch (err: unknown) {
       const errorObj = err as {
@@ -227,6 +235,7 @@ async function handleRemoveSubtype(indexOrId: number | string) {
       await categoriasApi.deletarSubtipo(id);
       toast.info("Subtipo desativado com sucesso.");
       await carregarSubtiposLive();
+      void categoriasStore.recarregar();
       emit("change");
     } catch (err: unknown) {
       const errorObj = err as {

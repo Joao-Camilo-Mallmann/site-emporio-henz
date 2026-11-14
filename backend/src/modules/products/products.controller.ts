@@ -22,13 +22,8 @@ export class ProductsController {
     return ok(result);
   }
 
-  async getById(_req: Request, ctx: RequestContext): Promise<Response> {
-    const { id } = ctx.params;
-    if (!id || !isValidUuid(id)) {
-      return badRequest(INVALID_ID_MESSAGE);
-    }
-
-    const product = await this.service.getById(id, ctx.user);
+  async getByIdOrSlug(_req: Request, ctx: RequestContext): Promise<Response> {
+    const product = await this.service.getById(ctx.params.id ?? "", ctx.user);
     return ok(product);
   }
 
@@ -97,12 +92,9 @@ export class ProductsController {
     _req: Request,
     ctx: RequestContext,
   ): Promise<Response> {
-    const { id } = ctx.params;
-    if (!id || id.trim() === "") {
-      return badRequest(INVALID_ID_MESSAGE);
-    }
-
-    const recommendations = await this.service.getRecommendations(id);
+    const recommendations = await this.service.getRecommendations(
+      ctx.params.id ?? "",
+    );
     return ok(recommendations);
   }
 }

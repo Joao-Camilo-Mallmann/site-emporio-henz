@@ -1,0 +1,21 @@
+meta {
+  name: Ver Lista Compartilhada (Público)
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/listas/compartilhadas/:shareSlug
+  body: none
+  auth: none
+}
+
+params:path {
+  shareSlug: 00000000-0000-0000-0000-000000000000
+}
+
+docs {
+  Rota pública, somente leitura, sem autenticação. O `shareSlug` é o UUID da lista (campo `shareSlug` de `GET /listas`).
+  Resposta 200: `{ name, listType, itemsCount, items: [...] }`. Não devolve nada que identifique o dono da lista.
+  `404` se o slug não for um UUID, a lista não existir, tiver sido excluída ou não for pública.
+}

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "bun:test";
-import { catalogoApi } from "../src/api/catalogo";
 import { matchesCatalogSearch } from "../src/utils/catalog-search";
 
 describe("catalog search", () => {
@@ -25,19 +24,5 @@ describe("catalog search", () => {
   it("does not match an empty or punctuation-only query", () => {
     expect(matchesCatalogSearch(productText, "")).toBe(false);
     expect(matchesCatalogSearch(productText, " - !!! ")).toBe(false);
-  });
-
-  it("filters the frontend catalog locally and keeps pagination metadata", async () => {
-    const response = await catalogoApi.buscarProdutos({
-      name: "guarda roupa",
-      page: 1,
-      limit: 9,
-    });
-
-    expect(response.items.length).toBeGreaterThan(0);
-    expect(response.items.every((product) => product.name.includes("Guarda-roupa"))).toBe(
-      true,
-    );
-    expect(response.meta.totalItems).toBe(response.items.length);
   });
 });

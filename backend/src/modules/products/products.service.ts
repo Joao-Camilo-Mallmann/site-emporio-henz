@@ -6,7 +6,7 @@ import {
   NotFoundError,
 } from "@/lib/errors";
 import { AuthenticatedUser } from "@/lib/router";
-import { slugify } from "@/lib/slug";
+import { isValidUuid, slugify } from "@/lib/slug";
 import { ROLES } from "@/middlewares/rbac";
 import {
   productsRepository,
@@ -58,12 +58,26 @@ export class ProductsService {
   }
 
   async getById(
-    id: string,
+    idOrSlug: string,
+    actor?: AuthenticatedUser,
+  ): Promise<ProductDetailDto> {
+    const identifier = idOrSlug.trim();
+    
+    const product = !identifier
+      ? null
+      : isValidUuid(identifier)
+        ? await this.repo.findDetailById(identifier)
+        : await this.repo.findDetailBySlug(identifier);
+
+    return this.authorizeAndFilterProductDetail(product, actor);
+  }
+
+  private async authorizeAndFilterProductDetail(
+    product: ProductDetailDto | null,
     actor?: AuthenticatedUser,
   ): Promise<ProductDetailDto> {
     if (actor?.role === ROLES.SELLER) {
       const allowedSupplierIds = await this.resolveSellerSupplierIds(actor.id);
-      const product = await this.repo.findDetailById(id);
       if (!product) {
         throw new NotFoundError("Produto não encontrado.");
       }
@@ -71,7 +85,6 @@ export class ProductsService {
       return product;
     }
 
-    const product = await this.repo.findDetailById(id);
     if (!product) {
       throw new NotFoundError("Produto não encontrado.");
     }
@@ -249,14 +262,19 @@ export class ProductsService {
     return { product: existing, allowedSupplierIds };
   }
 
-  async getRecommendations(productId: string): Promise<ProductDto[]> {
-    const product = await this.repo.findById(productId);
+  async getRecommendations(idOrSlug: string): Promise<ProductDto[]> {
+    const identifier = idOrSlug.trim();
+    const product = !identifier
+      ? null
+      : isValidUuid(identifier)
+        ? await this.repo.findById(identifier)
+        : await this.repo.findBySlug(identifier);
     if (!product) {
       throw new NotFoundError("Produto não encontrado.");
     }
 
     return await this.repo.findRecommendations(
-      productId,
+      product.id,
       product.categoryId,
       4,
     );

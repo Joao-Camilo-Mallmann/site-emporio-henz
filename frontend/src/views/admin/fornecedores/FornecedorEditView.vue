@@ -1,19 +1,16 @@
 <script setup lang="ts">
 import { fornecedoresApi } from "@/api";
-import { useToast } from "@/composables/useToast";
-import type {
-  ISupplier,
-  SupplierCreateInput,
-  SupplierUpdateInput,
-} from "@/types";
+import type { ISupplier } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import FornecedorForm from "./FornecedorForm.vue";
 
+// Tela `/admin/fornecedores/:id/editar`: carrega o fornecedor e entrega ao
+// formulário, que faz o `PUT`.
+
 const route = useRoute();
 const router = useRouter();
-const toast = useToast();
 
 const supplierId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
@@ -22,8 +19,6 @@ const supplierId = computed(() => {
 const supplier = ref<ISupplier | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
-const saving = ref(false);
-const errorMessage = ref<string | null>(null);
 
 async function carregarFornecedor() {
   if (!supplierId.value) return;
@@ -47,35 +42,6 @@ async function carregarFornecedor() {
   }
 }
 
-async function handleUpdate(
-  payload: SupplierCreateInput | SupplierUpdateInput,
-) {
-  if (!supplierId.value) return;
-
-  saving.value = true;
-  errorMessage.value = null;
-
-  try {
-    await fornecedoresApi.atualizar(
-      supplierId.value,
-      payload as SupplierUpdateInput,
-    );
-    toast.success("Fornecedor atualizado com sucesso!");
-    router.push("/admin/fornecedores");
-  } catch (err: unknown) {
-    const errorObj = err as {
-      response?: { data?: { message?: string } };
-      message?: string;
-    };
-    errorMessage.value =
-      errorObj.response?.data?.message ||
-      errorObj.message ||
-      "Ocorreu um erro ao atualizar o fornecedor.";
-  } finally {
-    saving.value = false;
-  }
-}
-
 function handleCancel() {
   router.push("/admin/fornecedores");
 }
@@ -90,37 +56,11 @@ onMounted(() => {
     class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-2xl mx-auto space-y-6">
-      <!-- Breadcrumbs e Cabeçalho Limpo -->
-      <div>
-        <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <UiButton
-            variant="custom"
-            size="none"
-            class="font-normal hover:text-neutral-dark transition-colors"
-            @click="router.push('/admin')"
-          >
-            Painel
-          </UiButton>
-          <span>/</span>
-          <UiButton
-            variant="custom"
-            size="none"
-            class="font-normal hover:text-neutral-dark transition-colors"
-            @click="router.push('/admin/fornecedores')"
-          >
-            Fornecedores
-          </UiButton>
-          <span>/</span>
-          <span class="text-neutral-dark font-medium">Editar Fornecedor</span>
-        </div>
-
-        <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-          Editar Fornecedor
-        </h1>
-        <p class="text-sm text-stone-500 mt-0.5">
-          Atualize as informações cadastrais da marca ou fabricante parceiro
-        </p>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[{ name: 'Painel', link: '/admin' }, { name: 'Fornecedores', link: '/admin/fornecedores' }, { name: 'Editar Fornecedor' }]"
+        title="Editar Fornecedor"
+        description="Atualize as informações cadastrais da marca ou fabricante parceiro"
+      />
 
       <!-- Container do Formulário -->
       <div
@@ -170,11 +110,9 @@ onMounted(() => {
 
         <FornecedorForm
           v-else-if="supplier"
+          :supplier-id="supplierId"
           :initial-data="supplier"
           is-editing
-          :loading="saving"
-          :error-message="errorMessage"
-          @submit="handleUpdate"
           @cancel="handleCancel"
         />
       </div>

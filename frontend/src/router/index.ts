@@ -1,10 +1,10 @@
-import { toast } from "vue3-toastify";
 import { useAuthStore } from "@/stores/auth";
 import { UserRole } from "@/types";
 import HomeView from "@/views/HomeView.vue";
 import LoginView from "@/views/auth/LoginView.vue";
 import RegisterView from "@/views/auth/RegisterView.vue";
 import { createRouter, createWebHistory, RouterView } from "vue-router";
+import { toast } from "vue3-toastify";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,15 +32,16 @@ const router = createRouter({
     {
       path: "/catalogo",
       name: "catalogo",
-      component: () => import("@/views/CatalogoView.vue"),
+      component: () => import("@/views/catalogo/CatalogoView.vue"),
       meta: {
         title: "Catálogo de Móveis | Empório Henz",
       },
     },
     {
-      path: "/produtos/:id",
-      name: "produto-detalhe",
-      component: () => import("@/views/ProdutoDetalheView.vue"),
+      path: "/catalogo/:slug",
+      name: "catalogo-produto",
+      component: () =>
+        import("@/views/catalogo/CatalogoProdutoDetalheView.vue"),
       meta: {
         title: "Detalhes do Produto | Empório Henz",
       },
@@ -128,8 +129,7 @@ const router = createRouter({
         {
           path: "usuarios",
           name: "admin-usuarios",
-          component: () =>
-            import("@/views/admin/usuarios/UsuarioListView.vue"),
+          component: () => import("@/views/admin/usuarios/UsuarioListView.vue"),
           meta: {
             title: "Gestão de Usuários & Clientes | Empório Henz",
             requiresAuth: true,
@@ -139,8 +139,7 @@ const router = createRouter({
         {
           path: "usuarios/novo",
           name: "admin-usuarios-novo",
-          component: () =>
-            import("@/views/admin/usuarios/UsuarioNewView.vue"),
+          component: () => import("@/views/admin/usuarios/UsuarioNewView.vue"),
           meta: {
             title: "Novo Usuário | Empório Henz",
             requiresAuth: true,
@@ -150,8 +149,7 @@ const router = createRouter({
         {
           path: "usuarios/:id/editar",
           name: "admin-usuarios-editar",
-          component: () =>
-            import("@/views/admin/usuarios/UsuarioEditView.vue"),
+          component: () => import("@/views/admin/usuarios/UsuarioEditView.vue"),
           meta: {
             title: "Editar Usuário | Empório Henz",
             requiresAuth: true,
@@ -198,8 +196,7 @@ const router = createRouter({
         {
           path: "produtos",
           name: "admin-produtos",
-          component: () =>
-            import("@/views/admin/produtos/ProdutoListView.vue"),
+          component: () => import("@/views/admin/produtos/ProdutoListView.vue"),
           meta: {
             title: "Gestão de Produtos | Empório Henz",
             requiresAuth: true,
@@ -209,8 +206,7 @@ const router = createRouter({
         {
           path: "produtos/novo",
           name: "admin-produtos-novo",
-          component: () =>
-            import("@/views/admin/produtos/ProdutoNewView.vue"),
+          component: () => import("@/views/admin/produtos/ProdutoNewView.vue"),
           meta: {
             title: "Novo Produto | Empório Henz",
             requiresAuth: true,
@@ -220,8 +216,7 @@ const router = createRouter({
         {
           path: "produtos/:id/editar",
           name: "admin-produtos-editar",
-          component: () =>
-            import("@/views/admin/produtos/ProdutoEditView.vue"),
+          component: () => import("@/views/admin/produtos/ProdutoEditView.vue"),
           meta: {
             title: "Editar Produto | Empório Henz",
             requiresAuth: true,
@@ -269,17 +264,13 @@ router.beforeEach(async (to) => {
     // Usuário autenticado mas sem cargo autorizado (ex: Cliente tentando acessar /admin ou Vendedor tentando acessar fornecedores/usuarios)
     if (requiredRoles && !requiredRoles.includes(authStore.user.role)) {
       if (authStore.user.role === UserRole.Vendedor) {
-        toast.warning(
-          "Este módulo é exclusivo do Administrador.",
-        );
+        toast.warning("Este módulo é exclusivo do Administrador.");
         return {
           path: "/admin",
         };
       }
 
-      toast.warning(
-        "Acesso restrito à equipe autorizada.",
-      );
+      toast.warning("Acesso restrito à equipe autorizada.");
       return {
         path: "/",
       };

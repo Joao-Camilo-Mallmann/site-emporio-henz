@@ -28,6 +28,7 @@ Este documento organiza a execução do portal da Empório Henz em histórias, r
   - [Processo e Robustez Final (2,0 pts)](#processo-e-robustez-final-20-pts)
 - [Segurança: sessão em cookie e travas de autorização](#segurança-sessão-em-cookie-e-travas-de-autorização)
 - [Interface: componente global de paginação](#interface-componente-global-de-paginação)
+- [Integridade: amarração de produtos à categoria](#integridade-amarração-de-produtos-à-categoria)
 
 ---
 
@@ -805,7 +806,7 @@ O formulário deve ser organizado por etapas ou seções lógicas:
 
 Apresenta o catálogo público da Empório Henz conforme o layout do Figma. Possui sidebar lateral no desktop e botão de filtros em gaveta no mobile. Cada card de produto exibe foto principal nítida, selo de pronta entrega ou prazo em dias, preço de referência, acabamentos disponíveis e botão para ver detalhes.
 
-#### 🎨 Especificação Técnica (`frontend/src/views/CatalogoView.vue`)
+#### 🎨 Especificação Técnica (`frontend/src/views/catalogo/CatalogoView.vue`)
 
 - Componente de barra lateral com checkboxes de categorias, opções de disponibilidade e slider de preço.
 - Grid de cards responsivo (1 coluna mobile, 2 tablet, 3-4 desktop).
@@ -814,8 +815,8 @@ Apresenta o catálogo público da Empório Henz conforme o layout do Figma. Poss
 #### ✅ Critérios de Aceitação
 
 - [x] A alteração de filtros atualiza a listagem de produtos dinamicamente.
-- [ ] Cards destacam com clareza a disponibilidade (Pronta Entrega na Loja ou Sob Encomenda).
-- [ ] Clique no card redireciona para a página de detalhe do produto selecionado.
+- [x] Cards destacam com clareza a disponibilidade (Pronta Entrega na Loja ou Sob Encomenda).
+- [x] Clique no card redireciona para a página de detalhe do produto selecionado.
 
 ---
 
@@ -859,7 +860,7 @@ Atende ao **RF06**. Elementos obrigatórios na tela:
 5. **Card de Convite Oficial**: Convidando o cliente a visitar a loja física em Cruzeiro do Sul para ver e tocar nas amostras reais de tecidos e madeiras.
 6. Botão para Salvar em Lista e Botão "Comprar pelo WhatsApp".
 
-#### 🎨 Especificação Técnica (`frontend/src/views/ProdutoDetalheView.vue`)
+#### 🎨 Especificação Técnica (`frontend/src/views/catalogo/CatalogoProdutoDetalheView.vue`)
 
 - Carrossel de imagens com suporte a toque/swipe em telas mobile.
 - Seletores de cor com hexadecimais estilizados.
@@ -1011,6 +1012,7 @@ No card de cada produto e na página de detalhes, o botão "Salvar" abre um moda
 - [x] O usuário consegue salvar qualquer produto em qualquer uma de suas listas.
 - [x] Criação e remoção de pastas personalizadas funciona de forma reativa.
 - [x] A exclusão das listas padrão do sistema é devidamente bloqueada na UI.
+- [x] Visitante não autenticado que clica em salvar recebe o convite para entrar ou se cadastrar, e o salvamento é retomado após o login (PRD UC04, A1).
 
 ---
 
@@ -1360,7 +1362,7 @@ Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por t
 
 - **Tipos** (`src/types/pagination.ts`): `PaginationParams`, `PaginationMeta` e `Paginated<T>`, espelhando `backend/src/lib/pagination.ts`. Os `Paginated*Response` viram aliases e os `*FilterParams` estendem `PaginationParams`, sem mudar os nomes exportados.
 - **Componente** (`src/components/ui/UiPagination.vue`): props `page`, `totalPages`, `total?`, `itemLabel?` (padrão `"registros"`) e `disabled?`, evento `update:page`, declaradas em `UiPaginationProps` (`src/types/components.ts`). Usa só `UiButton`, `aria-current="page"` e tokens do design system.
-- **Consumidores**: as três `*ListView.vue` do admin e `src/views/CatalogoView.vue` passam a usar `<UiPagination>`; o estado e as funções de carga das views não mudam.
+- **Consumidores**: as três `*ListView.vue` do admin e `src/views/catalogo/CatalogoView.vue` passam a usar `<UiPagination>`; o estado e as funções de carga das views não mudam.
 - **Documentação**: seção "Paginação de listagens" em `frontend/agents.md` e `UiPagination` em `docs/frontend/README.md`.
 
 #### ✅ Critérios de Aceitação
@@ -1368,7 +1370,172 @@ Atende ao **RNF11**, cujo envelope `{ data, pagination }` já é devolvido por t
 - [x] `Paginated<T>` e `PaginationParams` existem em `src/types/pagination.ts` e os tipos de fornecedores, categorias, subtipos e usuários os reutilizam.
 - [ ] `UiPagination` mostra o resumo "Página X de Y (N registros)", os números com reticências e Anterior/Próxima, e ignora páginas inválidas.
 - [ ] As telas `/admin/fornecedores`, `/admin/categorias` e `/admin/usuarios` usam `UiPagination`, travam a navegação durante o carregamento e voltam à página 1 ao buscar ou filtrar.
-- [ ] `/catalogo` usa `UiPagination` sem resumo, mantém `?page=` sincronizado e esconde a paginação com página única.
+- [x] `/catalogo` usa `UiPagination` sem resumo, mantém `?page=` sincronizado e esconde a paginação com página única.
 - [x] `CatalogPagination.vue` removido e sem referências em `frontend/src`.
 - [x] `bun run check-types`, `bun run lint` e `bun run build` passam no diretório `frontend`.
 
+---
+
+### [US-FE-16] Busca da Navbar Normalizada para o Catálogo
+
+**Como** Cliente,  
+**Quero** digitar na busca da navbar com ou sem acento, em qualquer caixa e com underline,  
+**Para que** o catálogo encontre o produto mesmo assim.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF05** do lado do cliente, com a mesma regra de forma de slug do backend ([US-BE-18](#us-be-18-busca-de-produtos-normalizada-na-forma-de-slug-acentos-caixa-e-separadores)). `AppNavbar` envia o termo como digitado (aparado, com espaços repetidos juntados) em `?name=` para o resumo "Resultados para …". A integração completa do catálogo com a API real (mapear `categoria`, `materiais`, `cores`, `marcas` e o envelope `{ data, pagination }`) fica fora desta história.
+
+#### 🎨 Especificação Técnica (`frontend`)
+
+- **Navbar** (`src/components/layout/AppNavbar.vue`): `handleSearch` apara e junta espaços repetidos antes de enviar `name` para `/catalogo`.
+- **API** (`src/api/catalogo.ts`): `buscarProdutos` envia `search: slugify(name)` à API no lugar de `name`, omitido quando vazio, conforme o contrato da collection Bruno.
+- **Fallback mockado**: filtra comparando `slugify` de nome, categoria e subcategoria com o termo normalizado.
+
+#### ✅ Critérios de Aceitação
+
+- [x] "ROUPEIRO_ROMÃ" e "roupeiro roma" encontram o Roupeiro Roma no fallback mockado.
+- [x] A API recebe `search=roupeiro-roma`.
+- [x] O resumo "Resultados para …" mostra o termo como digitado.
+- [x] `bun run check-types` e `bun run lint` passam no diretório `frontend`.
+
+---
+
+### [US-FE-17] Catálogo Público sobre a API Real
+
+**Como** Cliente navegando no site,  
+**Quero** ver no catálogo os móveis cadastrados pelo painel, com filtros, busca e paginação reais,  
+**Para que** o site reflita o mostruário atual em vez de produtos de exemplo.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF05** e à decisão "Catálogo Público sobre a API" (seção 9 do [PRD](../PRD.md)). Até aqui `catalogoApi.buscarProdutos` mandava parâmetros que `GET /api/v1/produtos` não lê e esperava `{ items, meta }` no lugar de `{ data, pagination }`, então a tela sempre caía em `MOCK_CATALOG_PRODUCTS`. Acompanha o change OpenSpec `catalogo-api-real`.
+
+- A URL continua com slugs legíveis (`?categoria=quarto&subcategoria=roupeiros`); o cliente traduz para `categoryId`/`subtypeId` com `GET /categorias`. Slug desconhecido resulta em página vazia.
+- Disponibilidade: uma opção marcada vira `availabilityType`; nenhuma ou as duas não filtram.
+- O catálogo mockado só aparece quando a API não responde; erro respondido pela API vira estado de erro com "Tentar de novo".
+- Material, cor/acabamento, marca e ordenação saem da interface até a API os aplicar ([US-BE-19](#us-be-19-filtros-de-material-coracabamento-fornecedor-e-ordenacao-na-listagem-publica-de-produtos)).
+- Fora de escopo: página de detalhe (`produtosApi.buscarPorId`), Home e menu fixo de categorias da navbar.
+
+#### 🎨 Especificação Técnica (`frontend`)
+
+- **Tipos** (`src/types/catalogo.ts`): `CatalogFilterParams` com `name`, `categoria`, `subcategoria`, `disponibilidade`, `minPreco`, `maxPreco` estendendo `PaginationParams`; `CatalogResponse = Paginated<CatalogProductItem>`.
+- **API** (`src/api/catalogo.ts`): `carregarCategorias` com cache em módulo; `buscarProdutos` traduz os filtros, converte o envelope e cada `ProductListItemDto` (`toCatalogProductItem`, com `toApiAssetUrl` na miniatura e parcelas a partir de `maxInstallments`) e só usa `filtrarCatalogoMock` quando o erro do axios não tem `response`.
+- **Telas**: `CatalogoFiltroLateral.vue` com chips de categoria/subcategoria da API, disponibilidade e faixa de preço; `CatalogoView.vue` com resumo pelo nome real da categoria, estado de erro e `UiPagination` sincronizada com `?page=`. `CatalogoOrdenacaoDropdown.vue` removido.
+- **Documentação**: seção "Catálogo público" em `docs/frontend/README.md`.
+
+#### ✅ Critérios de Aceitação
+
+- [x] `/catalogo` mostra os produtos ativos da API com miniatura, selo de disponibilidade, preço de referência e parcelas.
+- [x] Os chips de categoria e subcategoria vêm de `GET /categorias` e filtram por `categoryId`/`subtypeId`.
+- [x] `?categoria=cozinha&subcategoria=Balcões&disponibilidade=IN_STOCK&minPreco=1000&maxPreco=5000&name=Teste&page=2` gera `GET /produtos?page=2&limit=9&search=teste&categoryId=…&subtypeId=…&availabilityType=IN_STOCK&minPrice=1000&maxPrice=5000`.
+- [x] Slug de categoria desconhecido mostra "Nenhum móvel encontrado" sem consultar `GET /produtos`.
+- [x] Sem resposta da API, `buscarProdutos` devolve o catálogo mockado filtrado no mesmo envelope.
+- [x] `bun run check-types` e `bun run lint` passam no diretório `frontend`.
+- [ ] Troca de página pelo `UiPagination` validada no navegador com mais de uma página de produtos reais.
+
+---
+
+# Integridade: amarração de produtos à categoria
+
+Pacote definido a partir do [RF04 e da exceção E2 do UC09](../PRD.md): todo produto fica amarrado à sua categoria, e a categoria não pode ser excluída enquanto tiver produto vinculado. Não há mudança de schema; as chaves estrangeiras já existem na migração `010`, mas o `ON DELETE RESTRICT` não protege o soft delete. Acompanha o change OpenSpec `be-bloqueio-exclusao-categoria`.
+
+---
+
+### [US-BE-17] Bloquear a exclusão de categoria com produtos vinculados
+
+**Como** Administrador do Sistema,  
+**Quero** que a API recuse a exclusão de uma categoria que ainda tenha produtos,  
+**Para que** nenhum produto fique apontando para uma categoria excluída, sumindo dos filtros do catálogo e quebrando o formulário de edição.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF04** (UC09, E2). Hoje `DELETE /api/v1/categorias/:id` aplica soft delete na categoria e nos subtipos sem consultar `products`.
+
+- Conta como vínculo todo produto com `deleted_at IS NULL`, ativo ou inativo: o inativo continua no painel e pode ser reativado.
+- Produto já excluído logicamente não bloqueia.
+- Na recusa, nem a categoria nem os subtipos são alterados.
+- A checagem e o soft delete rodam na mesma transação, com a linha da categoria bloqueada por `FOR UPDATE`.
+- Fora de escopo: exclusão de subtipo com produtos vinculados e desativação (`active = false`) da categoria.
+
+#### ⚙️ Especificação Técnica (`backend`)
+
+- `DELETE /api/v1/categorias/:id` responde `409 Conflict` com a quantidade de produtos vinculados na mensagem.
+- O controller chama `assertCanDeleteCategory` (schema) antes do service, que só executa `softDeleteCategoryWithCascade`; o SQL do delete repete a checagem com a categoria bloqueada.
+- Collection Bruno: `Categories/Delete Category.bru` documenta o `409`.
+
+#### ✅ Critérios de Aceitação
+
+- [x] Categoria com produto ativo ou inativo vinculado responde `409` e informa a quantidade.
+- [x] Na recusa, a categoria e os subtipos continuam com `deleted_at` nulo.
+- [x] Categoria sem produtos, ou só com produtos excluídos logicamente, é excluída com os subtipos e responde `200`.
+- [x] Categoria inexistente ou já excluída responde `404`.
+- [x] `bun test`, `bun run check-types` e `bun run lint` passam no diretório `backend`.
+- [ ] Validação manual pela collection Bruno contra o PostgreSQL.
+
+---
+
+### [US-BE-18] Busca de Produtos Normalizada na Forma de Slug (Acentos, Caixa e Separadores)
+
+**Como** Desenvolvedor Backend,  
+**Quero** que `GET /api/v1/produtos` compare o parâmetro `search` e os campos `name`, `description` e `collection_line` na forma de slug,  
+**Para que** "Sofá Retrátil", "sofa_retratil" e "SOFA RETRATIL" encontrem o mesmo produto.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF05**, cuja regra de busca textual (insensível a maiúsculas, acentos e separadores, comparada na forma de slug) está registrada no PRD. Hoje a busca usa `ILIKE`, que resolve só a caixa: não encontra termo sem acento para produto acentuado, nem underline ou espaço repetido. Acompanha o change OpenSpec `busca-produtos-slug`.
+
+- Termo e campos são comparados na forma de slug: sem acentos, minúsculas, toda sequência de caracteres fora de `[a-z0-9]` vira um único hífen, sem hífen nas pontas.
+- Comparação por trecho contido, com termo literal (curingas não têm efeito).
+- Limite de 100 caracteres aplicado antes da normalização.
+- Termo que fica vazio após normalizar (só símbolos) é ignorado.
+- Fora de escopo: normalização das demais listagens (usuários, fornecedores, categorias e subtipos), ranking e busca por palavras em qualquer ordem.
+
+#### ⚙️ Especificação Técnica (`backend`)
+
+- **Schema** (`backend/src/modules/products/products.schema.ts`): `validateProductQuery` normaliza `parseSearch(url)` com `slugify` e descarta o termo que ficar vazio.
+- **Repository** (`backend/src/modules/products/products.repository.ts`): `listPaginated` compara nome, descrição e linha de coleção normalizados na própria query com funções nativas do PostgreSQL (`lower`, `translate`, `regexp_replace`, `trim`), sem extensão nem função no banco.
+- **Documentação**: `products.types.ts` documenta que `search` já chega na forma de slug; as collections Bruno `List Products.bru` e `List Products Admin.bru` descrevem a normalização; `docs/database/README.md` documenta a extensão e a função.
+
+#### ✅ Critérios de Aceitação
+
+- [x] Termo sem acento encontra produto com acento.
+- [x] Underline e caixa alta encontram "Roupeiro Roma".
+- [x] Termo com acento encontra linha gravada sem acento.
+- [x] Termo só de símbolos é ignorado.
+- [x] Curingas continuam literais.
+- [x] Testes de slug, schema e service passam no diretório `backend`.
+- [x] Collection Bruno documenta a normalização.
+
+---
+
+---
+
+### [US-BE-19] Filtros de Material, Cor/Acabamento, Fornecedor e Ordenação na Listagem Pública de Produtos
+
+**Como** Desenvolvedor Backend,  
+**Quero** que `GET /api/v1/produtos` aceite filtros por material, cor/acabamento e nome de fornecedor, e um parâmetro de ordenação,  
+**Para que** o catálogo público volte a oferecer esses filtros sem improvisar no cliente.
+
+#### 📖 Contexto e Regras de Negócio
+
+Atende ao **RF05** (filtros por cor/acabamento e fornecedor). A listagem pública só aplica `search`, `categoryId`, `subtypeId`, `supplierId`, `availabilityType`, `minPrice` e `maxPrice`, e não ordena. Por isso [US-FE-17](#us-fe-17-catálogo-público-sobre-a-api-real) retirou da interface material, cor, marca e ordenação em vez de mostrar filtros que a API ignora. Esta história é `[BE]`; a volta dos filtros na interface é uma tarefa `[FE]` posterior.
+
+- Material: filtro por `main_material` (lista de valores distintos dos produtos ativos para alimentar os checkboxes).
+- Cor/acabamento: filtro por cor das variações ativas (`product_variations.colors_hex`).
+- Fornecedor: a interface mostra o nome, mas `GET /fornecedores` exige autenticação; definir uma lista pública de fornecedores com produtos ativos ou aceitar o slug do fornecedor.
+- Ordenação: parâmetro `sort` (relevância, menor preço, maior preço, mais recentes) documentado na collection Bruno.
+- Regras novas entram no PRD antes da implementação.
+
+#### ⚙️ Especificação Técnica (`backend`)
+
+- `products.schema.ts` e `products.repository.ts`: novos filtros e ordenação em `listPaginated`, nas consultas de contagem e de página.
+- Collection Bruno `Products/List Products.bru` e `List Products Admin.bru` atualizadas.
+- Testes de schema, service e mock do repositório cobrindo os novos parâmetros.
+
+#### ✅ Critérios de Aceitação
+
+- [ ] Regras dos filtros e da ordenação registradas no PRD.
+- [ ] `GET /api/v1/produtos` filtra por material, cor/acabamento e fornecedor e ordena por `sort`.
+- [ ] Collection Bruno documenta os parâmetros novos.
+- [ ] `bun test`, `bun run check-types` e `bun run lint` passam no diretório `backend`.

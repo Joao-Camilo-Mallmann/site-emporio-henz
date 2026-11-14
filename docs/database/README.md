@@ -24,11 +24,13 @@ Documentação da persistência PostgreSQL do Empório Henz. O modelo conceitual
 ```text
 backend/database/
 ├── migrate.ts       # Runner de migrações
-├── seed.ts          # Dados iniciais
+├── seed.ts          # Dados iniciais: admin, categorias e produtos de exemplo
+├── seed-products.ts # Produtos de exemplo e fotos (fora de produção)
+├── mock-images/     # Fotos dos produtos de exemplo (<slug>.jpg)
 └── migrations/      # Arquivos SQL versionados
 ```
 
-As tabelas atualmente implementadas são `roles`, `users`, `clients`, `suppliers`, `user_suppliers`, `categories`, `product_subtypes`, `products`, `product_variations` e `product_images`. O modelo planejado no PRD também contempla listas (`lists` e `list_items`).
+As tabelas atualmente implementadas são `roles`, `users`, `clients`, `suppliers`, `user_suppliers`, `categories`, `product_subtypes`, `products`, `product_variations`, `product_images`, `lists` e `list_items`. Em `list_items`, `product_id` é `VARCHAR(100)` e `variation_id` ainda não tem chave estrangeira, porque o catálogo do front usa produtos de exemplo; uma migration futura liga as duas colunas a `products` e `product_variations`.
 
 ## Executar
 

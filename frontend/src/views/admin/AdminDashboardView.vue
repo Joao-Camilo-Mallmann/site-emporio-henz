@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useToast } from "@/composables/useToast";
 import { useAuthStore } from "@/stores/auth";
-import { UserRole } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
@@ -11,11 +10,25 @@ const authStore = useAuthStore();
 const toast = useToast();
 
 const isUserAdmin = computed(() => {
-  return authStore.user?.role === UserRole.Administrador;
+  return authStore.isAdmin;
 });
 
 // Seções do painel: agrupam os módulos pelo tipo de tarefa
 type SectionId = "catalog" | "people" | "store";
+
+// Definição dos Módulos Administrativos
+interface AdminModule {
+  id: string;
+  section: SectionId;
+  title: string;
+  description: string;
+  actionLabel: string;
+  icon: string;
+  iconClass: string;
+  to: string;
+  external?: boolean;
+  adminOnly?: boolean;
+}
 
 interface AdminSection {
   id: SectionId;
@@ -40,20 +53,6 @@ const sections: AdminSection[] = [
     description: "Como os clientes enxergam o catálogo.",
   },
 ];
-
-// Definição dos Módulos Administrativos
-interface AdminModule {
-  id: string;
-  section: SectionId;
-  title: string;
-  description: string;
-  actionLabel: string;
-  icon: string;
-  iconClass: string;
-  to: string;
-  external?: boolean;
-  adminOnly?: boolean;
-}
 
 const allModules: AdminModule[] = [
   {
@@ -191,6 +190,7 @@ function handleNavigate(to: string, label: string) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <!-- O card inteiro é clicável: o botão principal se estende sobre ele -->
           <article
+            @click="handleNavigate(mod.to, mod.title)"
             v-for="mod in section.modules"
             :key="mod.id"
             class="group relative flex flex-col rounded-2xl border border-stone-200/90 bg-white p-5 transition-all hover:border-secondary/60 hover:shadow-sm focus-within:ring-2 focus-within:ring-secondary focus-within:ring-offset-2"
@@ -217,7 +217,6 @@ function handleNavigate(to: string, label: string) {
               variant="custom"
               size="none"
               class="mt-4 self-start inline-flex items-center gap-1.5 text-sm font-semibold text-secondary group-hover:text-secondary-hover after:absolute after:inset-0 after:rounded-2xl after:content-['']"
-              @click="handleNavigate(mod.to, mod.title)"
             >
               <span>{{ mod.actionLabel }}</span>
               <Icon

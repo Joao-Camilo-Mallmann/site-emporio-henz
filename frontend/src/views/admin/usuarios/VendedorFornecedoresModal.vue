@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { fornecedoresApi, usuariosApi } from "@/api";
 import { useToast } from "@/composables/useToast";
+import { slugify } from "@/utils/slug";
 import type { IAssignedSupplier, ISupplier } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, ref, watch } from "vue";
@@ -42,12 +43,13 @@ const selectedIds = ref<Set<string>>(new Set());
 const searchTerm = ref("");
 
 const filteredSuppliers = computed(() => {
-  const term = searchTerm.value.trim().toLowerCase();
+  // Mesma regra da busca da API (RF05): termo e campos na forma de slug.
+  const term = slugify(searchTerm.value);
   if (!term) return allSuppliers.value;
   return allSuppliers.value.filter(
     (s) =>
-      s.name.toLowerCase().includes(term) ||
-      (s.contact && s.contact.toLowerCase().includes(term)),
+      slugify(s.name).includes(term) ||
+      (!!s.contact && slugify(s.contact).includes(term)),
   );
 });
 

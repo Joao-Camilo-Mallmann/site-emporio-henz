@@ -1,9 +1,13 @@
 import { sql } from "@/config/database";
+import { env } from "@/config/env";
+import { seedProducts } from "./seed-products";
+
+const ADMIN_EMAIL = "admin@gmail.com";
 
 export async function seedAdmin() {
   console.log("🌱 Executando seeder do Administrador Padrão...");
 
-  const email = "admin@gmail.com";
+  const email = ADMIN_EMAIL;
   const passwordPlain = "admin123";
   const role = 3; // Administrador
   const fullName = "Administrador Geral";
@@ -202,6 +206,13 @@ export async function seedCategoriesAndSubtypes() {
 export async function runAllSeeds() {
   await seedAdmin();
   await seedCategoriesAndSubtypes();
+
+  // Produtos de exemplo só em desenvolvimento: o catálogo de produção é real.
+  if (env.NODE_ENV === "production") {
+    console.log("ℹ NODE_ENV=production: produtos de exemplo não foram criados.");
+    return;
+  }
+  await seedProducts(ADMIN_EMAIL);
 }
 
 if (import.meta.main) {
