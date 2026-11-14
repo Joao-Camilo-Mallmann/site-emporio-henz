@@ -4,7 +4,7 @@ import { useToast } from "@/composables/useToast";
 import { useCategoriasStore } from "@/stores/categorias";
 import type {
   AvailabilityType,
-  ISupplier,
+  Supplier,
   ProductAdminFilterParams,
   ProductListItemDto,
   UiSelectOption,
@@ -35,7 +35,7 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 
 // Opções dos filtros (a falha na carga não bloqueia a listagem)
-const suppliers = ref<ISupplier[]>([]);
+const suppliers = ref<Supplier[]>([]);
 
 const currentPage = ref(1);
 const totalPages = ref(1);

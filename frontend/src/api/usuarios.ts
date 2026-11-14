@@ -1,7 +1,7 @@
 import { api as axios } from "@/plugins/axios";
 import type {
-  IAssignedSupplier,
-  IUser,
+  AssignedSupplier,
+  User,
   PaginatedAssignedSuppliersResponse,
   PaginatedUsersResponse,
   PaginationParams,
@@ -19,18 +19,18 @@ export const usuariosApi = {
     return response.data;
   },
 
-  async buscarPorId(id: string): Promise<IUser> {
-    const response = await axios.get<IUser>(`/users/${id}`);
+  async buscarPorId(id: string): Promise<User> {
+    const response = await axios.get<User>(`/users/${id}`);
     return response.data;
   },
 
-  async criar(dados: UserCreateInput): Promise<IUser> {
-    const response = await axios.post<IUser>("/users", dados);
+  async criar(dados: UserCreateInput): Promise<User> {
+    const response = await axios.post<User>("/users", dados);
     return response.data;
   },
 
-  async atualizar(id: string, dados: UserUpdateInput): Promise<IUser> {
-    const response = await axios.put<IUser>(`/users/${id}`, dados);
+  async atualizar(id: string, dados: UserUpdateInput): Promise<User> {
+    const response = await axios.put<User>(`/users/${id}`, dados);
     return response.data;
   },
 
@@ -50,8 +50,8 @@ export const usuariosApi = {
     return response.data;
   },
 
-  async listarTodosFornecedores(userId: string): Promise<IAssignedSupplier[]> {
-    const items: IAssignedSupplier[] = [];
+  async listarTodosFornecedores(userId: string): Promise<AssignedSupplier[]> {
+    const items: AssignedSupplier[] = [];
     let page = 1;
     let totalPages: number;
     do {

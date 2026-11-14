@@ -3,17 +3,15 @@ import type { FieldErrors, KeyValueRow } from "@/types";
 import { Icon } from "@iconify/vue";
 import { nextTick } from "vue";
 import {
+  createKeyValueRow,
   ERROR_TEXT_CLASS,
   fieldClass,
   keyValueFieldId,
 } from "@/utils/admin/produtos/produtoFormConstantes";
-import {
-  createKeyValueRow,
-} from "@/utils/admin/produtos/produtoFormEstado";
 
 // Editor de pares chave/valor, usado nas especificações técnicas do produto
 // e nos detalhes de acabamento das variações (design D10). Linhas vazias são
-// descartadas no envio; a validação fica em `validateForm`.
+// descartadas no envio.
 
 const rows = defineModel<KeyValueRow[]>({ required: true });
 

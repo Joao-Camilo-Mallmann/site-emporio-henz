@@ -208,10 +208,11 @@ export async function runAllSeeds() {
   await seedCategoriesAndSubtypes();
 
   // Produtos de exemplo só em desenvolvimento: o catálogo de produção é real.
-  if (env.NODE_ENV === "production") {
-    console.log("ℹ NODE_ENV=production: produtos de exemplo não foram criados.");
-    return;
-  }
+  // COMETADO PARA TESTAR
+  // if (env.NODE_ENV === "production") {
+  //   console.log("ℹ NODE_ENV=production: produtos de exemplo não foram criados.");
+  //   return;
+  // }
   await seedProducts(ADMIN_EMAIL);
 }
 

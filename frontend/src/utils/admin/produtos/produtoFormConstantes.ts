@@ -2,8 +2,10 @@
 
 import type {
   AvailabilityType,
+  KeyValueRow,
   ProductListItemDto,
   UploadState,
+  VariationFormItem,
   VariationType,
 } from "@/types";
 
@@ -12,13 +14,11 @@ import type {
 // ---------------------------------------------------------------------------
 
 export const TEXT_MAX_LENGTH = 255;
-export const NAME_MIN_LENGTH = 2;
 export const INSTALLMENTS_MIN = 1;
 export const INSTALLMENTS_MAX = 48;
 export const DEFAULT_VARIATION_COLOR = "#FFFFFF";
 
-export const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
-export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 
 export const VARIATION_TYPE_OPTIONS: ReadonlyArray<{
   value: VariationType;
@@ -75,7 +75,8 @@ export const UPLOAD_STATE_META: Record<
 };
 
 // Classes dos campos, iguais às dos formulários existentes (FornecedorForm).
-export const LABEL_CLASS = "block text-xs font-semibold text-neutral-dark mb-1.5";
+export const LABEL_CLASS =
+  "block text-xs font-semibold text-neutral-dark mb-1.5";
 export const HINT_CLASS = "mt-1 block text-xs text-stone-500";
 export const ERROR_TEXT_CLASS = "mt-1 text-xs text-rose-600";
 
@@ -89,52 +90,31 @@ export function fieldClass(hasError: boolean): string {
   ].join(" ");
 }
 
-export const FORM_SECTIONS = [
-  {
-    id: "secao-dados-basicos",
-    title: "Dados básicos",
-    description: "Identificação do móvel, onde ele aparece no catálogo e quem o fabrica.",
-  },
-  {
-    id: "secao-preco",
-    title: "Preço e disponibilidade",
-    description: "Valor base de referência; condições especiais são combinadas no atendimento.",
-  },
-  {
-    id: "secao-dimensoes",
-    title: "Dimensões",
-    description: "Medidas externas em milímetros, números inteiros.",
-  },
-  {
-    id: "secao-variacoes",
-    title: "Variações de acabamento",
-    description: "Opcional. A ordem da lista é a ordem de exibição no catálogo.",
-  },
-  {
-    id: "secao-fotos",
-    title: "Fotos",
-    description:
-      "A ordem da tela é a ordem do carrossel. Associe a foto a uma variação para mostrá-la junto daquele acabamento.",
-  },
-  {
-    id: "secao-especificacoes",
-    title: "Especificações técnicas",
-    description:
-      "Ficha técnica livre, como portas, gavetas ou tipo de espuma. Linhas vazias são ignoradas.",
-  },
+/** Títulos das etapas do formulário, na ordem da tela (ver `components/admin/produtos/etapas/`). */
+export const FORM_STEP_TITLES = [
+  "Dados básicos",
+  "Preço e disponibilidade",
+  "Dimensões",
+  "Variações de acabamento",
+  "Fotos",
+  "Especificações técnicas",
 ] as const;
+
+/** Quantidade de etapas do formulário. */
+export const FORM_STEP_COUNT = FORM_STEP_TITLES.length;
 
 // ---------------------------------------------------------------------------
 // Ids dos campos no DOM: as chaves de `FieldErrors` são esses ids, o que
-// permite marcar o campo e rolar até o primeiro erro.
+// permite marcar o campo e rolar até o primeiro erro. As chaves de `FIELD_IDS`
+// são os nomes dos campos na API, para ler os erros que ela devolve.
 // ---------------------------------------------------------------------------
 
 export const FIELD_IDS = {
   name: "product-name",
   slug: "product-slug",
-  category: "product-category",
-  subtype: "product-subtype",
-  supplier: "product-supplier",
+  categoryId: "product-category",
+  subtypeId: "product-subtype",
+  supplierId: "product-supplier",
   collectionLine: "product-collection-line",
   mainMaterial: "product-main-material",
   description: "product-description",
@@ -166,7 +146,7 @@ export function keyValueFieldId(
 }
 
 /**
- * Índice (em `FORM_SECTIONS`) da etapa que contém o campo de id `fieldId`.
+ * Índice (começando em 0) da etapa que contém o campo de id `fieldId`.
  * Serve para validar só a etapa atual e para abrir a etapa do primeiro erro.
  */
 export function fieldStep(fieldId: string): number {
@@ -185,10 +165,50 @@ export function fieldStep(fieldId: string): number {
     return 2;
   }
   if (fieldId.startsWith("variation-")) return 3;
-  if (fieldId.startsWith(FIELD_IDS.specifications) || fieldId === FIELD_IDS.active) {
+  if (
+    fieldId.startsWith(FIELD_IDS.specifications) ||
+    fieldId === FIELD_IDS.active
+  ) {
     return 5;
   }
   return 0;
+}
+
+// ---------------------------------------------------------------------------
+// Itens do formulário
+// ---------------------------------------------------------------------------
+
+/**
+ * Chave local única. `crypto.randomUUID` só existe em contexto seguro
+ * (HTTPS ou localhost); fora dele, cai num identificador aleatório simples.
+ */
+export function createLocalKey(): string {
+  return (
+    globalThis.crypto?.randomUUID?.() ??
+    `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`
+  );
+}
+
+export function createKeyValueRow(key = "", value = ""): KeyValueRow {
+  return { id: createLocalKey(), key, value };
+}
+
+export function isHexColor(value: string): boolean {
+  return HEX_COLOR_PATTERN.test(value);
+}
+
+/** Completa o `#` e põe em maiúsculas quando o valor já é uma cor válida. */
+export function normalizeHexColor(value: string): string {
+  const trimmed = value.trim();
+  const withHash = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
+  return isHexColor(withHash) ? withHash.toUpperCase() : trimmed;
+}
+
+export function variationLabel(
+  variation: VariationFormItem,
+  index: number,
+): string {
+  return variation.name.trim() || `Variação ${index + 1}`;
 }
 
 // ---------------------------------------------------------------------------

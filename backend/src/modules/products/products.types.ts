@@ -181,4 +181,11 @@ export interface ProductQueryFilters {
   supplierIds?: string[];
 }
 
+export interface ProductValidationResult<T> {
+  error?: string;
+  field?: string;
+  errors?: Record<string, string>;
+  value?: T;
+}
+
 export type PaginatedProductsResult = Paginated<ProductDto>;

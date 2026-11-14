@@ -3,7 +3,7 @@ import { authApi, usuariosApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import {
   UserRole,
-  type IUser,
+  type User,
   type UserCreateInput,
   type UserProfile,
   type UserUpdateInput,
@@ -22,7 +22,7 @@ import UsuarioSenhaCampos from "./UsuarioSenhaCampos.vue";
 interface Props {
   /** Id do usuário na edição pelo admin. */
   userId?: string;
-  initialData?: Partial<IUser>;
+  initialData?: Partial<User>;
   isEditing?: boolean;
   hideRole?: boolean;
   /** Tela "Meu Perfil": grava o próprio perfil e permanece na tela. */

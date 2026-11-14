@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { categoriasApi } from "@/api";
-import type { ICategory } from "@/types";
+import type { Category } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -13,7 +13,7 @@ const categoryId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
 });
 
-const category = ref<ICategory | null>(null);
+const category = ref<Category | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
 

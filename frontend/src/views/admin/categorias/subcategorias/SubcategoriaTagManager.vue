@@ -3,7 +3,7 @@ import { categoriasApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import { useCategoriasStore } from "@/stores/categorias";
 import type {
-  ISubtype,
+  Subtype,
   SubtypeCreateInput,
   SubtypeDraftItem,
   SubtypeUpdateInput,
@@ -38,10 +38,10 @@ const loading = ref(false);
 const actionItemLoadingId = ref<string | null>(null);
 
 // Lista interna para modo live
-const liveSubtypes = ref<ISubtype[]>([]);
+const liveSubtypes = ref<Subtype[]>([]);
 
 // Lista unificada para exibição
-const displaySubtypes = computed<Array<SubtypeDraftItem | ISubtype>>(() => {
+const displaySubtypes = computed<Array<SubtypeDraftItem | Subtype>>(() => {
   if (props.mode === "live") {
     return liveSubtypes.value;
   }

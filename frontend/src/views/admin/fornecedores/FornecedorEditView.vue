@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { fornecedoresApi } from "@/api";
-import type { ISupplier } from "@/types";
+import type { Supplier } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -16,7 +16,7 @@ const supplierId = computed(() => {
   return typeof route.params.id === "string" ? route.params.id : "";
 });
 
-const supplier = ref<ISupplier | null>(null);
+const supplier = ref<Supplier | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
 

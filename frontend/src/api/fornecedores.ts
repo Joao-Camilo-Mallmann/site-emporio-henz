@@ -1,6 +1,6 @@
 import { api as axios } from "@/plugins/axios";
 import type {
-  ISupplier,
+  Supplier,
   PaginatedSuppliersResponse,
   SupplierCreateInput,
   SupplierFilterParams,
@@ -17,18 +17,18 @@ export const fornecedoresApi = {
     return response.data;
   },
 
-  async buscarPorId(id: string): Promise<ISupplier> {
-    const response = await axios.get<ISupplier>(`/suppliers/${id}`);
+  async buscarPorId(id: string): Promise<Supplier> {
+    const response = await axios.get<Supplier>(`/suppliers/${id}`);
     return response.data;
   },
 
-  async criar(dados: SupplierCreateInput): Promise<ISupplier> {
-    const response = await axios.post<ISupplier>("/suppliers", dados);
+  async criar(dados: SupplierCreateInput): Promise<Supplier> {
+    const response = await axios.post<Supplier>("/suppliers", dados);
     return response.data;
   },
 
-  async atualizar(id: string, dados: SupplierUpdateInput): Promise<ISupplier> {
-    const response = await axios.put<ISupplier>(`/suppliers/${id}`, dados);
+  async atualizar(id: string, dados: SupplierUpdateInput): Promise<Supplier> {
+    const response = await axios.put<Supplier>(`/suppliers/${id}`, dados);
     return response.data;
   },
 

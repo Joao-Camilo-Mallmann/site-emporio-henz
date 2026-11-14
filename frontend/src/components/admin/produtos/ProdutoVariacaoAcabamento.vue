@@ -6,13 +6,11 @@ import {
   DEFAULT_VARIATION_COLOR,
   ERROR_TEXT_CLASS,
   fieldClass,
+  isHexColor,
   LABEL_CLASS,
+  normalizeHexColor,
   variationFieldId,
 } from "@/utils/admin/produtos/produtoFormConstantes";
-import {
-  isHexColor,
-  normalizeHexColor,
-} from "@/utils/admin/produtos/produtoFormEstado";
 
 // Aparência e disponibilidade de uma variação: cores, detalhes de acabamento
 // e estoque. Edita os campos direto no item recebido por `v-model`.

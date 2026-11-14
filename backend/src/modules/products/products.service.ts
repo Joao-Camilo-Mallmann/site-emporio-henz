@@ -170,6 +170,7 @@ export class ProductsService {
     ) {
       throw new BadRequestError(
         "Para produtos sob encomenda (ON_DEMAND), o prazo estimado (estimatedDays) é obrigatório e deve ser um inteiro maior ou igual a 1.",
+        "estimatedDays",
       );
     }
 
@@ -184,7 +185,10 @@ export class ProductsService {
       dto.supplierId !== undefined
     ) {
       if (!effectiveSupplierId) {
-        throw new BadRequestError("O campo supplierId é obrigatório.");
+        throw new BadRequestError(
+          "O campo supplierId é obrigatório.",
+          "supplierId",
+        );
       }
       await this.validateCatalogReferences(
         effectiveCategoryId,
@@ -306,6 +310,7 @@ export class ProductsService {
     if (!categoryExists) {
       throw new BadRequestError(
         "A categoria informada não existe ou foi removida.",
+        "categoryId",
       );
     }
 
@@ -315,11 +320,13 @@ export class ProductsService {
       if (!subtypeCategoryId) {
         throw new BadRequestError(
           "O subtipo informado não existe ou foi removido.",
+          "subtypeId",
         );
       }
       if (subtypeCategoryId !== categoryId) {
         throw new BadRequestError(
           "O subtipo informado não pertence à categoria selecionada.",
+          "subtypeId",
         );
       }
     }
@@ -328,6 +335,7 @@ export class ProductsService {
     if (!supplierExists) {
       throw new BadRequestError(
         "O fornecedor informado não existe ou foi removido.",
+        "supplierId",
       );
     }
   }
@@ -335,6 +343,7 @@ export class ProductsService {
   private slugConflict(slug: string): ConflictError {
     return new ConflictError(
       `Já existe um produto ativo com o slug '${slug}'.`,
+      "slug",
     );
   }
 }

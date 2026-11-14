@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
-import type { IUser, UserProfile } from "@/types";
+import type { User, UserProfile } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -17,7 +17,7 @@ const userProfile = ref<UserProfile | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
 
-const initialUserData = computed<Partial<IUser>>(() => {
+const initialUserData = computed<Partial<User>>(() => {
   if (!userProfile.value) return {};
   return {
     id: userProfile.value.id,
