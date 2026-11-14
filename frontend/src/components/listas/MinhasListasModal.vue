@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useListasStore } from "@/stores/listas";
 import type { UserList } from "@/types";
+import { storeSiteUrl, storeWhatsappUrl } from "@/utils/phone";
 import { Icon } from "@iconify/vue";
 import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -74,7 +75,7 @@ function backToFolders() {
   isConfirmingDelete.value = false;
 }
 
-function handleCreateFolder() {
+async function handleCreateFolder() {
   const name = newFolderName.value.trim();
   if (!name) {
     toast.warning("Digite um nome para a pasta.");
@@ -82,7 +83,7 @@ function handleCreateFolder() {
   }
 
   try {
-    const created = listasStore.createCustomList(name);
+    const created = await listasStore.createCustomList(name);
     newFolderName.value = "";
     isCreatingFolder.value = false;
     toast.success(`Pasta "${created.name}" criada com sucesso!`);
@@ -99,7 +100,7 @@ function startRename() {
   isRenaming.value = true;
 }
 
-function handleRename() {
+async function handleRename() {
   if (!activeList.value || activeList.value.isSystem) return;
   const newName = renameValue.value.trim();
   if (!newName) {
@@ -107,38 +108,64 @@ function handleRename() {
     return;
   }
 
-  const success = listasStore.renameCustomList(activeList.value.id, newName);
-  if (success) {
-    toast.success("Pasta renomeada com sucesso!");
-    isRenaming.value = false;
-  } else {
-    toast.error("Não foi possível renomear a pasta.");
+  try {
+    const success = await listasStore.renameCustomList(
+      activeList.value.id,
+      newName,
+    );
+    if (success) {
+      toast.success("Pasta renomeada com sucesso!");
+      isRenaming.value = false;
+    } else {
+      toast.error("Não foi possível renomear a pasta.");
+    }
+  } catch (err: unknown) {
+    toast.error(
+      err instanceof Error ? err.message : "Não foi possível renomear a pasta.",
+    );
   }
 }
 
-function handleDeleteFolder() {
+async function handleDeleteFolder() {
   if (!activeList.value || activeList.value.isSystem) return;
   const listName = activeList.value.name;
-  const success = listasStore.deleteCustomList(activeList.value.id);
-  if (success) {
-    toast.info(`Pasta "${listName}" excluída.`);
-    backToFolders();
-  } else {
-    toast.error("Erro ao excluir a pasta.");
+
+  try {
+    const success = await listasStore.deleteCustomList(activeList.value.id);
+    if (success) {
+      toast.info(`Pasta "${listName}" excluída.`);
+      backToFolders();
+    } else {
+      toast.error("Erro ao excluir a pasta.");
+    }
+  } catch (err: unknown) {
+    toast.error(
+      err instanceof Error ? err.message : "Erro ao excluir a pasta.",
+    );
   }
 }
 
-function handleRemoveItem(itemId: string) {
+async function handleRemoveItem(itemId: string) {
   if (!activeListId.value) return;
-  const removed = listasStore.removeItemFromList(activeListId.value, itemId);
-  if (removed) {
-    toast.info("Móvel removido da pasta.");
+
+  try {
+    const removed = await listasStore.removeItemFromList(
+      activeListId.value,
+      itemId,
+    );
+    if (removed) {
+      toast.info("Móvel removido da pasta.");
+    }
+  } catch (err: unknown) {
+    toast.error(
+      err instanceof Error ? err.message : "Não foi possível remover o móvel.",
+    );
   }
 }
 
 async function copyPublicLink() {
   if (!activeList.value) return;
-  const shareUrl = `${window.location.origin}/catalogo?lista=${activeList.value.shareSlug}`;
+  const shareUrl = storeSiteUrl(`/catalogo?lista=${activeList.value.shareSlug}`);
 
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -158,8 +185,7 @@ function openWhatsApp() {
     return;
   }
 
-  const storePhone = "5551999999999"; // Número oficial de atendimento da loja
-  const shareUrl = `${window.location.origin}/catalogo?lista=${activeList.value.shareSlug}`;
+  const shareUrl = storeSiteUrl(`/catalogo?lista=${activeList.value.shareSlug}`);
 
   let message = `Olá! Gostaria de solicitar um orçamento para a minha lista "${activeList.value.name}" no Empório Henz:\n\n`;
 
@@ -172,8 +198,7 @@ function openWhatsApp() {
   message += `*Link da Lista:* ${shareUrl}\n\n`;
   message += `Gostaria de saber mais sobre as condições de pagamento e prazo de entrega.`;
 
-  const waUrl = `https://wa.me/${storePhone}?text=${encodeURIComponent(message)}`;
-  window.open(waUrl, "_blank");
+  window.open(storeWhatsappUrl(message), "_blank");
 }
 
 function goToCatalog() {

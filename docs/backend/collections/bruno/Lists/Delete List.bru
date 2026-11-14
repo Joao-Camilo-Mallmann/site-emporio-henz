@@ -1,0 +1,25 @@
+meta {
+  name: Excluir Pasta
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/listas/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 00000000-0000-0000-0000-000000000000
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Exclui (soft delete) uma pasta personalizada e todos os itens dela. O link público dela deixa de funcionar.
+  Resposta 200: `{ message }`.
+  `403` para as listas padrão, que são permanentes. `404` se a lista não for do cliente. `401` sem token.
+}

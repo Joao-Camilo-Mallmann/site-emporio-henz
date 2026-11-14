@@ -52,8 +52,9 @@ export function errorResponse(
 
 export function badRequest(
   message = "Dados da requisição inválidos.",
+  extra?: Record<string, unknown>,
 ): Response {
-  return errorResponse("Bad Request", message, 400);
+  return errorResponse("Bad Request", message, 400, extra);
 }
 
 export function unauthorized(message = "Não autorizado."): Response {

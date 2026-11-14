@@ -1,4 +1,4 @@
-import { ROLES } from "@/middlewares/role";
+import { ROLES } from "@/middlewares/rbac";
 import {
   ProductImagesRepository,
 } from "@/modules/product-images/product-images.repository";

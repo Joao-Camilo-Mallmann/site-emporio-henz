@@ -1,0 +1,27 @@
+meta {
+  name: Listar Minhas Listas
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/listas
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~itens: true
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Devolve as listas do cliente autenticado: as 3 padrão (Favoritos, Lista de Desejos e Lista de Presentes, nessa ordem) e depois as pastas personalizadas, da mais antiga para a mais nova.
+  No primeiro acesso, as 3 listas padrão são criadas automaticamente. Chamar de novo não duplica.
+  Resposta 200: `[{ id, name, listType, isSystem, shareSlug, isPublic, itemsCount, createdAt, updatedAt }]`. `listType` é `FAVORITES`, `WISHLIST`, `GIFT_LIST` ou `CUSTOM`.
+  Com `?itens=true` (parâmetro desligado por padrão aqui; ative para testar), cada lista já vem com `items`, no mesmo formato de `GET /listas/:id`. É o que o front usa para carregar tudo em uma chamada.
+  `401` sem token. `403` se o usuário não tem perfil de cliente.
+}

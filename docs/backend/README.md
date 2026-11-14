@@ -32,7 +32,7 @@ Documentação técnica da API do Empório Henz. Regras de negócio pertencem ao
 | `backend/database/` | Migrações e dados iniciais |
 | `backend/tests/` | Testes automatizados (`tests/fixtures/` guarda as imagens dos testes de upload) |
 
-Módulos atualmente registrados: autenticação, usuários, fornecedores, vínculos entre usuários e fornecedores, categorias, subtipos, produtos, imagens de produto (`product-images`, montado em `/produtos`) e leitura dos arquivos de imagem (`uploads`, montado em `/uploads`).
+Módulos atualmente registrados: autenticação, usuários, fornecedores, vínculos entre usuários e fornecedores, categorias, subtipos, produtos, imagens de produto (`product-images`, montado em `/produtos`), leitura dos arquivos de imagem (`uploads`, montado em `/uploads`) e listas de produtos do cliente (`lists`, montado em `/listas`).
 
 ## Contrato HTTP
 
@@ -200,6 +200,23 @@ Quando a capa recebe soft delete, a listagem passa à próxima foto pela mesma r
 #### Backup
 
 `scripts/backup.sh` gera, com o mesmo timestamp, o dump do banco e depois `uploads_<timestamp>.tar.gz` com `/app/uploads`; como nenhum arquivo é apagado, todo caminho do dump tem o arquivo no tar. `scripts/restore.sh <timestamp>` restaura os dois (`--db-only <arquivo.sql.gz>` para backups antigos). Instruções no [README da raiz](../../README.md#-backup-e-restauração-banco--fotos).
+
+### Listas (`/api/v1/listas`)
+
+Cada cliente tem as 3 listas padrão (Favoritos, Lista de Desejos e Lista de Presentes), criadas no primeiro `GET /listas`, e pode criar pastas personalizadas. As listas pertencem ao perfil de cliente (`clients`); usuário sem esse perfil recebe `403`. Lista de outro cliente responde `404`, igual a uma lista que não existe.
+
+| Rota | Quem | Corpo | Resposta |
+| --- | --- | --- | --- |
+| `GET /api/v1/listas` | Cliente autenticado | — (opcional `?itens=true`) | `200` com as listas (`id`, `name`, `listType`, `isSystem`, `shareSlug`, `isPublic`, `itemsCount`, `createdAt`, `updatedAt`), padrão primeiro; com `?itens=true` cada lista já traz `items` |
+| `POST /api/v1/listas` | Cliente autenticado | `{ name }` (1 a 100 caracteres) | `201` com a pasta criada (`listType: CUSTOM`) |
+| `GET /api/v1/listas/:id` | Dono da lista | — | `200` com a lista e `items`; `404` se não existe, foi excluída ou é de outro cliente |
+| `PATCH /api/v1/listas/:id` | Dono da lista | `{ name }` | `200` com a lista; `403` para listas padrão |
+| `DELETE /api/v1/listas/:id` | Dono da lista | — | `200` com `{ message }`; `403` para listas padrão; soft delete da lista e dos itens |
+| `POST /api/v1/listas/:id/itens` | Dono da lista | `productId`, `name`, `price`; opcionais `image`, `productSlug`, `variationId`, `finishLabel`, `finishColor` | `201` com o item; `200` com o item existente se o mesmo produto e acabamento já estão na lista |
+| `DELETE /api/v1/listas/:id/itens/:itemId` | Dono da lista | — | `200` com `{ message }`; `404` se o item não existe ou já foi removido |
+| `GET /api/v1/listas/compartilhadas/:shareSlug` | Público | — | `200` com `{ name, listType, itemsCount, items }`, sem dados do dono; `404` se o slug é inválido, a lista foi excluída ou não é pública |
+
+Enquanto o catálogo do front usar produtos de exemplo, `productId` é guardado como texto e cada item guarda um retrato do produto (nome, preço, imagem e acabamento). Quando o catálogo usar os produtos reais, uma migration converte `product_id` para UUID e cria as chaves estrangeiras.
 
 ## Executar
 

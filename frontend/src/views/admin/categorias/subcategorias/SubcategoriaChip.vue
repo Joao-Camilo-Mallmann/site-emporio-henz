@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { ISubtype, SubtypeDraftItem } from "@/types";
+import type { Subtype, SubtypeDraftItem } from "@/types";
 import { Icon } from "@iconify/vue";
 import { ref } from "vue";
 import SubcategoriaDeleteConfirm from "./SubcategoriaDeleteConfirm.vue";
 import SubcategoriaEditPopover from "./SubcategoriaEditPopover.vue";
 
 interface Props {
-  subtype: SubtypeDraftItem | ISubtype;
+  subtype: SubtypeDraftItem | Subtype;
   isDraft?: boolean;
   loading?: boolean;
 }

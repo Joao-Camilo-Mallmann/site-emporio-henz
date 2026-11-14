@@ -22,13 +22,8 @@ export class ProductsController {
     return ok(result);
   }
 
-  async getById(_req: Request, ctx: RequestContext): Promise<Response> {
-    const { id } = ctx.params;
-    if (!id || !isValidUuid(id)) {
-      return badRequest(INVALID_ID_MESSAGE);
-    }
-
-    const product = await this.service.getById(id, ctx.user);
+  async getByIdOrSlug(_req: Request, ctx: RequestContext): Promise<Response> {
+    const product = await this.service.getById(ctx.params.id ?? "", ctx.user);
     return ok(product);
   }
 
@@ -44,9 +39,12 @@ export class ProductsController {
       return badRequest("Corpo da requisição deve ser um JSON válido.");
     }
 
-    const { error, value } = validateCreateProduct(body);
+    const { error, field, errors, value } = validateCreateProduct(body);
     if (error || !value) {
-      return badRequest(error || "Dados do produto inválidos.");
+      return badRequest(
+        error || "Dados do produto inválidos.",
+        field || errors ? { field, errors } : undefined,
+      );
     }
 
     const product = await this.service.createProduct(value, ctx.user);
@@ -70,9 +68,12 @@ export class ProductsController {
       return badRequest("Corpo da requisição deve ser um JSON válido.");
     }
 
-    const { error, value } = validateUpdateProduct(body);
+    const { error, field, errors, value } = validateUpdateProduct(body);
     if (error || !value) {
-      return badRequest(error || "Dados de atualização do produto inválidos.");
+      return badRequest(
+        error || "Dados de atualização do produto inválidos.",
+        field || errors ? { field, errors } : undefined,
+      );
     }
 
     const product = await this.service.updateProduct(id, value, ctx.user);
@@ -97,12 +98,9 @@ export class ProductsController {
     _req: Request,
     ctx: RequestContext,
   ): Promise<Response> {
-    const { id } = ctx.params;
-    if (!id || id.trim() === "") {
-      return badRequest(INVALID_ID_MESSAGE);
-    }
-
-    const recommendations = await this.service.getRecommendations(id);
+    const recommendations = await this.service.getRecommendations(
+      ctx.params.id ?? "",
+    );
     return ok(recommendations);
   }
 }

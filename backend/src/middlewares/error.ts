@@ -37,7 +37,14 @@ export function errorHandler(
   options: ErrorHandlerOptions = {},
 ): Response {
   if (error instanceof AppError) {
-    return errorResponse(error.code, error.message, error.status);
+    return errorResponse(
+      error.code,
+      error.message,
+      error.status,
+      error.field
+        ? { field: error.field, errors: { [error.field]: error.message } }
+        : undefined,
+    );
   }
 
   const exposeDetails =

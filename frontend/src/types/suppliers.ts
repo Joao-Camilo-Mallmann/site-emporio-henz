@@ -1,6 +1,6 @@
 import type { Paginated, PaginationParams } from "./pagination";
 
-export interface ISupplier {
+export interface Supplier {
   id: string;
   name: string;
   contact: string | null;
@@ -26,9 +26,9 @@ export interface SupplierFilterParams extends PaginationParams {
   active?: boolean;
 }
 
-export type PaginatedSuppliersResponse = Paginated<ISupplier>;
+export type PaginatedSuppliersResponse = Paginated<Supplier>;
 
-export interface IAssignedSupplier {
+export interface AssignedSupplier {
   id: string;
   name: string;
   contact: string | null;
@@ -44,4 +44,4 @@ export interface UserSupplierLinkDto {
   updatedAt?: string;
 }
 
-export type PaginatedAssignedSuppliersResponse = Paginated<IAssignedSupplier>;
+export type PaginatedAssignedSuppliersResponse = Paginated<AssignedSupplier>;

@@ -1,4 +1,5 @@
 import { sql } from "@/config/database";
+import { slugSearchCondition } from "@/lib/search";
 import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import {
   CreateUserDto,
@@ -31,10 +32,7 @@ export class UsersRepository {
       LEFT JOIN clients c ON c.user_id = u.id AND c.deleted_at IS NULL
       WHERE u.deleted_at IS NULL
         AND (${role}::smallint IS NULL OR u.role = ${role})
-        AND (${search}::text IS NULL OR (
-          c.full_name ILIKE ('%' || ${search} || '%') OR 
-          u.email ILIKE ('%' || ${search} || '%')
-        ))
+        AND ${slugSearchCondition(search, [sql`c.full_name`, sql`u.email`])}
     `;
 
     const total = parseInt(countRows[0]?.count || "0", 10);
@@ -53,10 +51,7 @@ export class UsersRepository {
       LEFT JOIN clients c ON c.user_id = u.id AND c.deleted_at IS NULL
       WHERE u.deleted_at IS NULL
         AND (${role}::smallint IS NULL OR u.role = ${role})
-        AND (${search}::text IS NULL OR (
-          c.full_name ILIKE ('%' || ${search} || '%') OR 
-          u.email ILIKE ('%' || ${search} || '%')
-        ))
+        AND ${slugSearchCondition(search, [sql`c.full_name`, sql`u.email`])}
       ORDER BY u.created_at DESC
       LIMIT ${limit}
       OFFSET ${offset}

@@ -167,6 +167,8 @@ export interface UpdateProductDto {
 export interface ProductQueryFilters {
   page?: number;
   limit?: number;
+  // Termo já na forma de slug (sem acentos, minúsculas, separadores viram hífen),
+  // comparado com nome, descrição e linha normalizados na query do repositório.
   search?: string;
   categoryId?: string;
   subtypeId?: string;
@@ -177,6 +179,13 @@ export interface ProductQueryFilters {
   maxPrice?: number;
   active?: boolean;
   supplierIds?: string[];
+}
+
+export interface ProductValidationResult<T> {
+  error?: string;
+  field?: string;
+  errors?: Record<string, string>;
+  value?: T;
 }
 
 export type PaginatedProductsResult = Paginated<ProductDto>;
