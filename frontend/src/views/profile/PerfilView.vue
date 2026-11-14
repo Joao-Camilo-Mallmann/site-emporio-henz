@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { authApi } from "@/api";
-import { useToast } from "@/composables/useToast";
 import { useAuthStore } from "@/stores/auth";
-import type { User, UserCreateInput, UserUpdateInput, UserProfile } from "@/types";
+import type { User, UserProfile } from "@/types";
 import { Icon } from "@iconify/vue";
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import UsuarioForm from "@/views/admin/usuarios/UsuarioForm.vue";
 
+// Tela "Meu Perfil": carrega o perfil e reutiliza o `UsuarioForm` no modo
+// `perfil`, que grava em `PUT /auth/me` e permanece na tela.
+
 const router = useRouter();
-const toast = useToast();
 const authStore = useAuthStore();
 
 const userProfile = ref<UserProfile | null>(null);
-const formRef = ref<InstanceType<typeof UsuarioForm> | null>(null);
 const loading = ref(false);
 const initialError = ref<string | null>(null);
-const saving = ref(false);
-const errorMessage = ref<string | null>(null);
 
 const initialUserData = computed<Partial<User>>(() => {
   if (!userProfile.value) return {};
@@ -52,34 +50,13 @@ async function carregarPerfil() {
   }
 }
 
-async function handleUpdate(payload: UserCreateInput | UserUpdateInput) {
-  saving.value = true;
-  errorMessage.value = null;
-
+/** Perfil gravado pelo formulário: atualiza a tela e o usuário logado. */
+async function handleSaved(profile: UserProfile | null) {
+  if (profile) userProfile.value = profile;
   try {
-    const updateData = {
-      fullName: payload.fullName || "",
-      phone: payload.phone || undefined,
-      city: payload.city || undefined,
-      password: payload.password || undefined,
-    };
-
-    const updated = await authApi.atualizarPerfil(updateData);
-    userProfile.value = updated;
     await authStore.fetchCurrentUser();
-    formRef.value?.resetPasswordFields();
-    toast.success("Perfil atualizado com sucesso!");
-  } catch (err: unknown) {
-    const errorObj = err as {
-      response?: { data?: { message?: string } };
-      message?: string;
-    };
-    errorMessage.value =
-      errorObj.response?.data?.message ||
-      errorObj.message ||
-      "Ocorreu um erro ao atualizar o seu perfil.";
-  } finally {
-    saving.value = false;
+  } catch {
+    // O perfil já foi salvo; o cabeçalho atualiza no próximo carregamento.
   }
 }
 
@@ -95,28 +72,11 @@ onMounted(() => {
 <template>
   <div class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-2xl mx-auto space-y-6">
-      <!-- Breadcrumbs e Cabeçalho -->
-      <div>
-        <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-          <UiButton
-            variant="custom"
-            size="none"
-            class="font-normal hover:text-neutral-dark transition-colors"
-            @click="router.push('/')"
-          >
-            Início
-          </UiButton>
-          <span>/</span>
-          <span class="text-neutral-dark font-medium">Meu Perfil</span>
-        </div>
-
-        <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-          Meu Perfil
-        </h1>
-        <p class="text-sm text-stone-500 mt-0.5">
-          Gerencie seus dados de contato e credenciais de acesso
-        </p>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[{ name: 'Início', link: '/' }, { name: 'Meu Perfil' }]"
+        title="Meu Perfil"
+        description="Gerencie seus dados de contato e credenciais de acesso"
+      />
 
       <!-- Container do Formulário -->
       <div class="bg-white rounded-xl border border-stone-200 p-6 sm:p-8 shadow-xs">
@@ -153,16 +113,14 @@ onMounted(() => {
           </UiButton>
         </div>
 
-        <!-- Formulário com hide-role ativado -->
+        <!-- Formulário no modo perfil, sem seletor de papel -->
         <UsuarioForm
-          ref="formRef"
           v-else-if="userProfile"
           :initial-data="initialUserData"
           is-editing
           hide-role
-          :loading="saving"
-          :error-message="errorMessage"
-          @submit="handleUpdate"
+          perfil
+          @saved="handleSaved"
           @cancel="handleCancel"
         />
       </div>

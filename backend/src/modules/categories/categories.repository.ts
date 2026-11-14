@@ -1,4 +1,5 @@
 import { sql } from "@/config/database";
+import { slugSearchCondition } from "@/lib/search";
 import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import { SubtypeDbRow, SubtypeDto } from "@/modules/subtypes/subtypes.types";
 import {
@@ -52,14 +53,14 @@ export class CategoriesRepository {
         FROM categories c
         WHERE c.deleted_at IS NULL
           AND (${active}::boolean IS NULL OR c.active = ${active})
-          AND (${search}::text IS NULL OR c.name ILIKE ('%' || ${search} || '%'))
+          AND ${slugSearchCondition(search, [sql`c.name`])}
       `,
       sql<CategoryDbRow[]>`
         SELECT id, name, slug, active, created_at, updated_at
         FROM categories c
         WHERE c.deleted_at IS NULL
           AND (${active}::boolean IS NULL OR c.active = ${active})
-          AND (${search}::text IS NULL OR c.name ILIKE ('%' || ${search} || '%'))
+          AND ${slugSearchCondition(search, [sql`c.name`])}
         ORDER BY c.name ASC
         LIMIT ${limit} OFFSET ${offset}
       `,

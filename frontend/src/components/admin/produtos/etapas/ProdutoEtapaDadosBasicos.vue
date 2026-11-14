@@ -87,10 +87,10 @@ watch(
 
     <fieldset
       :disabled="locked"
-      class="min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-4"
+      class="min-w-0 grid grid-cols-1 sm:grid-cols-6 gap-x-4 gap-y-3"
     >
       <!-- Nome -->
-      <div class="sm:col-span-2">
+      <div class="sm:col-span-3">
         <label :for="FIELD_IDS.name" :class="LABEL_CLASS"
           >Nome do produto *</label
         >
@@ -115,7 +115,7 @@ watch(
       </div>
 
       <!-- Slug -->
-      <div class="sm:col-span-2">
+      <div class="sm:col-span-3">
         <label :for="FIELD_IDS.slug" :class="LABEL_CLASS"
           >Slug (identificador na URL) *</label
         >
@@ -166,7 +166,7 @@ watch(
       </div>
 
       <!-- Categoria -->
-      <div>
+      <div class="sm:col-span-2">
         <UiSelect
           :id="FIELD_IDS.categoryId"
           v-model="form.categoryId"
@@ -185,7 +185,7 @@ watch(
       </div>
 
       <!-- Subtipo -->
-      <div>
+      <div class="sm:col-span-2">
         <UiSelect
           :id="FIELD_IDS.subtypeId"
           v-model="form.subtypeId"
@@ -240,7 +240,7 @@ watch(
       </div>
 
       <!-- Linha / coleção -->
-      <div>
+      <div class="sm:col-span-3">
         <label :for="FIELD_IDS.collectionLine" :class="LABEL_CLASS"
           >Linha / coleção</label
         >
@@ -266,7 +266,7 @@ watch(
       </div>
 
       <!-- Material principal -->
-      <div>
+      <div class="sm:col-span-3">
         <label :for="FIELD_IDS.mainMaterial" :class="LABEL_CLASS"
           >Material principal</label
         >
@@ -292,14 +292,14 @@ watch(
       </div>
 
       <!-- Descrição -->
-      <div class="sm:col-span-2">
+      <div class="sm:col-span-6">
         <label :for="FIELD_IDS.description" :class="LABEL_CLASS"
           >Descrição</label
         >
         <textarea
           :id="FIELD_IDS.description"
           v-model="form.description"
-          rows="4"
+          rows="3"
           placeholder="Conte o que torna o móvel especial: materiais, uso e diferenciais."
           :class="[fieldClass(false), 'resize-y']"
         />

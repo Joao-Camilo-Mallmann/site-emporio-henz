@@ -1,4 +1,4 @@
-import { parsePagination, parseSearch } from "@/lib/pagination";
+import { parsePagination, parseSearchSlug } from "@/lib/pagination";
 import {
   isValidUuid,
   NAME_MAX_LENGTH,
@@ -158,7 +158,7 @@ export function validateSubtypeQuery(url: URL): SubtypeQueryFilters {
   return {
     page,
     limit,
-    search: parseSearch(url),
+    search: parseSearchSlug(url),
     categoryId:
       categoryIdParam && isValidUuid(categoryIdParam)
         ? categoryIdParam

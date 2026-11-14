@@ -2,15 +2,13 @@
 import { useProdutoFormStore } from "@/stores/produtoForm";
 import { Icon } from "@iconify/vue";
 import { computed, nextTick, useTemplateRef, watch } from "vue";
-import { useRouter } from "vue-router";
 
 // Moldura das telas de cadastro e edição de produto, lida da store
-// `produtoForm`: cabeçalho (breadcrumb, título e, na edição, status e
-// "Desativar"), o carregando, o slot do formulário, o painel de progresso do
-// envio dos arquivos e a confirmação das exclusões imediatas.
+// `produtoForm`: cabeçalho (`UiPageHeader` com a trilha, o título e, na
+// edição, status e "Desativar"), o carregando, o slot do formulário, o painel
+// de progresso do envio dos arquivos e a confirmação das exclusões imediatas.
 
 const store = useProdutoFormStore();
-const router = useRouter();
 
 const comFalha = computed(() => !store.uploading && store.failedFiles > 0);
 
@@ -29,62 +27,23 @@ watch(
 
 <template>
   <div
-    class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
+    class="min-h-[calc(100vh-14rem)] bg-stone-50/70 px-4 pt-4 sm:px-6 lg:px-8"
   >
-    <div class="max-w-5xl mx-auto space-y-6">
-      <!-- Breadcrumbs e cabeçalho -->
-      <div
-        class="flex flex-col sm:flex-row sm:items-start justify-between gap-4"
+    <div class="max-w-5xl mx-auto space-y-3">
+      <!-- Cabeçalho -->
+      <UiPageHeader
+        :breadcrumbs="[
+          { name: 'Painel', link: '/admin' },
+          { name: 'Produtos', link: '/admin/produtos' },
+          { name: store.editando ? 'Editar' : 'Novo Produto' },
+        ]"
+        :title="
+          store.editando
+            ? store.product?.name || 'Editar Produto'
+            : 'Novo Produto'
+        "
       >
-        <div class="min-w-0">
-          <div class="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
-            <UiButton
-              variant="custom"
-              size="none"
-              class="font-normal hover:text-neutral-dark transition-colors"
-              @click="router.push('/admin')"
-            >
-              Painel
-            </UiButton>
-            <span>/</span>
-            <UiButton
-              v-if="store.editando"
-              variant="custom"
-              size="none"
-              class="font-normal hover:text-neutral-dark transition-colors"
-              @click="router.push(store.destino)"
-            >
-              Produtos
-            </UiButton>
-            <span v-else>Produtos</span>
-            <span>/</span>
-            <span class="text-neutral-dark font-medium">
-              {{ store.editando ? "Editar" : "Novo Produto" }}
-            </span>
-          </div>
-
-          <h1
-            class="text-2xl font-bold text-neutral-dark tracking-tight truncate"
-          >
-            {{
-              store.editando
-                ? store.product?.name || "Editar Produto"
-                : "Novo Produto"
-            }}
-          </h1>
-          <p class="text-sm text-stone-500 mt-0.5">
-            {{
-              store.editando
-                ? "Altere os dados do móvel, as variações, as fotos e a ficha técnica"
-                : "Cadastre o móvel com variações de acabamento, fotos e ficha técnica"
-            }}
-          </p>
-        </div>
-
-        <div
-          v-if="store.editando && store.product"
-          class="flex items-center gap-2 shrink-0"
-        >
+        <template v-if="store.editando && store.product" #actions>
           <span
             class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium"
             :class="
@@ -111,8 +70,8 @@ watch(
             <Icon icon="mdi:trash-can-outline" class="w-4 h-4" />
             Desativar
           </UiButton>
-        </div>
-      </div>
+        </template>
+      </UiPageHeader>
 
       <!-- Carregando -->
       <div

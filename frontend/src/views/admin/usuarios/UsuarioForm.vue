@@ -1,23 +1,36 @@
 <script setup lang="ts">
+import { authApi, usuariosApi } from "@/api";
+import { useToast } from "@/composables/useToast";
 import {
   UserRole,
   type User,
   type UserCreateInput,
+  type UserProfile,
   type UserUpdateInput,
 } from "@/types";
 import { formatPhone, maskPhoneInput } from "@/utils/phone";
 import { Icon } from "@iconify/vue";
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, useTemplateRef, watch } from "vue";
+import { useRouter } from "vue-router";
+import UsuarioSenhaCampos from "./UsuarioSenhaCampos.vue";
+
+// Formulário de usuário, dono da gravação. Três modos: cadastro (`POST
+// /users`), edição pelo admin (`PUT /users/:id`, com `userId`) e "Meu Perfil"
+// (`perfil`: `PUT /auth/me`, sem sair da tela). Mostra o toast e, no admin,
+// volta para a lista. As telas só carregam os dados e renderizam.
 
 interface Props {
+  /** Id do usuário na edição pelo admin. */
+  userId?: string;
   initialData?: Partial<User>;
   isEditing?: boolean;
-  loading?: boolean;
-  errorMessage?: string | null;
   hideRole?: boolean;
+  /** Tela "Meu Perfil": grava o próprio perfil e permanece na tela. */
+  perfil?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  userId: "",
   initialData: () => ({
     fullName: "",
     email: "",
@@ -26,18 +39,24 @@ const props = withDefaults(defineProps<Props>(), {
     city: "",
   }),
   isEditing: false,
-  loading: false,
-  errorMessage: null,
   hideRole: false,
+  perfil: false,
 });
 
 const emit = defineEmits<{
-  (e: "submit", data: UserCreateInput | UserUpdateInput): void;
+  /** Gravado. No modo perfil traz o perfil devolvido pela API. */
+  (e: "saved", profile: UserProfile | null): void;
   (e: "cancel"): void;
 }>();
 
-const showPassword = ref(false);
-const showConfirmPassword = ref(false);
+const LISTA_URL = "/admin/usuarios";
+
+const router = useRouter();
+const toast = useToast();
+
+const saving = ref(false);
+const errorMessage = ref<string | null>(null);
+const senha = useTemplateRef<{ reset: () => void }>("senha");
 
 const form = reactive({
   fullName: props.initialData?.fullName || "",
@@ -67,6 +86,14 @@ watch(isPasswordSecure, (secure) => {
   formErrors.confirmPassword = "";
 });
 
+function resetPasswordFields() {
+  form.password = "";
+  form.confirmPassword = "";
+  senha.value?.reset();
+  formErrors.password = "";
+  formErrors.confirmPassword = "";
+}
+
 watch(
   () => props.initialData,
   (newData) => {
@@ -76,10 +103,7 @@ watch(
       form.role = (newData.role as number) || (UserRole.Cliente as number);
       form.phone = newData.phone ? formatPhone(newData.phone) : "";
       form.city = newData.city || "";
-      form.password = "";
-      form.confirmPassword = "";
-      showPassword.value = false;
-      showConfirmPassword.value = false;
+      resetPasswordFields();
     }
   },
   { deep: true },
@@ -187,43 +211,81 @@ function validate(): boolean {
   return valid;
 }
 
-function handleSubmit() {
-  if (!validate()) return;
+function mensagemDeFalha(): string {
+  if (props.perfil) return "Ocorreu um erro ao atualizar o seu perfil.";
+  return props.isEditing
+    ? "Ocorreu um erro ao atualizar o usuário."
+    : "Ocorreu um erro ao cadastrar o usuário.";
+}
+
+/** Grava conforme o modo e devolve o perfil, quando a API o retorna. */
+async function gravar(): Promise<UserProfile | null> {
+  const fullName = form.fullName.trim();
+  const phone = form.phone.trim() || undefined;
+  const city = form.city.trim() || undefined;
+  const password = form.password || undefined;
+
+  if (props.perfil) {
+    const updated = await authApi.atualizarPerfil({
+      fullName,
+      phone,
+      city,
+      password,
+    });
+    resetPasswordFields();
+    toast.success("Perfil atualizado com sucesso!");
+    return updated;
+  }
 
   if (props.isEditing) {
     const payload: UserUpdateInput = {
-      fullName: form.fullName.trim(),
+      fullName,
       role: Number(form.role),
-      phone: form.phone.trim() || undefined,
-      city: form.city.trim() || undefined,
-      password: form.password ? form.password : undefined,
+      phone,
+      city,
+      password,
     };
-    emit("submit", payload);
+    await usuariosApi.atualizar(props.userId, payload);
+    toast.success("Usuário atualizado com sucesso!");
   } else {
     const payload: UserCreateInput = {
-      fullName: form.fullName.trim(),
+      fullName,
       email: form.email.trim().toLowerCase(),
       password: form.password,
       role: Number(form.role),
-      phone: form.phone.trim() || undefined,
-      city: form.city.trim() || undefined,
+      phone,
+      city,
     };
-    emit("submit", payload);
+    await usuariosApi.criar(payload);
+    toast.success("Novo usuário cadastrado com sucesso!");
+  }
+  return null;
+}
+
+async function handleSubmit() {
+  if (saving.value || !validate()) return;
+  if (props.isEditing && !props.perfil && !props.userId) return;
+
+  saving.value = true;
+  errorMessage.value = null;
+
+  try {
+    const profile = await gravar();
+    emit("saved", profile);
+    if (!props.perfil) router.push(LISTA_URL);
+  } catch (err: unknown) {
+    const errorObj = err as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    errorMessage.value =
+      errorObj.response?.data?.message ||
+      errorObj.message ||
+      mensagemDeFalha();
+  } finally {
+    saving.value = false;
   }
 }
-
-function resetPasswordFields() {
-  form.password = "";
-  form.confirmPassword = "";
-  showPassword.value = false;
-  showConfirmPassword.value = false;
-  formErrors.password = "";
-  formErrors.confirmPassword = "";
-}
-
-defineExpose({
-  resetPasswordFields,
-});
 </script>
 
 <template>
@@ -400,118 +462,15 @@ defineExpose({
     </div>
 
     <!-- Seção de Senha Segura -->
-    <div class="pt-2 border-t border-stone-100">
-      <div class="flex items-center justify-between mb-1.5">
-        <label
-          for="password"
-          class="block text-xs font-semibold text-neutral-dark"
-        >
-          {{ isEditing ? "Redefinir Senha (opcional)" : "Senha de Acesso *" }}
-        </label>
-        <span
-          v-if="isEditing && !form.password"
-          class="text-[11px] text-stone-400 font-normal"
-        >
-          Deixe em branco para manter a atual
-        </span>
-      </div>
-
-      <!-- Input de Senha -->
-      <div class="relative">
-        <input
-          id="password"
-          v-model="form.password"
-          :type="showPassword ? 'text' : 'password'"
-          @input="handlePasswordInput"
-          :placeholder="
-            isEditing
-              ? 'Digite apenas se desejar redefinir a senha'
-              : 'Digite uma senha segura'
-          "
-          class="w-full px-3.5 py-2.5 pr-11 rounded-lg border text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:ring-1 transition-colors"
-          :class="
-            formErrors.password
-              ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-              : 'border-stone-300 focus:border-secondary focus:ring-secondary/20'
-          "
-        />
-        <button
-          type="button"
-          tabindex="-1"
-          @click="showPassword = !showPassword"
-          class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 transition-colors focus:outline-none cursor-pointer"
-          :title="showPassword ? 'Ocultar senha' : 'Exibir senha'"
-        >
-          <Icon
-            :icon="showPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'"
-            class="w-4 h-4"
-          />
-        </button>
-      </div>
-
-      <p
-        v-if="formErrors.password"
-        class="mt-1 text-xs text-rose-600 flex items-center gap-1"
-      >
-        <Icon icon="mdi:alert-circle-outline" class="w-3.5 h-3.5 shrink-0" />
-        <span>{{ formErrors.password }}</span>
-      </p>
-
-      <!-- Confirmação de Senha (Visível na criação ou quando digitada na edição) -->
-      <div v-if="!isEditing || form.password" class="mt-4">
-        <label
-          for="confirmPassword"
-          class="block text-xs font-semibold text-neutral-dark mb-1.5"
-        >
-          {{ isEditing ? "Confirmar Nova Senha *" : "Confirmar Senha *" }}
-        </label>
-        <div class="relative">
-          <input
-            id="confirmPassword"
-            v-model="form.confirmPassword"
-            :type="showConfirmPassword ? 'text' : 'password'"
-            @input="handlePasswordInput"
-            placeholder="Digite a mesma senha para confirmação"
-            class="w-full px-3.5 py-2.5 pr-11 rounded-lg border text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:ring-1 transition-colors"
-            :class="
-              formErrors.confirmPassword
-                ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                : 'border-stone-300 focus:border-secondary focus:ring-secondary/20'
-            "
-          />
-          <button
-            type="button"
-            tabindex="-1"
-            @click="showConfirmPassword = !showConfirmPassword"
-            class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 transition-colors focus:outline-none cursor-pointer"
-            :title="showConfirmPassword ? 'Ocultar senha' : 'Exibir senha'"
-          >
-            <Icon
-              :icon="
-                showConfirmPassword ? 'mdi:eye-off-outline' : 'mdi:eye-outline'
-              "
-              class="w-4 h-4"
-            />
-          </button>
-        </div>
-        <p
-          v-if="formErrors.confirmPassword"
-          class="mt-1 text-xs text-rose-600 flex items-center gap-1"
-        >
-          <Icon icon="mdi:alert-circle-outline" class="w-3.5 h-3.5 shrink-0" />
-          <span>{{ formErrors.confirmPassword }}</span>
-        </p>
-      </div>
-
-      <!-- Painel de Requisitos e Força da Senha (Exibido na criação ou quando digitada na edição) -->
-      <PasswordStrengthPanel
-        v-if="!isEditing || form.password"
-        v-model:valid="isPasswordSecure"
-        :password="form.password"
-        :confirm-password="form.confirmPassword"
-        class="mt-3"
-      />
-    </div>
+    <UsuarioSenhaCampos
+      ref="senha"
+      v-model:password="form.password"
+      v-model:confirm-password="form.confirmPassword"
+      v-model:valid="isPasswordSecure"
+      :is-editing="isEditing"
+      :errors="formErrors"
+      @input="handlePasswordInput"
+    />
 
     <!-- Barra de Ações com UiButton -->
     <div
@@ -521,6 +480,7 @@ defineExpose({
         variant="outline"
         type="button"
         size="md"
+        :disabled="saving"
         @click="emit('cancel')"
       >
         Cancelar
@@ -530,8 +490,8 @@ defineExpose({
         variant="primary"
         type="submit"
         size="md"
-        :loading="loading"
-        :disabled="loading"
+        :loading="saving"
+        :disabled="saving"
       >
         {{ isEditing ? "Salvar Alterações" : "Cadastrar Usuário" }}
       </UiButton>

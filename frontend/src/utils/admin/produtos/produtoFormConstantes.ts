@@ -90,8 +90,18 @@ export function fieldClass(hasError: boolean): string {
   ].join(" ");
 }
 
-/** Quantidade de etapas do formulário (ver `components/admin/produtos/etapas/`). */
-export const FORM_STEP_COUNT = 6;
+/** Títulos das etapas do formulário, na ordem da tela (ver `components/admin/produtos/etapas/`). */
+export const FORM_STEP_TITLES = [
+  "Dados básicos",
+  "Preço e disponibilidade",
+  "Dimensões",
+  "Variações de acabamento",
+  "Fotos",
+  "Especificações técnicas",
+] as const;
+
+/** Quantidade de etapas do formulário. */
+export const FORM_STEP_COUNT = FORM_STEP_TITLES.length;
 
 // ---------------------------------------------------------------------------
 // Ids dos campos no DOM: as chaves de `FieldErrors` são esses ids, o que

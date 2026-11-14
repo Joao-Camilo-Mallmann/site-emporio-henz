@@ -1,5 +1,6 @@
 import { sql } from "@/config/database";
 import { BadRequestError } from "@/lib/errors";
+import { slugSearchCondition } from "@/lib/search";
 import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import { toUploadUrl } from "@/lib/uploads";
 import {
@@ -109,6 +110,8 @@ export class ProductsRepository {
       return paginate([], 0, { page, limit });
     }
 
+    // filters.search já vem na forma de slug (schema); os campos são convertidos
+    // para a mesma forma em slugSearchCondition, sem função própria no banco.
     const search = filters.search ? escapeLike(filters.search) : null;
     const categoryId = filters.categoryId ?? null;
     const subtypeId = filters.subtypeId ?? null;
@@ -135,12 +138,7 @@ export class ProductsRepository {
           AND (${minPrice}::numeric IS NULL OR p.reference_price >= ${minPrice}::numeric)
           AND (${maxPrice}::numeric IS NULL OR p.reference_price <= ${maxPrice}::numeric)
           AND (${active}::boolean IS NULL OR p.active = ${active})
-          AND (
-            ${search}::text IS NULL
-            OR p.name ILIKE ('%' || ${search} || '%')
-            OR COALESCE(p.description, '') ILIKE ('%' || ${search} || '%')
-            OR COALESCE(p.collection_line, '') ILIKE ('%' || ${search} || '%')
-          )
+          AND ${slugSearchCondition(search, [sql`p.name`, sql`p.description`, sql`p.collection_line`])}
       `,
       this.db<ProductDbRow[]>`
         SELECT
@@ -160,12 +158,7 @@ export class ProductsRepository {
           AND (${minPrice}::numeric IS NULL OR p.reference_price >= ${minPrice}::numeric)
           AND (${maxPrice}::numeric IS NULL OR p.reference_price <= ${maxPrice}::numeric)
           AND (${active}::boolean IS NULL OR p.active = ${active})
-          AND (
-            ${search}::text IS NULL
-            OR p.name ILIKE ('%' || ${search} || '%')
-            OR COALESCE(p.description, '') ILIKE ('%' || ${search} || '%')
-            OR COALESCE(p.collection_line, '') ILIKE ('%' || ${search} || '%')
-          )
+          AND ${slugSearchCondition(search, [sql`p.name`, sql`p.description`, sql`p.collection_line`])}
         ORDER BY p.created_at DESC, p.name ASC
         LIMIT ${limit} OFFSET ${offset}
       `,
