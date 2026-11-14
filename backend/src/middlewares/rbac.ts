@@ -19,7 +19,7 @@ export function requireRole(...allowedRoles: number[]): RouteHandler {
       return unauthorized("Usuário não autenticado.");
     }
 
-    // Papel ADMIN (3) tem bypass/permissão em todos os endpoints administrativos
+    // Administradores têm acesso global, independentemente dos papéis permitidos.
     if (ctx.user.role === ROLES.ADMIN) {
       return;
     }

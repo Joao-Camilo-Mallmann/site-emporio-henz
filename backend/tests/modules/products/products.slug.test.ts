@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
-import { ROLES } from "@/middlewares/role";
+import { ROLES } from "@/middlewares/rbac";
 import { ProductsController } from "@/modules/products/products.controller";
 import { ProductsService } from "@/modules/products/products.service";
 import {

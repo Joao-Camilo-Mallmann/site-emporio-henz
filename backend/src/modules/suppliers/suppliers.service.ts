@@ -1,6 +1,6 @@
 import { NotFoundError } from "@/lib/errors";
 import { AuthenticatedUser } from "@/lib/router";
-import { ROLES } from "@/middlewares/role";
+import { ROLES } from "@/middlewares/rbac";
 import { suppliersRepository, SuppliersRepository } from "@/modules/suppliers/suppliers.repository";
 import {
   CreateSupplierDto,

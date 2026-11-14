@@ -1,6 +1,6 @@
 import { Router } from "@/lib/router";
 import { attachUserIfAuthenticated, authMiddleware } from "@/middlewares/auth";
-import { requireRole, ROLES } from "@/middlewares/role";
+import { requireRole, ROLES } from "@/middlewares/rbac";
 import { productsController } from "@/modules/products/products.controller";
 
 export const productsRoutes = new Router();

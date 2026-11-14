@@ -16,7 +16,7 @@ import { join } from "node:path";
 import { sql } from "@/config/database";
 import { AuthenticatedUser } from "@/lib/router";
 import { slugify } from "@/lib/slug";
-import { ROLES } from "@/middlewares/role";
+import { ROLES } from "@/middlewares/rbac";
 import { productImagesService } from "@/modules/product-images/product-images.service";
 import { validateCreateProduct } from "@/modules/products/products.schema";
 import { productsService } from "@/modules/products/products.service";

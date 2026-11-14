@@ -1,6 +1,6 @@
 import { Router } from "@/lib/router";
 import { authMiddleware } from "@/middlewares/auth";
-import { requireRole, ROLES } from "@/middlewares/role";
+import { requireRole, ROLES } from "@/middlewares/rbac";
 import { productImagesController } from "@/modules/product-images/product-images.controller";
 
 // Montado em /produtos, ao lado de productsRoutes. Toda rota de escrita de
