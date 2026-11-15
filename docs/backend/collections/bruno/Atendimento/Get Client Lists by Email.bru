@@ -1,0 +1,26 @@
+meta {
+  name: Consultar Listas do Cliente por E-mail
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/atendimento/cliente?email=cliente@exemplo.com
+  body: none
+  auth: bearer
+}
+
+params:query {
+  email: cliente@exemplo.com
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Consulta de atendimento presencial: devolve as listas e os itens salvos por um cliente, buscando pelo e-mail da conta. Só vendedor e administrador acessam.
+  `email` é obrigatório; espaços nas pontas são removidos e maiúsculas são ignoradas.
+  Resposta 200: `{ client: { fullName, email }, lists: [{ id, name, listType, isSystem, shareSlug, isPublic, itemsCount, createdAt, updatedAt, items: [...] }] }`. Não devolve telefone nem ids do cliente. A consulta é só de leitura: um cliente que nunca abriu as próprias listas volta com `lists: []`.
+  `400` para e-mail ausente ou inválido. `401` sem token. `403` para cliente comum. `404` com `{ "error": "Not Found", "message": "Nenhum cliente cadastrado com este e-mail." }` se não houver cliente com esse e-mail.
+}

@@ -32,7 +32,7 @@ Documentação técnica da API do Empório Henz. Regras de negócio pertencem ao
 | `backend/database/` | Migrações e dados iniciais |
 | `backend/tests/` | Testes automatizados (`tests/fixtures/` guarda as imagens dos testes de upload) |
 
-Módulos atualmente registrados: autenticação, usuários, fornecedores, vínculos entre usuários e fornecedores, categorias, subtipos, produtos, imagens de produto (`product-images`, montado em `/produtos`), leitura dos arquivos de imagem (`uploads`, montado em `/uploads`) e listas de produtos do cliente (`lists`, montado em `/listas`).
+Módulos atualmente registrados: autenticação, usuários, fornecedores, vínculos entre usuários e fornecedores, categorias, subtipos, produtos, imagens de produto (`product-images`, montado em `/produtos`), leitura dos arquivos de imagem (`uploads`, montado em `/uploads`), listas de produtos do cliente (`lists`, montado em `/listas`) e consulta de listas por e-mail para o atendimento presencial (`atendimento`, montado em `/atendimento`).
 
 ## Contrato HTTP
 
@@ -217,6 +217,16 @@ Cada cliente tem as 3 listas padrão (Favoritos, Lista de Desejos e Lista de Pre
 | `GET /api/v1/listas/compartilhadas/:shareSlug` | Público | — | `200` com `{ name, listType, itemsCount, items }`, sem dados do dono; `404` se o slug é inválido, a lista foi excluída ou não é pública |
 
 Enquanto o catálogo do front usar produtos de exemplo, `productId` é guardado como texto e cada item guarda um retrato do produto (nome, preço, imagem e acabamento). Quando o catálogo usar os produtos reais, uma migration converte `product_id` para UUID e cria as chaves estrangeiras.
+
+### Atendimento (`/api/v1/atendimento`)
+
+Consulta usada pela equipe da loja no tablet. Só vendedor e administrador acessam; cliente comum recebe `403`. A consulta é somente leitura e não cria listas para o cliente consultado.
+
+| Rota | Quem | Parâmetros | Resposta |
+| --- | --- | --- | --- |
+| `GET /api/v1/atendimento/cliente` | Vendedor e administrador | `email` (obrigatório) | `200` com `{ client: { fullName, email }, lists }`, cada lista com seus `items`; `400` para e-mail ausente ou inválido; `404` com "Nenhum cliente cadastrado com este e-mail." |
+
+O e-mail é comparado sem diferenciar maiúsculas e minúsculas. A resposta não traz telefone nem ids do cliente.
 
 ## Executar
 

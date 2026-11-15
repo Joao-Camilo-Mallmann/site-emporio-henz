@@ -133,6 +133,10 @@ O `ProdutoForm.vue` mostra uma das seis seções por vez, com indicador de etapa
 - As URLs de imagem da API são relativas (`/api/v1/uploads/...`). `toApiAssetUrl` prefixa a mesma origem do axios (`apiBase`, de `VITE_API_URL`), porque o Vite não faz proxy de `/api`.
 - As cores das variações são dados do produto e entram por `:style` (cor sólida, `linear-gradient` para duas cores e `conic-gradient` para três ou mais), nunca como classe com hex.
 
+### Atendimento no tablet
+
+A tela `views/admin/AtendimentoTabletView.vue` (`/admin/atendimento`, vendedor e administrador) permite buscar um cliente pelo e-mail, ou colar o link de uma lista compartilhada, e ver as listas e os móveis que ele salvou. A busca dispara sozinha quando o e-mail está completo. Mostra o resumo de cores, acabamentos e materiais para separar as amostras, e guarda os atendimentos recentes na sessão para trocar de cliente com um toque. Usa `GET /atendimento/cliente` e, para o link, `GET /listas/compartilhadas/:shareSlug`.
+
 ## Executar
 
 ```bash

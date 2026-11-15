@@ -11,3 +11,4 @@ export * from "./subtypes";
 export * from "./listas";
 export * from "./products";
 export * from "./productForm";
+export * from "./atendimento";
