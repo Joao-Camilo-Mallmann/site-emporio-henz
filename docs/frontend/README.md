@@ -88,7 +88,7 @@ O catálogo e as vitrines "Destaques" e "Recomendados" da home leem os produtos 
 | `components/catalogo/CatalogoFiltroLateral.vue` | Categoria e subcategoria (vindas do store), disponibilidade e faixa de preço. Material, cor, marca e ordenação não aparecem porque a API não oferece esses filtros |
 | `components/catalogo/CatalogoProdutoCard.vue` | Card do catálogo e da home. Navega para `/catalogo/:id` (UUID do produto) |
 
-Contrato da URL: `/catalogo?name=<termo>&categoria=<slug>&subcategoria=<nome ou slug do subtipo>&disponibilidade=IN_STOCK,ON_DEMAND&minPreco=&maxPreco=&page=`. O termo legado `?q=` também é aceito. Ao filtrar, as outras chaves da URL (como `?lista=`) são mantidas.
+Contrato da URL: `/catalogo?name=<termo>&categoria=<slug>&subcategoria=<nome ou slug do subtipo>&disponibilidade=IN_STOCK,ON_DEMAND&minPreco=&maxPreco=&page=`. O termo legado `?q=` também é aceito. Ao filtrar, as outras chaves da URL são mantidas.
 
 ## CRUD de produto (`/admin/produtos`)
 
@@ -163,6 +163,10 @@ O `ProdutoForm.vue` mostra uma das seis seções por vez, com indicador de etapa
 ### Atendimento no tablet
 
 A tela `views/admin/AtendimentoTabletView.vue` (`/admin/atendimento`, vendedor e administrador) permite buscar um cliente pelo e-mail, ou colar o link de uma lista compartilhada, e ver as listas e os móveis que ele salvou. A busca dispara sozinha quando o e-mail está completo. Mostra o resumo de cores, acabamentos e materiais para separar as amostras, e guarda os atendimentos recentes na sessão para trocar de cliente com um toque. Usa `GET /atendimento/cliente` e, para o link, `GET /listas/compartilhadas/:shareSlug`.
+
+## Lista compartilhada (`/lista/:shareSlug`)
+
+Página pública `views/listas/ListaCompartilhadaView.vue`, sem login. Mostra nome, total estimado e os itens que `GET /listas/compartilhadas/:shareSlug` devolve; o back responde `404` para lista privada, excluída ou UUID inválido, e a página mostra "Esta lista é privada ou não está mais disponível.". O link é gerado em `MinhasListasModal.vue` quando o cliente torna a pasta pública.
 
 ## Catálogo público (`/catalogo`)
 

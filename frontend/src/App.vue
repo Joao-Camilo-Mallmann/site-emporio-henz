@@ -1,40 +1,18 @@
 <script setup lang="ts">
 import AppFooter from "@/components/layout/AppFooter.vue";
 import AppNavbar from "@/components/layout/AppNavbar.vue";
-import ListaCompartilhadaModal from "@/components/listas/ListaCompartilhadaModal.vue";
 import LoginParaSalvarModal from "@/components/listas/LoginParaSalvarModal.vue";
 import MinhasListasModal from "@/components/listas/MinhasListasModal.vue";
 import SalvarEmListaModal from "@/components/listas/SalvarEmListaModal.vue";
 import { useAuthStore } from "@/stores/auth";
-import { useListasStore } from "@/stores/listas";
-import { onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { onMounted } from "vue";
 
-const route = useRoute();
 const authStore = useAuthStore();
-const listasStore = useListasStore();
-
-function checkSharedListQuery(slug: unknown) {
-  if (slug && typeof slug === "string") {
-    // Busca a lista no servidor, então o link funciona para qualquer pessoa
-    void listasStore.openSharedList(slug);
-  }
-}
 
 onMounted(() => {
   // Restaura a sessão do usuário caso haja token salvo
   authStore.fetchCurrentUser();
-
-  // Verifica se a URL contém um link compartilhado de lista
-  checkSharedListQuery(route.query.lista);
 });
-
-watch(
-  () => route.query.lista,
-  (newSlug) => {
-    checkSharedListQuery(newSlug);
-  },
-);
 </script>
 
 <template>
@@ -56,6 +34,5 @@ watch(
     <SalvarEmListaModal />
     <LoginParaSalvarModal />
     <MinhasListasModal />
-    <ListaCompartilhadaModal />
   </div>
 </template>

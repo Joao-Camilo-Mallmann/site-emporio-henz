@@ -26,6 +26,10 @@ listsRoutes.patch("/:id", authMiddleware, (req, ctx) =>
   listsController.rename(req, ctx),
 );
 
+listsRoutes.patch("/:id/compartilhamento", authMiddleware, (req, ctx) =>
+  listsController.setPublic(req, ctx),
+);
+
 listsRoutes.delete("/:id", authMiddleware, (req, ctx) =>
   listsController.remove(req, ctx),
 );

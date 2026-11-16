@@ -1,9 +1,13 @@
+import { paginate, resolvePagination } from "@/lib/pagination";
 import { ListsRepository } from "@/modules/lists/lists.repository";
 import {
   AddListItemDto,
   ListDto,
   ListItemDto,
+  ListItemProduct,
+  ListQueryFilters,
   ListType,
+  PaginatedListsResult,
   SharedListRef,
   SYSTEM_LISTS,
 } from "@/modules/lists/lists.types";
@@ -48,7 +52,7 @@ export class FakeListsRepository extends ListsRepository {
       listType,
       isSystem,
       shareSlug: crypto.randomUUID(),
-      isPublic: true,
+      isPublic: false,
       deleted: false,
     };
     this.lists.push(list);
@@ -102,6 +106,15 @@ export class FakeListsRepository extends ListsRepository {
     }
   }
 
+  async listPageByClient(
+    clientId: string,
+    filters: ListQueryFilters = {},
+  ): Promise<PaginatedListsResult> {
+    const { page, limit, offset } = resolvePagination(filters);
+    const all = await this.listByClient(clientId);
+    return paginate(all.slice(offset, offset + limit), all.length, { page, limit });
+  }
+
   async listByClient(clientId: string): Promise<ListDto[]> {
     return this.lists
       .filter((l) => l.clientId === clientId && !l.deleted)
@@ -124,6 +137,11 @@ export class FakeListsRepository extends ListsRepository {
     if (!list) return false;
     list.name = name;
     return true;
+  }
+
+  async setPublic(listId: string, isPublic: boolean): Promise<void> {
+    const list = this.lists.find((l) => l.id === listId && !l.deleted);
+    if (list) list.isPublic = isPublic;
   }
 
   async softDelete(listId: string): Promise<void> {
@@ -167,13 +185,20 @@ export class FakeListsRepository extends ListsRepository {
     return found ? this.toItemDto(found) : null;
   }
 
-  async addItem(listId: string, dto: AddListItemDto): Promise<ListItemDto> {
+  async findProductForList(productId: string): Promise<ListItemProduct | null> {
+    return productId === SAMPLE_PRODUCT_ID ? SAMPLE_PRODUCT : null;
+  }
+
+  async addItem(
+    listId: string,
+    dto: AddListItemDto & ListItemProduct,
+  ): Promise<ListItemDto> {
     const item: FakeItem = {
       id: crypto.randomUUID(),
       listId,
       deleted: false,
       productId: dto.productId,
-      productSlug: dto.productSlug ?? null,
+      productSlug: dto.productSlug,
       variationId: dto.variationId ?? null,
       name: dto.name,
       price: dto.price,
@@ -203,12 +228,17 @@ export class FakeListsRepository extends ListsRepository {
   }
 }
 
-export const SAMPLE_ITEM: AddListItemDto = {
-  productId: "p-5",
+export const SAMPLE_PRODUCT_ID = "7d3c1f2e-8a4b-4c5d-9e6f-0a1b2c3d4e5f";
+
+export const SAMPLE_PRODUCT: ListItemProduct = {
   productSlug: "guarda-roupa-topazio",
   name: "Guarda-roupa Topázio",
   price: 5100,
-  image: "/images/products/prod-comoda-italia.png",
+  image: "/uploads/products/topazio.png",
+};
+
+export const SAMPLE_ITEM: AddListItemDto = {
+  productId: SAMPLE_PRODUCT_ID,
   finishLabel: "Nogueira",
   finishColor: "#6b4a2f",
 };

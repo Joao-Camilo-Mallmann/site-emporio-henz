@@ -1,8 +1,13 @@
 import { UnauthorizedError } from "@/lib/errors";
 import { badRequest, created, ok } from "@/lib/response";
 import { RequestContext } from "@/lib/router";
+import {
+  validateAddItem,
+  validateListName,
+  validateListQuery,
+  validateShare,
+} from "@/modules/lists/lists.schema";
 import { listsService, ListsService } from "@/modules/lists/lists.service";
-import { validateAddItem, validateListName } from "@/modules/lists/lists.schema";
 
 async function readJson(req: Request): Promise<{ body: unknown } | null> {
   try {
@@ -23,14 +28,15 @@ export class ListsController {
   }
 
   // `?itens=true` devolve cada lista já com os itens salvos
-  async list(req: Request, ctx: RequestContext): Promise<Response> {
-    const withItems = new URL(req.url).searchParams.get("itens") === "true";
+  async list(_req: Request, ctx: RequestContext): Promise<Response> {
+    const withItems = ctx.url.searchParams.get("itens") === "true";
+    const filters = validateListQuery(ctx.url);
     const userId = this.userId(ctx);
 
     return ok(
       withItems
-        ? await this.service.listMineWithItems(userId)
-        : await this.service.listMine(userId),
+        ? await this.service.listMineWithItems(userId, filters)
+        : await this.service.listMine(userId, filters),
     );
   }
 
@@ -63,7 +69,29 @@ export class ListsController {
       return badRequest(error || "Dados da lista inválidos.");
     }
 
-    return ok(await this.service.rename(this.userId(ctx), ctx.params.id, value));
+    return ok(
+      await this.service.rename(this.userId(ctx), ctx.params.id, value),
+    );
+  }
+
+  async setPublic(req: Request, ctx: RequestContext): Promise<Response> {
+    const json = await readJson(req);
+    if (!json) {
+      return badRequest("Corpo da requisição deve ser um JSON válido.");
+    }
+
+    const { error, value } = validateShare(json.body);
+    if (error || !value) {
+      return badRequest(error || "Dados inválidos.");
+    }
+
+    return ok(
+      await this.service.setPublic(
+        this.userId(ctx),
+        ctx.params.id,
+        value.isPublic,
+      ),
+    );
   }
 
   async remove(_req: Request, ctx: RequestContext): Promise<Response> {

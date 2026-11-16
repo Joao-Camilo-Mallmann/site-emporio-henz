@@ -74,7 +74,6 @@ export interface ProductDetail {
   price: number;
   installments: string;
   manufacturingTime?: string;
-  deliveryCondition?: string;
   discountPixPercent?: number;
   description: string;
   category: string;

@@ -83,7 +83,7 @@ function extractShareSlug(text: string): string | null {
   const match = text.match(UUID_PATTERN);
   if (!match) return null;
   const isBareUuid = text.trim().toLowerCase() === match[0].toLowerCase();
-  return isBareUuid || /lista=/i.test(text) ? match[0].toLowerCase() : null;
+  return isBareUuid || /\/lista\//i.test(text) ? match[0].toLowerCase() : null;
 }
 
 function detectKind(text: string): "email" | "link" | null {
@@ -411,7 +411,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
+  <div
+    class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-6 sm:py-8 px-4 sm:px-6 lg:px-8"
+  >
     <div class="max-w-6xl mx-auto space-y-6">
       <!-- Cabeçalho -->
       <div>
@@ -423,7 +425,9 @@ onBeforeUnmount(() => {
           <Icon icon="mdi:arrow-left" class="w-4 h-4" />
           <span>Painel Administrativo</span>
         </button>
-        <h1 class="text-2xl sm:text-3xl font-bold text-neutral-dark tracking-tight">
+        <h1
+          class="text-2xl sm:text-3xl font-bold text-neutral-dark tracking-tight"
+        >
           Atendimento no showroom
         </h1>
         <p class="text-sm sm:text-base text-stone-500 mt-1">
@@ -436,7 +440,10 @@ onBeforeUnmount(() => {
       <section
         class="bg-white rounded-2xl border border-stone-200/90 p-4 sm:p-6 shadow-xs"
       >
-        <label for="busca-cliente" class="block text-sm font-semibold text-neutral-dark mb-2">
+        <label
+          for="busca-cliente"
+          class="block text-sm font-semibold text-neutral-dark mb-2"
+        >
           E-mail do cliente
         </label>
         <div class="flex flex-col sm:flex-row gap-3">
@@ -486,7 +493,9 @@ onBeforeUnmount(() => {
 
         <!-- Trocar de cliente com um toque -->
         <div v-if="recent.length > 0" class="mt-4">
-          <p class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2">
+          <p
+            class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-2"
+          >
             Atendimentos recentes
           </p>
           <div class="flex flex-wrap gap-2">
@@ -514,7 +523,10 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- Carregando -->
-      <div v-if="isLoading && !result" class="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div
+        v-if="isLoading && !result"
+        class="grid grid-cols-2 lg:grid-cols-3 gap-4"
+      >
         <div
           v-for="n in 3"
           :key="n"
@@ -554,7 +566,9 @@ onBeforeUnmount(() => {
         </section>
 
         <!-- Resumo de acabamentos e materiais -->
-        <section class="bg-white rounded-2xl border border-stone-200/90 p-4 sm:p-6 space-y-5">
+        <section
+          class="bg-white rounded-2xl border border-stone-200/90 p-4 sm:p-6 space-y-5"
+        >
           <h3 class="text-lg font-bold text-neutral-dark">
             Amostras para separar
           </h3>
@@ -564,7 +578,9 @@ onBeforeUnmount(() => {
           </div>
 
           <div v-else>
-            <p class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-3">
+            <p
+              class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-3"
+            >
               Cores e acabamentos escolhidos
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -590,7 +606,9 @@ onBeforeUnmount(() => {
                     {{ finish.label }}
                   </p>
                   <p class="text-xs text-stone-500">
-                    <span v-if="finish.typeLabel">{{ finish.typeLabel }} · </span>
+                    <span v-if="finish.typeLabel"
+                      >{{ finish.typeLabel }} ·
+                    </span>
                     {{ plural(finish.count, "móvel", "móveis") }}
                   </p>
                 </div>
@@ -599,7 +617,9 @@ onBeforeUnmount(() => {
           </div>
 
           <div v-if="materialSummary.length > 0">
-            <p class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-3">
+            <p
+              class="text-xs font-semibold text-stone-500 uppercase tracking-wide mb-3"
+            >
               Materiais dos móveis
             </p>
             <div class="flex flex-wrap gap-2">
@@ -641,11 +661,17 @@ onBeforeUnmount(() => {
             v-if="!activeList || activeList.items.length === 0"
             class="bg-white rounded-2xl border border-stone-200/90 py-14 text-center text-stone-500"
           >
-            <Icon icon="mdi:sofa-outline" class="w-10 h-10 mx-auto mb-2 text-stone-300" />
+            <Icon
+              icon="mdi:sofa-outline"
+              class="w-10 h-10 mx-auto mb-2 text-stone-300"
+            />
             Esta lista ainda não tem móveis.
           </div>
 
-          <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+            v-else
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
             <article
               v-for="item in activeList.items"
               :key="item.id"
@@ -692,7 +718,10 @@ onBeforeUnmount(() => {
                   </span>
                 </div>
 
-                <p v-if="productFor(item)?.mainMaterial" class="text-xs text-stone-500">
+                <p
+                  v-if="productFor(item)?.mainMaterial"
+                  class="text-xs text-stone-500"
+                >
                   Material: {{ productFor(item)?.mainMaterial }}
                 </p>
 
@@ -715,7 +744,10 @@ onBeforeUnmount(() => {
         v-else-if="!isLoading && !errorMessage"
         class="text-center py-12 text-stone-500"
       >
-        <Icon icon="mdi:tablet-dashboard" class="w-12 h-12 mx-auto mb-3 text-stone-300" />
+        <Icon
+          icon="mdi:tablet-dashboard"
+          class="w-12 h-12 mx-auto mb-3 text-stone-300"
+        />
         <p class="text-base">
           Peça o e-mail ao cliente e digite acima para ver as listas dele.
         </p>

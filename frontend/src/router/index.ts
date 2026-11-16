@@ -38,6 +38,14 @@ const router = createRouter({
       },
     },
     {
+      path: "/lista/:shareSlug",
+      name: "lista-compartilhada",
+      component: () => import("@/views/listas/ListaCompartilhadaView.vue"),
+      meta: {
+        title: "Lista compartilhada | Empório Henz",
+      },
+    },
+    {
       path: "/catalogo/:slug",
       name: "catalogo-produto",
       component: () =>

@@ -1,3 +1,5 @@
+import { Paginated } from "@/lib/pagination";
+
 export type SystemListType = "FAVORITES" | "WISHLIST" | "GIFT_LIST";
 export type ListType = SystemListType | "CUSTOM";
 
@@ -37,6 +39,14 @@ export interface ListWithItemsDto extends ListDto {
   items: ListItemDto[];
 }
 
+export interface ListQueryFilters {
+  page?: number;
+  limit?: number;
+}
+
+export type PaginatedListsResult = Paginated<ListDto>;
+export type PaginatedListsWithItemsResult = Paginated<ListWithItemsDto>;
+
 // Visão pública do link compartilhado: nada que identifique o dono da lista
 export interface SharedListDto {
   name: string;
@@ -49,6 +59,7 @@ export interface SharedListRef {
   id: string;
   name: string;
   listType: ListType;
+  
 }
 
 // Criar e renomear usam o mesmo payload
@@ -56,15 +67,19 @@ export interface ListNameDto {
   name: string;
 }
 
+// O front só diz qual produto e acabamento; nome, preço, slug e imagem vêm do banco
 export interface AddListItemDto {
   productId: string;
-  productSlug?: string;
   variationId?: string;
-  name: string;
-  price: number;
-  image: string;
   finishLabel?: string;
   finishColor?: string;
+}
+
+export interface ListItemProduct {
+  name: string;
+  productSlug: string;
+  price: number;
+  image: string;
 }
 
 export interface AddListItemResult {

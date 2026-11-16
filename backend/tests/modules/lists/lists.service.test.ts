@@ -1,7 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
 import { ListsService } from "@/modules/lists/lists.service";
-import { FakeListsRepository, SAMPLE_ITEM as ITEM } from "../../mocks/lists.mock";
+import {
+  FakeListsRepository,
+  SAMPLE_ITEM as ITEM,
+  SAMPLE_PRODUCT,
+} from "../../mocks/lists.mock";
 
 function setup() {
   const repo = new FakeListsRepository();
@@ -24,7 +28,7 @@ describe("ListsService", () => {
   it("cria as 3 listas padrão no primeiro acesso, na ordem, sem duplicar", async () => {
     const { service, userA } = setup();
 
-    const first = await service.listMine(userA);
+    const first = (await service.listMine(userA)).data;
     expect(first.map((l) => l.listType)).toEqual([
       "FAVORITES",
       "WISHLIST",
@@ -32,7 +36,7 @@ describe("ListsService", () => {
     ]);
     expect(first.every((l) => l.isSystem)).toBe(true);
 
-    const second = await service.listMine(userA);
+    const second = (await service.listMine(userA)).data;
     expect(second).toHaveLength(3);
   });
 
@@ -54,7 +58,7 @@ describe("ListsService", () => {
 
   it("bloqueia renomear e excluir as listas padrão", async () => {
     const { service, userA } = setup();
-    const [favoritos] = await service.listMine(userA);
+    const [favoritos] = (await service.listMine(userA)).data;
 
     await expect(
       service.rename(userA, favoritos.id, { name: "Outro nome" }),
@@ -87,16 +91,47 @@ describe("ListsService", () => {
     expect(detail.items).toHaveLength(2);
   });
 
+  it("recusa produto inexistente e salva nome, preço e imagem do banco", async () => {
+    const { service, userA } = setup();
+    const list = await service.create(userA, { name: "Quarto" });
+
+    await expect(
+      service.addItem(userA, list.id, { productId: crypto.randomUUID() }),
+    ).rejects.toBeInstanceOf(NotFoundError);
+
+    const { item } = await service.addItem(userA, list.id, ITEM);
+    expect(item.name).toBe(SAMPLE_PRODUCT.name);
+    expect(item.price).toBe(SAMPLE_PRODUCT.price);
+    expect(item.image).toBe(SAMPLE_PRODUCT.image);
+    expect(item.productSlug).toBe(SAMPLE_PRODUCT.productSlug);
+  });
+
+  it("pagina as listas no envelope { data, pagination }", async () => {
+    const { service, userA } = setup();
+    await service.create(userA, { name: "Sala" });
+    await service.create(userA, { name: "Quarto" });
+    await service.create(userA, { name: "Cozinha" });
+
+    const first = await service.listMine(userA, { page: 1, limit: 4 });
+    expect(first.data).toHaveLength(4);
+    expect(first.pagination).toEqual({ page: 1, limit: 4, total: 6, totalPages: 2 });
+
+    const second = await service.listMineWithItems(userA, { page: 2, limit: 4 });
+    expect(second.data).toHaveLength(2);
+    expect(second.data.every((l) => Array.isArray(l.items))).toBe(true);
+    expect(second.pagination).toEqual({ page: 2, limit: 4, total: 6, totalPages: 2 });
+  });
+
   it("lista as listas já com os itens de cada uma", async () => {
     const { service, userA, userB } = setup();
-    const [favoritos] = await service.listMine(userA);
+    const [favoritos] = (await service.listMine(userA)).data;
     const pasta = await service.create(userA, { name: "Quarto" });
 
     await service.addItem(userA, favoritos.id, ITEM);
     await service.addItem(userA, pasta.id, ITEM);
     await service.addItem(userA, pasta.id, { ...ITEM, finishLabel: "Branco" });
 
-    const lists = await service.listMineWithItems(userA);
+    const lists = (await service.listMineWithItems(userA)).data;
     const byId = new Map(lists.map((l) => [l.id, l]));
 
     expect(lists).toHaveLength(4);
@@ -104,7 +139,7 @@ describe("ListsService", () => {
     expect(byId.get(pasta.id)?.items).toHaveLength(2);
     expect(byId.get(pasta.id)?.itemsCount).toBe(2);
 
-    const others = await service.listMineWithItems(userB);
+    const others = (await service.listMineWithItems(userB)).data;
     expect(others.every((l) => l.items.length === 0)).toBe(true);
   });
 
@@ -147,6 +182,7 @@ describe("ListsService", () => {
     const { service, userA } = setup();
     const list = await service.create(userA, { name: "Presente de casamento" });
     await service.addItem(userA, list.id, ITEM);
+    await service.setPublic(userA, list.id, true);
 
     const shared = await service.getShared(list.shareSlug);
 
@@ -160,16 +196,40 @@ describe("ListsService", () => {
     expect(shared.itemsCount).toBe(1);
   });
 
-  it("link público não funciona para slug inválido, lista privada ou excluída", async () => {
-    const { service, repo, userA } = setup();
+  it("lista nasce privada e o dono liga e desliga o link público", async () => {
+    const { service, userA } = setup();
+    const [favorites] = (await service.listMine(userA)).data;
+    const list = await service.create(userA, { name: "Quarto" });
+
+    expect(favorites.isPublic).toBe(false);
+    expect(list.isPublic).toBe(false);
+    await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
+
+    const opened = await service.setPublic(userA, list.id, true);
+    expect(opened.isPublic).toBe(true);
+    expect(opened.shareSlug).toBe(list.shareSlug);
+    expect((await service.getShared(list.shareSlug)).name).toBe("Quarto");
+    expect((await service.setPublic(userA, favorites.id, true)).isPublic).toBe(true);
+
+    await service.setPublic(userA, list.id, false);
+    await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("não deixa um cliente mudar a visibilidade da lista de outro", async () => {
+    const { service, userA, userB } = setup();
+    const list = await service.create(userA, { name: "Quarto" });
+
+    await expect(service.setPublic(userB, list.id, true)).rejects.toBeInstanceOf(NotFoundError);
+    await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("link público não funciona para slug inválido ou lista excluída", async () => {
+    const { service, userA } = setup();
     const list = await service.create(userA, { name: "Quarto" });
 
     await expect(service.getShared("abc")).rejects.toBeInstanceOf(NotFoundError);
 
-    repo.lists.find((l) => l.id === list.id)!.isPublic = false;
-    await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
-
-    repo.lists.find((l) => l.id === list.id)!.isPublic = true;
+    await service.setPublic(userA, list.id, true);
     await service.remove(userA, list.id);
     await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
   });
