@@ -1,7 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import { ForbiddenError, NotFoundError } from "@/lib/errors";
 import { ListsService } from "@/modules/lists/lists.service";
-import { FakeListsRepository, SAMPLE_ITEM as ITEM } from "../../mocks/lists.mock";
+import {
+  FakeListsRepository,
+  SAMPLE_ITEM as ITEM,
+  SAMPLE_PRODUCT,
+} from "../../mocks/lists.mock";
 
 function setup() {
   const repo = new FakeListsRepository();
@@ -85,6 +89,21 @@ describe("ListsService", () => {
     const detail = await service.getMine(userA, list.id);
     expect(detail.itemsCount).toBe(2);
     expect(detail.items).toHaveLength(2);
+  });
+
+  it("recusa produto inexistente e salva nome, preço e imagem do banco", async () => {
+    const { service, userA } = setup();
+    const list = await service.create(userA, { name: "Quarto" });
+
+    await expect(
+      service.addItem(userA, list.id, { productId: crypto.randomUUID() }),
+    ).rejects.toBeInstanceOf(NotFoundError);
+
+    const { item } = await service.addItem(userA, list.id, ITEM);
+    expect(item.name).toBe(SAMPLE_PRODUCT.name);
+    expect(item.price).toBe(SAMPLE_PRODUCT.price);
+    expect(item.image).toBe(SAMPLE_PRODUCT.image);
+    expect(item.productSlug).toBe(SAMPLE_PRODUCT.productSlug);
   });
 
   it("pagina as listas no envelope { data, pagination }", async () => {

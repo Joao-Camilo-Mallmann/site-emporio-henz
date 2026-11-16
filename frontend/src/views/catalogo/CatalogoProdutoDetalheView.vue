@@ -143,6 +143,7 @@ function toggleFavorite() {
 
   listasStore.openSaveModal({
     productId: product.value.id,
+    variationId: currentVariation?.id,
     productSlug: product.value.slug,
     name: product.value.name,
     price: product.value.price,

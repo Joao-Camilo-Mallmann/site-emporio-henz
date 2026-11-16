@@ -1,9 +1,11 @@
 import { sql } from "@/config/database";
 import { paginate, resolvePagination } from "@/lib/pagination";
+import { toUploadUrl } from "@/lib/uploads";
 import {
   AddListItemDto,
   ListDto,
   ListItemDto,
+  ListItemProduct,
   ListQueryFilters,
   ListType,
   PaginatedListsResult,
@@ -253,6 +255,48 @@ export class ListsRepository {
     return rows.map((r) => ({ listId: r.list_id, item: mapItem(r) }));
   }
 
+  // Produto ativo (e a variação, se veio) com a capa; null se não existir
+  async findProductForList(
+    productId: string,
+    variationId: string | null = null,
+  ): Promise<ListItemProduct | null> {
+    const rows = await sql<
+      { name: string; slug: string; reference_price: string; cover: string | null }[]
+    >`
+      SELECT
+        p.name, p.slug, p.reference_price,
+        (
+          SELECT pi.thumbnail_path
+          FROM product_images pi
+          WHERE pi.product_id = p.id AND pi.deleted_at IS NULL
+          ORDER BY (pi.variation_id IS NOT NULL), pi.sort_order, pi.created_at
+          LIMIT 1
+        ) AS cover
+      FROM products p
+      WHERE p.id = ${productId}
+        AND p.active = TRUE
+        AND p.deleted_at IS NULL
+        AND (
+          ${variationId}::uuid IS NULL OR EXISTS (
+            SELECT 1 FROM product_variations v
+            WHERE v.id = ${variationId}::uuid
+              AND v.product_id = p.id
+              AND v.deleted_at IS NULL
+          )
+        )
+      LIMIT 1
+    `;
+
+    if (rows.length === 0) return null;
+    const r = rows[0];
+    return {
+      name: r.name,
+      productSlug: r.slug,
+      price: Number(r.reference_price),
+      image: r.cover ? toUploadUrl(r.cover) : "",
+    };
+  }
+
   async findExistingItem(
     listId: string,
     dto: AddListItemDto,
@@ -273,7 +317,10 @@ export class ListsRepository {
     return rows.length > 0 ? mapItem(rows[0]) : null;
   }
 
-  async addItem(listId: string, dto: AddListItemDto): Promise<ListItemDto> {
+  async addItem(
+    listId: string,
+    dto: AddListItemDto & ListItemProduct,
+  ): Promise<ListItemDto> {
     const rows = await sql<ListItemDbRow[]>`
       INSERT INTO list_items (
         list_id, product_id, variation_id, product_slug, product_name,
@@ -281,7 +328,7 @@ export class ListsRepository {
       )
       VALUES (
         ${listId}, ${dto.productId}, ${dto.variationId ?? null},
-        ${dto.productSlug ?? null}, ${dto.name}, ${dto.price}, ${dto.image},
+        ${dto.productSlug}, ${dto.name}, ${dto.price}, ${dto.image},
         ${dto.finishLabel ?? null}, ${dto.finishColor ?? null}
       )
       RETURNING

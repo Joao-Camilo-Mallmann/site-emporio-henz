@@ -134,9 +134,14 @@ export class ListsService {
     const clientId = await this.resolveClientId(userId);
     const list = await this.getOwnedList(clientId, listId);
 
-    // TODO(produtos): quando o catálogo do front usar os produtos reais da API,
-    // validar aqui que dto.productId existe (e que variationId pertence a ele) e preencher
-    // nome, preço, imagem e slug a partir do banco, em vez de confiar no payload.
+    // Nome, preço, slug e imagem vêm do banco; o front não decide o que é salvo
+    const product = await this.repo.findProductForList(
+      dto.productId,
+      dto.variationId,
+    );
+    if (!product) {
+      throw new NotFoundError("Produto não encontrado.");
+    }
 
     const existing = await this.repo.findExistingItem(list.id, dto);
     if (existing) {
@@ -144,7 +149,7 @@ export class ListsService {
     }
 
     try {
-      const item = await this.repo.addItem(list.id, dto);
+      const item = await this.repo.addItem(list.id, { ...dto, ...product });
       return { item, created: true };
     } catch (error) {
       // Duas requisições simultâneas: a segunda cai no índice único

@@ -4,6 +4,7 @@ import {
   AddListItemDto,
   ListDto,
   ListItemDto,
+  ListItemProduct,
   ListQueryFilters,
   ListType,
   PaginatedListsResult,
@@ -184,13 +185,20 @@ export class FakeListsRepository extends ListsRepository {
     return found ? this.toItemDto(found) : null;
   }
 
-  async addItem(listId: string, dto: AddListItemDto): Promise<ListItemDto> {
+  async findProductForList(productId: string): Promise<ListItemProduct | null> {
+    return productId === SAMPLE_PRODUCT_ID ? SAMPLE_PRODUCT : null;
+  }
+
+  async addItem(
+    listId: string,
+    dto: AddListItemDto & ListItemProduct,
+  ): Promise<ListItemDto> {
     const item: FakeItem = {
       id: crypto.randomUUID(),
       listId,
       deleted: false,
       productId: dto.productId,
-      productSlug: dto.productSlug ?? null,
+      productSlug: dto.productSlug,
       variationId: dto.variationId ?? null,
       name: dto.name,
       price: dto.price,
@@ -220,12 +228,17 @@ export class FakeListsRepository extends ListsRepository {
   }
 }
 
-export const SAMPLE_ITEM: AddListItemDto = {
-  productId: "p-5",
+export const SAMPLE_PRODUCT_ID = "7d3c1f2e-8a4b-4c5d-9e6f-0a1b2c3d4e5f";
+
+export const SAMPLE_PRODUCT: ListItemProduct = {
   productSlug: "guarda-roupa-topazio",
   name: "Guarda-roupa Topázio",
   price: 5100,
-  image: "/images/products/prod-comoda-italia.png",
+  image: "/uploads/products/topazio.png",
+};
+
+export const SAMPLE_ITEM: AddListItemDto = {
+  productId: SAMPLE_PRODUCT_ID,
   finishLabel: "Nogueira",
   finishColor: "#6b4a2f",
 };

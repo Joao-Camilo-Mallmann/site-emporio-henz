@@ -1,6 +1,7 @@
 import { listasApi } from "@/api/listas";
 import { useAuthStore } from "@/stores/auth";
 import type {
+  AddListItemPayload,
   ApiList,
   ApiListItem,
   SavedItem,
@@ -53,6 +54,7 @@ function mapList(list: ApiList): UserList {
 
 export interface ActiveProductToSave {
   productId: string;
+  variationId?: string;
   productSlug?: string;
   name: string;
   price: number;
@@ -198,21 +200,13 @@ export const useListasStore = defineStore("listas", () => {
   // Ações de itens (todas gravam no servidor; erros chegam como `Error`)
   async function addItemToList(
     listId: string,
-    itemData: Omit<SavedItem, "id" | "addedAt">,
+    payload: AddListItemPayload,
   ): Promise<SavedItem | null> {
     const list = getListById(listId);
     if (!list) return null;
 
     try {
-      const saved = await listasApi.adicionarItem(listId, {
-        productId: itemData.productId,
-        productSlug: itemData.productSlug,
-        name: itemData.name,
-        price: Number(itemData.price) || 0,
-        image: itemData.image ?? "",
-        finishLabel: itemData.finishLabel,
-        finishColor: itemData.finishColor,
-      });
+      const saved = await listasApi.adicionarItem(listId, payload);
 
       const item = mapItem(saved);
       // O servidor devolve o item existente quando já estava salvo
@@ -362,16 +356,15 @@ export const useListasStore = defineStore("listas", () => {
             try {
               await addItemToList(target.id, {
                 productId: item.productId,
-                productSlug: item.productSlug,
-                name: item.name,
-                price: item.price,
-                image: item.image,
                 finishLabel: item.finishLabel,
                 finishColor: item.finishColor,
               });
               importedCount++;
-            } catch {
-              hasFailure = true;
+            } catch (err) {
+              // Produto que não existe mais (400/404) é descartado; só erro de rede tenta de novo
+              const cause = (err as Error).cause;
+              const status = isAxiosError(cause) ? cause.response?.status : undefined;
+              if (status !== 400 && status !== 404) hasFailure = true;
             }
           }
         } catch {

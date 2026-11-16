@@ -97,10 +97,7 @@ async function handleSave() {
     for (const listId of targetIds) {
       await listasStore.addItemToList(listId, {
         productId: product.value.productId,
-        productSlug: product.value.productSlug,
-        name: product.value.name,
-        price: product.value.price,
-        image: product.value.image,
+        variationId: product.value.variationId,
         finishLabel: product.value.finishLabel,
         finishColor: product.value.finishColor,
       });

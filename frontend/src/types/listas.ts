@@ -24,17 +24,6 @@ export interface UserList {
   items: SavedItem[];
 }
 
-export interface SaveProductPayload {
-  productId: string;
-  productSlug?: string;
-  name: string;
-  price: number;
-  image: string;
-  finishLabel?: string;
-  finishColor?: string;
-  listIds: string[];
-}
-
 export interface CreateListPayload {
   name: string;
 }
@@ -73,12 +62,10 @@ export interface ApiSharedList {
   items: ApiListItem[];
 }
 
+// Nome, preço e imagem o back busca no banco a partir do productId
 export interface AddListItemPayload {
   productId: string;
-  productSlug?: string;
-  name: string;
-  price: number;
-  image: string;
+  variationId?: string;
   finishLabel?: string;
   finishColor?: string;
 }

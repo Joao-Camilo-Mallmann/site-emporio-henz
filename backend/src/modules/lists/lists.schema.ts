@@ -5,13 +5,8 @@ import { AddListItemDto, ListNameDto, ListQueryFilters } from "./lists.types";
 export { isValidUuid };
 
 const MAX_LIST_NAME = 100;
-const MAX_PRODUCT_ID = 100;
-const MAX_PRODUCT_NAME = 255;
-const MAX_SLUG = 255;
-const MAX_IMAGE = 2048;
 const MAX_FINISH_LABEL = 100;
 const MAX_FINISH_COLOR = 50;
-const MAX_PRICE = 9_999_999_999; // limite do NUMERIC(12, 2)
 
 function readRequiredString(
   raw: unknown,
@@ -83,36 +78,9 @@ export function validateAddItem(body: unknown): {
 
   const raw = body as Record<string, unknown>;
 
-  const productId = readRequiredString(
-    raw.productId,
-    "productId",
-    MAX_PRODUCT_ID,
-  );
-  if (productId.error || !productId.value) return { error: productId.error };
-
-  const name = readRequiredString(raw.name, "name", MAX_PRODUCT_NAME);
-  if (name.error || !name.value) return { error: name.error };
-
-  // Produto sem foto cadastrada é aceito; a imagem fica vazia
-  const image = readOptionalString(raw.image, "image", MAX_IMAGE);
-  if (image.error) return { error: image.error };
-
-  const price = raw.price;
-  if (
-    typeof price !== "number" ||
-    !Number.isFinite(price) ||
-    price < 0 ||
-    price > MAX_PRICE
-  ) {
-    return { error: "O campo price deve ser um número maior ou igual a zero." };
+  if (typeof raw.productId !== "string" || !isValidUuid(raw.productId.trim())) {
+    return { error: "O campo productId deve ser um UUID válido." };
   }
-
-  const productSlug = readOptionalString(
-    raw.productSlug,
-    "productSlug",
-    MAX_SLUG,
-  );
-  if (productSlug.error) return { error: productSlug.error };
 
   const finishLabel = readOptionalString(
     raw.finishLabel,
@@ -141,12 +109,8 @@ export function validateAddItem(body: unknown): {
 
   return {
     value: {
-      productId: productId.value,
-      productSlug: productSlug.value,
+      productId: raw.productId.trim(),
       variationId,
-      name: name.value,
-      price,
-      image: image.value ?? "",
       finishLabel: finishLabel.value,
       finishColor: finishColor.value,
     },

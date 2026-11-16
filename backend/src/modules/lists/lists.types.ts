@@ -67,15 +67,19 @@ export interface ListNameDto {
   name: string;
 }
 
+// O front só diz qual produto e acabamento; nome, preço, slug e imagem vêm do banco
 export interface AddListItemDto {
   productId: string;
-  productSlug?: string;
   variationId?: string;
-  name: string;
-  price: number;
-  image: string;
   finishLabel?: string;
   finishColor?: string;
+}
+
+export interface ListItemProduct {
+  name: string;
+  productSlug: string;
+  price: number;
+  image: string;
 }
 
 export interface AddListItemResult {
