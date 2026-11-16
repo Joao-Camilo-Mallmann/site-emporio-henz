@@ -13,6 +13,13 @@ const isSubmitting = ref(false);
 
 const product = computed(() => listasStore.activeProductToSave);
 
+// Listas em que o móvel já está salvo: desmarcar uma delas remove o móvel dela
+const savedInIds = computed(() =>
+  product.value
+    ? listasStore.getListsContainingProduct(product.value.productId)
+    : [],
+);
+
 // Formatação do preço do produto
 const formattedPrice = computed(() => {
   if (!product.value || typeof product.value.price !== "number") {
@@ -73,14 +80,19 @@ async function handleCreateFolder() {
 async function handleSave() {
   if (!product.value) return;
 
-  if (selectedListIds.value.size === 0) {
-    toast.warning("Selecione ao menos uma pasta para salvar o móvel.");
-    return;
-  }
-
   isSubmitting.value = true;
   try {
     const targetIds = Array.from(selectedListIds.value);
+    const productId = product.value.productId;
+    const removed = savedInIds.value.filter((id) => !selectedListIds.value.has(id));
+
+    await Promise.all(
+      removed.flatMap((listId) =>
+        (listasStore.getListById(listId)?.items ?? [])
+          .filter((item) => item.productId === productId)
+          .map((item) => listasStore.removeItemFromList(listId, item.id)),
+      ),
+    );
 
     for (const listId of targetIds) {
       await listasStore.addItemToList(listId, {
@@ -96,9 +108,11 @@ async function handleSave() {
 
     const count = targetIds.length;
     const toastMsg =
-      count === 1
-        ? `Móvel salvo com sucesso na sua lista!`
-        : `Móvel salvo em ${count} listas com sucesso!`;
+      count === 0
+        ? "Móvel removido das suas listas."
+        : count === 1
+          ? `Móvel salvo com sucesso na sua lista!`
+          : `Móvel salvo em ${count} listas com sucesso!`;
 
     toast.success(toastMsg);
 
@@ -305,7 +319,7 @@ function getIconColorClass(listType: string): string {
           variant="primary"
           size="sm"
           :loading="isSubmitting"
-          :disabled="selectedListIds.size === 0"
+          :disabled="selectedListIds.size === 0 && savedInIds.length === 0"
           @click="handleSave"
         >
           Salvar na Pasta

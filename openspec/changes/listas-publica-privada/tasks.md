@@ -2,6 +2,7 @@
 
 - [x] 1.1 `[BE]` Criar `backend/database/migrations/016_lists_private_by_default.sql` (padrão `FALSE` e listas existentes privadas)
 - [x] 1.2 `[BE]` `validateShare` em `lists.schema.ts`, `setPublic` em repository, service e controller, rota `PATCH /:id/compartilhamento`
+- [x] 1.2.1 `[BE]` `GET /listas` paginado no envelope `{ data, pagination }` (`validateListQuery`, `listPageByClient`), e store do front percorrendo as páginas
 - [x] 1.3 `[BE]` Testes em `backend/tests/modules/lists/` (padrão privado, ligar/desligar, lista alheia, corpo inválido) e `bun test` verde
 
 ## 2. Frontend

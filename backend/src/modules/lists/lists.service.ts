@@ -9,7 +9,10 @@ import {
   AddListItemResult,
   ListDto,
   ListNameDto,
+  ListQueryFilters,
   ListWithItemsDto,
+  PaginatedListsResult,
+  PaginatedListsWithItemsResult,
   SharedListDto,
 } from "@/modules/lists/lists.types";
 
@@ -41,26 +44,34 @@ export class ListsService {
   }
 
   // As 3 listas padrão são criadas no primeiro acesso do cliente
-  async listMine(userId: string): Promise<ListDto[]> {
+  async listMine(
+    userId: string,
+    filters: ListQueryFilters = {},
+  ): Promise<PaginatedListsResult> {
     const clientId = await this.resolveClientId(userId);
     await this.repo.ensureSystemLists(clientId);
-    return await this.repo.listByClient(clientId);
+    return await this.repo.listPageByClient(clientId, filters);
   }
 
   // Mesma listagem, já com os itens de cada lista (uma chamada só para o front)
-  async listMineWithItems(userId: string): Promise<ListWithItemsDto[]> {
+  async listMineWithItems(
+    userId: string,
+    filters: ListQueryFilters = {},
+  ): Promise<PaginatedListsWithItemsResult> {
     const clientId = await this.resolveClientId(userId);
     await this.repo.ensureSystemLists(clientId);
 
-    const [lists, rows] = await Promise.all([
-      this.repo.listByClient(clientId),
+    const [result, rows] = await Promise.all([
+      this.repo.listPageByClient(clientId, filters),
       this.repo.listItemsByClient(clientId),
     ]);
 
-    return lists.map((list) => ({
+    const data = result.data.map((list) => ({
       ...list,
       items: rows.filter((r) => r.listId === list.id).map((r) => r.item),
     }));
+
+    return { ...result, data };
   }
 
   async getMine(userId: string, listId: string): Promise<ListWithItemsDto> {

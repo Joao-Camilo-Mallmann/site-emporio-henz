@@ -4,6 +4,7 @@ import { RequestContext } from "@/lib/router";
 import {
   validateAddItem,
   validateListName,
+  validateListQuery,
   validateShare,
 } from "@/modules/lists/lists.schema";
 import { listsService, ListsService } from "@/modules/lists/lists.service";
@@ -27,14 +28,15 @@ export class ListsController {
   }
 
   // `?itens=true` devolve cada lista já com os itens salvos
-  async list(req: Request, ctx: RequestContext): Promise<Response> {
-    const withItems = new URL(req.url).searchParams.get("itens") === "true";
+  async list(_req: Request, ctx: RequestContext): Promise<Response> {
+    const withItems = ctx.url.searchParams.get("itens") === "true";
+    const filters = validateListQuery(ctx.url);
     const userId = this.userId(ctx);
 
     return ok(
       withItems
-        ? await this.service.listMineWithItems(userId)
-        : await this.service.listMine(userId),
+        ? await this.service.listMineWithItems(userId, filters)
+        : await this.service.listMine(userId, filters),
     );
   }
 

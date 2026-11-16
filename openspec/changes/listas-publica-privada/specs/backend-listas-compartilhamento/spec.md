@@ -33,3 +33,15 @@ O sistema SHALL expor `PATCH /api/v1/listas/:id/compartilhamento` para o cliente
 
 - **WHEN** um cliente envia a requisição para uma lista que não é dele
 - **THEN** a resposta SHALL ser `404` e a lista não SHALL mudar
+
+### Requirement: Listagem paginada das listas do cliente
+
+`GET /api/v1/listas` SHALL responder no envelope de paginação do sistema (`{ data, pagination: { page, limit, total, totalPages } }`), lendo `page` e `limit` com as mesmas regras das outras listagens (`parsePagination`: `page` de 1 a 10000, `limit` de 1 a 100, padrão 20). Com `?itens=true`, cada lista de `data` SHALL trazer `items`.
+
+#### Scenario: Segunda página
+- **WHEN** o cliente tem 6 listas e pede `GET /api/v1/listas?page=2&limit=4`
+- **THEN** a resposta SHALL trazer 2 listas em `data` e `pagination` igual a `{ page: 2, limit: 4, total: 6, totalPages: 2 }`
+
+#### Scenario: Front carrega todas as listas
+- **WHEN** o front monta "Minhas listas"
+- **THEN** ele SHALL pedir as páginas com `limit=100` até `totalPages`, como a store de categorias

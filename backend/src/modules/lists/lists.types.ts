@@ -1,3 +1,5 @@
+import { Paginated } from "@/lib/pagination";
+
 export type SystemListType = "FAVORITES" | "WISHLIST" | "GIFT_LIST";
 export type ListType = SystemListType | "CUSTOM";
 
@@ -36,6 +38,14 @@ export interface ListItemDto {
 export interface ListWithItemsDto extends ListDto {
   items: ListItemDto[];
 }
+
+export interface ListQueryFilters {
+  page?: number;
+  limit?: number;
+}
+
+export type PaginatedListsResult = Paginated<ListDto>;
+export type PaginatedListsWithItemsResult = Paginated<ListWithItemsDto>;
 
 // Visão pública do link compartilhado: nada que identifique o dono da lista
 export interface SharedListDto {

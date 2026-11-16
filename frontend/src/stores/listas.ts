@@ -141,8 +141,16 @@ export const useListasStore = defineStore("listas", () => {
 
     isLoading.value = true;
     try {
-      const data = await listasApi.listar();
-      lists.value = data.map(mapList);
+      const acumuladas: ApiList[] = [];
+      let page = 1;
+      let totalPages: number;
+      do {
+        const resposta = await listasApi.listar({ page, limit: 100 });
+        acumuladas.push(...resposta.data);
+        totalPages = resposta.pagination.totalPages || 1;
+        page += 1;
+      } while (page <= totalPages);
+      lists.value = acumuladas.map(mapList);
     } catch (err) {
       toast.error(apiErrorMessage(err, "Não foi possível carregar suas listas."));
     } finally {

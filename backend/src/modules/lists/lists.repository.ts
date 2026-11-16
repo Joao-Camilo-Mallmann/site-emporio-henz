@@ -1,9 +1,12 @@
 import { sql } from "@/config/database";
+import { paginate, resolvePagination } from "@/lib/pagination";
 import {
   AddListItemDto,
   ListDto,
   ListItemDto,
+  ListQueryFilters,
   ListType,
+  PaginatedListsResult,
   SharedListRef,
   SYSTEM_LISTS,
 } from "@/modules/lists/lists.types";
@@ -98,7 +101,29 @@ export class ListsRepository {
     });
   }
 
-  async listByClient(clientId: string): Promise<ListDto[]> {
+  async listPageByClient(
+    clientId: string,
+    filters: ListQueryFilters = {},
+  ): Promise<PaginatedListsResult> {
+    const { page, limit, offset } = resolvePagination(filters);
+
+    const countRows = await sql<{ count: string }[]>`
+      SELECT COUNT(*)::text AS count
+      FROM lists
+      WHERE client_id = ${clientId} AND deleted_at IS NULL
+    `;
+
+    const total = parseInt(countRows[0]?.count || "0", 10);
+    const data = await this.listByClient(clientId, limit, offset);
+    return paginate(data, total, { page, limit });
+  }
+
+  // Sem `limit`, devolve todas (o atendimento no tablet usa assim)
+  async listByClient(
+    clientId: string,
+    limit: number | null = null,
+    offset = 0,
+  ): Promise<ListDto[]> {
     const rows = await sql<ListDbRow[]>`
       SELECT
         l.id, l.name, l.list_type, l.is_system, l.share_slug, l.is_public,
@@ -118,7 +143,9 @@ export class ListsRepository {
           WHEN 'GIFT_LIST' THEN 3
           ELSE 4
         END,
-        l.created_at ASC
+        l.created_at ASC,
+        l.id ASC
+      LIMIT ${limit} OFFSET ${offset}
     `;
 
     return rows.map(mapList);

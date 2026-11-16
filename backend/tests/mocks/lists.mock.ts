@@ -1,9 +1,12 @@
+import { paginate, resolvePagination } from "@/lib/pagination";
 import { ListsRepository } from "@/modules/lists/lists.repository";
 import {
   AddListItemDto,
   ListDto,
   ListItemDto,
+  ListQueryFilters,
   ListType,
+  PaginatedListsResult,
   SharedListRef,
   SYSTEM_LISTS,
 } from "@/modules/lists/lists.types";
@@ -100,6 +103,15 @@ export class FakeListsRepository extends ListsRepository {
       );
       if (!exists) this.newList(clientId, def.name, def.listType, true);
     }
+  }
+
+  async listPageByClient(
+    clientId: string,
+    filters: ListQueryFilters = {},
+  ): Promise<PaginatedListsResult> {
+    const { page, limit, offset } = resolvePagination(filters);
+    const all = await this.listByClient(clientId);
+    return paginate(all.slice(offset, offset + limit), all.length, { page, limit });
   }
 
   async listByClient(clientId: string): Promise<ListDto[]> {

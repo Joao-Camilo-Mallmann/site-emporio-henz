@@ -11,6 +11,7 @@ O PRD (RF10, UC05) prevê que o cliente gere um link público somente-leitura pa
 - **Back**: nova rota `PATCH /api/v1/listas/:id/compartilhamento` com `{ "isPublic": boolean }`, só para o dono, válida também para as listas padrão. Resposta: a lista atualizada.
 - **Front** (`MinhasListasModal.vue`): botão Privada/Pública em cada lista. Quando pública, mostra o link e o botão "Copiar link". Quando privada, não há link. O pedido de orçamento no WhatsApp só leva o link se a lista for pública.
 - **Front, página própria**: a lista compartilhada deixa de ser um modal sobre o catálogo (`/catalogo?lista=<uuid>`) e passa a ter a rota `/lista/:shareSlug` (`ListaCompartilhadaView.vue`), que mostra o que `GET /listas/compartilhadas/:shareSlug` devolve. O formato `/catalogo?lista=<uuid>` deixa de existir (sem redirecionamento). O `ListaCompartilhadaModal.vue` e o estado dele na store saem. O tablet de atendimento aceita só o link novo.
+- **Back, paginação (RNF11)**: `GET /api/v1/listas` passa a responder no envelope `{ data, pagination }` com `page` e `limit`, como as outras listagens. **BREAKING** para quem lia o array direto; o front passa a percorrer as páginas.
 - **Docs**: PRD (RF10, UC06 A1), `docs/backend/README.md` e collection Bruno.
 
 ## Capabilities

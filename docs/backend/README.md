@@ -207,7 +207,7 @@ Cada cliente tem as 3 listas padrão (Favoritos, Lista de Desejos e Lista de Pre
 
 | Rota | Quem | Corpo | Resposta |
 | --- | --- | --- | --- |
-| `GET /api/v1/listas` | Cliente autenticado | — (opcional `?itens=true`) | `200` com as listas (`id`, `name`, `listType`, `isSystem`, `shareSlug`, `isPublic`, `itemsCount`, `createdAt`, `updatedAt`), padrão primeiro; com `?itens=true` cada lista já traz `items` |
+| `GET /api/v1/listas` | Cliente autenticado | `?page`, `?limit`, opcional `?itens=true` | `200` com `{ data, pagination }`; cada item de `data` é uma lista (`id`, `name`, `listType`, `isSystem`, `shareSlug`, `isPublic`, `itemsCount`, `createdAt`, `updatedAt`), padrão primeiro; com `?itens=true` cada lista já traz `items` |
 | `POST /api/v1/listas` | Cliente autenticado | `{ name }` (1 a 100 caracteres) | `201` com a pasta criada (`listType: CUSTOM`) |
 | `GET /api/v1/listas/:id` | Dono da lista | — | `200` com a lista e `items`; `404` se não existe, foi excluída ou é de outro cliente |
 | `PATCH /api/v1/listas/:id` | Dono da lista | `{ name }` | `200` com a lista; `403` para listas padrão |

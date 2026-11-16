@@ -1,5 +1,6 @@
+import { parsePagination } from "@/lib/pagination";
 import { isValidUuid } from "@/lib/slug";
-import { AddListItemDto, ListNameDto } from "./lists.types";
+import { AddListItemDto, ListNameDto, ListQueryFilters } from "./lists.types";
 
 export { isValidUuid };
 
@@ -150,4 +151,8 @@ export function validateAddItem(body: unknown): {
       finishColor: finishColor.value,
     },
   };
+}
+
+export function validateListQuery(url: URL): ListQueryFilters {
+  return parsePagination(url);
 }

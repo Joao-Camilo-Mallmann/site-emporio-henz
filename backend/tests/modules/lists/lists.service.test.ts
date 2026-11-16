@@ -24,7 +24,7 @@ describe("ListsService", () => {
   it("cria as 3 listas padrão no primeiro acesso, na ordem, sem duplicar", async () => {
     const { service, userA } = setup();
 
-    const first = await service.listMine(userA);
+    const first = (await service.listMine(userA)).data;
     expect(first.map((l) => l.listType)).toEqual([
       "FAVORITES",
       "WISHLIST",
@@ -32,7 +32,7 @@ describe("ListsService", () => {
     ]);
     expect(first.every((l) => l.isSystem)).toBe(true);
 
-    const second = await service.listMine(userA);
+    const second = (await service.listMine(userA)).data;
     expect(second).toHaveLength(3);
   });
 
@@ -54,7 +54,7 @@ describe("ListsService", () => {
 
   it("bloqueia renomear e excluir as listas padrão", async () => {
     const { service, userA } = setup();
-    const [favoritos] = await service.listMine(userA);
+    const [favoritos] = (await service.listMine(userA)).data;
 
     await expect(
       service.rename(userA, favoritos.id, { name: "Outro nome" }),
@@ -87,16 +87,32 @@ describe("ListsService", () => {
     expect(detail.items).toHaveLength(2);
   });
 
+  it("pagina as listas no envelope { data, pagination }", async () => {
+    const { service, userA } = setup();
+    await service.create(userA, { name: "Sala" });
+    await service.create(userA, { name: "Quarto" });
+    await service.create(userA, { name: "Cozinha" });
+
+    const first = await service.listMine(userA, { page: 1, limit: 4 });
+    expect(first.data).toHaveLength(4);
+    expect(first.pagination).toEqual({ page: 1, limit: 4, total: 6, totalPages: 2 });
+
+    const second = await service.listMineWithItems(userA, { page: 2, limit: 4 });
+    expect(second.data).toHaveLength(2);
+    expect(second.data.every((l) => Array.isArray(l.items))).toBe(true);
+    expect(second.pagination).toEqual({ page: 2, limit: 4, total: 6, totalPages: 2 });
+  });
+
   it("lista as listas já com os itens de cada uma", async () => {
     const { service, userA, userB } = setup();
-    const [favoritos] = await service.listMine(userA);
+    const [favoritos] = (await service.listMine(userA)).data;
     const pasta = await service.create(userA, { name: "Quarto" });
 
     await service.addItem(userA, favoritos.id, ITEM);
     await service.addItem(userA, pasta.id, ITEM);
     await service.addItem(userA, pasta.id, { ...ITEM, finishLabel: "Branco" });
 
-    const lists = await service.listMineWithItems(userA);
+    const lists = (await service.listMineWithItems(userA)).data;
     const byId = new Map(lists.map((l) => [l.id, l]));
 
     expect(lists).toHaveLength(4);
@@ -104,7 +120,7 @@ describe("ListsService", () => {
     expect(byId.get(pasta.id)?.items).toHaveLength(2);
     expect(byId.get(pasta.id)?.itemsCount).toBe(2);
 
-    const others = await service.listMineWithItems(userB);
+    const others = (await service.listMineWithItems(userB)).data;
     expect(others.every((l) => l.items.length === 0)).toBe(true);
   });
 
@@ -163,7 +179,7 @@ describe("ListsService", () => {
 
   it("lista nasce privada e o dono liga e desliga o link público", async () => {
     const { service, userA } = setup();
-    const [favorites] = await service.listMine(userA);
+    const [favorites] = (await service.listMine(userA)).data;
     const list = await service.create(userA, { name: "Quarto" });
 
     expect(favorites.isPublic).toBe(false);

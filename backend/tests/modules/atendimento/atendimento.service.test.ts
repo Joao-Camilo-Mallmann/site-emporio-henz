@@ -24,7 +24,7 @@ function setup() {
 describe("AtendimentoService", () => {
   it("devolve o cliente com as listas e os itens salvos", async () => {
     const { service, listsService, userId } = setup();
-    const [favoritos] = await listsService.listMine(userId);
+    const [favoritos] = (await listsService.listMine(userId)).data;
     await listsService.addItem(userId, favoritos.id, SAMPLE_ITEM);
     await listsService.addItem(userId, favoritos.id, {
       ...SAMPLE_ITEM,
