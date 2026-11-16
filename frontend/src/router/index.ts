@@ -90,6 +90,18 @@ const router = createRouter({
           },
         },
 
+        // Atendimento presencial no tablet (consulta de listas por e-mail)
+        {
+          path: "atendimento",
+          name: "admin-atendimento",
+          component: () => import("@/views/admin/AtendimentoTabletView.vue"),
+          meta: {
+            title: "Atendimento no Showroom | Empório Henz",
+            requiresAuth: true,
+            roles: [UserRole.Vendedor, UserRole.Administrador],
+          },
+        },
+
         // CRUD Fornecedores (List, New, Edit)
         {
           path: "fornecedores",

@@ -7,7 +7,7 @@ export * from "./listas";
 export * from "./models";
 export * from "./pagination";
 export * from "./products";
+export * from "./atendimento";
 export * from "./subtypes";
 export * from "./suppliers";
 export * from "./users";
-
