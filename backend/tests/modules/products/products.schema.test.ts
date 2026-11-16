@@ -2,7 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { BadRequestError, ConflictError } from "@/lib/errors";
 import { MAX_SEARCH_LENGTH } from "@/lib/pagination";
 import { errorHandler } from "@/middlewares/error";
-import { ROLES } from "@/middlewares/role";
+import { ROLES } from "@/middlewares/rbac";
 import { ProductsController } from "@/modules/products/products.controller";
 import {
   validateCreateProduct,
