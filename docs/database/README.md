@@ -24,7 +24,9 @@ Documentação da persistência PostgreSQL do Empório Henz. O modelo conceitual
 ```text
 backend/database/
 ├── migrate.ts       # Runner de migrações
-├── seed.ts          # Dados iniciais
+├── seed.ts          # Dados iniciais: admin, categorias e produtos de exemplo
+├── seed-products.ts # Produtos de exemplo e fotos (fora de produção)
+├── mock-images/     # Fotos dos produtos de exemplo (<slug>.jpg)
 └── migrations/      # Arquivos SQL versionados
 ```
 

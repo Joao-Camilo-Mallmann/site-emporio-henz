@@ -2,19 +2,17 @@
 import { usuariosApi } from "@/api";
 import { useToast } from "@/composables/useToast";
 import { useAuthStore } from "@/stores/auth";
-import { UserRole, type IUser, type UserFilterParams } from "@/types";
+import { UserRole, type User, type UserFilterParams } from "@/types";
+import { formatPhone } from "@/utils/phone";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
 import VendedorFornecedoresModal from "./VendedorFornecedoresModal.vue";
-import { formatPhone } from "@/utils/phone";
 
-const router = useRouter();
 const toast = useToast();
 const authStore = useAuthStore();
 
 // Estado da Listagem
-const users = ref<IUser[]>([]);
+const users = ref<User[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
@@ -28,9 +26,9 @@ const selectedRole = ref<number | undefined>(undefined);
 
 // Modal de Fornecedores Autorizados (Vendedores)
 const isSuppliersModalOpen = ref(false);
-const selectedVendedor = ref<IUser | null>(null);
+const selectedVendedor = ref<User | null>(null);
 
-function abrirModalFornecedores(user: IUser) {
+function abrirModalFornecedores(user: User) {
   selectedVendedor.value = user;
   isSuppliersModalOpen.value = true;
 }
@@ -42,7 +40,7 @@ function fecharModalFornecedores() {
 
 // Modal de Exclusão Lógica
 const isDeleteModalOpen = ref(false);
-const userToDelete = ref<IUser | null>(null);
+const userToDelete = ref<User | null>(null);
 const actionLoading = ref(false);
 
 async function carregarUsuarios(page = 1) {
@@ -85,7 +83,7 @@ function handleRoleChange() {
   carregarUsuarios(1);
 }
 
-function abrirModalExclusao(user: IUser) {
+function abrirModalExclusao(user: User) {
   if (user.id === authStore.user?.id) {
     toast.warning(
       "Você não pode desativar a sua própria conta de administrador.",
@@ -168,38 +166,15 @@ onMounted(() => {
     class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-5xl mx-auto space-y-6">
-      <!-- Navegação Superior & Cabeçalho Limpo -->
-      <div
-        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <UiButton
-            variant="custom"
-            size="none"
-            class="inline-flex items-center gap-1.5 text-xs font-normal text-stone-500 hover:text-neutral-dark transition-colors mb-2"
-            @click="router.push('/admin')"
-          >
-            <Icon icon="mdi:arrow-left" class="w-3.5 h-3.5" />
-            <span>Painel Administrativo</span>
-          </UiButton>
-          <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-            Usuários & Clientes
-          </h1>
-          <p class="text-sm text-stone-500 mt-0.5">
-            Controle de acessos, perfis e contas cadastradas na loja
-          </p>
-        </div>
-
-        <UiButton
-          size="md"
-          variant="secondary"
-          class="shrink-0"
-          @click="$router.push('/admin/usuarios/novo')"
-        >
-          <Icon icon="mdi:account-plus" class="w-4 h-4" />
-          <span>Novo Usuário</span>
-        </UiButton>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[
+          { name: 'Painel', link: '/admin' },
+          { name: 'Usuários' },
+        ]"
+        title="Usuários & Clientes"
+        description="Controle de acessos, perfis e contas cadastradas na loja"
+        :new-action="{ name: 'Novo Usuário', link: '/admin/usuarios/novo' }"
+      />
 
       <!-- Barra de Filtros & Busca -->
       <div
@@ -384,7 +359,9 @@ onMounted(() => {
                         class="h-8 w-8 text-stone-400 hover:text-secondary hover:bg-sky-50"
                         title="Editar Usuário"
                         aria-label="Editar Usuário"
-                        @click="$router.push(`/admin/usuarios/${user.id}/editar`)"
+                        @click="
+                          $router.push(`/admin/usuarios/${user.id}/editar`)
+                        "
                       >
                         <Icon icon="mdi:pencil-outline" class="w-4 h-4" />
                       </UiButton>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
 import { useRouter } from "vue-router";
+import { storeWhatsappDisplay, storeWhatsappUrl } from "@/utils/phone";
 
 const router = useRouter();
 
@@ -262,12 +263,12 @@ const comoFuncionaItems = [
               </h3>
               <p class="text-xs sm:text-sm text-neutral-dark/85 mt-0.5">
                 <a
-                  href="https://wa.me/5551998981063"
+                  :href="storeWhatsappUrl()"
                   target="_blank"
                   rel="noopener noreferrer"
                   class="hover:text-secondary transition-colors"
                 >
-                  (51) 99898–1063
+                  {{ storeWhatsappDisplay }}
                 </a>
               </p>
             </div>

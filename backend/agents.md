@@ -47,7 +47,26 @@ Toda `interface` e todo `type` nomeado de um módulo vivem no arquivo `<módulo>
 
 ---
 
-## 6. Paginação de Listagens
+## 6. Camadas: Schema, Controller, Service e Repository
+
+Cada camada tem um papel só. A validação acontece inteira antes do service, e só o controller a chama. O `eslint.config.js` barra import de `*.schema` em `*.service.ts` e `*.repository.ts`.
+
+| Camada                   | Papel |
+| ------------------------ | ----- |
+| `<módulo>.schema.ts`     | Toda validação. Formato do payload em funções síncronas (`validate*`), que devolvem `{ error, value }`. Regras que consultam o banco (registro existe, slug livre, vínculos que impedem a exclusão, escopo do vendedor) em funções `async` (`assertCan*`), que lançam o `AppError` da regra e recebem o repository como parâmetro, com o do módulo como padrão, para o teste injetar o mock. |
+| `<módulo>.controller.ts` | Lê a requisição, chama o `validate*` e depois o `assertCan*` do schema, e só então o service. É a única camada que importa o schema. |
+| `<módulo>.service.ts`    | Só executa a operação com dados já validados. Não importa o schema nem repete regra de validação. |
+| `<módulo>.repository.ts` | Só SQL. |
+
+Ficam fora do schema:
+
+- **Travas de concorrência**: o banco garante a regra mesmo que outra requisição mude os dados entre a validação e a escrita (índice único parcial, `NOT EXISTS`, `FOR UPDATE`/`FOR SHARE`). Quando a trava barra a escrita, o service traduz o resultado (violação de unicidade, `false` ou `null` do repository) em `409`. Isso é o resultado da operação, não validação.
+- **Erros que são a própria operação**: credencial inválida no login e falha ao processar uma imagem enviada.
+- **Leitura sem resultado**: o `404` de um `GET` por id continua no service, porque não encontrar é o resultado da busca.
+
+---
+
+## 7. Paginação de Listagens
 
 Toda rota que devolve uma coleção plana de registros é paginada, conforme o RNF11 do [PRD](../docs/PRD.md). O padrão vive em `src/lib/pagination.ts` e não deve ser reimplementado por módulo:
 
@@ -60,13 +79,13 @@ Não devolva array puro em rota de listagem nem crie outro formato de envelope. 
 
 ---
 
-## 7. Soft Delete e Integridade
+## 8. Soft Delete e Integridade
 
 Use soft delete e as regras de integridade conforme o [PRD](../docs/PRD.md) e a [documentação de database](../docs/database/README.md).
 
 ---
 
-## 8. Manutenção Documental
+## 9. Manutenção Documental
 
 | Mudança                                              | Atualizações obrigatórias                                                                   |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |

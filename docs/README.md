@@ -13,7 +13,10 @@ Este diretório reúne a documentação de produto, planejamento e implementaç�
 | Criar histórias, tarefas e issues | [Padrão de histórias e tarefas](./padrao-historias-tarefas.md) |
 | Escrever commits, abrir ou revisar Pull Requests | [Padrão de commits e PRs](./padrao-commits-e-pull-requests.md) |
 | Operar Docker, deploy ou backups | [Infraestrutura](./infra/README.md) |
+| Comandos de desenvolvimento (Docker dev, migrações, Bun local) | [Desenvolvimento](./infra/desenvolvimento.md) |
+| Comandos de produção (deploy, migrações, backup) | [Produção](./infra/producao.md) |
 | Consultar materiais da apresentação | [Apresentação da Parcial 1](./slides/apresentacao-parcial-1.md) |
+| Registrar ou triar achados de usabilidade | [Feedback de usabilidade](./feedback-usabilidade/README.md) |
 
 ### Frontend
 
@@ -63,8 +66,9 @@ docs/
 │   ├── README.md                   # Arquitetura e execução da interface
 │   └── design-system-cores.md      # Tokens visuais
 ├── infra/
-│   ├── README.md                   # Docker, deploy e operação
-│   └── backup-restore-guide.md     # Backup e restauração
+│   ├── README.md                   # Serviços do Compose e referências
+│   ├── desenvolvimento.md          # Comandos de desenvolvimento
+│   └── producao.md                 # Comandos de produção, deploy e backup
 ├── slides/                         # Apresentação e roteiro
 └── prints/                         # Evidências visuais da aplicação
 ```

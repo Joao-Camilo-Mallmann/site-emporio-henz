@@ -2,6 +2,7 @@
 import AppFooter from "@/components/layout/AppFooter.vue";
 import AppNavbar from "@/components/layout/AppNavbar.vue";
 import ListaCompartilhadaModal from "@/components/listas/ListaCompartilhadaModal.vue";
+import LoginParaSalvarModal from "@/components/listas/LoginParaSalvarModal.vue";
 import MinhasListasModal from "@/components/listas/MinhasListasModal.vue";
 import SalvarEmListaModal from "@/components/listas/SalvarEmListaModal.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -53,6 +54,7 @@ watch(
 
     <!-- Modais Globais de Listas e Salvamento de Produtos -->
     <SalvarEmListaModal />
+    <LoginParaSalvarModal />
     <MinhasListasModal />
     <ListaCompartilhadaModal />
   </div>

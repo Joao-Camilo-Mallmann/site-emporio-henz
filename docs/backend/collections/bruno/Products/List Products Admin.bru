@@ -13,7 +13,7 @@ get {
 params:query {
   page: 1
   limit: 20
-  ~search: roupeiro
+  ~search: ROUPEIRO_Romã
   ~categoryId: 00000000-0000-0000-0000-000000000000
   ~subtypeId: 00000000-0000-0000-0000-000000000000
   ~supplierId: 00000000-0000-0000-0000-000000000000
@@ -33,5 +33,6 @@ docs {
   - **Administrador (`role = 3`)**: visão global de todos os fornecedores, incluindo ativos e inativos (`active=true|false` ou `status=active|inactive`).
   - **Vendedor (`role = 2`)**: retorna exclusivamente produtos dos fornecedores vinculados ativamente ao vendedor em `user_suppliers`. Retorna `403 Forbidden` se o vendedor não possuir nenhum vínculo ativo ou se informar um `supplierId` fora de seus vínculos.
   - Aceita os mesmos filtros da listagem pública, incluindo a faixa de preço `minPrice` / `maxPrice`.
+  - O `search` segue a mesma regra da listagem pública: normalizado para a forma de slug (sem acentos, minúsculas, separadores viram hífen) e comparado com nome, descrição e linha/coleção também normalizados. `ROUPEIRO_Romã` encontra "Roupeiro Roma".
   - Cada item traz `thumbnailUrl` da capa (primeira foto ativa sem variação; depois a primeira de variação; `null` sem foto), como na listagem pública.
 }

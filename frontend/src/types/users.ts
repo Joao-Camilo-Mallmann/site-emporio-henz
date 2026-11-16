@@ -1,7 +1,7 @@
 import type { UserRole } from "./auth";
 import type { Paginated, PaginationParams } from "./pagination";
 
-export interface IUser {
+export interface User {
   id: string;
   email: string;
   role: UserRole | number;
@@ -34,4 +34,4 @@ export interface UserFilterParams extends PaginationParams {
   role?: UserRole | number;
 }
 
-export type PaginatedUsersResponse = Paginated<IUser>;
+export type PaginatedUsersResponse = Paginated<User>;

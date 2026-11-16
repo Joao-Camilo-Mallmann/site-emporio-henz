@@ -1,6 +1,6 @@
 import { Router } from "@/lib/router";
 import { attachUserIfAuthenticated, authMiddleware } from "@/middlewares/auth";
-import { requireRole, ROLES } from "@/middlewares/role";
+import { requireRole, ROLES } from "@/middlewares/rbac";
 import { productsController } from "@/modules/products/products.controller";
 
 export const productsRoutes = new Router();
@@ -11,13 +11,14 @@ productsRoutes.get("/", attachUserIfAuthenticated, (req, ctx) =>
   productsController.list(req, ctx),
 );
 
-// Endpoint público de recomendações: GET /api/v1/produtos/:id/recomendados
+// Endpoint público de recomendações: GET /api/v1/produtos/:id/recomendados (aceita UUID ou slug)
 productsRoutes.get("/:id/recomendados", (req, ctx) =>
   productsController.getRecommendations(req, ctx),
 );
 
+// Leitura de detalhe: GET /api/v1/produtos/:id (aceita UUID ou slug)
 productsRoutes.get("/:id", attachUserIfAuthenticated, (req, ctx) =>
-  productsController.getById(req, ctx),
+  productsController.getByIdOrSlug(req, ctx),
 );
 
 // Mutações de produtos: Restritas a Vendedor (role = 2, validado por user_suppliers) e Admin (role = 3)

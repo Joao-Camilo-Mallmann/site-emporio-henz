@@ -1,5 +1,6 @@
 import { BadRequestError } from "@/lib/errors";
 import { paginate, resolvePagination } from "@/lib/pagination";
+import { slugify } from "@/lib/slug";
 import { ProductsRepository } from "@/modules/products/products.repository";
 import {
   CreateProductDto,
@@ -64,7 +65,9 @@ export class MockProductsRepository extends ProductsRepository {
       return paginate([], 0, { page, limit });
     }
 
-    const search = filters.search?.toLowerCase();
+    // O termo já chega na forma de slug (normalizado pelo schema); só os campos
+    // são normalizados aqui, espelhando a normalização feita na query do repositório.
+    const search = filters.search;
 
     const filtered = this.products.filter((p) => {
       if (p.deleted) return false;
@@ -93,11 +96,10 @@ export class MockProductsRepository extends ProductsRepository {
         return false;
       }
       if (search) {
-        const matchesName = p.name.toLowerCase().includes(search);
-        const matchesDesc = (p.description ?? "")
-          .toLowerCase()
-          .includes(search);
-        if (!matchesName && !matchesDesc) return false;
+        const matchesName = slugify(p.name).includes(search);
+        const matchesDesc = slugify(p.description ?? "").includes(search);
+        const matchesLine = slugify(p.collectionLine ?? "").includes(search);
+        if (!matchesName && !matchesDesc && !matchesLine) return false;
       }
       return true;
     });
@@ -122,6 +124,16 @@ export class MockProductsRepository extends ProductsRepository {
     return dto;
   }
 
+  async findBySlug(slug: string): Promise<ProductDto | null> {
+    const p = this.products.find((item) => item.slug === slug);
+    if (!p || p.deleted) {
+      return null;
+    }
+    const { deleted, ...dto } = p;
+    void deleted;
+    return dto;
+  }
+
   async findManageableById(id: string) {
     return this.findById(id);
   }
@@ -129,9 +141,18 @@ export class MockProductsRepository extends ProductsRepository {
   async findDetailById(id: string): Promise<ProductDetailDto | null> {
     const base = await this.findById(id);
     if (!base) return null;
+    return this.buildDetail(base);
+  }
 
+  async findDetailBySlug(slug: string): Promise<ProductDetailDto | null> {
+    const base = await this.findBySlug(slug);
+    if (!base) return null;
+    return this.buildDetail(base);
+  }
+
+  private buildDetail(base: ProductDto): ProductDetailDto {
     const variations = this.variations
-      .filter((v) => v.productId === id && !v.deleted)
+      .filter((v) => v.productId === base.id && !v.deleted)
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .map(({ deleted, ...v }) => {
         void deleted;
@@ -139,7 +160,7 @@ export class MockProductsRepository extends ProductsRepository {
       });
 
     const images = this.images
-      .filter((img) => img.productId === id && !img.deleted)
+      .filter((img) => img.productId === base.id && !img.deleted)
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .map(({ deleted, ...img }) => {
         void deleted;

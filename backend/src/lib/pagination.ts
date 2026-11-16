@@ -1,3 +1,5 @@
+import { slugify } from "@/lib/slug";
+
 export const DEFAULT_PAGE_LIMIT = 20;
 export const MAX_PAGE_LIMIT = 100;
 export const MAX_PAGE = 10_000;
@@ -74,4 +76,12 @@ export function parseSearch(url: URL): string | undefined {
 // Escapa os curingas do LIKE/ILIKE para que o termo seja buscado literalmente.
 export function escapeLike(term: string): string {
   return term.replace(/[\\%_]/g, "\\$&");
+}
+
+// Termo de busca na forma de slug (RF05): corta em MAX_SEARCH_LENGTH e só então
+// normaliza (sem acentos, minúsculas, separadores viram hífen). Termo que fica
+// vazio é ignorado, como um termo em branco.
+export function parseSearchSlug(url: URL): string | undefined {
+  const search = parseSearch(url);
+  return search ? slugify(search) || undefined : undefined;
 }

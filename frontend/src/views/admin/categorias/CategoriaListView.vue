@@ -1,81 +1,74 @@
 <script setup lang="ts">
 import { categoriasApi } from "@/api";
 import { useToast } from "@/composables/useToast";
-import type { CategoryFilterParams, ICategory } from "@/types";
+import { useCategoriasStore } from "@/stores/categorias";
+import type { Category } from "@/types";
 import { Icon } from "@iconify/vue";
-import { onMounted, ref } from "vue";
+import { storeToRefs } from "pinia";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import SubcategoriaListModal from "./subcategorias/SubcategoriaListModal.vue";
 
 const router = useRouter();
 const toast = useToast();
+const categoriasStore = useCategoriasStore();
+const { todas, loading, error } = storeToRefs(categoriasStore);
 
-// Estado da Listagem de Categorias
-const categories = ref<ICategory[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-
-// Paginação e Filtros
+// Paginação e Filtros locais sobre os dados da store
 const currentPage = ref(1);
-const totalPages = ref(1);
-const totalCategories = ref(0);
 const pageSize = ref(10);
 const searchTerm = ref("");
 const statusFilter = ref<string>("todos");
 
+const hasActiveFilters = computed(
+  () => searchTerm.value.trim() !== "" || statusFilter.value !== "todos",
+);
+
+const filteredCategories = computed(() => {
+  const term = searchTerm.value.trim().toLowerCase();
+  return todas.value.filter((cat) => {
+    if (statusFilter.value === "ativos" && !cat.active) return false;
+    if (statusFilter.value === "inativos" && cat.active) return false;
+    if (term && !cat.name.toLowerCase().includes(term)) return false;
+    return true;
+  });
+});
+
+const totalCategories = computed(() => filteredCategories.value.length);
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(totalCategories.value / pageSize.value)),
+);
+const paginatedCategories = computed(() => {
+  const page = Math.min(currentPage.value, totalPages.value);
+  const start = (page - 1) * pageSize.value;
+  return filteredCategories.value.slice(start, start + pageSize.value);
+});
+
+watch([searchTerm, statusFilter], () => {
+  currentPage.value = 1;
+});
+
+watch(totalPages, (pages) => {
+  if (currentPage.value > pages) {
+    currentPage.value = pages;
+  }
+});
+
 // Modal de Exclusão de Categoria
 const isDeleteCategoryModalOpen = ref(false);
-const categoryToDelete = ref<ICategory | null>(null);
+const categoryToDelete = ref<Category | null>(null);
 const actionLoading = ref(false);
 
 // Modal Modular de Subtipos
 const isSubtypesModalOpen = ref(false);
-const selectedCategory = ref<ICategory | null>(null);
-
-// Carregar Categorias
-async function carregarCategorias(page = 1) {
-  loading.value = true;
-  error.value = null;
-  currentPage.value = page;
-
-  try {
-    const params: CategoryFilterParams = {
-      page,
-      limit: pageSize.value,
-      search: searchTerm.value.trim() || undefined,
-    };
-
-    if (statusFilter.value === "ativos") {
-      params.active = true;
-    } else if (statusFilter.value === "inativos") {
-      params.active = false;
-    }
-
-    const response = await categoriasApi.listar(params);
-    categories.value = response.data;
-    currentPage.value = response.pagination.page;
-    totalPages.value = response.pagination.totalPages || 1;
-    totalCategories.value = response.pagination.total;
-  } catch (err: unknown) {
-    const errorObj = err as {
-      response?: { data?: { message?: string } };
-      message?: string;
-    };
-    error.value =
-      errorObj.response?.data?.message ||
-      errorObj.message ||
-      "Falha ao carregar lista de categorias.";
-  } finally {
-    loading.value = false;
-  }
-}
+const selectedCategory = ref<Category | null>(null);
 
 function handleSearch() {
-  carregarCategorias(1);
+  currentPage.value = 1;
 }
 
 // Exclusão Lógica de Categoria (Soft Delete)
-function abrirModalExclusaoCategoria(category: ICategory) {
+function abrirModalExclusaoCategoria(category: Category) {
   categoryToDelete.value = category;
   isDeleteCategoryModalOpen.value = true;
 }
@@ -91,14 +84,9 @@ async function confirmarExclusaoCategoria() {
   actionLoading.value = true;
   try {
     await categoriasApi.deletar(categoryToDelete.value.id);
-    const index = categories.value.findIndex(
-      (c) => c.id === categoryToDelete.value?.id,
-    );
-    if (index !== -1) {
-      categories.value[index].active = false;
-    }
     toast.info("Categoria desativada com sucesso.");
     fecharModalExclusaoCategoria();
+    await categoriasStore.recarregar();
   } catch (err: unknown) {
     const errorObj = err as {
       response?: { data?: { message?: string } };
@@ -115,7 +103,7 @@ async function confirmarExclusaoCategoria() {
 }
 
 // Gestão de Subtipos via Modal Modular
-function abrirModalSubtipos(category: ICategory) {
+function abrirModalSubtipos(category: Category) {
   selectedCategory.value = category;
   isSubtypesModalOpen.value = true;
 }
@@ -126,7 +114,7 @@ function fecharModalSubtipos() {
 }
 
 onMounted(() => {
-  carregarCategorias();
+  void categoriasStore.carregar();
 });
 </script>
 
@@ -135,38 +123,12 @@ onMounted(() => {
     class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-5xl mx-auto space-y-6">
-      <!-- Cabeçalho e Navegação Superior -->
-      <div
-        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <UiButton
-            variant="custom"
-            size="none"
-            class="inline-flex items-center gap-1.5 text-xs font-normal text-stone-500 hover:text-neutral-dark transition-colors mb-2"
-            @click="router.push('/admin')"
-          >
-            <Icon icon="mdi:arrow-left" class="w-3.5 h-3.5" />
-            <span>Painel Administrativo</span>
-          </UiButton>
-          <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-            Categorias & Subtipos
-          </h1>
-          <p class="text-sm text-stone-500 mt-0.5">
-            Ambientes e tipologias de móveis vinculadas ao catálogo da loja
-          </p>
-        </div>
-
-        <UiButton
-          variant="secondary"
-          size="md"
-          class="shrink-0"
-          @click="router.push('/admin/categorias/nova')"
-        >
-          <Icon icon="mdi:plus" class="w-4 h-4" />
-          <span>Nova Categoria</span>
-        </UiButton>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[{ name: 'Painel', link: '/admin' }, { name: 'Categorias' }]"
+        title="Categorias & Subtipos"
+        description="Ambientes e tipologias de móveis vinculadas ao catálogo da loja"
+        :new-action="{ name: 'Nova Categoria', link: '/admin/categorias/nova' }"
+      />
 
       <!-- Barra de Filtros & Busca -->
       <div
@@ -243,7 +205,7 @@ onMounted(() => {
           variant="danger"
           size="sm"
           class="shrink-0"
-          @click="carregarCategorias(currentPage)"
+          @click="categoriasStore.recarregar()"
         >
           Tentar Novamente
         </UiButton>
@@ -251,7 +213,7 @@ onMounted(() => {
 
       <!-- Estado Vazio -->
       <div
-        v-else-if="categories.length === 0"
+        v-else-if="paginatedCategories.length === 0"
         class="py-14 bg-white rounded-xl border border-stone-200 text-center px-4"
       >
         <div
@@ -264,13 +226,13 @@ onMounted(() => {
         </h3>
         <p class="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
           {{
-            searchTerm
-              ? "Nenhum resultado corresponde aos termos da pesquisa."
+            hasActiveFilters
+              ? "Nenhum resultado corresponde aos filtros aplicados."
               : "Ainda não há categorias cadastradas no mostruário."
           }}
         </p>
         <UiButton
-          v-if="!searchTerm"
+          v-if="!hasActiveFilters"
           variant="secondary"
           size="sm"
           class="mt-3.5"
@@ -301,7 +263,7 @@ onMounted(() => {
               </thead>
               <tbody class="divide-y divide-stone-100 text-sm">
                 <tr
-                  v-for="cat in categories"
+                  v-for="cat in paginatedCategories"
                   :key="cat.id"
                   class="hover:bg-stone-50/60 transition-colors"
                 >
@@ -402,7 +364,7 @@ onMounted(() => {
           :total="totalCategories"
           item-label="categorias"
           :disabled="loading"
-          @update:page="carregarCategorias"
+          @update:page="currentPage = $event"
         />
       </div>
     </div>
@@ -412,7 +374,6 @@ onMounted(() => {
       :open="isSubtypesModalOpen"
       :category="selectedCategory"
       @close="fecharModalSubtipos"
-      @change="carregarCategorias(currentPage)"
     />
 
     <!-- Modal de Confirmação de Exclusão de Categoria -->

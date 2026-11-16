@@ -70,6 +70,9 @@ export const useListasStore = defineStore("listas", () => {
   const isManageModalOpen = ref(false);
   const activeProductToSave = ref<ActiveProductToSave | null>(null);
   const selectedListIdForManage = ref<string | null>(null);
+  // Convite de login para visitantes (PRD UC04, fluxo A1)
+  const isLoginPromptOpen = ref(false);
+  const pendingProductToSave = ref<ActiveProductToSave | null>(null);
 
   // Lista aberta pelo link público (somente leitura)
   const sharedList = ref<SharedList | null>(null);
@@ -77,8 +80,21 @@ export const useListasStore = defineStore("listas", () => {
 
   let isImporting = false;
 
+  // Retoma o salvamento pendente assim que o visitante se autentica
+  watch(
+    () => authStore.isAuthenticated,
+    (isAuthenticated) => {
+      if (!isAuthenticated || !pendingProductToSave.value) return;
+      const product = pendingProductToSave.value;
+      pendingProductToSave.value = null;
+      isLoginPromptOpen.value = false;
+      openSaveModal(product);
+    },
+  );
+
   // Getters
   const totalSavedCount = computed(() => {
+    if (!authStore.isAuthenticated) return 0;
     const uniqueProductIds = new Set<string>();
     for (const list of lists.value) {
       for (const item of list.items) {
@@ -106,6 +122,7 @@ export const useListasStore = defineStore("listas", () => {
   }
 
   function isProductSavedAnywhere(productId: string): boolean {
+    if (!authStore.isAuthenticated) return false;
     return lists.value.some((list) =>
       list.items.some((item) => item.productId === productId),
     );
@@ -135,25 +152,11 @@ export const useListasStore = defineStore("listas", () => {
     }
   }
 
-  // Visitantes sem login são levados ao login e voltam para a mesma página
-  async function goToLogin(): Promise<void> {
-    const { default: router } = await import("@/router");
-    await router.push({
-      path: "/login",
-      query: { redirect: router.currentRoute.value.fullPath },
-    });
-  }
-
-  function requireLogin(message: string): boolean {
-    if (authStore.isAuthenticated) return true;
-    toast.info(message);
-    void goToLogin();
-    return false;
-  }
-
   // Modais
   function openSaveModal(product: ActiveProductToSave): void {
-    if (!requireLogin("Entre na sua conta para salvar móveis nas suas listas.")) {
+    if (!authStore.isAuthenticated) {
+      pendingProductToSave.value = { ...product };
+      isLoginPromptOpen.value = true;
       return;
     }
     activeProductToSave.value = { ...product };
@@ -165,8 +168,16 @@ export const useListasStore = defineStore("listas", () => {
     activeProductToSave.value = null;
   }
 
+  // Fecha o convite; mantém o produto pendente só quando o visitante segue para o login
+  function closeLoginPrompt(keepPending = false): void {
+    isLoginPromptOpen.value = false;
+    if (!keepPending) pendingProductToSave.value = null;
+  }
+
   function openManageModal(targetListId?: string): void {
-    if (!requireLogin("Entre na sua conta para ver os móveis que você salvou.")) {
+    // As listas ficam na conta: visitantes recebem o convite de login
+    if (!authStore.isAuthenticated) {
+      isLoginPromptOpen.value = true;
       return;
     }
     selectedListIdForManage.value = targetListId ?? null;
@@ -402,6 +413,8 @@ export const useListasStore = defineStore("listas", () => {
     isManageModalOpen,
     activeProductToSave,
     selectedListIdForManage,
+    isLoginPromptOpen,
+    pendingProductToSave,
     sharedList,
     isSharedModalOpen,
     totalSavedCount,
@@ -415,6 +428,7 @@ export const useListasStore = defineStore("listas", () => {
     getListsContainingProduct,
     openSaveModal,
     closeSaveModal,
+    closeLoginPrompt,
     openManageModal,
     closeManageModal,
     addItemToList,

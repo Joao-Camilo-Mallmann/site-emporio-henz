@@ -1,3 +1,5 @@
+import contato from "@/data/contato.json";
+
 /** Máximo de dígitos de um telefone brasileiro: DDD + 9 dígitos. */
 const PHONE_MAX_DIGITS = 11;
 
@@ -32,4 +34,22 @@ export function maskPhoneInput(event: Event): string {
   const formatted = formatPhone(target.value);
   target.value = formatted;
   return formatted;
+}
+
+/** Número do WhatsApp da loja no formato de exibição, ex.: `(51) 99898-1063`. */
+export const storeWhatsappDisplay = formatPhone(contato.whatsapp.slice(2));
+
+/** Link `wa.me` da loja, com mensagem pré-preenchida opcional. */
+export function storeWhatsappUrl(message?: string): string {
+  const base = `https://wa.me/${contato.whatsapp}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+}
+
+/**
+ * URL absoluta do site para links compartilhados. Usa `siteUrl` do
+ * `data/contato.json` e, se estiver vazio, a origem atual do navegador.
+ */
+export function storeSiteUrl(path = ""): string {
+  const origin = (contato.siteUrl || window.location.origin).replace(/\/$/, "");
+  return `${origin}${path}`;
 }

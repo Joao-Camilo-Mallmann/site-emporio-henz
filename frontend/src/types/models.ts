@@ -5,7 +5,7 @@ export interface ProductDimensions {
   unit: "cm" | "mm";
 }
 
-export interface IProduct {
+export interface ProductData {
   id: string;
   name: string;
   description: string;
@@ -23,7 +23,7 @@ export interface ProductFilterParams {
   availableOnly?: boolean;
 }
 
-export class Product implements IProduct {
+export class Product implements ProductData {
   id: string;
   name: string;
   description: string;
@@ -34,7 +34,7 @@ export class Product implements IProduct {
   isAvailable: boolean;
   images: string[];
 
-  constructor(data: IProduct) {
+  constructor(data: ProductData) {
     this.id = data.id;
     this.name = data.name;
     this.description = data.description;

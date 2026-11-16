@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { fornecedoresApi } from "@/api";
 import { useToast } from "@/composables/useToast";
-import type { ISupplier, SupplierFilterParams } from "@/types";
+import type { Supplier, SupplierFilterParams } from "@/types";
 import { Icon } from "@iconify/vue";
 import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
 
-const router = useRouter();
 const toast = useToast();
 
 // Estado da Listagem
-const suppliers = ref<ISupplier[]>([]);
+const suppliers = ref<Supplier[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
@@ -23,7 +21,7 @@ const searchTerm = ref("");
 
 // Modal de Exclusão Lógica (Soft Delete)
 const isDeleteModalOpen = ref(false);
-const supplierToDelete = ref<ISupplier | null>(null);
+const supplierToDelete = ref<Supplier | null>(null);
 const actionLoading = ref(false);
 
 async function carregarFornecedores(page = 1) {
@@ -61,7 +59,7 @@ function handleSearch() {
   carregarFornecedores(1);
 }
 
-function abrirModalExclusao(supplier: ISupplier) {
+function abrirModalExclusao(supplier: Supplier) {
   supplierToDelete.value = supplier;
   isDeleteModalOpen.value = true;
 }
@@ -123,38 +121,12 @@ onMounted(() => {
     class="min-h-[calc(100vh-14rem)] bg-stone-50/70 py-8 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-5xl mx-auto space-y-6">
-      <!-- Navegação Superior & Cabeçalho Limpo -->
-      <div
-        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-      >
-        <div>
-          <UiButton
-            variant="custom"
-            size="none"
-            class="inline-flex items-center gap-1.5 text-xs font-normal text-stone-500 hover:text-neutral-dark transition-colors mb-2"
-            @click="router.push('/admin')"
-          >
-            <Icon icon="mdi:arrow-left" class="w-3.5 h-3.5" />
-            <span>Painel Administrativo</span>
-          </UiButton>
-          <h1 class="text-2xl font-bold text-neutral-dark tracking-tight">
-            Fornecedores
-          </h1>
-          <p class="text-sm text-stone-500 mt-0.5">
-            Marcas parceiras, fábricas e fabricantes de móveis e decoração
-          </p>
-        </div>
-
-        <UiButton
-          variant="secondary"
-          size="md"
-          class="shrink-0"
-          @click="$router.push('/admin/fornecedores/novo')"
-        >
-          <Icon icon="mdi:plus" class="w-4 h-4" />
-          <span>Novo Fornecedor</span>
-        </UiButton>
-      </div>
+      <UiPageHeader
+        :breadcrumbs="[{ name: 'Painel', link: '/admin' }, { name: 'Fornecedores' }]"
+        title="Fornecedores"
+        description="Marcas parceiras, fábricas e fabricantes de móveis e decoração"
+        :new-action="{ name: 'Novo Fornecedor', link: '/admin/fornecedores/novo' }"
+      />
 
       <!-- Barra de Busca & Totais -->
       <div

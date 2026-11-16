@@ -1,37 +1,48 @@
 <script setup lang="ts">
-import type {
-  SupplierCreateInput,
-  SupplierUpdateInput,
-} from "@/types";
+import { fornecedoresApi } from "@/api";
+import { useToast } from "@/composables/useToast";
+import type { SupplierCreateInput, SupplierUpdateInput } from "@/types";
 import { Icon } from "@iconify/vue";
-import { reactive, watch } from "vue";
+import { reactive, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+
+// Formulário de fornecedor, dono da gravação: valida, chama `POST` (cadastro)
+// ou `PUT` (edição com `supplierId`), mostra o toast e volta para a lista.
+// As telas só carregam os dados iniciais e renderizam este componente.
 
 interface Props {
+  /** Id do fornecedor na edição; sem ele o envio cadastra um novo. */
+  supplierId?: string;
   initialData?: {
     name?: string;
     contact?: string | null;
     active?: boolean;
   };
   isEditing?: boolean;
-  loading?: boolean;
-  errorMessage?: string | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  supplierId: "",
   initialData: () => ({
     name: "",
     contact: "",
     active: true,
   }),
   isEditing: false,
-  loading: false,
-  errorMessage: null,
 });
 
 const emit = defineEmits<{
-  (e: "submit", data: SupplierCreateInput | SupplierUpdateInput): void;
+  (e: "saved"): void;
   (e: "cancel"): void;
 }>();
+
+const LISTA_URL = "/admin/fornecedores";
+
+const router = useRouter();
+const toast = useToast();
+
+const saving = ref(false);
+const errorMessage = ref<string | null>(null);
 
 const form = reactive({
   name: props.initialData?.name || "",
@@ -72,8 +83,9 @@ function validate(): boolean {
   return valid;
 }
 
-function handleSubmit() {
-  if (!validate()) return;
+async function handleSubmit() {
+  if (saving.value || !validate()) return;
+  if (props.isEditing && !props.supplierId) return;
 
   const payload: SupplierCreateInput | SupplierUpdateInput = {
     name: form.name.trim(),
@@ -81,7 +93,36 @@ function handleSubmit() {
     active: form.active,
   };
 
-  emit("submit", payload);
+  saving.value = true;
+  errorMessage.value = null;
+
+  try {
+    if (props.isEditing) {
+      await fornecedoresApi.atualizar(
+        props.supplierId,
+        payload as SupplierUpdateInput,
+      );
+      toast.success("Fornecedor atualizado com sucesso!");
+    } else {
+      await fornecedoresApi.criar(payload as SupplierCreateInput);
+      toast.success("Fornecedor cadastrado com sucesso!");
+    }
+    emit("saved");
+    router.push(LISTA_URL);
+  } catch (err: unknown) {
+    const errorObj = err as {
+      response?: { data?: { message?: string } };
+      message?: string;
+    };
+    errorMessage.value =
+      errorObj.response?.data?.message ||
+      errorObj.message ||
+      (props.isEditing
+        ? "Ocorreu um erro ao atualizar o fornecedor."
+        : "Ocorreu um erro ao cadastrar o fornecedor.");
+  } finally {
+    saving.value = false;
+  }
 }
 </script>
 
@@ -154,7 +195,8 @@ function handleSubmit() {
             Fornecedor Ativo
           </span>
           <span class="text-xs text-stone-500 block mt-0.5">
-            Fornecedores inativos não poderão ser vinculados a novos produtos do catálogo.
+            Fornecedores inativos não poderão ser vinculados a novos produtos do
+            catálogo.
           </span>
         </div>
       </label>
@@ -168,6 +210,7 @@ function handleSubmit() {
         variant="outline"
         type="button"
         size="md"
+        :disabled="saving"
         @click="emit('cancel')"
       >
         Cancelar
@@ -177,8 +220,8 @@ function handleSubmit() {
         variant="primary"
         type="submit"
         size="md"
-        :loading="loading"
-        :disabled="loading"
+        :loading="saving"
+        :disabled="saving"
       >
         {{ isEditing ? "Salvar Alterações" : "Cadastrar Fornecedor" }}
       </UiButton>

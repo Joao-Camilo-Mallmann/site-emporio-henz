@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { ICategory } from "@/types";
+import type { Category } from "@/types";
 import { useRouter } from "vue-router";
 import SubcategoriaTagManager from "./SubcategoriaTagManager.vue";
 
 interface Props {
   open: boolean;
-  category: ICategory | null;
+  category: Category | null;
 }
 
 defineProps<Props>();

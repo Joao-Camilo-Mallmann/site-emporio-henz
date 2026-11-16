@@ -33,6 +33,12 @@ export function buildCtx(id: string, role?: number): RequestContext {
 export class MockCategoriesRepository extends CategoriesRepository {
   public categories: (CategoryDto & { deleted: boolean })[] = [];
   public subtypes: (SubtypeDto & { deleted: boolean })[] = [];
+  public products: {
+    id: string;
+    categoryId: string;
+    active: boolean;
+    deleted: boolean;
+  }[] = [];
 
   async listPaginated(
     filters: CategoryQueryFilters = {},
@@ -132,9 +138,17 @@ export class MockCategoriesRepository extends CategoriesRepository {
     return c;
   }
 
+  async countLinkedProducts(categoryId: string): Promise<number> {
+    return this.products.filter(
+      (p) => p.categoryId === categoryId && !p.deleted,
+    ).length;
+  }
+
   async softDeleteCategoryWithCascade(id: string): Promise<boolean> {
     const c = this.categories.find((c) => c.id === id);
     if (!c || c.deleted) return false;
+    if ((await this.countLinkedProducts(id)) > 0) return false;
+
     c.deleted = true;
 
     this.subtypes.forEach((s) => {

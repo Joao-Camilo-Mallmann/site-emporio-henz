@@ -1,84 +1,31 @@
 import { api as axios } from "@/plugins/axios";
 import type {
-  IProduct,
   PaginatedProductsResponse,
   ProductAdminFilterParams,
   ProductCreatePayload,
-  ProductDetail,
   ProductDto,
-  ProductFilterParams,
   ProductImageDto,
+  ProductListItemDto,
   ProductUpdatePayload,
   ProductVariationDto,
 } from "@/types";
-import { getMockProductDetail, MOCK_CATALOG_PRODUCTS } from "@/mocks/catalogo";
 
 export const produtosApi = {
-  async listar(params?: ProductFilterParams): Promise<IProduct[]> {
-    try {
-      const response = await axios.get<IProduct[]>("/api/produtos", { params });
-      if (response.data && Array.isArray(response.data)) {
-        return response.data;
-      }
-    } catch {
-      // Fallback resiliente no catálogo mockado caso backend não esteja disponível
-    }
-
-    let items: IProduct[] = MOCK_CATALOG_PRODUCTS.map((p) => ({
-      id: p.id,
-      name: p.name,
-      description: `${p.name} - Móvel de alto padrão da Empório Henz`,
-      category: p.category,
-      material: p.material || "MDF",
-      price: p.price,
-      isAvailable: p.availability === "IN_STOCK",
-      images: [p.image],
-    }));
-
-    if (params?.category) {
-      const cat = params.category.toLowerCase().trim();
-      items = items.filter((p) => p.category.toLowerCase().trim() === cat);
-    }
-
-    if (params?.search) {
-      const s = params.search.toLowerCase().trim();
-      items = items.filter(
-        (p) =>
-          p.name.toLowerCase().includes(s) ||
-          p.category.toLowerCase().includes(s) ||
-          p.material.toLowerCase().includes(s),
-      );
-    }
-
-    if (params?.availableOnly) {
-      items = items.filter((p) => p.isAvailable);
-    }
-
-    return items;
+  async buscarPorId(idOuSlug: string): Promise<ProductDto> {
+    const response = await axios.get<ProductDto>(`/produtos/${idOuSlug}`);
+    return response.data;
   },
 
-  async buscarPorId(id: string): Promise<ProductDetail> {
-    try {
-      const response = await axios.get<ProductDetail>(`/produtos/${id}`);
-      if (response.data && response.data.id) {
-        return response.data;
-      }
-    } catch {
-      // Fallback resiliente no catálogo mockado caso backend não esteja disponível
-    }
-
-    const mockDetail = getMockProductDetail(id);
-    if (mockDetail) {
-      return mockDetail;
-    }
-
-    throw new Error(`Produto "${id}" não encontrado.`);
+  async buscarRecomendados(slugOuId: string): Promise<ProductListItemDto[]> {
+    const response = await axios.get<ProductListItemDto[]>(
+      `/produtos/${slugOuId}/recomendados`,
+    );
+    return response.data;
   },
 
   /**
-   * Listagem paginada do painel (`GET /produtos`). Sem fallback no catálogo
-   * mockado: o painel precisa distinguir lista vazia de falha da API.
-   * Para o Vendedor a API já devolve só produtos dos fornecedores vinculados.
+   * Listagem paginada do painel (`GET /produtos`). Para o Vendedor a API já
+   * devolve só produtos dos fornecedores vinculados.
    */
   async listarAdmin(
     params?: ProductAdminFilterParams,
@@ -109,9 +56,7 @@ export const produtosApi = {
   },
 
   async deletar(id: string): Promise<{ message: string }> {
-    const response = await axios.delete<{ message: string }>(
-      `/produtos/${id}`,
-    );
+    const response = await axios.delete<{ message: string }>(`/produtos/${id}`);
     return response.data;
   },
 

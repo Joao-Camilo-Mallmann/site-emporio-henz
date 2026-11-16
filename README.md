@@ -135,101 +135,12 @@ As migrações criam um administrador padrão:
 
 ---
 
-### 🛠️ Comandos Úteis do Docker
+### 📚 Comandos de Desenvolvimento e Produção
 
-- **Parar os containers mantendo os dados:**
-  ```bash
-  docker compose --profile dev --profile prod down
-  ```
-- **Acompanhar logs de todos os serviços em tempo real:**
-  ```bash
-  docker compose logs -f
-  ```
-- **Acompanhar logs do backend:**
-  ```bash
-  # Em desenvolvimento
-  docker compose logs -f backend-dev
+Os comandos do dia a dia ficam em [`docs/infra/`](docs/infra/README.md), separados por ambiente:
 
-  # Em produção
-  docker compose logs -f backend
-  ```
-- **Parar containers e apagar volumes (resetar banco de dados e apagar as fotos enviadas):**
-  ```bash
-  docker compose --profile dev --profile prod down -v
-  ```
-  > [!WARNING]
-  > O `-v` apaga também o volume `uploads_data`, onde ficam as fotos dos produtos em produção. O banco guarda só o caminho de cada foto, então restaurar o dump do banco sem esse volume deixa as imagens quebradas.
-
----
-
-### 💾 Backup e Restauração (banco + fotos)
-
-Os dados de produção ficam em dois volumes Docker: `postgres_data` (banco) e `uploads_data` (fotos dos produtos e amostras de variação, montado em `/app/uploads` no backend). O banco guarda só o caminho de cada imagem, então os dois precisam ser copiados juntos. Os scripts em [scripts/](scripts) usam os containers do perfil `prod` em execução.
-
-- **Gerar backup** (dump do banco e, depois, o `.tar.gz` dos uploads, com o mesmo timestamp):
-
-  ```bash
-  ./scripts/backup.sh
-  # backups/backup_emporio_henz_2026-10-20_030000.sql.gz
-  # backups/uploads_2026-10-20_030000.tar.gz
-  ```
-
-  Backups com mais de 30 dias (dos dois padrões) são removidos automaticamente. Para agendar na VM:
-
-  ```bash
-  0 3 * * * /caminho/para/site-emporio-henz/scripts/backup.sh >> /var/log/emporio-backup.log 2>&1
-  ```
-
-- **Restaurar pelo timestamp** (banco e uploads do mesmo par; pede confirmação, `--force` pula):
-
-  ```bash
-  ./scripts/restore.sh 2026-10-20_030000
-  ```
-
-- **Restaurar só o banco** (backups antigos, anteriores ao `.tar.gz` de uploads):
-
-  ```bash
-  ./scripts/restore.sh --db-only backups/backup_emporio_henz_2026-09-13_120000.sql.gz
-  ```
-
-  Depois de restaurar, as URLs das fotos (`/api/v1/uploads/...`) voltam a responder `200` sem novo deploy, porque os arquivos entram direto no volume `uploads_data`.
-
----
-
-## 💻 Como Rodar Localmente sem Docker (Desenvolvimento com Bun)
-
-Caso deseje desenvolver diretamente na máquina host:
-
-### Pré-requisitos Locais
-
-- [Bun](https://bun.sh/) 1.4+
-- [PostgreSQL](https://www.postgresql.org/) 16 ativo localmente
-
-### 1. Backend & Banco de Dados
-
-```bash
-cd backend
-bun install
-
-# Executar migrações e seeder
-bun run migrate
-bun run seed
-
-# Iniciar servidor em desenvolvimento (porta 3001)
-bun run dev
-```
-
-### 2. Frontend
-
-Em outro terminal:
-
-```bash
-cd frontend
-bun install
-
-# Iniciar servidor Vite (porta 3000)
-bun run dev
-```
+- [**Desenvolvimento**](docs/infra/desenvolvimento.md): Docker com `--profile dev`, migrações e seed dentro do container (`docker compose exec backend-dev bun run migrate`), logs, reset do banco, rodar só com Bun sem Docker e problemas comuns.
+- [**Produção**](docs/infra/producao.md): Docker com `--profile prod`, deploy (`deploy.sh` e GitHub Actions), migrações no container, backup e restauração do banco e das fotos.
 
 ---
 

@@ -13,3 +13,4 @@ tests
 *.spec.ts
 *.tsbuildinfo
 *.md
+database/mock-images

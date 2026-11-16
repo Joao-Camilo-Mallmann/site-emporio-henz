@@ -2,9 +2,7 @@
 
 ## Purpose
 Operações completas de banco de dados e API REST para persistência e gestão do catálogo de produtos, variações e metadados de imagens com suporte a multi-empresa e regras de negócio de disponibilidade.
-
 ## Requirements
-
 ### Requirement: Persistência Relacional do Domínio de Produtos (Database First)
 O banco de dados PostgreSQL MUST conter as tabelas \`products\`, \`product_variations\` e \`product_images\` criadas por migrações versionadas (\`010_create_products.sql\`, \`011_create_product_variations.sql\`, \`012_create_product_images.sql\`), com chaves estrangeiras \`ON DELETE RESTRICT\`, suporte a exclusão lógica (\`deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NULL\`) e índice único parcial \`idx_products_slug_active ON products (slug) WHERE deleted_at IS NULL\`.
 
@@ -59,6 +57,8 @@ O backend MUST validar estritamente em todas as operações de \`/api/v1/produto
 ### Requirement: Listagem Paginada e Consulta Detalhada de Produtos
 O sistema MUST disponibilizar `GET /api/v1/produtos` com paginação padronizada (`{ data, pagination }`) e filtros combinados (`categoryId`, `subtypeId`, `supplierId`, `availabilityType`, `active`, `search`), e `GET /api/v1/produtos/:id` retornando todos os dados do produto, suas `variations` e suas `images` ordenadas por `sort_order`. Cada item da listagem MUST trazer `thumbnailUrl` com a miniatura da capa do produto e nenhuma outra URL de imagem. A capa é a foto ativa sem variação vinculada de menor `sort_order`; sem foto desse tipo, a foto ativa de variação de menor `sort_order`; sem nenhuma foto ativa, `thumbnailUrl` MUST ser `null`.
 
+O filtro `search` (listagem pública e administrativa) MUST ser comparado com `name`, `description` e `collection_line` na forma de slug: termo e campos sem acentos, em minúsculas, com toda sequência de caracteres fora de `a-z0-9` reduzida a um único hífen e sem hífen nas pontas. A comparação MUST ser por trecho contido, com o termo tratado como texto literal (curingas escapados) e limitado a 100 caracteres antes da normalização. Um termo que fique vazio depois da normalização MUST ser ignorado, como um termo em branco.
+
 #### Scenario: Listagem filtrada automaticamente pelos fornecedores do Vendedor
 - **WHEN** um Vendedor vinculado aos fornecedores A e B chama `GET /api/v1/produtos`
 - **THEN** o sistema MUST retornar no envelope paginado exclusivamente os produtos pertencentes aos fornecedores A e B, ocultando produtos de outros fornecedores
@@ -87,8 +87,25 @@ O sistema MUST disponibilizar `GET /api/v1/produtos` com paginação padronizada
 - **WHEN** alguém chama `GET /api/v1/produtos`
 - **THEN** nenhum item MUST conter `fullImageUrl` nem o array `images`
 
+#### Scenario: Termo sem acento encontra produto com acento
+- **WHEN** um visitante chamar `GET /api/v1/produtos?search=sofa%20retratil` e existir um produto ativo chamado "Sofá Retrátil Milão"
+- **THEN** o sistema MUST incluir esse produto na resposta
 
----
+#### Scenario: Termo com underline e caixa alta
+- **WHEN** um visitante chamar `GET /api/v1/produtos?search=ROUPEIRO_ROMA` e existir um produto ativo chamado "Roupeiro Roma"
+- **THEN** o sistema MUST incluir esse produto na resposta
+
+#### Scenario: Termo com acento encontra texto gravado sem acento
+- **WHEN** um visitante chamar `GET /api/v1/produtos?search=Itália` e existir um produto ativo com `collection_line` "Linha Italia"
+- **THEN** o sistema MUST incluir esse produto na resposta
+
+#### Scenario: Termo só com símbolos
+- **WHEN** um visitante chamar `GET /api/v1/produtos?search=%2A%2A%2A`
+- **THEN** o sistema MUST ignorar o filtro de busca e devolver a listagem como se `search` não tivesse sido informado
+
+#### Scenario: Curingas continuam literais
+- **WHEN** um visitante chamar `GET /api/v1/produtos?search=100%25`
+- **THEN** o sistema MUST buscar pelo trecho `100` na forma de slug, sem interpretar `%` como curinga
 
 ### Requirement: Atualização de Produto com Sincronização de Variações e Soft Delete
 O sistema MUST permitir atualizar dados cadastrais e variações via \`PUT /api/v1/produtos/:id\` (preservando os UUIDs de variações existentes informadas por \`id\`, inserindo novas sem \`id\` e aplicando soft delete nas omitidas) e desativar produtos via \`DELETE /api/v1/produtos/:id\` preenchendo \`deleted_at = CURRENT_TIMESTAMP\` sem executar \`DELETE\` físico.
@@ -121,3 +138,4 @@ O banco MUST guardar apenas o caminho relativo dos arquivos de imagem (\`product
 #### Scenario: Arquivos persistem entre deploys
 - **WHEN** os containers de produção são recriados pelo \`deploy.sh\`
 - **THEN** o diretório \`/app/uploads\` do backend MUST manter os arquivos, por estar montado no volume nomeado \`uploads_data\`
+

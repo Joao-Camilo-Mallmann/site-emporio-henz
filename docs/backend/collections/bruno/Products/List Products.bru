@@ -13,7 +13,7 @@ get {
 params:query {
   page: 1
   limit: 20
-  ~search: sofa
+  ~search: Sofá Retrátil
   ~categoryId: 00000000-0000-0000-0000-000000000000
   ~subtypeId: 00000000-0000-0000-0000-000000000000
   ~supplierId: 00000000-0000-0000-0000-000000000000
@@ -25,6 +25,7 @@ params:query {
 docs {
   Listagem pública paginada de produtos. Para visitantes e Clientes (`role = 1`), retorna apenas produtos ativos (`active = true`).
   Suporta filtros opcionais combinados: `search` (até 100 caracteres, busca em nome, descrição e linha/coleção), `categoryId`, `subtypeId`, `supplierId`, `availabilityType` (`IN_STOCK` ou `ON_DEMAND`) e a faixa de preço de referência `minPrice` / `maxPrice` (números `>= 0`, limites inclusivos, cada um opcional).
+  O `search` é insensível a maiúsculas, acentos e separadores: o termo é cortado em 100 caracteres e normalizado para a forma de slug (sem acentos, minúsculas, toda sequência fora de `[a-z0-9]` vira um único hífen, sem hífen nas pontas) e comparado por trecho contido com nome, descrição e linha/coleção também normalizados (`search_slug` no banco). Assim `Sofá Retrátil`, `SOFA_RETRATIL` e `sofa  retratil` encontram os mesmos produtos. Curingas (`%`, `_`) não têm efeito, e um termo que fica vazio após a normalização (ex.: `***`) é ignorado.
   Valores inválidos de filtro são ignorados, como na paginação. Com `minPrice` maior que `maxPrice`, nenhum produto atende à faixa e a página volta vazia.
   Resposta `200 OK`: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
   Cada item traz `thumbnailUrl` com a miniatura da capa do produto (`/api/v1/uploads/products/<productId>/<imageId>-thumb.webp`) e nenhuma outra URL de imagem: a capa é a foto ativa sem variação de menor `sortOrder`; sem ela, a foto ativa de variação de menor `sortOrder`; sem nenhuma foto ativa, `thumbnailUrl: null`. A listagem não traz `fullImageUrl` nem o array `images` (apenas `GET /produtos/:id`).

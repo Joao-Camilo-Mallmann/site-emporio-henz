@@ -1,10 +1,15 @@
-import { parsePagination, parseSearch } from "@/lib/pagination";
+import { ConflictError, NotFoundError } from "@/lib/errors";
+import { parsePagination, parseSearchSlug } from "@/lib/pagination";
 import {
   isValidUuid,
   NAME_MAX_LENGTH,
   SLUG_MAX_LENGTH,
   slugify,
 } from "@/lib/slug";
+import {
+  categoriesRepository,
+  CategoriesRepository,
+} from "./categories.repository";
 import {
   CategoryQueryFilters,
   CreateCategoryDto,
@@ -139,7 +144,63 @@ export function validateCategoryQuery(url: URL): CategoryQueryFilters {
   return {
     page,
     limit,
-    search: parseSearch(url),
+    search: parseSearchSlug(url),
     active,
   };
+}
+
+// Regras que consultam o banco. O controller chama depois do `validate*`;
+// o service recebe os dados já validados.
+
+const CATEGORY_NOT_FOUND = "Categoria não encontrada.";
+
+function slugConflict(slug: string): ConflictError {
+  return new ConflictError(
+    `Já existe uma categoria ativa com o slug '${slug}'.`,
+  );
+}
+
+export async function assertCanCreateCategory(
+  dto: CreateCategoryDto,
+  repo: CategoriesRepository = categoriesRepository,
+): Promise<void> {
+  const slug = dto.slug || slugify(dto.name);
+  if (await repo.existsCategorySlugActive(slug)) {
+    throw slugConflict(slug);
+  }
+}
+
+export async function assertCanUpdateCategory(
+  id: string,
+  dto: UpdateCategoryDto,
+  repo: CategoriesRepository = categoriesRepository,
+): Promise<void> {
+  if (!(await repo.findCategoryById(id))) {
+    throw new NotFoundError(CATEGORY_NOT_FOUND);
+  }
+
+  if (dto.slug && (await repo.existsCategorySlugActive(dto.slug, id))) {
+    throw slugConflict(dto.slug);
+  }
+}
+
+// Produtos excluídos logicamente não contam (RF04, UC09 E2).
+export async function assertCanDeleteCategory(
+  id: string,
+  repo: CategoriesRepository = categoriesRepository,
+): Promise<void> {
+  if (!(await repo.findCategoryById(id))) {
+    throw new NotFoundError(CATEGORY_NOT_FOUND);
+  }
+
+  const linkedProducts = await repo.countLinkedProducts(id);
+  if (linkedProducts > 0) {
+    const produtos =
+      linkedProducts === 1
+        ? "1 produto vinculado"
+        : `${linkedProducts} produtos vinculados`;
+    throw new ConflictError(
+      `Não é possível excluir a categoria: há ${produtos}. Exclua os produtos ou mova-os para outra categoria antes.`,
+    );
+  }
 }

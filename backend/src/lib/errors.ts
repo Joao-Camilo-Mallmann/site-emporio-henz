@@ -1,18 +1,25 @@
 export class AppError extends Error {
   public readonly status: number;
   public readonly code: string;
+  public readonly field?: string;
 
-  constructor(message: string, status = 400, code = "Bad Request") {
+  constructor(
+    message: string,
+    status = 400,
+    code = "Bad Request",
+    field?: string,
+  ) {
     super(message);
     this.status = status;
     this.code = code;
+    this.field = field;
     this.name = "AppError";
   }
 }
 
 export class BadRequestError extends AppError {
-  constructor(message = "Dados da requisição inválidos.") {
-    super(message, 400, "Bad Request");
+  constructor(message = "Dados da requisição inválidos.", field?: string) {
+    super(message, 400, "Bad Request", field);
   }
 }
 
@@ -35,8 +42,8 @@ export class NotFoundError extends AppError {
 }
 
 export class ConflictError extends AppError {
-  constructor(message = "Conflito de dados.") {
-    super(message, 409, "Conflict");
+  constructor(message = "Conflito de dados.", field?: string) {
+    super(message, 409, "Conflict", field);
   }
 }
 

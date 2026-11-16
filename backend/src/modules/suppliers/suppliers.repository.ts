@@ -1,4 +1,5 @@
 import { sql } from "@/config/database";
+import { slugSearchCondition } from "@/lib/search";
 import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import {
   CreateSupplierDto,
@@ -36,10 +37,7 @@ export class SuppliersRepository {
             SELECT us.supplier_id FROM user_suppliers us
             WHERE us.user_id = ${linkedUserId}::uuid AND us.deleted_at IS NULL
           ))
-          AND (${search}::text IS NULL OR (
-            name ILIKE ('%' || ${search} || '%') OR
-            contact ILIKE ('%' || ${search} || '%')
-          ))
+          AND ${slugSearchCondition(search, [sql`name`, sql`contact`])}
       `,
       sql<SupplierDbRow[]>`
         SELECT id, name, contact, active, created_at, updated_at
@@ -50,10 +48,7 @@ export class SuppliersRepository {
             SELECT us.supplier_id FROM user_suppliers us
             WHERE us.user_id = ${linkedUserId}::uuid AND us.deleted_at IS NULL
           ))
-          AND (${search}::text IS NULL OR (
-            name ILIKE ('%' || ${search} || '%') OR
-            contact ILIKE ('%' || ${search} || '%')
-          ))
+          AND ${slugSearchCondition(search, [sql`name`, sql`contact`])}
         ORDER BY name ASC
         LIMIT ${limit} OFFSET ${offset}
       `,
