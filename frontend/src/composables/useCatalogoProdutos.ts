@@ -19,7 +19,7 @@ import type { LocationQuery, LocationQueryRaw } from "vue-router";
 
 export const CATALOGO_POR_PAGINA = 9;
 
-/** Chaves da URL que pertencem aos filtros; qualquer outra (ex.: `?lista=`) é preservada. */
+/** Chaves da URL que pertencem aos filtros; qualquer outra é preservada. */
 const CHAVES_FILTRO = [
   "name",
   "q",

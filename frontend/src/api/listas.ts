@@ -4,13 +4,15 @@ import type {
   ApiList,
   ApiListItem,
   ApiSharedList,
+  Paginated,
+  PaginationParams,
 } from "@/types";
 
 export const listasApi = {
-  // Todas as listas do cliente logado, já com os itens de cada uma
-  async listar(): Promise<ApiList[]> {
-    const response = await axios.get<ApiList[]>("/listas", {
-      params: { itens: "true" },
+  // Listas do cliente logado, já com os itens de cada uma
+  async listar(params?: PaginationParams): Promise<Paginated<ApiList>> {
+    const response = await axios.get<Paginated<ApiList>>("/listas", {
+      params: { ...params, itens: "true" },
     });
     return response.data;
   },
@@ -22,6 +24,14 @@ export const listasApi = {
 
   async renomear(id: string, name: string): Promise<ApiList> {
     const response = await axios.patch<ApiList>(`/listas/${id}`, { name });
+    return response.data;
+  },
+
+  async alterarCompartilhamento(id: string, isPublic: boolean): Promise<ApiList> {
+    const response = await axios.patch<ApiList>(
+      `/listas/${id}/compartilhamento`,
+      { isPublic },
+    );
     return response.data;
   },
 

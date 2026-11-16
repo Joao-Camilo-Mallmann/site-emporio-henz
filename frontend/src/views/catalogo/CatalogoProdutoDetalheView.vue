@@ -143,6 +143,7 @@ function toggleFavorite() {
 
   listasStore.openSaveModal({
     productId: product.value.id,
+    variationId: currentVariation?.id,
     productSlug: product.value.slug,
     name: product.value.name,
     price: product.value.price,
@@ -297,12 +298,6 @@ onMounted(() => {
               >
                 {{ product.manufacturingTime }}
               </span>
-              <span
-                v-if="product.deliveryCondition"
-                class="bg-surface-tint text-primary text-xs font-semibold px-2.5 py-1 rounded-md"
-              >
-                {{ product.deliveryCondition }}
-              </span>
             </div>
           </div>
 
@@ -375,6 +370,9 @@ onMounted(() => {
                 {{ product.discountPixPercent }}% OFF no PIX
               </span>
             </div>
+            <p class="text-xs text-stone-500 mt-2">
+              Preço de referência, negociável junto com o frete e a montagem.
+            </p>
           </div>
 
           <!-- Botão Principal de Conversão WhatsApp (RF12) -->

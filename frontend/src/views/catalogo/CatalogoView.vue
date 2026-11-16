@@ -38,7 +38,6 @@ function fetchProducts() {
   return carregar(filters.value);
 }
 
-// A URL é a fonte da verdade. Mudanças em chaves que não são filtro (ex.: ?lista=) não recarregam a lista
 let filtrosCarregados = "";
 
 watch(
@@ -180,9 +179,7 @@ const activeFiltersCount = computed(() => {
           </template>
           <template v-else-if="filters.categoria">
             Exibindo móveis para
-            <span class="font-bold text-stone-900"
-              >“{{ categoriaLabel }}”</span
-            >
+            <span class="font-bold text-stone-900">“{{ categoriaLabel }}”</span>
           </template>
           <template v-else> Todos os móveis do catálogo </template>
         </h1>
@@ -398,6 +395,5 @@ const activeFiltersCount = computed(() => {
         </div>
       </div>
     </Teleport>
-
   </main>
 </template>

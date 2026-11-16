@@ -1,12 +1,18 @@
 import { ForbiddenError, isUniqueViolation, NotFoundError } from "@/lib/errors";
-import { listsRepository, ListsRepository } from "@/modules/lists/lists.repository";
-import { isValidUuid } from "@/modules/lists/lists.schema";
+import { isValidUuid } from "@/lib/slug";
+import {
+  listsRepository,
+  ListsRepository,
+} from "@/modules/lists/lists.repository";
 import {
   AddListItemDto,
   AddListItemResult,
   ListDto,
   ListNameDto,
+  ListQueryFilters,
   ListWithItemsDto,
+  PaginatedListsResult,
+  PaginatedListsWithItemsResult,
   SharedListDto,
 } from "@/modules/lists/lists.types";
 
@@ -23,7 +29,10 @@ export class ListsService {
   }
 
   // Lista de outro cliente responde 404, igual a uma lista que não existe
-  private async getOwnedList(clientId: string, listId: string): Promise<ListDto> {
+  private async getOwnedList(
+    clientId: string,
+    listId: string,
+  ): Promise<ListDto> {
     if (!isValidUuid(listId)) {
       throw new NotFoundError("Lista não encontrada.");
     }
@@ -35,26 +44,34 @@ export class ListsService {
   }
 
   // As 3 listas padrão são criadas no primeiro acesso do cliente
-  async listMine(userId: string): Promise<ListDto[]> {
+  async listMine(
+    userId: string,
+    filters: ListQueryFilters = {},
+  ): Promise<PaginatedListsResult> {
     const clientId = await this.resolveClientId(userId);
     await this.repo.ensureSystemLists(clientId);
-    return await this.repo.listByClient(clientId);
+    return await this.repo.listPageByClient(clientId, filters);
   }
 
   // Mesma listagem, já com os itens de cada lista (uma chamada só para o front)
-  async listMineWithItems(userId: string): Promise<ListWithItemsDto[]> {
+  async listMineWithItems(
+    userId: string,
+    filters: ListQueryFilters = {},
+  ): Promise<PaginatedListsWithItemsResult> {
     const clientId = await this.resolveClientId(userId);
     await this.repo.ensureSystemLists(clientId);
 
-    const [lists, rows] = await Promise.all([
-      this.repo.listByClient(clientId),
+    const [result, rows] = await Promise.all([
+      this.repo.listPageByClient(clientId, filters),
       this.repo.listItemsByClient(clientId),
     ]);
 
-    return lists.map((list) => ({
+    const data = result.data.map((list) => ({
       ...list,
       items: rows.filter((r) => r.listId === list.id).map((r) => r.item),
     }));
+
+    return { ...result, data };
   }
 
   async getMine(userId: string, listId: string): Promise<ListWithItemsDto> {
@@ -69,7 +86,11 @@ export class ListsService {
     return await this.repo.createCustom(clientId, dto.name);
   }
 
-  async rename(userId: string, listId: string, dto: ListNameDto): Promise<ListDto> {
+  async rename(
+    userId: string,
+    listId: string,
+    dto: ListNameDto,
+  ): Promise<ListDto> {
     const clientId = await this.resolveClientId(userId);
     const list = await this.getOwnedList(clientId, listId);
 
@@ -78,6 +99,18 @@ export class ListsService {
     }
 
     await this.repo.rename(list.id, dto.name);
+    return await this.getOwnedList(clientId, list.id);
+  }
+
+  // Liga ou desliga o link público; vale também para as listas padrão
+  async setPublic(
+    userId: string,
+    listId: string,
+    isPublic: boolean,
+  ): Promise<ListDto> {
+    const clientId = await this.resolveClientId(userId);
+    const list = await this.getOwnedList(clientId, listId);
+    await this.repo.setPublic(list.id, isPublic);
     return await this.getOwnedList(clientId, list.id);
   }
 
@@ -101,9 +134,14 @@ export class ListsService {
     const clientId = await this.resolveClientId(userId);
     const list = await this.getOwnedList(clientId, listId);
 
-    // TODO(produtos): quando o catálogo do front usar os produtos reais da API,
-    // validar aqui que dto.productId existe (e que variationId pertence a ele) e preencher
-    // nome, preço, imagem e slug a partir do banco, em vez de confiar no payload.
+    // Nome, preço, slug e imagem vêm do banco; o front não decide o que é salvo
+    const product = await this.repo.findProductForList(
+      dto.productId,
+      dto.variationId,
+    );
+    if (!product) {
+      throw new NotFoundError("Produto não encontrado.");
+    }
 
     const existing = await this.repo.findExistingItem(list.id, dto);
     if (existing) {
@@ -111,7 +149,7 @@ export class ListsService {
     }
 
     try {
-      const item = await this.repo.addItem(list.id, dto);
+      const item = await this.repo.addItem(list.id, { ...dto, ...product });
       return { item, created: true };
     } catch (error) {
       // Duas requisições simultâneas: a segunda cai no índice único
@@ -125,7 +163,11 @@ export class ListsService {
     }
   }
 
-  async removeItem(userId: string, listId: string, itemId: string): Promise<void> {
+  async removeItem(
+    userId: string,
+    listId: string,
+    itemId: string,
+  ): Promise<void> {
     const clientId = await this.resolveClientId(userId);
     const list = await this.getOwnedList(clientId, listId);
 
@@ -146,6 +188,7 @@ export class ListsService {
     }
 
     const list = await this.repo.findSharedBySlug(shareSlug);
+
     if (!list) {
       throw new NotFoundError("Lista não encontrada.");
     }

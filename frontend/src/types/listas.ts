@@ -19,19 +19,9 @@ export interface UserList {
   isSystem: boolean;
   listType: ListType;
   shareSlug: string;
+  isPublic: boolean;
   createdAt: string;
   items: SavedItem[];
-}
-
-export interface SaveProductPayload {
-  productId: string;
-  productSlug?: string;
-  name: string;
-  price: number;
-  image: string;
-  finishLabel?: string;
-  finishColor?: string;
-  listIds: string[];
 }
 
 export interface CreateListPayload {
@@ -72,19 +62,10 @@ export interface ApiSharedList {
   items: ApiListItem[];
 }
 
+// Nome, preço e imagem o back busca no banco a partir do productId
 export interface AddListItemPayload {
   productId: string;
-  productSlug?: string;
-  name: string;
-  price: number;
-  image: string;
+  variationId?: string;
   finishLabel?: string;
   finishColor?: string;
-}
-
-// Lista aberta pelo link público (somente leitura, sem dados do dono)
-export interface SharedList {
-  name: string;
-  listType: ListType;
-  items: SavedItem[];
 }

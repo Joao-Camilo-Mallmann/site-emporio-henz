@@ -1,10 +1,10 @@
 import { listasApi } from "@/api/listas";
 import { useAuthStore } from "@/stores/auth";
 import type {
+  AddListItemPayload,
   ApiList,
   ApiListItem,
   SavedItem,
-  SharedList,
   UserList,
 } from "@/types";
 import { isAxiosError } from "axios";
@@ -46,6 +46,7 @@ function mapList(list: ApiList): UserList {
     isSystem: list.isSystem,
     listType: list.listType,
     shareSlug: list.shareSlug,
+    isPublic: list.isPublic,
     createdAt: list.createdAt,
     items: (list.items ?? []).map(mapItem),
   };
@@ -53,6 +54,7 @@ function mapList(list: ApiList): UserList {
 
 export interface ActiveProductToSave {
   productId: string;
+  variationId?: string;
   productSlug?: string;
   name: string;
   price: number;
@@ -75,8 +77,6 @@ export const useListasStore = defineStore("listas", () => {
   const pendingProductToSave = ref<ActiveProductToSave | null>(null);
 
   // Lista aberta pelo link público (somente leitura)
-  const sharedList = ref<SharedList | null>(null);
-  const isSharedModalOpen = ref(false);
 
   let isImporting = false;
 
@@ -143,8 +143,16 @@ export const useListasStore = defineStore("listas", () => {
 
     isLoading.value = true;
     try {
-      const data = await listasApi.listar();
-      lists.value = data.map(mapList);
+      const acumuladas: ApiList[] = [];
+      let page = 1;
+      let totalPages: number;
+      do {
+        const resposta = await listasApi.listar({ page, limit: 100 });
+        acumuladas.push(...resposta.data);
+        totalPages = resposta.pagination.totalPages || 1;
+        page += 1;
+      } while (page <= totalPages);
+      lists.value = acumuladas.map(mapList);
     } catch (err) {
       toast.error(apiErrorMessage(err, "Não foi possível carregar suas listas."));
     } finally {
@@ -192,21 +200,13 @@ export const useListasStore = defineStore("listas", () => {
   // Ações de itens (todas gravam no servidor; erros chegam como `Error`)
   async function addItemToList(
     listId: string,
-    itemData: Omit<SavedItem, "id" | "addedAt">,
+    payload: AddListItemPayload,
   ): Promise<SavedItem | null> {
     const list = getListById(listId);
     if (!list) return null;
 
     try {
-      const saved = await listasApi.adicionarItem(listId, {
-        productId: itemData.productId,
-        productSlug: itemData.productSlug,
-        name: itemData.name,
-        price: Number(itemData.price) || 0,
-        image: itemData.image ?? "",
-        finishLabel: itemData.finishLabel,
-        finishColor: itemData.finishColor,
-      });
+      const saved = await listasApi.adicionarItem(listId, payload);
 
       const item = mapItem(saved);
       // O servidor devolve o item existente quando já estava salvo
@@ -274,6 +274,21 @@ export const useListasStore = defineStore("listas", () => {
     }
   }
 
+  async function setListPublic(listId: string, isPublic: boolean): Promise<void> {
+    const list = getListById(listId);
+    if (!list) return;
+
+    try {
+      const updated = await listasApi.alterarCompartilhamento(listId, isPublic);
+      list.isPublic = updated.isPublic;
+    } catch (err) {
+      throw new Error(
+        apiErrorMessage(err, "Não foi possível alterar o compartilhamento."),
+        { cause: err },
+      );
+    }
+  }
+
   async function deleteCustomList(listId: string): Promise<boolean> {
     const list = getListById(listId);
     if (!list || list.isSystem) return false;
@@ -286,26 +301,6 @@ export const useListasStore = defineStore("listas", () => {
 
     lists.value = lists.value.filter((l) => l.id !== listId);
     return true;
-  }
-
-  // Link público
-  async function openSharedList(shareSlug: string): Promise<void> {
-    try {
-      const data = await listasApi.buscarCompartilhada(shareSlug);
-      sharedList.value = {
-        name: data.name,
-        listType: data.listType,
-        items: data.items.map(mapItem),
-      };
-      isSharedModalOpen.value = true;
-    } catch {
-      toast.error("Esta lista não existe ou não está mais disponível.");
-    }
-  }
-
-  function closeSharedModal(): void {
-    isSharedModalOpen.value = false;
-    sharedList.value = null;
   }
 
   // Importa, uma única vez, as listas que o navegador guardava antes da API
@@ -361,16 +356,15 @@ export const useListasStore = defineStore("listas", () => {
             try {
               await addItemToList(target.id, {
                 productId: item.productId,
-                productSlug: item.productSlug,
-                name: item.name,
-                price: item.price,
-                image: item.image,
                 finishLabel: item.finishLabel,
                 finishColor: item.finishColor,
               });
               importedCount++;
-            } catch {
-              hasFailure = true;
+            } catch (err) {
+              // Produto que não existe mais (400/404) é descartado; só erro de rede tenta de novo
+              const cause = (err as Error).cause;
+              const status = isAxiosError(cause) ? cause.response?.status : undefined;
+              if (status !== 400 && status !== 404) hasFailure = true;
             }
           }
         } catch {
@@ -390,11 +384,11 @@ export const useListasStore = defineStore("listas", () => {
     }
   }
 
-  // Ao entrar, carrega as listas da conta; ao sair, limpa tudo da tela
+  // Ao entrar (ou trocar de conta), carrega as listas; ao sair, limpa a tela
   watch(
-    () => authStore.isAuthenticated,
-    async (isAuthenticated) => {
-      if (isAuthenticated) {
+    () => authStore.isAuthenticated && authStore.user?.id,
+    async (userId) => {
+      if (userId) {
         await loadLists();
         await importLocalLists();
       } else {
@@ -415,8 +409,6 @@ export const useListasStore = defineStore("listas", () => {
     selectedListIdForManage,
     isLoginPromptOpen,
     pendingProductToSave,
-    sharedList,
-    isSharedModalOpen,
     totalSavedCount,
     systemLists,
     customLists,
@@ -435,8 +427,7 @@ export const useListasStore = defineStore("listas", () => {
     removeItemFromList,
     createCustomList,
     renameCustomList,
+    setListPublic,
     deleteCustomList,
-    openSharedList,
-    closeSharedModal,
   };
 });

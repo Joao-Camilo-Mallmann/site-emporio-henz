@@ -163,19 +163,36 @@ async function handleRemoveItem(itemId: string) {
   }
 }
 
-async function copyPublicLink() {
+const shareUrl = computed(() =>
+  activeList.value
+    ? storeSiteUrl(`/lista/${activeList.value.shareSlug}`)
+    : "",
+);
+
+async function togglePublic() {
   if (!activeList.value) return;
-  const shareUrl = storeSiteUrl(`/catalogo?lista=${activeList.value.shareSlug}`);
+  const isPublic = !activeList.value.isPublic;
+
+  try {
+    await listasStore.setListPublic(activeList.value.id, isPublic);
+    toast.success(isPublic ? "Lista pública: copie o link para compartilhar." : "Lista privada: o link deixou de funcionar.");
+  } catch (err: unknown) {
+    toast.error(err instanceof Error ? err.message : "Não foi possível alterar o compartilhamento.");
+  }
+}
+
+async function copyPublicLink() {
+  if (!activeList.value?.isPublic) return;
 
   try {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(shareUrl.value);
       toast.success("Link público copiado para a área de transferência!");
     } else {
-      toast.info(`Link público: ${shareUrl}`);
+      toast.info(`Link público: ${shareUrl.value}`);
     }
   } catch {
-    toast.info(`Link público: ${shareUrl}`);
+    toast.info(`Link público: ${shareUrl.value}`);
   }
 }
 
@@ -185,8 +202,6 @@ function openWhatsApp() {
     return;
   }
 
-  const shareUrl = storeSiteUrl(`/catalogo?lista=${activeList.value.shareSlug}`);
-
   let message = `Olá! Gostaria de solicitar um orçamento para a minha lista "${activeList.value.name}" no Empório Henz:\n\n`;
 
   activeList.value.items.forEach((item, index) => {
@@ -195,7 +210,10 @@ function openWhatsApp() {
   });
 
   message += `\n*Total Estimado:* ${formatPrice(activeListTotal.value)}\n`;
-  message += `*Link da Lista:* ${shareUrl}\n\n`;
+  if (activeList.value.isPublic) {
+    message += `*Link da Lista:* ${shareUrl.value}\n`;
+  }
+  message += `\n`;
   message += `Gostaria de saber mais sobre as condições de pagamento e prazo de entrega.`;
 
   window.open(storeWhatsappUrl(message), "_blank");
@@ -410,16 +428,19 @@ function getIconColorClass(listType: string): string {
             </UiButton>
           </template>
 
-          <!-- Ações Globais: Copiar Link e WhatsApp -->
+          <!-- Ações Globais: Privada/Pública e WhatsApp -->
           <UiButton
             variant="outline"
             size="xs"
             class="flex items-center gap-1"
-            title="Compartilhar pasta por link público"
-            @click="copyPublicLink"
+            :title="activeList.isPublic ? 'Tornar a pasta privada' : 'Tornar a pasta pública'"
+            @click="togglePublic"
           >
-            <Icon icon="mdi:link-variant" class="w-3.5 h-3.5" />
-            Copiar Link
+            <Icon
+              :icon="activeList.isPublic ? 'mdi:earth' : 'mdi:lock-outline'"
+              class="w-3.5 h-3.5"
+            />
+            {{ activeList.isPublic ? "Pública" : "Privada" }}
           </UiButton>
 
           <UiButton
@@ -433,6 +454,29 @@ function getIconColorClass(listType: string): string {
             Orçar no WhatsApp
           </UiButton>
         </div>
+      </div>
+
+      <!-- Link público: só existe com a pasta pública -->
+      <div
+        class="p-2.5 bg-stone-50 rounded-xl border border-stone-200 flex items-center gap-2 text-xs"
+      >
+        <template v-if="activeList.isPublic">
+          <Icon icon="mdi:link-variant" class="w-4 h-4 text-stone-500 shrink-0" />
+          <input
+            :value="shareUrl"
+            readonly
+            aria-label="Link público da pasta"
+            class="flex-1 min-w-0 px-2 py-1 rounded-lg border border-stone-300 bg-white text-stone-600"
+            @focus="($event.target as HTMLInputElement).select()"
+          />
+          <UiButton variant="outline" size="xs" @click="copyPublicLink">
+            Copiar link
+          </UiButton>
+        </template>
+        <p v-else class="text-stone-500 flex items-center gap-1.5">
+          <Icon icon="mdi:lock-outline" class="w-4 h-4" />
+          Só você vê esta lista. Torne-a pública para gerar um link de compartilhamento.
+        </p>
       </div>
 
       <!-- Barra de Renomear Inline -->

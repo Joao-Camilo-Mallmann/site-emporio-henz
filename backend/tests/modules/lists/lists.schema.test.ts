@@ -3,6 +3,7 @@ import {
   isValidUuid,
   validateAddItem,
   validateListName,
+  validateShare,
 } from "@/modules/lists/lists.schema";
 import { SAMPLE_ITEM as ITEM } from "../../mocks/lists.mock";
 
@@ -23,41 +24,39 @@ describe("lists.schema", () => {
     expect(validateListName(null).error).toBeDefined();
   });
 
+  it("validateShare só aceita isPublic booleano", () => {
+    expect(validateShare({ isPublic: true }).value).toEqual({ isPublic: true });
+    expect(validateShare({ isPublic: false }).value).toEqual({ isPublic: false });
+    expect(validateShare({ isPublic: "true" }).error).toBeDefined();
+    expect(validateShare({}).error).toBeDefined();
+    expect(validateShare(null).error).toBeDefined();
+  });
+
   it("validateAddItem aceita payload completo e mínimo", () => {
     const full = validateAddItem({
       ...ITEM,
       variationId: crypto.randomUUID(),
     });
     expect(full.error).toBeUndefined();
-    expect(full.value?.productId).toBe("p-5");
+    expect(full.value?.productId).toBe(ITEM.productId);
 
+    // Nome, preço e imagem enviados pelo front são ignorados
     const minimal = validateAddItem({
-      productId: "p-1",
-      name: "Cômoda",
-      price: 0,
-      image: "/a.png",
+      productId: ITEM.productId,
+      name: "Inventado",
+      price: 1,
       finishLabel: "",
     });
     expect(minimal.error).toBeUndefined();
-    expect(minimal.value?.finishLabel).toBeUndefined();
-
-    // Produto sem foto cadastrada continua podendo ser salvo
-    const semFoto = validateAddItem({ productId: "p-2", name: "Mesa", price: 10 });
-    expect(semFoto.error).toBeUndefined();
-    expect(semFoto.value?.image).toBe("");
+    expect(minimal.value).toEqual({ productId: ITEM.productId });
   });
 
   it("validateAddItem recusa payload inválido", () => {
-    const base = { productId: "p-1", name: "Cômoda", price: 10, image: "/a.png" };
+    const base = { productId: ITEM.productId };
 
-    expect(validateAddItem({ ...base, price: -1 }).error).toBeDefined();
-    expect(validateAddItem({ ...base, price: Number.NaN }).error).toBeDefined();
-    expect(validateAddItem({ ...base, price: "10" }).error).toBeDefined();
-    expect(validateAddItem({ ...base, name: "" }).error).toBeDefined();
-    expect(validateAddItem({ ...base, productId: "" }).error).toBeDefined();
-    expect(
-      validateAddItem({ ...base, image: "a".repeat(2049) }).error,
-    ).toBeDefined();
+    expect(validateAddItem({ productId: "nao-existe" }).error).toBeDefined();
+    expect(validateAddItem({ productId: "" }).error).toBeDefined();
+    expect(validateAddItem({}).error).toBeDefined();
     expect(validateAddItem({ ...base, variationId: "abc" }).error).toBeDefined();
     expect(validateAddItem(null).error).toBeDefined();
   });
