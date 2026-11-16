@@ -2,6 +2,7 @@ import { ok } from "@/lib/response";
 import { Router } from "@/lib/router";
 
 import { authRoutes } from "@/modules/auth/auth.routes";
+import { atendimentoRoutes } from "@/modules/atendimento/atendimento.routes";
 import { categoriesRoutes } from "@/modules/categories/categories.routes";
 import { listsRoutes } from "@/modules/lists/lists.routes";
 import { productImagesRoutes } from "@/modules/product-images/product-images.routes";
@@ -25,6 +26,7 @@ apiRouter.use("/produtos", productsRoutes);
 apiRouter.use("/produtos", productImagesRoutes);
 apiRouter.use("/uploads", uploadsRoutes);
 apiRouter.use("/listas", listsRoutes);
+apiRouter.use("/atendimento", atendimentoRoutes);
 
 // Health check padrão V1
 apiRouter.get("/health", () => {

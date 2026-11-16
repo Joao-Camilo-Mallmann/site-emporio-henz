@@ -112,6 +112,18 @@ const allModules: AdminModule[] = [
     adminOnly: true,
   },
   {
+    id: "service",
+    section: "store",
+    title: "Atendimento no showroom",
+    description:
+      "Consulte no tablet o que o cliente salvou em casa, buscando pelo e-mail.",
+    actionLabel: "Abrir atendimento",
+    icon: "mdi-account-search",
+    iconClass: "bg-secondary/10 text-secondary",
+    to: "/admin/atendimento",
+    adminOnly: false,
+  },
+  {
     id: "catalog",
     section: "store",
     title: "Vitrine pública",
