@@ -49,6 +49,7 @@ export interface SharedListRef {
   id: string;
   name: string;
   listType: ListType;
+  
 }
 
 // Criar e renomear usam o mesmo payload

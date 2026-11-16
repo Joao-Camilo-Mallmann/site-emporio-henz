@@ -3,6 +3,7 @@ import {
   isValidUuid,
   validateAddItem,
   validateListName,
+  validateShare,
 } from "@/modules/lists/lists.schema";
 import { SAMPLE_ITEM as ITEM } from "../../mocks/lists.mock";
 
@@ -21,6 +22,14 @@ describe("lists.schema", () => {
     expect(validateListName({ name: "a".repeat(101) }).error).toBeDefined();
     expect(validateListName({}).error).toBeDefined();
     expect(validateListName(null).error).toBeDefined();
+  });
+
+  it("validateShare só aceita isPublic booleano", () => {
+    expect(validateShare({ isPublic: true }).value).toEqual({ isPublic: true });
+    expect(validateShare({ isPublic: false }).value).toEqual({ isPublic: false });
+    expect(validateShare({ isPublic: "true" }).error).toBeDefined();
+    expect(validateShare({}).error).toBeDefined();
+    expect(validateShare(null).error).toBeDefined();
   });
 
   it("validateAddItem aceita payload completo e mínimo", () => {

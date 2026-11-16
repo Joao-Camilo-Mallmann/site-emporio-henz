@@ -25,6 +25,14 @@ export const listasApi = {
     return response.data;
   },
 
+  async alterarCompartilhamento(id: string, isPublic: boolean): Promise<ApiList> {
+    const response = await axios.patch<ApiList>(
+      `/listas/${id}/compartilhamento`,
+      { isPublic },
+    );
+    return response.data;
+  },
+
   async excluir(id: string): Promise<void> {
     await axios.delete(`/listas/${id}`);
   },

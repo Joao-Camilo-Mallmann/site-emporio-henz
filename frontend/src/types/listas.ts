@@ -19,6 +19,7 @@ export interface UserList {
   isSystem: boolean;
   listType: ListType;
   shareSlug: string;
+  isPublic: boolean;
   createdAt: string;
   items: SavedItem[];
 }
@@ -80,11 +81,4 @@ export interface AddListItemPayload {
   image: string;
   finishLabel?: string;
   finishColor?: string;
-}
-
-// Lista aberta pelo link público (somente leitura, sem dados do dono)
-export interface SharedList {
-  name: string;
-  listType: ListType;
-  items: SavedItem[];
 }

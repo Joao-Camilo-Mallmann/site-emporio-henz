@@ -48,7 +48,7 @@ export class FakeListsRepository extends ListsRepository {
       listType,
       isSystem,
       shareSlug: crypto.randomUUID(),
-      isPublic: true,
+      isPublic: false,
       deleted: false,
     };
     this.lists.push(list);
@@ -124,6 +124,11 @@ export class FakeListsRepository extends ListsRepository {
     if (!list) return false;
     list.name = name;
     return true;
+  }
+
+  async setPublic(listId: string, isPublic: boolean): Promise<void> {
+    const list = this.lists.find((l) => l.id === listId && !l.deleted);
+    if (list) list.isPublic = isPublic;
   }
 
   async softDelete(listId: string): Promise<void> {

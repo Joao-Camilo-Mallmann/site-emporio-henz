@@ -4,7 +4,6 @@ import type {
   ApiList,
   ApiListItem,
   SavedItem,
-  SharedList,
   UserList,
 } from "@/types";
 import { isAxiosError } from "axios";
@@ -46,6 +45,7 @@ function mapList(list: ApiList): UserList {
     isSystem: list.isSystem,
     listType: list.listType,
     shareSlug: list.shareSlug,
+    isPublic: list.isPublic,
     createdAt: list.createdAt,
     items: (list.items ?? []).map(mapItem),
   };
@@ -75,8 +75,6 @@ export const useListasStore = defineStore("listas", () => {
   const pendingProductToSave = ref<ActiveProductToSave | null>(null);
 
   // Lista aberta pelo link público (somente leitura)
-  const sharedList = ref<SharedList | null>(null);
-  const isSharedModalOpen = ref(false);
 
   let isImporting = false;
 
@@ -274,6 +272,21 @@ export const useListasStore = defineStore("listas", () => {
     }
   }
 
+  async function setListPublic(listId: string, isPublic: boolean): Promise<void> {
+    const list = getListById(listId);
+    if (!list) return;
+
+    try {
+      const updated = await listasApi.alterarCompartilhamento(listId, isPublic);
+      list.isPublic = updated.isPublic;
+    } catch (err) {
+      throw new Error(
+        apiErrorMessage(err, "Não foi possível alterar o compartilhamento."),
+        { cause: err },
+      );
+    }
+  }
+
   async function deleteCustomList(listId: string): Promise<boolean> {
     const list = getListById(listId);
     if (!list || list.isSystem) return false;
@@ -286,26 +299,6 @@ export const useListasStore = defineStore("listas", () => {
 
     lists.value = lists.value.filter((l) => l.id !== listId);
     return true;
-  }
-
-  // Link público
-  async function openSharedList(shareSlug: string): Promise<void> {
-    try {
-      const data = await listasApi.buscarCompartilhada(shareSlug);
-      sharedList.value = {
-        name: data.name,
-        listType: data.listType,
-        items: data.items.map(mapItem),
-      };
-      isSharedModalOpen.value = true;
-    } catch {
-      toast.error("Esta lista não existe ou não está mais disponível.");
-    }
-  }
-
-  function closeSharedModal(): void {
-    isSharedModalOpen.value = false;
-    sharedList.value = null;
   }
 
   // Importa, uma única vez, as listas que o navegador guardava antes da API
@@ -390,11 +383,11 @@ export const useListasStore = defineStore("listas", () => {
     }
   }
 
-  // Ao entrar, carrega as listas da conta; ao sair, limpa tudo da tela
+  // Ao entrar (ou trocar de conta), carrega as listas; ao sair, limpa a tela
   watch(
-    () => authStore.isAuthenticated,
-    async (isAuthenticated) => {
-      if (isAuthenticated) {
+    () => authStore.isAuthenticated && authStore.user?.id,
+    async (userId) => {
+      if (userId) {
         await loadLists();
         await importLocalLists();
       } else {
@@ -415,8 +408,6 @@ export const useListasStore = defineStore("listas", () => {
     selectedListIdForManage,
     isLoginPromptOpen,
     pendingProductToSave,
-    sharedList,
-    isSharedModalOpen,
     totalSavedCount,
     systemLists,
     customLists,
@@ -435,8 +426,7 @@ export const useListasStore = defineStore("listas", () => {
     removeItemFromList,
     createCustomList,
     renameCustomList,
+    setListPublic,
     deleteCustomList,
-    openSharedList,
-    closeSharedModal,
   };
 });

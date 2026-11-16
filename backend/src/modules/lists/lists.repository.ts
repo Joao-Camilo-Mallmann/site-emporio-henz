@@ -124,7 +124,10 @@ export class ListsRepository {
     return rows.map(mapList);
   }
 
-  async findOwnedById(clientId: string, listId: string): Promise<ListDto | null> {
+  async findOwnedById(
+    clientId: string,
+    listId: string,
+  ): Promise<ListDto | null> {
     const rows = await sql<ListDbRow[]>`
       SELECT
         l.id, l.name, l.list_type, l.is_system, l.share_slug, l.is_public,
@@ -164,6 +167,14 @@ export class ListsRepository {
     `;
 
     return rows.length > 0;
+  }
+
+  async setPublic(listId: string, isPublic: boolean): Promise<void> {
+    await sql`
+      UPDATE lists
+      SET is_public = ${isPublic}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${listId} AND deleted_at IS NULL
+    `;
   }
 
   // Soft delete da lista e de todos os itens dela, na mesma transação
@@ -268,7 +279,7 @@ export class ListsRepository {
   // Só devolve listas públicas e não deletadas; nunca expõe o dono
   async findSharedBySlug(shareSlug: string): Promise<SharedListRef | null> {
     const rows = await sql<{ id: string; name: string; list_type: ListType }[]>`
-      SELECT id, name, list_type
+      SELECT id, name, list_type, is_public
       FROM lists
       WHERE share_slug = ${shareSlug}
         AND is_public = TRUE

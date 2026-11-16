@@ -1,6 +1,9 @@
 import { ForbiddenError, isUniqueViolation, NotFoundError } from "@/lib/errors";
-import { listsRepository, ListsRepository } from "@/modules/lists/lists.repository";
-import { isValidUuid } from "@/modules/lists/lists.schema";
+import { isValidUuid } from "@/lib/slug";
+import {
+  listsRepository,
+  ListsRepository,
+} from "@/modules/lists/lists.repository";
 import {
   AddListItemDto,
   AddListItemResult,
@@ -23,7 +26,10 @@ export class ListsService {
   }
 
   // Lista de outro cliente responde 404, igual a uma lista que não existe
-  private async getOwnedList(clientId: string, listId: string): Promise<ListDto> {
+  private async getOwnedList(
+    clientId: string,
+    listId: string,
+  ): Promise<ListDto> {
     if (!isValidUuid(listId)) {
       throw new NotFoundError("Lista não encontrada.");
     }
@@ -69,7 +75,11 @@ export class ListsService {
     return await this.repo.createCustom(clientId, dto.name);
   }
 
-  async rename(userId: string, listId: string, dto: ListNameDto): Promise<ListDto> {
+  async rename(
+    userId: string,
+    listId: string,
+    dto: ListNameDto,
+  ): Promise<ListDto> {
     const clientId = await this.resolveClientId(userId);
     const list = await this.getOwnedList(clientId, listId);
 
@@ -78,6 +88,18 @@ export class ListsService {
     }
 
     await this.repo.rename(list.id, dto.name);
+    return await this.getOwnedList(clientId, list.id);
+  }
+
+  // Liga ou desliga o link público; vale também para as listas padrão
+  async setPublic(
+    userId: string,
+    listId: string,
+    isPublic: boolean,
+  ): Promise<ListDto> {
+    const clientId = await this.resolveClientId(userId);
+    const list = await this.getOwnedList(clientId, listId);
+    await this.repo.setPublic(list.id, isPublic);
     return await this.getOwnedList(clientId, list.id);
   }
 
@@ -125,7 +147,11 @@ export class ListsService {
     }
   }
 
-  async removeItem(userId: string, listId: string, itemId: string): Promise<void> {
+  async removeItem(
+    userId: string,
+    listId: string,
+    itemId: string,
+  ): Promise<void> {
     const clientId = await this.resolveClientId(userId);
     const list = await this.getOwnedList(clientId, listId);
 
@@ -146,6 +172,7 @@ export class ListsService {
     }
 
     const list = await this.repo.findSharedBySlug(shareSlug);
+
     if (!list) {
       throw new NotFoundError("Lista não encontrada.");
     }

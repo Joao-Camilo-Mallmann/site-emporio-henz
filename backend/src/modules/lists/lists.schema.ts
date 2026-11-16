@@ -1,7 +1,7 @@
+import { isValidUuid } from "@/lib/slug";
 import { AddListItemDto, ListNameDto } from "./lists.types";
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export { isValidUuid };
 
 const MAX_LIST_NAME = 100;
 const MAX_PRODUCT_ID = 100;
@@ -12,16 +12,16 @@ const MAX_FINISH_LABEL = 100;
 const MAX_FINISH_COLOR = 50;
 const MAX_PRICE = 9_999_999_999; // limite do NUMERIC(12, 2)
 
-export function isValidUuid(value: string): boolean {
-  return UUID_REGEX.test(value);
-}
-
 function readRequiredString(
   raw: unknown,
   field: string,
   max: number,
 ): { error?: string; value?: string } {
-  if (typeof raw !== "string" || raw.trim().length < 1 || raw.trim().length > max) {
+  if (
+    typeof raw !== "string" ||
+    raw.trim().length < 1 ||
+    raw.trim().length > max
+  ) {
     return { error: `O campo ${field} deve ter de 1 a ${max} caracteres.` };
   }
   return { value: raw.trim() };
@@ -61,6 +61,17 @@ export function validateListName(body: unknown): {
   return { value: { name: name.value } };
 }
 
+export function validateShare(body: unknown): {
+  error?: string;
+  value?: { isPublic: boolean };
+} {
+  const isPublic = (body as Record<string, unknown> | null)?.isPublic;
+  if (typeof isPublic !== "boolean") {
+    return { error: "O campo isPublic deve ser true ou false." };
+  }
+  return { value: { isPublic } };
+}
+
 export function validateAddItem(body: unknown): {
   error?: string;
   value?: AddListItemDto;
@@ -71,7 +82,11 @@ export function validateAddItem(body: unknown): {
 
   const raw = body as Record<string, unknown>;
 
-  const productId = readRequiredString(raw.productId, "productId", MAX_PRODUCT_ID);
+  const productId = readRequiredString(
+    raw.productId,
+    "productId",
+    MAX_PRODUCT_ID,
+  );
   if (productId.error || !productId.value) return { error: productId.error };
 
   const name = readRequiredString(raw.name, "name", MAX_PRODUCT_NAME);
@@ -91,7 +106,11 @@ export function validateAddItem(body: unknown): {
     return { error: "O campo price deve ser um número maior ou igual a zero." };
   }
 
-  const productSlug = readOptionalString(raw.productSlug, "productSlug", MAX_SLUG);
+  const productSlug = readOptionalString(
+    raw.productSlug,
+    "productSlug",
+    MAX_SLUG,
+  );
   if (productSlug.error) return { error: productSlug.error };
 
   const finishLabel = readOptionalString(
@@ -110,7 +129,10 @@ export function validateAddItem(body: unknown): {
 
   let variationId: string | undefined;
   if (raw.variationId !== undefined && raw.variationId !== null) {
-    if (typeof raw.variationId !== "string" || !isValidUuid(raw.variationId.trim())) {
+    if (
+      typeof raw.variationId !== "string" ||
+      !isValidUuid(raw.variationId.trim())
+    ) {
       return { error: "O campo variationId deve ser um UUID válido." };
     }
     variationId = raw.variationId.trim();

@@ -147,6 +147,7 @@ describe("ListsService", () => {
     const { service, userA } = setup();
     const list = await service.create(userA, { name: "Presente de casamento" });
     await service.addItem(userA, list.id, ITEM);
+    await service.setPublic(userA, list.id, true);
 
     const shared = await service.getShared(list.shareSlug);
 
@@ -160,16 +161,40 @@ describe("ListsService", () => {
     expect(shared.itemsCount).toBe(1);
   });
 
-  it("link público não funciona para slug inválido, lista privada ou excluída", async () => {
-    const { service, repo, userA } = setup();
+  it("lista nasce privada e o dono liga e desliga o link público", async () => {
+    const { service, userA } = setup();
+    const [favorites] = await service.listMine(userA);
+    const list = await service.create(userA, { name: "Quarto" });
+
+    expect(favorites.isPublic).toBe(false);
+    expect(list.isPublic).toBe(false);
+    await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
+
+    const opened = await service.setPublic(userA, list.id, true);
+    expect(opened.isPublic).toBe(true);
+    expect(opened.shareSlug).toBe(list.shareSlug);
+    expect((await service.getShared(list.shareSlug)).name).toBe("Quarto");
+    expect((await service.setPublic(userA, favorites.id, true)).isPublic).toBe(true);
+
+    await service.setPublic(userA, list.id, false);
+    await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("não deixa um cliente mudar a visibilidade da lista de outro", async () => {
+    const { service, userA, userB } = setup();
+    const list = await service.create(userA, { name: "Quarto" });
+
+    await expect(service.setPublic(userB, list.id, true)).rejects.toBeInstanceOf(NotFoundError);
+    await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("link público não funciona para slug inválido ou lista excluída", async () => {
+    const { service, userA } = setup();
     const list = await service.create(userA, { name: "Quarto" });
 
     await expect(service.getShared("abc")).rejects.toBeInstanceOf(NotFoundError);
 
-    repo.lists.find((l) => l.id === list.id)!.isPublic = false;
-    await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
-
-    repo.lists.find((l) => l.id === list.id)!.isPublic = true;
+    await service.setPublic(userA, list.id, true);
     await service.remove(userA, list.id);
     await expect(service.getShared(list.shareSlug)).rejects.toBeInstanceOf(NotFoundError);
   });
