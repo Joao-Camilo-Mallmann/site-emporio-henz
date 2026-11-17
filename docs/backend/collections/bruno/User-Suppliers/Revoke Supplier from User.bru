@@ -7,14 +7,10 @@ meta {
 delete {
   url: {{baseUrl}}/users/:userId/suppliers/:supplierId
   body: none
-  auth: bearer
+  auth: none
 }
 
 params:path {
   userId: 00000000-0000-0000-0000-000000000000
   supplierId: 00000000-0000-0000-0000-000000000000
-}
-
-auth:bearer {
-  token: {{token}}
 }

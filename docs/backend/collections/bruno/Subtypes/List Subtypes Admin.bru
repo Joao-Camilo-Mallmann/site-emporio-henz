@@ -7,7 +7,7 @@ meta {
 get {
   url: {{baseUrl}}/subtipos?page=1&limit=20
   body: none
-  auth: bearer
+  auth: none
 }
 
 params:query {
@@ -18,12 +18,9 @@ params:query {
   ~active: false
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 docs {
-  Com token de Administrador a listagem inclui subtipos inativos e subtipos de categorias inativas.
+  Com sessão de Administrador a listagem inclui subtipos inativos e subtipos de categorias inativas.
   `active=true` ou `active=false` filtra pelo status do subtipo; sem o parâmetro, retorna ambos.
-  Tokens de Cliente ou Vendedor recebem a mesma resposta do público.
+  Sessões de Cliente ou Vendedor recebem a mesma resposta do público.
 }

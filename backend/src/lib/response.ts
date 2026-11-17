@@ -26,12 +26,18 @@ export function corsPreflightResponse(): Response {
   });
 }
 
-export function ok(data: unknown): Response {
-  return jsonResponse(data, 200);
+export function ok(
+  data: unknown,
+  extraHeaders?: Record<string, string>,
+): Response {
+  return jsonResponse(data, 200, extraHeaders);
 }
 
-export function created(data: unknown): Response {
-  return jsonResponse(data, 201);
+export function created(
+  data: unknown,
+  extraHeaders?: Record<string, string>,
+): Response {
+  return jsonResponse(data, 201, extraHeaders);
 }
 
 export function noContent(): Response {

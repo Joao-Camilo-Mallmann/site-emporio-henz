@@ -7,7 +7,7 @@ meta {
 delete {
   url: {{baseUrl}}/produtos/:id/variacoes/:variationId/amostra
   body: none
-  auth: bearer
+  auth: none
 }
 
 params:path {
@@ -15,9 +15,6 @@ params:path {
   variationId: 00000000-0000-0000-0000-000000000000
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 docs {
   Restrito a Vendedor (`role = 2`) e Administrador (`role = 3`), com a mesma regra de escopo de `PUT /produtos/:id`.

@@ -7,16 +7,13 @@ meta {
 put {
   url: {{baseUrl}}/suppliers/:id
   body: json
-  auth: bearer
+  auth: none
 }
 
 params:path {
   id: 1746918c-4f75-4c00-b414-922b72613388
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 body:json {
   {

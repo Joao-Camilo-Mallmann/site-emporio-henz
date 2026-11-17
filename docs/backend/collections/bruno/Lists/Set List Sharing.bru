@@ -7,16 +7,13 @@ meta {
 patch {
   url: {{baseUrl}}/listas/:id/compartilhamento
   body: json
-  auth: bearer
+  auth: none
 }
 
 params:path {
   id: 00000000-0000-0000-0000-000000000000
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 body:json {
   {
@@ -27,5 +24,5 @@ body:json {
 docs {
   Liga ou desliga o link público da lista. `isPublic` é obrigatório e booleano. Vale para qualquer lista do cliente, inclusive as padrão.
   Toda lista nasce privada: `GET /listas/compartilhadas/:shareSlug` responde `404` até o dono enviar `isPublic: true`. O `shareSlug` não muda ao alternar.
-  Resposta 200: a lista atualizada. `400` para payload inválido. `404` se a lista não for do cliente. `401` sem token.
+  Resposta 200: a lista atualizada. `400` para payload inválido. `404` se a lista não for do cliente. `401` sem cookie de sessão.
 }
