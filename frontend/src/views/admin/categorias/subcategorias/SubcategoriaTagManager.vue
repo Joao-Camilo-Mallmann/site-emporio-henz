@@ -296,22 +296,15 @@ onMounted(() => {
     >
       <!-- Campo de Entrada Ágil com Botão de Ação -->
       <div class="flex items-center gap-2">
-        <div class="relative flex-1">
-          <input
-            v-model="inputValue"
-            type="text"
-            placeholder="Digite o nome do subtipo e aperte Enter ou vírgula..."
-            class="w-full px-3.5 py-2 pr-10 rounded-lg border border-stone-300 bg-white text-xs text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-all"
-            @keydown="handleInputKeydown"
-            @paste="handleInputPaste"
-          />
-          <div
-            v-if="inputValue.trim()"
-            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-stone-400 font-mono hidden sm:block"
-          >
-            [Enter]
-          </div>
-        </div>
+        <UiInput
+          v-model="inputValue"
+          type="text"
+          aria-label="Novo subtipo"
+          placeholder="Digite o nome do subtipo e aperte Enter ou vírgula..."
+          @keydown="handleInputKeydown"
+          @paste="handleInputPaste"
+          :suffix="inputValue.trim() ? '[Enter]' : undefined"
+        />
 
         <UiButton
           type="button"

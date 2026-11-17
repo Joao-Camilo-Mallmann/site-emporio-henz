@@ -43,10 +43,12 @@ declare module 'vue' {
     UiCard: typeof import('./components/ui/UiCard.vue')['default']
     UiFloatingActions: typeof import('./components/ui/UiFloatingActions.vue')['default']
     UiFloatingButton: typeof import('./components/ui/UiFloatingButton.vue')['default']
+    UiInput: typeof import('./components/ui/UiInput.vue')['default']
     UiModal: typeof import('./components/ui/UiModal.vue')['default']
     UiPageHeader: typeof import('./components/ui/UiPageHeader.vue')['default']
     UiPagination: typeof import('./components/ui/UiPagination.vue')['default']
     UiSelect: typeof import('./components/ui/UiSelect.vue')['default']
     UiStepper: typeof import('./components/ui/UiStepper.vue')['default']
+    UiTextarea: typeof import('./components/ui/UiTextarea.vue')['default']
   }
 }

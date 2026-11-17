@@ -305,17 +305,15 @@ async function handleSave() {
 
       <!-- Barra de Filtro / Busca Rápida -->
       <div class="flex items-center gap-2">
-        <div class="relative flex-1">
-          <span
-            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400"
-          >
-            <Icon icon="mdi:magnify" class="w-4 h-4" />
-          </span>
-          <input
+        <div class="flex-1">
+          <UiInput
             v-model="searchTerm"
+            size="sm"
             type="text"
+            aria-label="Filtrar fornecedor"
             placeholder="Filtrar fornecedor por nome ou contato..."
-            class="w-full pl-9 pr-3.5 py-1.5 rounded-lg border border-stone-200 bg-white text-xs text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors"
+          
+            prefix-icon="mdi:magnify"
           />
         </div>
 

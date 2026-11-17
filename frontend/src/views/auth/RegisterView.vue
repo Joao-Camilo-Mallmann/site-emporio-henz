@@ -3,7 +3,6 @@ import { authApi } from "@/api";
 import { useAuthStore } from "@/stores/auth";
 import { reactive, ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { maskPhoneInput } from "@/utils/phone";
 
 const route = useRoute();
 const router = useRouter();
@@ -17,10 +16,8 @@ const form = reactive({
   confirmPassword: "",
 });
 
-const showPassword = ref(false);
 // Preenchido pelo PasswordStrengthPanel via v-model:valid
 const isPasswordSecure = ref(false);
-const showConfirmPassword = ref(false);
 const loading = ref(false);
 const generalError = ref("");
 
@@ -38,11 +35,6 @@ onMounted(() => {
       "Os cookies estão desabilitados no seu navegador. Para criar uma conta, por favor habilite os cookies nas configurações.";
   }
 });
-
-// Máscara dinâmica para WhatsApp / Telefone: (99) 99999-9999
-function handlePhoneInput(event: Event) {
-  form.phone = maskPhoneInput(event);
-}
 
 function validate(): boolean {
   let valid = true;
@@ -174,118 +166,53 @@ async function handleSubmit() {
       <!-- Formulário -->
       <form @submit.prevent="handleSubmit" class="space-y-5">
         <!-- Nome Completo -->
-        <div>
-          <label for="name" class="block text-sm font-bold text-stone-900 mb-2">
-            Nome Completo
-          </label>
-          <input
-            id="name"
-            v-model="form.name"
-            type="text"
-            autocomplete="name"
-            placeholder="Ex.: Maria Silveira"
-            :class="[
-              'w-full px-4 py-3 rounded-lg border text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors',
-              formErrors.name
-                ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                : 'border-stone-300 focus:border-secondary-hover focus:ring-sky-100',
-            ]"
-          />
-          <p v-if="formErrors.name" class="mt-1 text-xs text-rose-600">
-            {{ formErrors.name }}
-          </p>
-        </div>
+        <UiInput
+          id="name"
+          v-model="form.name"
+          label="Nome Completo"
+          type="text"
+          autocomplete="name"
+          placeholder="Ex.: Maria Silveira"
+          :error="formErrors.name"
+          size="lg"
+        />
 
         <!-- E-mail -->
-        <div>
-          <label
-            for="email"
-            class="block text-sm font-bold text-stone-900 mb-2"
-          >
-            E-mail
-          </label>
-          <input
-            id="email"
-            v-model="form.email"
-            type="email"
-            autocomplete="email"
-            placeholder="seuemail@exemplo.com.br"
-            :class="[
-              'w-full px-4 py-3 rounded-lg border text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors',
-              formErrors.email
-                ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                : 'border-stone-300 focus:border-secondary-hover focus:ring-sky-100',
-            ]"
-          />
-          <p v-if="formErrors.email" class="mt-1 text-xs text-rose-600">
-            {{ formErrors.email }}
-          </p>
-        </div>
+        <UiInput
+          id="email"
+          v-model="form.email"
+          label="E-mail"
+          type="email"
+          autocomplete="email"
+          placeholder="seuemail@exemplo.com.br"
+          :error="formErrors.email"
+          size="lg"
+        />
 
         <!-- Telefone / WhatsApp -->
-        <div>
-          <label
-            for="phone"
-            class="block text-sm font-bold text-stone-900 mb-2"
-          >
-            WhatsApp / Telefone
-          </label>
-          <input
-            id="phone"
-            :value="form.phone"
-            type="tel"
-            placeholder="(51) 99999-9999"
-            @input="handlePhoneInput"
-            :class="[
-              'w-full px-4 py-3 rounded-lg border text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors',
-              formErrors.phone
-                ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                : 'border-stone-300 focus:border-secondary-hover focus:ring-sky-100',
-            ]"
-          />
-          <p v-if="formErrors.phone" class="mt-1 text-xs text-rose-600">
-            {{ formErrors.phone }}
-          </p>
-        </div>
+        <UiInput
+          id="phone"
+          v-model="form.phone"
+          label="WhatsApp / Telefone"
+          type="tel"
+          mask="phone"
+          placeholder="(51) 99999-9999"
+          :error="formErrors.phone"
+          size="lg"
+        />
 
         <!-- Senha -->
         <div>
-          <label
-            for="password"
-            class="block text-sm font-bold text-stone-900 mb-2"
-          >
-            Senha
-          </label>
-          <div class="relative">
-            <input
-              id="password"
-              v-model="form.password"
-              :type="showPassword ? 'text' : 'password'"
-              autocomplete="new-password"
-              placeholder="Crie sua senha segura"
-              :class="[
-                'w-full px-4 py-3 pr-12 rounded-lg border text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors',
-                formErrors.password
-                  ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                  : 'border-stone-300 focus:border-secondary-hover focus:ring-sky-100',
-              ]"
-            />
-            <button
-              type="button"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none"
-              tabindex="-1"
-              @click="showPassword = !showPassword"
-              aria-label="Alternar visibilidade da senha"
-            >
-              <Icon
-                :icon="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
-                class="w-5 h-5"
-              />
-            </button>
-          </div>
-          <p v-if="formErrors.password" class="mt-1 text-xs text-rose-600">
-            {{ formErrors.password }}
-          </p>
+          <UiInput
+            id="password"
+            v-model="form.password"
+            label="Senha"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Crie sua senha segura"
+            :error="formErrors.password"
+            size="lg"
+          />
           <PasswordStrengthPanel
             v-model:valid="isPasswordSecure"
             :password="form.password"
@@ -295,47 +222,16 @@ async function handleSubmit() {
         </div>
 
         <!-- Confirmação de Senha -->
-        <div>
-          <label
-            for="confirmPassword"
-            class="block text-sm font-bold text-stone-900 mb-2"
-          >
-            Confirme sua Senha
-          </label>
-          <div class="relative">
-            <input
-              id="confirmPassword"
-              v-model="form.confirmPassword"
-              :type="showConfirmPassword ? 'text' : 'password'"
-              autocomplete="new-password"
-              placeholder="Digite a senha novamente"
-              :class="[
-                'w-full px-4 py-3 pr-12 rounded-lg border text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors',
-                formErrors.confirmPassword
-                  ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                  : 'border-stone-300 focus:border-secondary-hover focus:ring-sky-100',
-              ]"
-            />
-            <button
-              type="button"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none"
-              tabindex="-1"
-              @click="showConfirmPassword = !showConfirmPassword"
-              aria-label="Alternar visibilidade da confirmação"
-            >
-              <Icon
-                :icon="showConfirmPassword ? 'mdi:eye-off' : 'mdi:eye'"
-                class="w-5 h-5"
-              />
-            </button>
-          </div>
-          <p
-            v-if="formErrors.confirmPassword"
-            class="mt-1 text-xs text-rose-600"
-          >
-            {{ formErrors.confirmPassword }}
-          </p>
-        </div>
+        <UiInput
+          id="confirmPassword"
+          v-model="form.confirmPassword"
+          label="Confirme sua Senha"
+          type="password"
+          autocomplete="new-password"
+          placeholder="Digite a senha novamente"
+          :error="formErrors.confirmPassword"
+          size="lg"
+        />
 
         <!-- Botão Criar Conta -->
         <div class="pt-4">

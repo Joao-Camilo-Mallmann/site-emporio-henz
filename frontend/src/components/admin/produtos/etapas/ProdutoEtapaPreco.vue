@@ -2,10 +2,7 @@
 import { useProdutoFormStore } from "@/stores/produtoForm";
 import {
   AVAILABILITY_OPTIONS,
-  ERROR_TEXT_CLASS,
   FIELD_IDS,
-  fieldClass,
-  HINT_CLASS,
   INSTALLMENTS_MAX,
   INSTALLMENTS_MIN,
   LABEL_CLASS,
@@ -17,7 +14,7 @@ import { storeToRefs } from "pinia";
 
 const store = useProdutoFormStore();
 const { form, locked } = storeToRefs(store);
-const { fieldError, describedBy } = store;
+const { fieldError } = store;
 </script>
 
 <template>
@@ -31,52 +28,35 @@ const { fieldError, describedBy } = store;
     <fieldset :disabled="locked" class="min-w-0 space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <!-- Preço de referência -->
-        <div>
-          <label :for="FIELD_IDS.referencePrice" :class="LABEL_CLASS">Preço de referência *</label>
-          <div class="relative">
-            <span class="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm text-stone-500" aria-hidden="true">R$</span>
-            <input
-              :id="FIELD_IDS.referencePrice"
-              v-model="form.referencePrice"
-              type="number"
-              inputmode="decimal"
-              min="0"
-              step="0.01"
-              placeholder="0,00"
-              aria-required="true"
-              :aria-invalid="fieldError(FIELD_IDS.referencePrice) ? 'true' : undefined"
-              :aria-describedby="describedBy(FIELD_IDS.referencePrice)"
-              :class="[fieldClass(!!fieldError(FIELD_IDS.referencePrice)), 'pl-10']"
-            />
-          </div>
-          <p v-if="fieldError(FIELD_IDS.referencePrice)" :id="`${FIELD_IDS.referencePrice}-error`" :class="ERROR_TEXT_CLASS">
-            {{ fieldError(FIELD_IDS.referencePrice) }}
-          </p>
-        </div>
+        <!-- Preço de referência -->
+        <UiInput
+          :id="FIELD_IDS.referencePrice"
+          v-model="form.referencePrice"
+          type="number"
+          inputmode="decimal"
+          min="0"
+          step="0.01"
+          label="Preço de referência *"
+          placeholder="0,00"
+          aria-required="true"
+          :error="fieldError(FIELD_IDS.referencePrice)"
+          prefix="R$"
+        />
 
         <!-- Parcelas -->
-        <div>
-          <label :for="FIELD_IDS.maxInstallments" :class="LABEL_CLASS">Parcelas máximas *</label>
-          <input
-            :id="FIELD_IDS.maxInstallments"
-            v-model="form.maxInstallments"
-            type="number"
-            inputmode="numeric"
-            :min="INSTALLMENTS_MIN"
-            :max="INSTALLMENTS_MAX"
-            step="1"
-            aria-required="true"
-            :aria-invalid="fieldError(FIELD_IDS.maxInstallments) ? 'true' : undefined"
-            :aria-describedby="describedBy(FIELD_IDS.maxInstallments, `${FIELD_IDS.maxInstallments}-hint`)"
-            :class="fieldClass(!!fieldError(FIELD_IDS.maxInstallments))"
-          />
-          <p v-if="fieldError(FIELD_IDS.maxInstallments)" :id="`${FIELD_IDS.maxInstallments}-error`" :class="ERROR_TEXT_CLASS">
-            {{ fieldError(FIELD_IDS.maxInstallments) }}
-          </p>
-          <p :id="`${FIELD_IDS.maxInstallments}-hint`" :class="HINT_CLASS">
-            De {{ INSTALLMENTS_MIN }} a {{ INSTALLMENTS_MAX }}. Use 1 para pagamento à vista.
-          </p>
-        </div>
+        <UiInput
+          :id="FIELD_IDS.maxInstallments"
+          v-model="form.maxInstallments"
+          type="number"
+          inputmode="numeric"
+          :min="INSTALLMENTS_MIN"
+          :max="INSTALLMENTS_MAX"
+          step="1"
+          label="Parcelas máximas *"
+          aria-required="true"
+          :error="fieldError(FIELD_IDS.maxInstallments)"
+          :hint="`De ${INSTALLMENTS_MIN} a ${INSTALLMENTS_MAX}. Use 1 para pagamento à vista.`"
+        />
       </div>
 
       <!-- Disponibilidade -->
@@ -112,23 +92,18 @@ const { fieldError, describedBy } = store;
 
       <!-- Prazo (só sob encomenda) -->
       <div v-if="form.availabilityType === 'ON_DEMAND'" class="sm:max-w-xs">
-        <label :for="FIELD_IDS.estimatedDays" :class="LABEL_CLASS">Prazo de fabricação (dias) *</label>
-        <input
+        <UiInput
           :id="FIELD_IDS.estimatedDays"
           v-model="form.estimatedDays"
           type="number"
           inputmode="numeric"
           min="1"
           step="1"
+          label="Prazo de fabricação (dias) *"
           placeholder="Ex.: 15"
           aria-required="true"
-          :aria-invalid="fieldError(FIELD_IDS.estimatedDays) ? 'true' : undefined"
-          :aria-describedby="describedBy(FIELD_IDS.estimatedDays)"
-          :class="fieldClass(!!fieldError(FIELD_IDS.estimatedDays))"
+          :error="fieldError(FIELD_IDS.estimatedDays)"
         />
-        <p v-if="fieldError(FIELD_IDS.estimatedDays)" :id="`${FIELD_IDS.estimatedDays}-error`" :class="ERROR_TEXT_CLASS">
-          {{ fieldError(FIELD_IDS.estimatedDays) }}
-        </p>
       </div>
     </fieldset>
   </ProdutoEtapaCartao>

@@ -190,49 +190,25 @@ async function handleSubmit() {
     </div>
 
     <!-- Nome da Categoria / Ambiente -->
-    <div>
-      <label
-        for="category-name"
-        class="block text-xs font-semibold text-neutral-dark mb-1.5"
-      >
-        Nome da Categoria / Ambiente *
-      </label>
-      <input
-        id="category-name"
-        v-model="form.name"
-        type="text"
-        placeholder="Ex.: Sala de Estar, Dormitório, Espaço Gourmet..."
-        class="w-full px-3.5 py-2.5 rounded-lg border text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:ring-1 transition-colors"
-        :class="
-          formErrors.name
-            ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-            : 'border-stone-300 focus:border-secondary focus:ring-secondary/20'
-        "
-      />
-      <p v-if="formErrors.name" class="mt-1 text-xs text-rose-600">
-        {{ formErrors.name }}
-      </p>
-    </div>
+    <UiInput
+      id="category-name"
+      v-model="form.name"
+      label="Nome da Categoria / Ambiente *"
+      type="text"
+      placeholder="Ex.: Sala de Estar, Dormitório, Espaço Gourmet..."
+      :error="formErrors.name"
+    />
 
     <!-- Slug no Catálogo (URL amigável) -->
-    <div>
-      <label
-        for="category-slug"
-        class="block text-xs font-semibold text-neutral-dark mb-1.5"
-      >
-        Slug no Catálogo (Identificador de URL)
-      </label>
-      <input
-        id="category-slug"
-        v-model="form.slug"
-        type="text"
-        placeholder="Ex.: sala-de-estar (opcional, gerado automaticamente se vazio)"
-        class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-neutral-dark font-mono text-xs placeholder:text-stone-400 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors"
-      />
-      <span class="text-xs text-stone-400 mt-1 block">
-        Utilizado na rota e filtros do catálogo. Deixe em branco para derivar automaticamente do nome.
-      </span>
-    </div>
+    <UiInput
+      id="category-slug"
+      v-model="form.slug"
+      label="Slug no Catálogo (Identificador de URL)"
+      type="text"
+      class="font-mono text-xs!"
+      placeholder="Ex.: sala-de-estar (opcional, gerado automaticamente se vazio)"
+      hint="Utilizado na rota e filtros do catálogo. Deixe em branco para derivar automaticamente do nome."
+    />
 
     <!-- Status Ativo -->
     <div>

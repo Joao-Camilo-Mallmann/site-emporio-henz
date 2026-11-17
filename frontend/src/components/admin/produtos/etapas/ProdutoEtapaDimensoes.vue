@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { useProdutoFormStore } from "@/stores/produtoForm";
 import type { NumericInput } from "@/types";
-import {
-  ERROR_TEXT_CLASS,
-  FIELD_IDS,
-  fieldClass,
-  HINT_CLASS,
-  LABEL_CLASS,
-} from "@/utils/admin/produtos/produtoFormConstantes";
+import { FIELD_IDS } from "@/utils/admin/produtos/produtoFormConstantes";
 import { storeToRefs } from "pinia";
 
 // Etapa 3 do formulário de produto: altura, largura e profundidade em
@@ -15,7 +9,7 @@ import { storeToRefs } from "pinia";
 
 const store = useProdutoFormStore();
 const { form, locked } = storeToRefs(store);
-const { fieldError, describedBy } = store;
+const { fieldError } = store;
 
 const dimensionFields = [
   { id: FIELD_IDS.heightMm, key: "heightMm", label: "Altura" },
@@ -41,31 +35,26 @@ function formatMmAsCm(value: NumericInput): string | null {
   >
 
     <fieldset :disabled="locked" class="min-w-0 grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div v-for="dimension in dimensionFields" :key="dimension.id">
-        <label :for="dimension.id" :class="LABEL_CLASS">{{ dimension.label }} (mm) *</label>
-        <div class="relative">
-          <input
-            :id="dimension.id"
-            v-model="form[dimension.key]"
-            type="number"
-            inputmode="numeric"
-            min="1"
-            step="1"
-            placeholder="Ex.: 2300"
-            aria-required="true"
-            :aria-invalid="fieldError(dimension.id) ? 'true' : undefined"
-            :aria-describedby="describedBy(dimension.id, `${dimension.id}-hint`)"
-            :class="[fieldClass(!!fieldError(dimension.id)), 'pr-12']"
-          />
-          <span class="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-xs text-stone-500" aria-hidden="true">mm</span>
-        </div>
-        <p v-if="fieldError(dimension.id)" :id="`${dimension.id}-error`" :class="ERROR_TEXT_CLASS">
-          {{ fieldError(dimension.id) }}
-        </p>
-        <p :id="`${dimension.id}-hint`" :class="HINT_CLASS">
-          {{ formatMmAsCm(form[dimension.key]) ? `= ${formatMmAsCm(form[dimension.key])}` : "Equivalente em cm aparece aqui." }}
-        </p>
-      </div>
+      <UiInput
+        v-for="dimension in dimensionFields"
+        :id="dimension.id"
+        :key="dimension.id"
+        v-model="form[dimension.key]"
+        type="number"
+        inputmode="numeric"
+        min="1"
+        step="1"
+        :label="`${dimension.label} (mm) *`"
+        placeholder="Ex.: 2300"
+        aria-required="true"
+        :error="fieldError(dimension.id)"
+        :hint="
+          formatMmAsCm(form[dimension.key])
+            ? `= ${formatMmAsCm(form[dimension.key])}`
+            : 'Equivalente em cm aparece aqui.'
+        "
+        suffix="mm"
+      />
     </fieldset>
   </ProdutoEtapaCartao>
 </template>
