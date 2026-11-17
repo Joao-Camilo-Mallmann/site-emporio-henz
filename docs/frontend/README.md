@@ -68,7 +68,7 @@ A navbar e a vitrine da home montam o menu a partir de `GET /categorias`. A rota
 
 | Arquivo | Responsabilidade |
 | --- | --- |
-| `src/stores/categorias.ts` | `useCategoriasStore().carregar()` busca todas as páginas (`limit` 100) uma vez por sessão e reaproveita a mesma promise em chamadas simultâneas. Também descarta categorias e subtipos inativos (com token de Admin a API devolve os inativos). Expõe `lista`, `barra`, `mais` e `cardsHome`, além do helper `encontrarCategoria` e das constantes `CARDS_HOME` e `MAX_ITENS_BARRA`. Não há helper de link: cada componente aponta direto para `/catalogo?categoria=<slug>` (e `&subcategoria=<nome>` nas subcategorias) |
+| `src/stores/categorias.ts` | `useCategoriasStore().carregar()` busca todas as páginas (`limit` 100) uma vez por sessão e reaproveita a mesma promise em chamadas simultâneas. Também descarta categorias e subtipos inativos (com sessão de Admin via cookie a API devolve os inativos). Expõe `lista`, `barra`, `mais` e `cardsHome`, além do helper `encontrarCategoria` e das constantes `CARDS_HOME` e `MAX_ITENS_BARRA`. Não há helper de link: cada componente aponta direto para `/catalogo?categoria=<slug>` (e `&subcategoria=<nome>` nas subcategorias) |
 | `components/layout/AppNavbarCategorias.vue` | Barra desktop, na ordem da API (alfabética). Mostra no máximo 6 itens: com 7 ou mais categorias, ficam 5 + o botão "Mais". O "Mais" abre no hover e no clique, fecha com Esc, clique fora ou ao escolher um link, e lista cada categoria extra com as suas subcategorias. Categoria sem subtipo vira link simples. Durante a carga ou em caso de erro, só o aviso de entrega aparece |
 | `components/layout/AppNavbarDrawer.vue` | Drawer mobile: todas as categorias no acordeão, sem limite, com "Ver todos em X" e as subcategorias |
 | `components/layout/AppNavbarUserMenu.vue` | Menu do usuário desktop, separado do `AppNavbar.vue` para o arquivo ficar abaixo de 500 linhas |
@@ -126,7 +126,7 @@ As quatro telas ficam em `src/views/admin/produtos/`. O estado, as chamadas à A
 
 ### Fluxo do cadastro
 
-1. **Carga**: `categoriasApi.listar({ limit: 100, active: true })` e `fornecedoresApi.listar({ limit: 100, active: true })` em paralelo. Como o token de Admin traz inativos, categorias e `subtypes` são filtrados por `active` no cliente. Se a carga falhar, a tela mostra o erro com "Tentar de novo" e não exibe o formulário.
+1. **Carga**: `categoriasApi.listar({ limit: 100, active: true })` e `fornecedoresApi.listar({ limit: 100, active: true })` em paralelo. Como a sessão de Admin via cookie traz inativos, categorias e `subtypes` são filtrados por `active` no cliente. Se a carga falhar, a tela mostra o erro com "Tentar de novo" e não exibe o formulário.
 2. **Fornecedor**: o Admin escolhe entre todos os ativos. Para o Vendedor, a API devolve só as empresas vinculadas: uma vem pré-selecionada e travada; várias ficam à escolha; nenhuma mostra o aviso e desabilita "Salvar produto".
 3. **Validação**: `validateForm` devolve `id do campo → mensagem` na ordem visual. Ao salvar com erro, o formulário marca os campos (`aria-invalid`) e rola até o primeiro. Especificações e detalhes de acabamento descartam linhas vazias, bloqueiam chaves repetidas e enviam os valores como texto.
 4. **Arquivos**: fotos e amostras são validadas no navegador (JPEG, PNG ou WebP, até 2 MiB, pelo `type` do arquivo) e mostradas com `URL.createObjectURL`, sem Base64 nem compressão. Os object URLs são revogados ao remover ou trocar o arquivo e ao sair da tela.
@@ -157,7 +157,7 @@ O `ProdutoForm.vue` mostra uma das seis seções por vez, com indicador de etapa
 ### Uploads e URLs de imagem
 
 - A instância do axios fixa `Content-Type: application/json`. Por isso `enviarFoto` e `enviarAmostra` passam `headers: { "Content-Type": "multipart/form-data" }`; sem isso, o axios 1.x serializaria o `FormData` como JSON. O navegador completa o `boundary`.
-- As URLs de imagem da API são relativas (`/api/v1/uploads/...`). `toApiAssetUrl` prefixa a mesma origem do axios (`apiBase`, de `VITE_API_URL`), porque o Vite não faz proxy de `/api`.
+- As chamadas HTTP usam a origem do frontend: o Vite encaminha `/api` para `VITE_API_URL` em desenvolvimento e o proxy reverso faz o mesmo em produção, permitindo que o navegador envie o cookie HttpOnly. `toApiAssetUrl` prefixa a origem de `VITE_API_URL` para servir os arquivos diretamente quando configurada.
 - As cores das variações são dados do produto e entram por `:style` (cor sólida, `linear-gradient` para duas cores e `conic-gradient` para três ou mais), nunca como classe com hex.
 
 ### Atendimento no tablet
@@ -200,7 +200,7 @@ bun install
 bun run dev
 ```
 
-A aplicação fica disponível em `http://localhost:3000`. A URL da API é configurada por `VITE_API_URL`.
+A aplicação fica disponível em `http://localhost:3000`. `VITE_API_URL` configura o destino do proxy de desenvolvimento (padrão `http://localhost:3001`); em produção, `/api` deve ser encaminhado pelo proxy reverso.
 
 ## Validar
 

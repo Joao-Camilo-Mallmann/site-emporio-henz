@@ -263,13 +263,8 @@ router.beforeEach(async (to) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
   const requiredRoles = to.meta.roles as number[] | undefined;
 
-  // Se houver token salvo mas o usuário ainda não estiver no Pinia, aguarda carregamento
-  if (authStore.token && !authStore.user) {
-    try {
-      await authStore.fetchCurrentUser();
-    } catch {
-      // Falha ao obter usuário; fluxo abaixo cuidará da negação
-    }
+  if (!authStore.sessionInitialized) {
+    await authStore.fetchCurrentUser();
   }
 
   if (requiresAuth || requiredRoles) {

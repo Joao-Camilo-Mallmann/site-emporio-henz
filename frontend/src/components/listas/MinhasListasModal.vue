@@ -169,6 +169,34 @@ const shareUrl = computed(() =>
     : "",
 );
 
+function copyWithExecCommand(text: string): boolean {
+  if (
+    typeof document === "undefined" ||
+    !document.body ||
+    typeof document.execCommand !== "function"
+  ) {
+    return false;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.setAttribute("aria-hidden", "true");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+
+  try {
+    textarea.focus();
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+    return document.execCommand("copy");
+  } finally {
+    textarea.remove();
+  }
+}
+
 async function togglePublic() {
   if (!activeList.value) return;
   const isPublic = !activeList.value.isPublic;
@@ -183,16 +211,31 @@ async function togglePublic() {
 
 async function copyPublicLink() {
   if (!activeList.value?.isPublic) return;
+  if (!activeList.value.shareSlug || !shareUrl.value) {
+    toast.error("Não foi possível gerar o link desta lista.");
+    return;
+  }
 
   try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(shareUrl.value);
-      toast.success("Link público copiado para a área de transferência!");
-    } else {
-      toast.info(`Link público: ${shareUrl.value}`);
+    } else if (!copyWithExecCommand(shareUrl.value)) {
+      toast.info(`Não foi possível copiar. Link público: ${shareUrl.value}`);
+      return;
     }
+
+    toast.success("Link público copiado para a área de transferência!");
   } catch {
-    toast.info(`Link público: ${shareUrl.value}`);
+    try {
+      if (copyWithExecCommand(shareUrl.value)) {
+        toast.success("Link público copiado para a área de transferência!");
+        return;
+      }
+    } catch (err) {
+      console.error("Falha ao copiar o link público.", err);
+    }
+
+    toast.info(`Não foi possível copiar. Link público: ${shareUrl.value}`);
   }
 }
 

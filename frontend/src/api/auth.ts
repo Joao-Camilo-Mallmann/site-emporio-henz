@@ -9,18 +9,12 @@ import type {
 
 export const authApi = {
   async login(body: LoginCredentials): Promise<AuthResponse> {
-    const response = await axios.post<{ token: string; user: UserProfile }>(
-      "/auth/login",
-      body,
-    );
+    const response = await axios.post<AuthResponse>("/auth/login", body);
     return response.data;
   },
 
   async register(body: RegisterInput): Promise<AuthResponse> {
-    const response = await axios.post<{ token: string; user: UserProfile }>(
-      "/auth/register",
-      body,
-    );
+    const response = await axios.post<AuthResponse>("/auth/register", body);
     return response.data;
   },
 
@@ -32,6 +26,10 @@ export const authApi = {
   async atualizarPerfil(body: UpdateProfileInput): Promise<UserProfile> {
     const response = await axios.put<UserProfile>("/auth/me", body);
     return response.data;
+  },
+
+  async logout(): Promise<void> {
+    await axios.post("/auth/logout");
   },
 };
 
