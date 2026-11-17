@@ -1,6 +1,5 @@
 import { categoriasApi } from "@/api";
 import type { Category } from "@/types";
-import { getAuthToken } from "@/utils/cookie";
 import { slugify } from "@/utils/slug";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
@@ -68,9 +67,9 @@ export const useCategoriasStore = defineStore("categorias", () => {
   const error = ref<string>();
   const carregadas = ref(false);
   let pendente: Promise<void> | null = null;
-  let tokenNaCarga: string | null = null;
+  let roleNaCarga: number | null = null;
 
-  // Com token de Admin a API devolve também os inativos; o site público nunca os mostra
+  // A sessão de Admin altera o conjunto de categorias devolvido pela API.
   const lista = computed<Category[]>(() =>
     todas.value
       .filter((categoria) => categoria.active)
@@ -87,7 +86,7 @@ export const useCategoriasStore = defineStore("categorias", () => {
   }
 
   async function executarCarga(
-    token: string | null,
+    role: number | null,
     verificarAtual: () => boolean,
   ): Promise<void> {
     loading.value = true;
@@ -97,7 +96,7 @@ export const useCategoriasStore = defineStore("categorias", () => {
       if (verificarAtual()) {
         todas.value = proximaLista;
         carregadas.value = true;
-        tokenNaCarga = token;
+        roleNaCarga = role;
       }
     } catch (err: unknown) {
       if (verificarAtual()) {
@@ -112,19 +111,19 @@ export const useCategoriasStore = defineStore("categorias", () => {
   }
 
   function carregar(forcar = false): Promise<void> {
-    const tokenAtual = authStore.token ?? getAuthToken() ?? null;
-    const tokenMudou = carregadas.value && tokenAtual !== tokenNaCarga;
-    if (carregadas.value && !forcar && !tokenMudou) {
+    const roleAtual = authStore.user?.role ?? null;
+    const roleMudou = carregadas.value && roleAtual !== roleNaCarga;
+    if (carregadas.value && !forcar && !roleMudou) {
       return Promise.resolve();
     }
 
-    if (forcar || tokenMudou) {
+    if (forcar || roleMudou) {
       pendente = null;
     }
 
     if (!pendente) {
       const requisicao = executarCarga(
-        tokenAtual,
+        roleAtual,
         () => pendente === requisicao,
       );
       pendente = requisicao;

@@ -9,13 +9,13 @@ Aplicação web do Empório Henz construída com Vue 3, Vite, Tailwind CSS v4, V
 
 ## Configuração
 
-O Vite lê as variáveis no diretório raiz do repositório. Defina a URL do back-end:
+O Vite lê as variáveis no diretório raiz do repositório. Para desenvolvimento, defina o destino do proxy da API:
 
 ```dotenv
 VITE_API_URL=http://localhost:3001
 ```
 
-O cliente Axios acrescenta `/api/v1` automaticamente.
+As chamadas à API usam `/api/v1` na mesma origem do frontend; o proxy do Vite encaminha `/api` para `VITE_API_URL` (padrão `http://localhost:3001`). Em produção, configure o proxy reverso do servidor para encaminhar `/api` ao backend.
 
 ## Executar
 

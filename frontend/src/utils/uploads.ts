@@ -45,8 +45,8 @@ export function validateImageFile(file: File): string | null {
 
 /**
  * Monta a URL absoluta de um arquivo servido pela API. As URLs de imagem vêm
- * relativas (`/api/v1/uploads/...`) e o Vite não faz proxy de `/api`, então
- * elas recebem a mesma origem do axios (`VITE_API_URL`).
+ * relativas (`/api/v1/uploads/...`); quando `VITE_API_URL` está definido,
+ * prefixa a origem do backend para carregar os arquivos diretamente.
  */
 export function toApiAssetUrl(path: string | null | undefined): string {
   if (!path) return "";

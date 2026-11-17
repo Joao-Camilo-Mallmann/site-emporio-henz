@@ -10,7 +10,7 @@ import { onMounted } from "vue";
 const authStore = useAuthStore();
 
 onMounted(() => {
-  // Restaura a sessão do usuário caso haja token salvo
+  // Restaura a sessão usando o cookie HttpOnly validado pela API
   authStore.fetchCurrentUser();
 });
 </script>
