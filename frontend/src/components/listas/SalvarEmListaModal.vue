@@ -38,12 +38,16 @@ watch(
     if (isOpen && product.value) {
       isCreatingNewFolder.value = false;
       newFolderName.value = "";
-      const alreadyIn = listasStore.getListsContainingProduct(product.value.productId);
+      const alreadyIn = listasStore.getListsContainingProduct(
+        product.value.productId,
+      );
       if (alreadyIn.length > 0) {
         selectedListIds.value = new Set(alreadyIn);
       } else {
         // Se ainda não estiver em nenhuma, pré-seleciona "Favoritos" por padrão
-        const favList = listasStore.lists.find((l) => l.listType === "FAVORITES");
+        const favList = listasStore.lists.find(
+          (l) => l.listType === "FAVORITES",
+        );
         selectedListIds.value = new Set(favList ? [favList.id] : []);
       }
     }
@@ -84,7 +88,9 @@ async function handleSave() {
   try {
     const targetIds = Array.from(selectedListIds.value);
     const productId = product.value.productId;
-    const removed = savedInIds.value.filter((id) => !selectedListIds.value.has(id));
+    const removed = savedInIds.value.filter(
+      (id) => !selectedListIds.value.has(id),
+    );
 
     await Promise.all(
       removed.flatMap((listId) =>
@@ -159,6 +165,7 @@ function getIconColorClass(listType: string): string {
     max-width="lg"
     :show-footer="false"
     :show-close="true"
+    :show-icon="false"
     @update:model-value="(val) => (!val ? listasStore.closeSaveModal() : null)"
     @close="listasStore.closeSaveModal"
   >
@@ -176,10 +183,17 @@ function getIconColorClass(listType: string): string {
             :alt="product.name"
             class="w-full h-full object-cover"
           />
-          <Icon v-else icon="mdi:image-outline" class="w-7 h-7 text-stone-400" />
+          <Icon
+            v-else
+            icon="mdi:image-outline"
+            class="w-7 h-7 text-stone-400"
+          />
         </div>
         <div class="flex-1 min-w-0">
-          <h4 class="text-sm font-bold text-neutral-dark truncate" :title="product.name">
+          <h4
+            class="text-sm font-bold text-neutral-dark truncate"
+            :title="product.name"
+          >
             {{ product.name }}
           </h4>
           <p class="text-xs font-semibold text-secondary mt-0.5">
@@ -203,12 +217,14 @@ function getIconColorClass(listType: string): string {
 
       <!-- Lista de Pastas Disponíveis -->
       <div>
-        <label class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">
+        <label
+          class="block text-xs font-bold uppercase tracking-wider text-stone-500 mb-2"
+        >
           Selecione a(s) pasta(s) de destino:
         </label>
 
         <div
-          class="max-h-56 overflow-y-auto space-y-1.5 pr-1 border border-stone-200/80 rounded-xl p-2 bg-white"
+          class="max-h-[40dvh] overflow-y-auto space-y-1.5 pr-1 border border-stone-200/80 rounded-xl p-2 bg-white"
         >
           <div
             v-for="list in listasStore.lists"
@@ -234,18 +250,23 @@ function getIconColorClass(listType: string): string {
                 :class="getIconColorClass(list.listType)"
               />
               <div class="min-w-0">
-                <span class="text-sm font-semibold text-neutral-dark truncate block">
+                <span
+                  class="text-sm font-semibold text-neutral-dark truncate block"
+                >
                   {{ list.name }}
                 </span>
                 <span class="text-[11px] text-stone-400">
-                  {{ list.items.length }} {{ list.items.length === 1 ? "móvel" : "móveis" }}
+                  {{ list.items.length }}
+                  {{ list.items.length === 1 ? "móvel" : "móveis" }}
                 </span>
               </div>
             </div>
 
             <!-- Badge indicando se já está salvo nesta pasta -->
             <span
-              v-if="listasStore.isProductSavedInList(product.productId, list.id)"
+              v-if="
+                listasStore.isProductSavedInList(product.productId, list.id)
+              "
               class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0"
             >
               Já salvo
@@ -304,7 +325,9 @@ function getIconColorClass(listType: string): string {
       </div>
 
       <!-- Ações do Rodapé do Modal -->
-      <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-stone-200">
+      <div
+        class="grid grid-cols-2 sm:flex sm:justify-end gap-2.5 pt-3 border-t border-stone-200"
+      >
         <UiButton
           variant="outline"
           size="sm"
