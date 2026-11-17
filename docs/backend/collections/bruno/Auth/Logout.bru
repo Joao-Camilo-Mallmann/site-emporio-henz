@@ -1,0 +1,16 @@
+meta {
+  name: Encerrar Sessão
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/auth/logout
+  body: none
+  auth: none
+}
+
+docs {
+  Encerra a sessão e limpa o cookie `token`. Não exige sessão válida.
+  `200 OK` mesmo quando o cookie está ausente ou expirado.
+}

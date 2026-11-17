@@ -7,19 +7,16 @@ meta {
 delete {
   url: {{baseUrl}}/subtipos/:id
   body: none
-  auth: bearer
+  auth: none
 }
 
 params:path {
   id: 00000000-0000-0000-0000-000000000000
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 docs {
-  Exclusivo do Administrador (`401` sem token, `403` para outros perfis).
+  Exclusivo do Administrador (`401` sem cookie de sessão, `403` para outros perfis).
   Soft delete: preenche `deleted_at` no subtipo, sem exclusão física.
   `400` se `:id` não for um UUID válido. `404` se o subtipo não existir.
 }

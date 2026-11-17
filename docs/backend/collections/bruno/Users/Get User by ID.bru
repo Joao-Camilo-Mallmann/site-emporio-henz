@@ -7,13 +7,9 @@ meta {
 get {
   url: {{baseUrl}}/users/:id
   body: none
-  auth: bearer
+  auth: none
 }
 
 params:path {
   id: 00000000-0000-0000-0000-000000000000
-}
-
-auth:bearer {
-  token: {{token}}
 }

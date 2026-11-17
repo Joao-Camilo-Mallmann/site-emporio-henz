@@ -7,16 +7,13 @@ meta {
 post {
   url: {{baseUrl}}/listas/:id/itens
   body: json
-  auth: bearer
+  auth: none
 }
 
 params:path {
   id: 00000000-0000-0000-0000-000000000000
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 body:json {
   {
@@ -30,5 +27,5 @@ docs {
   Salva um produto na lista. Obrigatório: `productId` (UUID de um produto ativo). Opcionais: `variationId` (UUID de uma variação desse produto), `finishLabel` (até 100) e `finishColor` (até 50).
   Nome, preço, slug e imagem (capa) vêm do banco no momento em que o item é salvo; se o front enviar esses campos, eles são ignorados.
   Salvar o mesmo produto com o mesmo acabamento (`finishLabel` e `finishColor`) na mesma lista não duplica: responde `200` com o item que já estava lá. Item novo responde `201`.
-  `400` para payload inválido (ex.: `productId` que não é UUID). `404` se a lista não for do cliente ou se o produto (ou a variação) não existir. `401` sem token.
+  `400` para payload inválido (ex.: `productId` que não é UUID). `404` se a lista não for do cliente ou se o produto (ou a variação) não existir. `401` sem cookie de sessão.
 }

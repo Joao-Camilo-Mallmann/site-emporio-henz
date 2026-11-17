@@ -7,12 +7,9 @@ meta {
 post {
   url: {{baseUrl}}/categorias
   body: json
-  auth: bearer
+  auth: none
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 body:json {
   {
@@ -23,7 +20,7 @@ body:json {
 }
 
 docs {
-  Exclusivo do Administrador (`401` sem token, `403` para outros perfis).
+  Exclusivo do Administrador (`401` sem cookie de sessão, `403` para outros perfis).
   `name` é obrigatório, de 2 a 255 caracteres. `slug` é opcional (gerado a partir do nome) e limitado a 255 caracteres. `active` é opcional (padrão `true`).
   `400` para payload inválido. `409` se já existir categoria não deletada com o mesmo slug.
 }

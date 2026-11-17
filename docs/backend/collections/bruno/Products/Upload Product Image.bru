@@ -7,16 +7,13 @@ meta {
 post {
   url: {{baseUrl}}/produtos/:id/imagens
   body: multipartForm
-  auth: bearer
+  auth: none
 }
 
 params:path {
   id: 00000000-0000-0000-0000-000000000000
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 body:multipart-form {
   file: @file(/caminho/para/foto.jpg)
@@ -35,9 +32,9 @@ docs {
   **Respostas**:
   - `201 Created` com `ProductImageDto`: `{ id, productId, variationId, thumbnailUrl, fullImageUrl, sortOrder, createdAt }`. As URLs são relativas (`/api/v1/uploads/products/<productId>/<imageId>-thumb.webp`).
   - `400 Bad Request`: `Content-Length` ausente ou acima de 2 MiB + 64 KiB (recusado sem ler o corpo); arquivo acima de 2.097.152 bytes (mensagem com o tamanho enviado e o limite); formato fora de JPEG/PNG/WebP (inclusive texto renomeado para `.jpg`); imagem que declara mais de 40 megapixels; multipart sem arquivo ou com mais de um; `variationId` inexistente, removido ou de outro produto; `:id` que não é UUID.
-  - `401 Unauthorized` sem token; `403 Forbidden` para Cliente ou Vendedor fora do escopo; `404 Not Found` para produto inexistente ou desativado.
+  - `401 Unauthorized` sem cookie de sessão; `403 Forbidden` para Cliente ou Vendedor fora do escopo; `404 Not Found` para produto inexistente ou desativado.
   - `413` (Bun) para corpo acima de 10 MiB, limite global igual ao `client_max_body_size` do nginx.
 
-  Exemplo via curl:
-  `curl -X POST -H "Authorization: Bearer $TOKEN" -F "file=@foto.jpg" -F "variationId=<uuid>" {{baseUrl}}/produtos/<id>/imagens`
+  Exemplo via curl, após salvar a sessão no cookie jar:
+  `curl -b cookies.txt -c cookies.txt -F "file=@foto.jpg" -F "variationId=<uuid>" {{baseUrl}}/produtos/<id>/imagens`
 }

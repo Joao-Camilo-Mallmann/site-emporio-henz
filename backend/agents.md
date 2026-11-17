@@ -31,7 +31,7 @@ As respostas JSON e os cabeçalhos de CORS devem ser padronizados pela função 
 
 ## 3. Collection Bruno (fonte de consulta da API)
 
-Endpoints, métodos, payloads, headers, ambientes e autenticação são consultados na collection Bruno em [docs/backend/collections/bruno/](../docs/backend/collections/bruno/). Não mantenha um segundo inventário de rotas neste arquivo. A collection é organizada por domínio, com ambientes local e Docker. O login e o autocadastro salvam o JWT no ambiente para as demais requisições autenticadas. A tarefa de backend não está concluída enquanto a collection não representar o comportamento implementado.
+Endpoints, métodos, payloads, headers, ambientes e autenticação são consultados na collection Bruno em [docs/backend/collections/bruno/](../docs/backend/collections/bruno/). Não mantenha um segundo inventário de rotas neste arquivo. A collection é organizada por domínio, com ambientes local e Docker. O cookie de sessão retornado no login e no autocadastro é reutilizado pelo cookie jar do Bruno nas requisições autenticadas. A tarefa de backend não está concluída enquanto a collection não representar o comportamento implementado.
 
 ---
 

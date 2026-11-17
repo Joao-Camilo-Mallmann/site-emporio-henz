@@ -1,3 +1,9 @@
 meta {
   name: Auth
 }
+
+docs {
+  Login (`200`) e autocadastro (`201`) retornam somente `{ "user": { ... } }` no JSON e gravam a sessão no cookie `token` com `HttpOnly`, `SameSite=Lax`, `Path=/` e `Max-Age=JWT_EXPIRES_IN_SECONDS`. O atributo `Secure` é enviado somente em HTTPS.
+  Use o cookie jar do Bruno para as requisições protegidas; não envie JWT por `Authorization: Bearer`.
+  `POST /auth/logout` encerra a sessão e limpa o cookie, mesmo se ele estiver ausente ou expirado.
+}
