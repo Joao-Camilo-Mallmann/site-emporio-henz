@@ -346,9 +346,9 @@ function getIconColorClass(listType: string): string {
               />
             </div>
             <div class="min-w-0">
-              <div class="flex items-center gap-2">
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <h4
-                  class="text-sm font-bold text-neutral-dark truncate group-hover:text-secondary transition-colors"
+                  class="text-sm font-bold text-neutral-dark truncate max-w-full group-hover:text-secondary transition-colors"
                 >
                   {{ list.name }}
                 </h4>
@@ -376,8 +376,8 @@ function getIconColorClass(listType: string): string {
             class="shrink-0 text-stone-600 group-hover:text-secondary group-hover:bg-secondary/10 flex items-center gap-1"
             @click.stop="enterFolder(list.id)"
           >
-            Abrir Pasta
-            <Icon icon="mdi:arrow-right" class="w-4 h-4" />
+            <span class="hidden sm:inline">Abrir Pasta</span>
+            <Icon icon="mdi:chevron-right" class="w-5 h-5 sm:w-4 sm:h-4" />
           </UiButton>
         </div>
       </div>

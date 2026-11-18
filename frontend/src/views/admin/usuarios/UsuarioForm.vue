@@ -8,9 +8,9 @@ import {
   type UserProfile,
   type UserUpdateInput,
 } from "@/types";
-import { formatPhone, maskPhoneInput } from "@/utils/phone";
+import { formatPhone } from "@/utils/phone";
 import { Icon } from "@iconify/vue";
-import { reactive, ref, useTemplateRef, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import UsuarioSenhaCampos from "./UsuarioSenhaCampos.vue";
 
@@ -56,7 +56,6 @@ const toast = useToast();
 
 const saving = ref(false);
 const errorMessage = ref<string | null>(null);
-const senha = useTemplateRef<{ reset: () => void }>("senha");
 
 const form = reactive({
   fullName: props.initialData?.fullName || "",
@@ -89,7 +88,6 @@ watch(isPasswordSecure, (secure) => {
 function resetPasswordFields() {
   form.password = "";
   form.confirmPassword = "";
-  senha.value?.reset();
   formErrors.password = "";
   formErrors.confirmPassword = "";
 }
@@ -109,8 +107,7 @@ watch(
   { deep: true },
 );
 
-function handlePhoneInput(e: Event) {
-  form.phone = maskPhoneInput(e);
+function handlePhoneInput() {
   if (formErrors.phone) {
     const digits = form.phone.replace(/\D/g, "");
     if (digits.length === 0 || digits.length === 10 || digits.length === 11) {
@@ -300,82 +297,37 @@ async function handleSubmit() {
     </div>
 
     <!-- Nome Completo -->
-    <div>
-      <label
-        for="fullName"
-        class="block text-xs font-semibold text-neutral-dark mb-1.5"
-      >
-        Nome Completo *
-      </label>
-      <input
-        id="fullName"
-        v-model="form.fullName"
-        type="text"
-        placeholder="Ex: Carlos Eduardo Silveira"
-        class="w-full px-3.5 py-2.5 rounded-lg border text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:ring-1 transition-colors"
-        :class="
-          formErrors.fullName
-            ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-            : 'border-stone-300 focus:border-secondary focus:ring-secondary/20'
-        "
-      />
-      <p v-if="formErrors.fullName" class="mt-1 text-xs text-rose-600">
-        {{ formErrors.fullName }}
-      </p>
-    </div>
+    <UiInput
+      id="fullName"
+      v-model="form.fullName"
+      label="Nome Completo *"
+      type="text"
+      placeholder="Ex: Carlos Eduardo Silveira"
+      :error="formErrors.fullName"
+    />
 
     <!-- E-mail -->
-    <div>
-      <label
-        for="email"
-        class="block text-xs font-semibold text-neutral-dark mb-1.5"
-      >
-        E-mail *
-      </label>
-      <div class="relative">
-        <input
-          id="email"
-          v-model="form.email"
-          type="email"
-          :disabled="isEditing"
-          @input="handleEmailInput"
-          @blur="!isEditing && validateEmail(form.email)"
-          placeholder="Ex: usuario@emporiohenz.com.br"
-          class="w-full px-3.5 py-2.5 rounded-lg border text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:ring-1 transition-colors disabled:bg-stone-100 disabled:text-stone-500 disabled:cursor-not-allowed"
-          :class="[
-            formErrors.email
-              ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-              : 'border-stone-300 focus:border-secondary focus:ring-secondary/20',
-            isEditing ? 'pr-9' : '',
-          ]"
-        />
-        <div
-          v-if="isEditing"
-          class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-stone-400"
-          title="Identificador fixo"
-        >
-          <Icon icon="mdi:lock-outline" class="w-4 h-4" />
-        </div>
-      </div>
-      <p
-        v-if="formErrors.email"
-        class="mt-1 text-xs text-rose-600 flex items-center gap-1"
-      >
-        <Icon icon="mdi:alert-circle-outline" class="w-3.5 h-3.5" />
-        <span>{{ formErrors.email }}</span>
-      </p>
-      <span
-        v-if="isEditing"
-        class="text-xs text-stone-500 mt-1 flex items-center gap-1"
-      >
+    <UiInput
+      id="email"
+      v-model="form.email"
+      label="E-mail *"
+      type="email"
+      :disabled="isEditing"
+      placeholder="Ex: usuario@emporiohenz.com.br"
+      :error="formErrors.email"
+      @input="handleEmailInput"
+      :suffix-icon="isEditing ? 'mdi:lock-outline' : undefined"
+      @blur="!isEditing && validateEmail(form.email)"
+    >
+      <template v-if="isEditing" #hint>
         <Icon
           icon="mdi:information-outline"
-          class="w-3.5 h-3.5 text-stone-400"
+          class="inline w-3.5 h-3.5 text-stone-400"
         />
         O e-mail é a credencial única de acesso da conta e não pode ser
         modificado.
-      </span>
-    </div>
+      </template>
+    </UiInput>
 
     <!-- Nível de Acesso (Perfil) -->
     <div v-if="!hideRole">
@@ -403,67 +355,33 @@ async function handleSubmit() {
 
     <!-- Telefone e Cidade -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      <div>
-        <label
-          for="phone"
-          class="block text-xs font-semibold text-neutral-dark mb-1.5"
-        >
-          Telefone / WhatsApp
-        </label>
-        <div class="relative">
-          <input
-            id="phone"
-            :value="form.phone"
-            @input="handlePhoneInput"
-            type="tel"
-            maxlength="15"
-            placeholder="(51) 99999-9999"
-            class="w-full px-3.5 py-2.5 rounded-lg border text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:ring-1 transition-colors"
-            :class="
-              formErrors.phone
-                ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                : 'border-stone-300 focus:border-secondary focus:ring-secondary/20'
-            "
-          />
-          <div
-            v-if="form.phone && !formErrors.phone"
-            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-emerald-500"
-          >
-            <Icon icon="mdi:phone-check-outline" class="w-4 h-4" />
-          </div>
-        </div>
-        <p
-          v-if="formErrors.phone"
-          class="mt-1 text-xs text-rose-600 flex items-center gap-1"
-        >
-          <Icon icon="mdi:alert-circle-outline" class="w-3.5 h-3.5" />
-          <span>{{ formErrors.phone }}</span>
-        </p>
-        <span v-else class="text-[11px] text-stone-400 mt-1 block">
-          DDD + Celular (11 dígitos) ou Fixo (10 dígitos)
-        </span>
-      </div>
+      <UiInput
+        id="phone"
+        v-model="form.phone"
+        label="Telefone / WhatsApp"
+        type="tel"
+        mask="phone"
+        maxlength="15"
+        placeholder="(51) 99999-9999"
+        :error="formErrors.phone"
+        hint="DDD + Celular (11 dígitos) ou Fixo (10 dígitos)"
+        :suffix-icon="
+          form.phone && !formErrors.phone ? 'mdi:phone-check-outline' : undefined
+        "
+        @input="handlePhoneInput"
+      />
 
-      <div>
-        <label
-          for="city"
-          class="block text-xs font-semibold text-neutral-dark mb-1.5"
-        >
-          Cidade
-        </label>
-        <input
-          id="city"
-          v-model="form.city"
-          type="text"
-          placeholder="Ex: Cruzeiro do Sul, Lajeado..."
-          class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors"
-        />
-      </div>
+      <UiInput
+        id="city"
+        v-model="form.city"
+        label="Cidade"
+        type="text"
+        placeholder="Ex: Cruzeiro do Sul, Lajeado..."
+      />
     </div>
 
     <!-- Seção de Senha Segura -->
     <UsuarioSenhaCampos
-      ref="senha"
       v-model:password="form.password"
       v-model:confirm-password="form.confirmPassword"
       v-model:valid="isPasswordSecure"

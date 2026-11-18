@@ -102,22 +102,15 @@ onUnmounted(() => {
       </div>
 
       <!-- Campo Nome -->
-      <div>
-        <label class="block text-[11px] font-medium text-stone-600 mb-1">
-          Nome do Subtipo *
-        </label>
-        <input
-          v-model="form.name"
-          type="text"
-          placeholder="Ex.: Sofás de Canto"
-          class="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white text-xs text-neutral-dark focus:outline-none focus:border-secondary transition-colors"
-          :class="{ 'border-rose-300': !!error }"
-          @input="error = ''"
-        />
-        <p v-if="error" class="text-[10px] text-rose-600 mt-0.5">
-          {{ error }}
-        </p>
-      </div>
+      <UiInput
+        v-model="form.name"
+        label="Nome do Subtipo *"
+        type="text"
+        size="sm"
+        placeholder="Ex.: Sofás de Canto"
+        :error="error"
+        @input="error = ''"
+      />
 
       <!-- Campo Slug -->
       <div>

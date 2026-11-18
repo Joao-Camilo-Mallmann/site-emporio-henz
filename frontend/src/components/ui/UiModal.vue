@@ -180,13 +180,13 @@ onUnmounted(() => {
     >
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs"
+        class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/40 backdrop-blur-xs"
         role="dialog"
         aria-modal="true"
         @click.self="handleBackdropClick"
       >
         <div
-          class="bg-white rounded-xl w-full border border-stone-200 shadow-xl space-y-4 p-6 relative transition-all transform"
+          class="bg-white rounded-t-2xl sm:rounded-xl w-full max-h-[92dvh] overflow-y-auto border border-stone-200 shadow-xl space-y-4 p-5 sm:p-6 relative transition-all transform"
           :class="maxWidthClasses"
           @click.stop
         >
