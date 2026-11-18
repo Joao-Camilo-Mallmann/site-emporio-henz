@@ -138,49 +138,24 @@ async function handleSubmit() {
     </div>
 
     <!-- Nome do Fornecedor -->
-    <div>
-      <label
-        for="supplier-name"
-        class="block text-xs font-semibold text-neutral-dark mb-1.5"
-      >
-        Nome do Fornecedor / Fabricante *
-      </label>
-      <input
-        id="supplier-name"
-        v-model="form.name"
-        type="text"
-        placeholder="Ex: Herval Móveis, Estofados Nobres..."
-        class="w-full px-3.5 py-2.5 rounded-lg border text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:ring-1 transition-colors"
-        :class="
-          formErrors.name
-            ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-            : 'border-stone-300 focus:border-secondary focus:ring-secondary/20'
-        "
-      />
-      <p v-if="formErrors.name" class="mt-1 text-xs text-rose-600">
-        {{ formErrors.name }}
-      </p>
-    </div>
+    <UiInput
+      id="supplier-name"
+      v-model="form.name"
+      label="Nome do Fornecedor / Fabricante *"
+      type="text"
+      placeholder="Ex: Herval Móveis, Estofados Nobres..."
+      :error="formErrors.name"
+    />
 
     <!-- Contato -->
-    <div>
-      <label
-        for="supplier-contact"
-        class="block text-xs font-semibold text-neutral-dark mb-1.5"
-      >
-        Contato / Representante
-      </label>
-      <input
-        id="supplier-contact"
-        v-model="form.contact"
-        type="text"
-        placeholder="Ex: contato@herval.com.br ou (51) 99999-9999"
-        class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-neutral-dark placeholder:text-stone-400 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-colors"
-      />
-      <span class="text-xs text-stone-400 mt-1 block">
-        E-mail, telefone ou nome do representante comercial.
-      </span>
-    </div>
+    <UiInput
+      id="supplier-contact"
+      v-model="form.contact"
+      label="Contato / Representante"
+      type="text"
+      placeholder="Ex: contato@herval.com.br ou (51) 99999-9999"
+      hint="E-mail, telefone ou nome do representante comercial."
+    />
 
     <!-- Status Ativo (Clean, sem card pesado) -->
     <div class="pt-2">

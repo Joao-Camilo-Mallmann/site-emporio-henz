@@ -173,15 +173,15 @@ onMounted(() => {
 
       <!-- Filtros -->
       <div class="flex flex-col gap-2 lg:flex-row lg:items-center">
-        <div class="relative flex-1 lg:max-w-md">
-          <Icon icon="mdi:magnify" class="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-stone-400" />
-          <input
+        <div class="flex-1 lg:max-w-md">
+          <UiInput
             v-model="searchTerm"
             type="text"
             aria-label="Buscar produtos"
             placeholder="Buscar por nome, linha ou material..."
-            class="w-full rounded-lg border border-stone-200 bg-white py-2 pr-3.5 pl-9 text-sm text-neutral-dark transition-colors placeholder:text-stone-400 focus:border-secondary focus:ring-1 focus:ring-secondary/20 focus:outline-none"
             @keyup.enter="carregarProdutos(1)"
+          
+            prefix-icon="mdi:magnify"
           />
         </div>
         <div class="flex flex-wrap items-center gap-2">

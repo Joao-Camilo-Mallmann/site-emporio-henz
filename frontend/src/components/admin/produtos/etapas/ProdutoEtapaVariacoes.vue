@@ -7,10 +7,7 @@ import { computed, nextTick } from "vue";
 import {
   createLocalKey,
   DEFAULT_VARIATION_COLOR,
-  ERROR_TEXT_CLASS,
-  fieldClass,
   isHexColor,
-  LABEL_CLASS,
   normalizeHexColor,
   VARIATION_TYPE_OPTIONS,
   variationFieldId,
@@ -192,33 +189,16 @@ const resumos = computed(() =>
 
         <!-- Nome e tipo -->
         <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4">
-          <div>
-            <label :for="variationFieldId.name(variation.key)" :class="LABEL_CLASS">
-              Nome da variação *
-            </label>
-            <input
-              :id="variationFieldId.name(variation.key)"
-              v-model="variation.name"
-              type="text"
-              maxlength="255"
-              placeholder="Ex.: Carvalho Mel / Off White"
-              :disabled="locked"
-              :aria-invalid="errors[variationFieldId.name(variation.key)] ? 'true' : undefined"
-              :aria-describedby="
-                errors[variationFieldId.name(variation.key)]
-                  ? `${variationFieldId.name(variation.key)}-error`
-                  : undefined
-              "
-              :class="fieldClass(!!errors[variationFieldId.name(variation.key)])"
-            />
-            <p
-              v-if="errors[variationFieldId.name(variation.key)]"
-              :id="`${variationFieldId.name(variation.key)}-error`"
-              :class="ERROR_TEXT_CLASS"
-            >
-              {{ errors[variationFieldId.name(variation.key)] }}
-            </p>
-          </div>
+          <UiInput
+            :id="variationFieldId.name(variation.key)"
+            v-model="variation.name"
+            type="text"
+            label="Nome da variação *"
+            maxlength="255"
+            placeholder="Ex.: Carvalho Mel / Off White"
+            :disabled="locked"
+            :error="errors[variationFieldId.name(variation.key)]"
+          />
           <div>
             <UiSelect
               :id="variationFieldId.type(variation.key)"

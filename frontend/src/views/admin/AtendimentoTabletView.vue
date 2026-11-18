@@ -376,15 +376,11 @@ function getListIcon(listType: ListType): string {
   }
 }
 
-function productPath(item: ApiListItem): string {
-  const target = UUID_PATTERN.test(item.productId)
-    ? item.productId
-    : item.productSlug || item.productId;
-  return `/produtos/${target}`;
-}
-
+// A página pública do produto é `/catalogo/:slug`. Ela também aceita o id e
+// troca a URL pelo slug, então o id serve de reserva quando o slug falta.
 function openProduct(item: ApiListItem) {
-  void router.push(productPath(item));
+  const slug = item.productSlug || productFor(item)?.slug || item.productId;
+  void router.push({ name: "catalogo-produto", params: { slug } });
 }
 
 function hideBrokenImage(event: Event) {

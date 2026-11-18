@@ -28,7 +28,7 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
 | `frontend/src/composables/` | Comportamentos reutilizáveis |
 | `frontend/src/plugins/` | Axios, Pinia e integrações globais |
 | `frontend/src/router/` | Rotas e guards de navegação |
-| `frontend/src/components/ui/` | Componentes do design system, incluindo `UiPagination.vue` para paginação de listagens e `UiStepper.vue` para indicador de etapas |
+| `frontend/src/components/ui/` | Componentes do design system, incluindo `UiInput.vue`, `UiTextarea.vue` e `UiSelect.vue` para campos de formulário, `UiPagination.vue` para paginação de listagens e `UiStepper.vue` para indicador de etapas |
 | `frontend/src/stores/` | Estado global |
 | `frontend/src/types/` | Tipos e modelos de domínio; `pagination.ts` define o envelope `Paginated<T>` das listagens |
 | `frontend/src/utils/` | Funções utilitárias sem estado: cookies, `slugify` e validação/URLs de imagem (`uploads.ts`) |
@@ -45,6 +45,7 @@ Documentação técnica da aplicação Vue do Empório Henz. Regras de produto p
   - `<UiButton>`: mandatório para qualquer botão ou disparador de ação na interface. Não use tags `<button>` nativas soltas nem links manuais com aparência de botão. Suporta variantes `'primary'`, `'secondary'`, `'outline'`, `'ghost'`, `'danger'` e `'link'`, tamanhos `'xs'` a `'xl'`, `'icon'` e `'none'`, além de `block` (100% largura) e `:loading`.
   - `<UiModal>`: mandatório para diálogos, modais e alertas de confirmação.
   - `<UiCard>`, `<UiFloatingActions>` e `<UiFloatingButton>`: componentes canônicos para cartões e ações flutuantes.
+  - `<UiInput>`, `<UiTextarea>` e `<UiSelect>`: obrigatórios para campos de texto, textos longos e listas de escolha. Label, hint, erro e acessibilidade vêm do componente; não monte `<label>` + `<input>` + `<p>` de erro à mão. Props e exemplos na seção 1.2 de [frontend/agents.md](../../frontend/agents.md).
   - `<UiPagination>`: obrigatório em toda listagem paginada; detalhes na seção "Paginação de listagens" de [frontend/agents.md](../../frontend/agents.md).
 - **Senha segura**: telas que criam ou redefinem senha usam `<PasswordStrengthPanel v-model:valid="ok" :password="form.password" :confirm-password="form.confirmPassword" />` (`src/components/auth/`). O componente concentra requisitos, força e confirmação; a tela só lê o `valid`. Detalhes e roteiro de teste em [002 · Senha segura](../feedback-usabilidade/002-senha-segura-cadastro-e-redefinicao.md).
 - Componentes em `src/components/` são importados automaticamente por `unplugin-vue-components`.

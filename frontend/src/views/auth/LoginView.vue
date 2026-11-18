@@ -13,7 +13,6 @@ const form = reactive({
   password: "",
 });
 
-const showPassword = ref(false);
 const loading = ref(false);
 const formErrors = reactive({
   email: "",
@@ -131,75 +130,28 @@ async function handleSubmit() {
       <!-- Formulário -->
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Campo E-mail -->
-        <div>
-          <label
-            for="email"
-            class="block text-sm font-bold text-stone-900 mb-2"
-          >
-            E-mail
-          </label>
-          <div class="relative">
-            <input
-              id="email"
-              v-model="form.email"
-              type="email"
-              autocomplete="email"
-              placeholder="Digite seu e-mail"
-              :class="[
-                'w-full px-4 py-3 rounded-lg border text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors',
-                formErrors.email
-                  ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                  : 'border-stone-300 focus:border-secondary-hover focus:ring-sky-100',
-              ]"
-            />
-          </div>
-          <p v-if="formErrors.email" class="mt-1 text-xs text-rose-600">
-            {{ formErrors.email }}
-          </p>
-        </div>
+        <UiInput
+          id="email"
+          v-model="form.email"
+          label="E-mail"
+          type="email"
+          autocomplete="email"
+          placeholder="Digite seu e-mail"
+          :error="formErrors.email"
+          size="lg"
+        />
 
         <!-- Campo Senha -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label
-              for="password"
-              class="block text-sm font-bold text-stone-900"
-            >
-              Digite sua senha
-            </label>
-          </div>
-          <div class="relative">
-            <input
-              id="password"
-              v-model="form.password"
-              :type="showPassword ? 'text' : 'password'"
-              autocomplete="current-password"
-              placeholder="Digite sua senha"
-              :class="[
-                'w-full px-4 py-3 pr-12 rounded-lg border text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors',
-                formErrors.password
-                  ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-200'
-                  : 'border-stone-300 focus:border-secondary-hover focus:ring-sky-100',
-              ]"
-            />
-            <button
-              type="button"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none"
-              tabindex="-1"
-              @click="showPassword = !showPassword"
-              aria-label="Alternar visibilidade da senha"
-            >
-              <!-- Ícone Olho / Ocultar -->
-              <Icon
-                :icon="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
-                class="w-5 h-5"
-              />
-            </button>
-          </div>
-          <p v-if="formErrors.password" class="mt-1 text-xs text-rose-600">
-            {{ formErrors.password }}
-          </p>
-        </div>
+        <UiInput
+          id="password"
+          v-model="form.password"
+          label="Digite sua senha"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Digite sua senha"
+          :error="formErrors.password"
+          size="lg"
+        />
 
         <!-- Botão Entrar -->
         <div class="pt-2">
