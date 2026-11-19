@@ -187,7 +187,7 @@ describe("Validação da query de listagem de produtos", () => {
     const porGrupo = parse("?colors=preto");
     expect(porGrupo.colorHexes).toEqual(["#242424", "#121212"]);
 
-    const combinado = parse("?colors=freijo,preto,#ffffff,invalido");
+    const combinado = parse("?colors=freijo,preto,%23ffffff,invalido");
     expect(combinado.colorHexes).toEqual([
       "#8E6743",
       "#242424",

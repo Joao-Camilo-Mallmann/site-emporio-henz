@@ -9,14 +9,14 @@ import {
 } from "../src/utils/coresMoveis";
 
 describe("paleta de cores de móveis", () => {
-  it("possui 50 cores com slugs e códigos HEX únicos distribuídos nos 11 grupos", () => {
+  it("possui 80 cores com slugs e códigos HEX únicos distribuídos nos 11 grupos", () => {
     expect(CORES_GRUPOS).toHaveLength(11);
-    expect(CORES_MOVEIS).toHaveLength(50);
+    expect(CORES_MOVEIS).toHaveLength(80);
 
     const slugs = new Set(CORES_MOVEIS.map((cor) => cor.slug));
     const hexes = new Set(CORES_MOVEIS.map((cor) => cor.hex.toUpperCase()));
-    expect(slugs.size).toBe(50);
-    expect(hexes.size).toBe(50);
+    expect(slugs.size).toBe(80);
+    expect(hexes.size).toBe(80);
 
     const gruposValidos = new Set(CORES_GRUPOS.map((g) => g.slug));
     for (const cor of CORES_MOVEIS) {
@@ -36,7 +36,7 @@ describe("paleta de cores de móveis", () => {
     expect(freijo.map((cor) => cor.slug)).toEqual(["freijo"]);
 
     const madeirasMedias = filtrarCoresMoveis("madeira-media", "");
-    expect(madeirasMedias).toHaveLength(7);
+    expect(madeirasMedias).toHaveLength(10);
   });
 
   it("lê apenas grupos válidos da query de cores e remove duplicatas", () => {

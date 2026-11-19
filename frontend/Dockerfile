@@ -10,6 +10,8 @@ RUN bun install
 
 # Copia código-fonte
 COPY . .
+# Paleta de cores compartilhada (shared/ na raiz do repo, via additional_contexts)
+COPY --from=shared . /shared
 
 # ==============================================================================
 # ESTÁGIO 2: FRONTEND-BUILDER — Build estático do Vue 3 / Vite
