@@ -4,6 +4,32 @@ export type AvailabilityType = "IN_STOCK" | "ON_DEMAND";
 
 export type VariationType = "COLOR" | "FABRIC" | "WOOD" | "FINISH";
 
+export type ColorGroupSlug =
+  | "madeira-clara"
+  | "madeira-escura"
+  | "off-white-bege"
+  | "preto"
+  | "madeira-media"
+  | "branco"
+  | "cinza"
+  | "verde"
+  | "azul"
+  | "terracota-rose-vinho"
+  | "amarelo-dourado";
+
+export interface ColorGroupDefinition {
+  slug: ColorGroupSlug;
+  name: string;
+  hex: string;
+}
+
+export interface FurnitureColorDefinition {
+  slug: string;
+  name: string;
+  hex: string;
+  group: ColorGroupSlug;
+}
+
 export interface ProductDbRow {
   id: string;
   category_id: string;
@@ -177,6 +203,8 @@ export interface ProductQueryFilters {
   // Faixa do preço de referência, com limites inclusivos.
   minPrice?: number;
   maxPrice?: number;
+  // Códigos HEX (#RRGGBB em maiúsculas) resolvidos do parâmetro `colors`.
+  colorHexes?: string[];
   active?: boolean;
   supplierIds?: string[];
 }

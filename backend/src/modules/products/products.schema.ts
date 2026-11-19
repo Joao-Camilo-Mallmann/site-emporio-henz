@@ -14,6 +14,7 @@ import {
   UpdateProductDto,
   VariationType,
 } from "@/modules/products/products.types";
+import { resolveColorFilterHexes } from "@/modules/products/products.colors";
 
 export { isValidUuid, slugify };
 
@@ -186,9 +187,9 @@ function validateVariationItem(
           );
         }
       });
-      finalColorsHex = colorsHex.filter(
-        (color): color is string => typeof color === "string",
-      );
+      finalColorsHex = colorsHex
+        .filter((color): color is string => typeof color === "string")
+        .map((color) => color.toUpperCase());
     }
   }
 
@@ -748,6 +749,7 @@ export function validateProductQuery(url: URL): ProductQueryFilters {
     availabilityType,
     minPrice: parsePriceParam(url.searchParams.get("minPrice")),
     maxPrice: parsePriceParam(url.searchParams.get("maxPrice")),
+    colorHexes: resolveColorFilterHexes(url.searchParams.get("colors")),
     active,
   };
 }

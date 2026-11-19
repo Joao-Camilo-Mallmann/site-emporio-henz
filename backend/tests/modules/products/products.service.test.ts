@@ -68,4 +68,84 @@ describe("Módulo de Produtos (ProductsService)", () => {
     const tudo = await service.listPaginated(query("?search=***"));
     expect(tudo.pagination.total).toBe(2);
   });
+
+  it("deve filtrar produtos por grupo de cor das variações ativas", async () => {
+    const mockRepo = new MockProductsRepository();
+    mockRepo.products.push(
+      createDummyProduct({
+        id: PROD_1_ID,
+        name: "Sofá Retrátil Milão",
+        slug: "sofa-retratil-milao",
+      }),
+      createDummyProduct({
+        id: PROD_2_ID,
+        name: "Roupeiro Roma",
+        slug: "roupeiro-roma",
+      }),
+    );
+    mockRepo.variations.push(
+      {
+        id: "var-1",
+        productId: PROD_1_ID,
+        name: "Veludo Verde Musgo",
+        variationType: "FABRIC",
+        colorsHex: ["#4E6044"],
+        sampleImageUrl: null,
+        finishDetails: {},
+        sortOrder: 0,
+        inStock: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deleted: false,
+      },
+      {
+        id: "var-2",
+        productId: PROD_2_ID,
+        name: "Freijó / Off-White",
+        variationType: "FINISH",
+        colorsHex: ["#8E6743", "#F4EFE6"],
+        sampleImageUrl: null,
+        finishDetails: {},
+        sortOrder: 0,
+        inStock: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deleted: false,
+      },
+      {
+        id: "var-3",
+        productId: PROD_2_ID,
+        name: "Preto Removido",
+        variationType: "COLOR",
+        colorsHex: ["#121212"],
+        sampleImageUrl: null,
+        finishDetails: {},
+        sortOrder: 1,
+        inStock: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deleted: true,
+      },
+    );
+
+    const service = new ProductsService(mockRepo);
+
+    const verdes = await service.listPaginated(query("?colors=verde"));
+    expect(verdes.data.map((p) => p.name)).toEqual(["Sofá Retrátil Milão"]);
+
+    const madeiraMedia = await service.listPaginated(
+      query("?colors=madeira-media"),
+    );
+    expect(madeiraMedia.data.map((p) => p.name)).toEqual(["Roupeiro Roma"]);
+
+    const combinados = await service.listPaginated(
+      query("?colors=verde,off-white-bege"),
+    );
+    expect(combinados.pagination.total).toBe(2);
+
+    const ignorandoRemovida = await service.listPaginated(
+      query("?colors=preto"),
+    );
+    expect(ignorandoRemovida.pagination.total).toBe(0);
+  });
 });

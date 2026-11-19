@@ -20,11 +20,12 @@ params:query {
   ~availabilityType: IN_STOCK
   ~minPrice: 1000
   ~maxPrice: 3000
+  ~colors: madeira-media,off-white-bege
 }
 
 docs {
   Listagem pública paginada de produtos. Para visitantes e Clientes (`role = 1`), retorna apenas produtos ativos (`active = true`).
-  Suporta filtros opcionais combinados: `search` (até 100 caracteres, busca em nome, descrição e linha/coleção), `categoryId`, `subtypeId`, `supplierId`, `availabilityType` (`IN_STOCK` ou `ON_DEMAND`) e a faixa de preço de referência `minPrice` / `maxPrice` (números `>= 0`, limites inclusivos, cada um opcional).
+  Suporta filtros opcionais combinados: `search` (até 100 caracteres, busca em nome, descrição e linha/coleção), `categoryId`, `subtypeId`, `supplierId`, `availabilityType` (`IN_STOCK` ou `ON_DEMAND`), `colors` (lista separada por vírgula de grupos de cor da paleta — ex.: `madeira-clara`, `madeira-media`, `madeira-escura`, `off-white-bege`, `branco`, `cinza`, `preto`, `verde`, `azul`, `terracota-rose-vinho`, `amarelo-dourado` —, slugs de cores individuais ou códigos `#RRGGBB`, filtrando produtos que possuam ao menos uma variação ativa com alguma dessas cores) e a faixa de preço de referência `minPrice` / `maxPrice` (números `>= 0`, limites inclusivos, cada um opcional).
   O `search` é insensível a maiúsculas, acentos e separadores: o termo é cortado em 100 caracteres e normalizado para a forma de slug (sem acentos, minúsculas, toda sequência fora de `[a-z0-9]` vira um único hífen, sem hífen nas pontas) e comparado por trecho contido com nome, descrição e linha/coleção também normalizados (`search_slug` no banco). Assim `Sofá Retrátil`, `SOFA_RETRATIL` e `sofa  retratil` encontram os mesmos produtos. Curingas (`%`, `_`) não têm efeito, e um termo que fica vazio após a normalização (ex.: `***`) é ignorado.
   Valores inválidos de filtro são ignorados, como na paginação. Com `minPrice` maior que `maxPrice`, nenhum produto atende à faixa e a página volta vazia.
   Resposta `200 OK`: `{ data: [...], pagination: { page, limit, total, totalPages } }`.

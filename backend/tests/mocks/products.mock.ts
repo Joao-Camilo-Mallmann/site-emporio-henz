@@ -95,6 +95,16 @@ export class MockProductsRepository extends ProductsRepository {
       if (filters.active !== undefined && p.active !== filters.active) {
         return false;
       }
+      if (filters.colorHexes && filters.colorHexes.length > 0) {
+        const wanted = new Set(filters.colorHexes.map((c) => c.toUpperCase()));
+        const hasMatchingColor = this.variations.some(
+          (v) =>
+            v.productId === p.id &&
+            !v.deleted &&
+            v.colorsHex.some((c) => wanted.has(c.toUpperCase())),
+        );
+        if (!hasMatchingColor) return false;
+      }
       if (search) {
         const matchesName = slugify(p.name).includes(search);
         const matchesDesc = slugify(p.description ?? "").includes(search);

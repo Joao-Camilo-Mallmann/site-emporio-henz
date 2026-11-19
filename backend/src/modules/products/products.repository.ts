@@ -119,6 +119,10 @@ export class ProductsRepository {
     const availabilityType = filters.availabilityType ?? null;
     const minPrice = filters.minPrice ?? null;
     const maxPrice = filters.maxPrice ?? null;
+    const colorHexesCsv =
+      filters.colorHexes && filters.colorHexes.length > 0
+        ? filters.colorHexes.join(",")
+        : null;
     const active = filters.active !== undefined ? filters.active : null;
     const supplierIdsCsv =
       filters.supplierIds && filters.supplierIds.length > 0
@@ -137,6 +141,17 @@ export class ProductsRepository {
           AND (${availabilityType}::varchar IS NULL OR p.availability_type = ${availabilityType})
           AND (${minPrice}::numeric IS NULL OR p.reference_price >= ${minPrice}::numeric)
           AND (${maxPrice}::numeric IS NULL OR p.reference_price <= ${maxPrice}::numeric)
+          AND (${colorHexesCsv}::text IS NULL OR EXISTS (
+            SELECT 1
+            FROM product_variations pv
+            WHERE pv.product_id = p.id
+              AND pv.deleted_at IS NULL
+              AND EXISTS (
+                SELECT 1
+                FROM unnest(pv.colors_hex) AS c
+                WHERE UPPER(c) = ANY(string_to_array(${colorHexesCsv}, ','))
+              )
+          ))
           AND (${active}::boolean IS NULL OR p.active = ${active})
           AND ${slugSearchCondition(search, [sql`p.name`, sql`p.description`, sql`p.collection_line`])}
       `,
@@ -157,6 +172,17 @@ export class ProductsRepository {
           AND (${availabilityType}::varchar IS NULL OR p.availability_type = ${availabilityType})
           AND (${minPrice}::numeric IS NULL OR p.reference_price >= ${minPrice}::numeric)
           AND (${maxPrice}::numeric IS NULL OR p.reference_price <= ${maxPrice}::numeric)
+          AND (${colorHexesCsv}::text IS NULL OR EXISTS (
+            SELECT 1
+            FROM product_variations pv
+            WHERE pv.product_id = p.id
+              AND pv.deleted_at IS NULL
+              AND EXISTS (
+                SELECT 1
+                FROM unnest(pv.colors_hex) AS c
+                WHERE UPPER(c) = ANY(string_to_array(${colorHexesCsv}, ','))
+              )
+          ))
           AND (${active}::boolean IS NULL OR p.active = ${active})
           AND ${slugSearchCondition(search, [sql`p.name`, sql`p.description`, sql`p.collection_line`])}
         ORDER BY p.created_at DESC, p.name ASC

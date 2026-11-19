@@ -183,4 +183,20 @@ describe("Validação da query de listagem de produtos", () => {
     expect(parse("?availabilityType=INVALIDO").availabilityType).toBeUndefined();
     expect(parse("?page=0&limit=1000")).toMatchObject({ page: 1, limit: 20 });
   });
+
+  it("deve resolver grupos de cor, slugs individuais e hex no parâmetro colors", () => {
+    const porGrupo = parse("?colors=preto");
+    expect(porGrupo.colorHexes).toEqual(["#242424", "#121212"]);
+
+    const combinado = parse("?colors=freijo,preto,#ffffff,invalido");
+    expect(combinado.colorHexes).toEqual([
+      "#8E6743",
+      "#242424",
+      "#121212",
+      "#FFFFFF",
+    ]);
+
+    expect(parse("?colors=invalido,desconhecido").colorHexes).toBeUndefined();
+    expect(parse("?colors=").colorHexes).toBeUndefined();
+  });
 });
