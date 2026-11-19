@@ -54,6 +54,8 @@ export interface ProductDbRow {
   // Miniatura da capa, trazida pelo LEFT JOIN LATERAL das consultas de listagem
   // e detalhe; ausente nos RETURNING de INSERT/UPDATE.
   cover_thumbnail_path?: string | null;
+  // Nome do fornecedor, trazido pelo LEFT JOIN suppliers das consultas de leitura.
+  supplier_name?: string | null;
 }
 
 export interface ProductVariationDbRow {
@@ -112,6 +114,7 @@ export interface ProductDto {
   categoryId: string;
   subtypeId: string | null;
   supplierId: string | null;
+  supplierName: string | null;
   name: string;
   slug: string;
   collectionLine: string | null;

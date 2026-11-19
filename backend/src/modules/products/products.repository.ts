@@ -32,6 +32,11 @@ const COVER_JOIN = sql`
   ) cover ON true
 `;
 
+const SUPPLIER_JOIN = sql`
+  LEFT JOIN suppliers s
+    ON s.id = p.supplier_id AND s.deleted_at IS NULL
+`;
+
 function toIso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : String(value);
 }
@@ -42,6 +47,7 @@ export function mapProductRow(r: ProductDbRow): ProductDto {
     categoryId: r.category_id,
     subtypeId: r.subtype_id,
     supplierId: r.supplier_id,
+    supplierName: r.supplier_name ?? null,
     name: r.name,
     slug: r.slug,
     collectionLine: r.collection_line,
@@ -161,9 +167,11 @@ export class ProductsRepository {
           p.collection_line, p.main_material, p.reference_price, p.max_installments,
           p.availability_type, p.estimated_days, p.height_mm, p.width_mm, p.depth_mm,
           p.description, p.specifications, p.active, p.created_at, p.updated_at,
-          cover.thumbnail_path AS cover_thumbnail_path
+          cover.thumbnail_path AS cover_thumbnail_path,
+          s.name AS supplier_name
         FROM products p
         ${COVER_JOIN}
+        ${SUPPLIER_JOIN}
         WHERE p.deleted_at IS NULL
           AND (${categoryId}::uuid IS NULL OR p.category_id = ${categoryId}::uuid)
           AND (${subtypeId}::uuid IS NULL OR p.subtype_id = ${subtypeId}::uuid)
@@ -279,9 +287,11 @@ export class ProductsRepository {
         p.collection_line, p.main_material, p.reference_price, p.max_installments,
         p.availability_type, p.estimated_days, p.height_mm, p.width_mm, p.depth_mm,
         p.description, p.specifications, p.active, p.created_at, p.updated_at,
-        cover.thumbnail_path AS cover_thumbnail_path
+        cover.thumbnail_path AS cover_thumbnail_path,
+        s.name AS supplier_name
       FROM products p
       ${COVER_JOIN}
+      ${SUPPLIER_JOIN}
       WHERE p.category_id = ${categoryId}
         AND p.id != ${productId}
         AND p.active = TRUE
@@ -387,8 +397,11 @@ export class ProductsRepository {
           description, specifications, active, created_at, updated_at
       `;
 
-      // Produto recém-criado ainda não tem foto: a capa é `null`.
-      const product = this.mapRow(productRows[0]!);
+      // Relê com o nome do fornecedor; produto recém-criado ainda não tem foto.
+      const insertedRow = productRows[0]!;
+      const hydratedRow =
+        (await this.selectProductRow(tx, insertedRow.id)) ?? insertedRow;
+      const product = this.mapRow(hydratedRow);
       const variations: ProductVariationDto[] = [];
 
       if (data.variations && data.variations.length > 0) {
@@ -519,7 +532,7 @@ export class ProductsRepository {
     });
   }
 
-  // Linha do produto ativo com a miniatura da capa; usada fora e dentro de transação.
+  // Linha do produto ativo com a miniatura da capa e o nome do fornecedor; usada fora e dentro de transação.
   private async selectProductRow(
     executor: typeof sql,
     id: string,
@@ -530,9 +543,11 @@ export class ProductsRepository {
         p.collection_line, p.main_material, p.reference_price, p.max_installments,
         p.availability_type, p.estimated_days, p.height_mm, p.width_mm, p.depth_mm,
         p.description, p.specifications, p.active, p.created_at, p.updated_at,
-        cover.thumbnail_path AS cover_thumbnail_path
+        cover.thumbnail_path AS cover_thumbnail_path,
+        s.name AS supplier_name
       FROM products p
       ${COVER_JOIN}
+      ${SUPPLIER_JOIN}
       WHERE p.id = ${id} AND p.deleted_at IS NULL
       LIMIT 1
     `;
@@ -549,9 +564,11 @@ export class ProductsRepository {
         p.collection_line, p.main_material, p.reference_price, p.max_installments,
         p.availability_type, p.estimated_days, p.height_mm, p.width_mm, p.depth_mm,
         p.description, p.specifications, p.active, p.created_at, p.updated_at,
-        cover.thumbnail_path AS cover_thumbnail_path
+        cover.thumbnail_path AS cover_thumbnail_path,
+        s.name AS supplier_name
       FROM products p
       ${COVER_JOIN}
+      ${SUPPLIER_JOIN}
       WHERE p.slug = ${slug} AND p.deleted_at IS NULL
       LIMIT 1
     `;
