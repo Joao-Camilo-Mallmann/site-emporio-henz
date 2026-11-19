@@ -228,6 +228,23 @@ onUnmounted(() => {
             </span>
           </UiButton>
 
+          <!-- Atendimento no showroom (Vendedores e Administradores) -->
+          <UiButton
+            v-if="authStore.isEquipe"
+            variant="custom"
+            size="none"
+            @click="navigateTo('/admin/atendimento')"
+            class="flex-col gap-1 text-white hover:text-amber-200 hover:bg-white/10 px-3 py-1.5 rounded-xl group"
+          >
+            <Icon
+              icon="mdi:face-agent"
+              class="w-5 h-5 text-white transition-all duration-200 group-hover:scale-110 group-hover:text-amber-200"
+            />
+            <span class="text-xs font-semibold leading-tight tracking-tight"
+              >Atendimento</span
+            >
+          </UiButton>
+
           <!-- Botão Painel Admin Desktop (Visível apenas para Vendedores e Administradores) -->
           <UiButton
             v-if="authStore.isEquipe"
