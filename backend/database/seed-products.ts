@@ -9,7 +9,8 @@
  * - Cadastra 3 produtos por categoria. Slug já existente é ignorado, então o
  *   seed pode rodar várias vezes.
  * - Envia a foto de `mock-images/<slug>.jpg` para os produtos que ainda não
- *   têm foto.
+ *   têm foto geral, e `mock-images/variacoes/<slug>--<variação>.jpg` para cada
+ *   variação ainda sem foto (vale também para produtos que já existiam).
  */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -794,7 +795,8 @@ async function findProductBySlug(
     SELECT p.id,
            EXISTS (
              SELECT 1 FROM product_images pi
-             WHERE pi.product_id = p.id AND pi.deleted_at IS NULL
+             WHERE pi.product_id = p.id AND pi.variation_id IS NULL
+               AND pi.deleted_at IS NULL
            ) AS "hasImage"
     FROM products p
     WHERE p.slug = ${slug} AND p.deleted_at IS NULL
@@ -863,9 +865,13 @@ async function createProducts(
 }
 
 // O service de fotos lê um multipart com Content-Length, como na rota da API.
-async function buildUploadRequest(path: string): Promise<Request> {
+async function buildUploadRequest(
+  path: string,
+  variationId?: string,
+): Promise<Request> {
   const form = new FormData();
   form.append("file", Bun.file(path));
+  if (variationId) form.append("variationId", variationId);
   const encoded = new Request("http://seed.local/upload", {
     method: "POST",
     body: form,
@@ -887,25 +893,50 @@ async function uploadImages(admin: AuthenticatedUser) {
   let uploaded = 0;
   let missing = 0;
 
+  const send = async (
+    productId: string,
+    file: string,
+    label: string,
+    variationId?: string,
+  ) => {
+    const path = join(MOCK_IMAGES_DIR, file);
+    if (!existsSync(path)) {
+      missing++;
+      console.log(`! Sem foto em mock-images/: ${file}`);
+      return;
+    }
+    await productImagesService.uploadProductImage(
+      productId,
+      admin,
+      await buildUploadRequest(path, variationId),
+    );
+    uploaded++;
+    console.log(`+ Foto enviada: ${label}`);
+  };
+
   for (const mock of PRODUCTS) {
     const slug = slugify(mock.name);
     const product = await findProductBySlug(slug);
-    if (!product || product.hasImage) continue;
+    if (!product) continue;
+    if (!product.hasImage) await send(product.id, `${slug}.jpg`, mock.name);
 
-    const path = join(MOCK_IMAGES_DIR, `${slug}.jpg`);
-    if (!existsSync(path)) {
-      missing++;
-      console.log(`! Sem foto em mock-images/: ${slug}`);
-      continue;
+    const variations = await sql<{ id: string; name: string }[]>`
+      SELECT v.id, v.name FROM product_variations v
+      WHERE v.product_id = ${product.id} AND v.deleted_at IS NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM product_images pi
+          WHERE pi.variation_id = v.id AND pi.deleted_at IS NULL
+        )
+      ORDER BY v.sort_order;
+    `;
+    for (const v of variations) {
+      await send(
+        product.id,
+        `variacoes/${slug}--${slugify(v.name)}.jpg`,
+        `${mock.name} — ${v.name}`,
+        v.id,
+      );
     }
-
-    await productImagesService.uploadProductImage(
-      product.id,
-      admin,
-      await buildUploadRequest(path),
-    );
-    uploaded++;
-    console.log(`+ Foto enviada: ${mock.name}`);
   }
 
   console.log(`✓ Fotos: ${uploaded} enviadas, ${missing} sem arquivo.`);
