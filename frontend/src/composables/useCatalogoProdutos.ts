@@ -12,6 +12,7 @@ import type {
   ProductListItemDto,
   ProductSpecificationItem,
 } from "@/types";
+import { lerGruposCorDaQuery } from "@/utils/coresMoveis";
 import { slugify } from "@/utils/slug";
 import { toApiAssetUrl } from "@/utils/uploads";
 import { ref } from "vue";
@@ -26,12 +27,12 @@ const CHAVES_FILTRO = [
   "categoria",
   "subcategoria",
   "disponibilidade",
+  "cores",
   "minPreco",
   "maxPreco",
   "page",
   // Filtros e ordenação removidos: links antigos são ignorados e limpos na próxima atualização
   "materiais",
-  "cores",
   "marcas",
   "ordem",
 ];
@@ -61,6 +62,7 @@ export function lerFiltrosDaRota(query: LocationQuery): CatalogFilterParams {
       (valor): valor is CatalogAvailability =>
         valor === "IN_STOCK" || valor === "ON_DEMAND",
     );
+  const cores = lerGruposCorDaQuery(textoDaQuery(query.cores));
   const pagina = parseInt(textoDaQuery(query.page), 10);
 
   return {
@@ -68,6 +70,7 @@ export function lerFiltrosDaRota(query: LocationQuery): CatalogFilterParams {
     categoria: textoDaQuery(query.categoria) || undefined,
     subcategoria: textoDaQuery(query.subcategoria) || undefined,
     disponibilidade,
+    cores,
     minPreco: numeroDaQuery(query.minPreco),
     maxPreco: numeroDaQuery(query.maxPreco),
     page: pagina > 0 ? pagina : 1,
@@ -88,6 +91,9 @@ export function montarQueryDaRota(
   if (filtros.subcategoria) query.subcategoria = filtros.subcategoria;
   if (filtros.disponibilidade?.length) {
     query.disponibilidade = filtros.disponibilidade.join(",");
+  }
+  if (filtros.cores?.length) {
+    query.cores = filtros.cores.join(",");
   }
   if (filtros.minPreco !== undefined) query.minPreco = String(filtros.minPreco);
   if (filtros.maxPreco !== undefined) query.maxPreco = String(filtros.maxPreco);
@@ -316,6 +322,7 @@ export function useCatalogoProdutos() {
         search: filtros.name?.trim() || undefined,
         ...ids,
         availabilityType: traduzirDisponibilidade(filtros.disponibilidade),
+        colors: filtros.cores?.length ? filtros.cores.join(",") : undefined,
         minPrice: filtros.minPreco,
         maxPrice: filtros.maxPreco,
       });

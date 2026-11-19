@@ -137,6 +137,7 @@ const activeFiltersCount = computed(() => {
   if (filters.value.categoria) count++;
   if (filters.value.subcategoria) count++;
   count += filters.value.disponibilidade?.length ?? 0;
+  count += filters.value.cores?.length ?? 0;
   if (
     filters.value.minPreco !== undefined ||
     filters.value.maxPreco !== undefined

@@ -6,13 +6,13 @@ import { storeToRefs } from "pinia";
 import { computed, nextTick } from "vue";
 import {
   createLocalKey,
-  DEFAULT_VARIATION_COLOR,
   isHexColor,
   normalizeHexColor,
   VARIATION_TYPE_OPTIONS,
   variationFieldId,
   variationLabel,
 } from "@/utils/admin/produtos/produtoFormConstantes";
+import { rotuloCorHex } from "@/utils/coresMoveis";
 
 // Etapa 4 do formulário de produto.
 // Lista de variações: incluir, mover e remover. A ordem da tela define o
@@ -36,7 +36,7 @@ function addVariation() {
     id: null,
     name: "",
     variationType: "COLOR",
-    colorsHex: [DEFAULT_VARIATION_COLOR],
+    colorsHex: [],
     finishDetails: [],
     inStock: true,
     sample: null,
@@ -93,12 +93,13 @@ function swatchStyle(valid: string[]): { background?: string } {
 const resumos = computed(() =>
   variations.value.map((variation, index) => {
     const valid = variation.colorsHex.map(normalizeHexColor).filter(isHexColor);
+    const labels = valid.map(rotuloCorHex);
     return {
       titulo: variationLabel(variation, index),
       semCor: valid.length === 0,
       swatchStyle: swatchStyle(valid),
       swatchLabel:
-        valid.length > 0 ? `Cores: ${valid.join(", ")}` : "Nenhuma cor válida",
+        labels.length > 0 ? `Cores: ${labels.join(", ")}` : "Nenhuma cor",
     };
   }),
 );
