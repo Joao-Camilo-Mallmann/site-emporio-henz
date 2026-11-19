@@ -45,6 +45,8 @@ export interface CatalogProductItem {
   image: string;
   category: string;
   subcategory?: string;
+  supplierId?: string;
+  supplierName?: string;
   material?: string;
   brand?: string;
   finishes: CatalogVariationBadge[];
@@ -52,11 +54,12 @@ export interface CatalogProductItem {
   estimatedDays?: number;
 }
 
-/** Estado de filtros da tela do catálogo, espelhado na URL (`?categoria=&subcategoria=&cores=&name=...`). */
+/** Estado de filtros da tela do catálogo, espelhado na URL (`?categoria=&subcategoria=&fornecedor=&cores=&name=...`). */
 export interface CatalogFilterParams {
   name?: string;
   categoria?: string;
   subcategoria?: string;
+  fornecedor?: string;
   disponibilidade?: CatalogAvailability[];
   cores?: ColorGroupSlug[];
   minPreco?: number;
@@ -70,6 +73,7 @@ export interface CatalogApiParams extends PaginationParams {
   search?: string;
   categoryId?: string;
   subtypeId?: string;
+  supplierId?: string;
   availabilityType?: CatalogAvailability;
   colors?: string;
   minPrice?: number;
@@ -109,6 +113,8 @@ export interface ProductDetail {
   description: string;
   category: string;
   subcategory?: string;
+  supplierId?: string;
+  supplierName?: string;
   brand?: string;
   line?: string;
   mainFeatures?: string[];

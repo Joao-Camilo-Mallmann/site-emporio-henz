@@ -1,4 +1,5 @@
-import { catalogoApi } from "@/api";
+import { catalogoApi, fornecedoresApi } from "@/api";
+import { useAuthStore } from "@/stores/auth";
 import { encontrarCategoria, useCategoriasStore } from "@/stores/categorias";
 import type {
   CatalogApiParams,
@@ -11,14 +12,18 @@ import type {
   ProductDto,
   ProductListItemDto,
   ProductSpecificationItem,
+  Supplier,
 } from "@/types";
+import { getAuthToken } from "@/utils/cookie";
 import { lerGruposCorDaQuery } from "@/utils/coresMoveis";
 import { slugify } from "@/utils/slug";
 import { toApiAssetUrl } from "@/utils/uploads";
+import { isAxiosError } from "axios";
 import { ref } from "vue";
 import type { LocationQuery, LocationQueryRaw } from "vue-router";
 
 export const CATALOGO_POR_PAGINA = 9;
+const FORNECEDORES_POR_PAGINA = 100;
 
 /** Chaves da URL que pertencem aos filtros; qualquer outra é preservada. */
 const CHAVES_FILTRO = [
@@ -26,6 +31,7 @@ const CHAVES_FILTRO = [
   "q",
   "categoria",
   "subcategoria",
+  "fornecedor",
   "disponibilidade",
   "cores",
   "minPreco",
@@ -54,6 +60,106 @@ function numeroDaQuery(valor: LocationQuery[string]): number | undefined {
   return Number.isFinite(numero) && numero >= 0 ? numero : undefined;
 }
 
+/** Procura um fornecedor pelo UUID exato ou pelo nome normalizado em slug. */
+export function encontrarFornecedor(
+  lista: readonly Supplier[],
+  valor: string,
+): Supplier | undefined {
+  const limpo = valor.trim();
+  if (!limpo) return undefined;
+  const alvo = slugify(limpo);
+  return (
+    lista.find((fornecedor) => fornecedor.id === limpo) ??
+    lista.find((fornecedor) => slugify(fornecedor.name) === alvo)
+  );
+}
+
+// Cache compartilhado de fornecedores ativos (GET /suppliers) para a barra lateral e o catálogo
+const fornecedoresLista = ref<Supplier[]>([]);
+const fornecedoresLoading = ref(false);
+const fornecedoresError = ref<string | null>(null);
+const fornecedoresCarregados = ref(false);
+let fornecedoresPendente: Promise<void> | null = null;
+let fornecedoresTokenNaCarga: string | null = null;
+
+async function buscarTodosFornecedoresAtivos(): Promise<Supplier[]> {
+  const acumulados: Supplier[] = [];
+  let page = 1;
+  let totalPages: number;
+  do {
+    const resposta = await fornecedoresApi.listar({
+      page,
+      limit: FORNECEDORES_POR_PAGINA,
+      active: true,
+    });
+    acumulados.push(...resposta.data.filter((item) => item.active));
+    totalPages = resposta.pagination.totalPages || 1;
+    page += 1;
+  } while (page <= totalPages);
+
+  return acumulados;
+}
+
+async function executarCargaFornecedores(
+  token: string | null,
+  verificarAtual: () => boolean,
+): Promise<void> {
+  fornecedoresLoading.value = true;
+  fornecedoresError.value = null;
+  try {
+    const proximos = await buscarTodosFornecedoresAtivos();
+    if (verificarAtual()) {
+      fornecedoresLista.value = proximos;
+      fornecedoresCarregados.value = true;
+      fornecedoresTokenNaCarga = token;
+    }
+  } catch {
+    if (verificarAtual()) {
+      fornecedoresError.value = "Não foi possível carregar os fornecedores.";
+    }
+  } finally {
+    if (verificarAtual()) {
+      fornecedoresLoading.value = false;
+      fornecedoresPendente = null;
+    }
+  }
+}
+
+export function useFornecedoresCatalogo() {
+  const authStore = useAuthStore();
+
+  function carregar(forcar = false): Promise<void> {
+    const tokenAtual = authStore.token ?? getAuthToken() ?? null;
+    const tokenMudou =
+      fornecedoresCarregados.value && tokenAtual !== fornecedoresTokenNaCarga;
+    if (fornecedoresCarregados.value && !forcar && !tokenMudou) {
+      return Promise.resolve();
+    }
+
+    if (forcar || tokenMudou) {
+      fornecedoresPendente = null;
+    }
+
+    if (!fornecedoresPendente) {
+      const requisicao = executarCargaFornecedores(
+        tokenAtual,
+        () => fornecedoresPendente === requisicao,
+      );
+      fornecedoresPendente = requisicao;
+    }
+
+    return fornecedoresPendente;
+  }
+
+  return {
+    lista: fornecedoresLista,
+    loading: fornecedoresLoading,
+    error: fornecedoresError,
+    carregados: fornecedoresCarregados,
+    carregar,
+  };
+}
+
 /** Lê os filtros da URL. `?name=` (navbar) tem prioridade sobre o legado `?q=`. */
 export function lerFiltrosDaRota(query: LocationQuery): CatalogFilterParams {
   const disponibilidade = textoDaQuery(query.disponibilidade)
@@ -69,6 +175,7 @@ export function lerFiltrosDaRota(query: LocationQuery): CatalogFilterParams {
     name: textoDaQuery(query.name) || textoDaQuery(query.q) || undefined,
     categoria: textoDaQuery(query.categoria) || undefined,
     subcategoria: textoDaQuery(query.subcategoria) || undefined,
+    fornecedor: textoDaQuery(query.fornecedor) || undefined,
     disponibilidade,
     cores,
     minPreco: numeroDaQuery(query.minPreco),
@@ -89,6 +196,7 @@ export function montarQueryDaRota(
   if (filtros.name) query.name = filtros.name;
   if (filtros.categoria) query.categoria = filtros.categoria;
   if (filtros.subcategoria) query.subcategoria = filtros.subcategoria;
+  if (filtros.fornecedor) query.fornecedor = filtros.fornecedor;
   if (filtros.disponibilidade?.length) {
     query.disponibilidade = filtros.disponibilidade.join(",");
   }
@@ -123,6 +231,8 @@ export function mapearProdutoCatalogo(
     image: toApiAssetUrl(dto.thumbnailUrl),
     category: categoria?.name ?? "",
     subcategory: subtipo?.name,
+    supplierId: dto.supplierId,
+    supplierName: dto.supplierName ?? undefined,
     material: dto.mainMaterial ?? undefined,
     finishes: [],
     availability: dto.availabilityType,
@@ -190,6 +300,9 @@ export function mapearDetalheProduto(
   if (subtipo?.name) {
     specifications.push({ label: "Subcategoria", value: subtipo.name });
   }
+  if (dto.supplierName) {
+    specifications.push({ label: "Fornecedor", value: dto.supplierName });
+  }
   if (dto.collectionLine) {
     specifications.push({ label: "Linha", value: dto.collectionLine });
   }
@@ -235,6 +348,8 @@ export function mapearDetalheProduto(
     description: dto.description ?? "",
     category: categoria?.name ?? "",
     subcategory: subtipo?.name,
+    supplierId: dto.supplierId,
+    supplierName: dto.supplierName ?? undefined,
     line: dto.collectionLine ?? undefined,
     images,
     variations,
@@ -245,12 +360,22 @@ export function mapearDetalheProduto(
   };
 }
 
-/** `undefined` quando a categoria ou o subtipo da URL não existem entre os ativos. */
+/** `undefined` quando categoria, subtipo ou fornecedor da URL não existem entre os ativos. */
 function resolverIds(
   filtros: CatalogFilterParams,
   categorias: readonly Category[],
-): Pick<CatalogApiParams, "categoryId" | "subtypeId"> | undefined {
-  if (!filtros.categoria && !filtros.subcategoria) return {};
+  fornecedores: readonly Supplier[],
+): Pick<CatalogApiParams, "categoryId" | "subtypeId" | "supplierId"> | undefined {
+  let supplierId: string | undefined;
+  if (filtros.fornecedor) {
+    const fornecedor = encontrarFornecedor(fornecedores, filtros.fornecedor);
+    if (!fornecedor) return undefined;
+    supplierId = fornecedor.id;
+  }
+
+  if (!filtros.categoria && !filtros.subcategoria) {
+    return supplierId ? { supplierId } : {};
+  }
 
   let candidatas = categorias;
   let categoryId: string | undefined;
@@ -263,14 +388,14 @@ function resolverIds(
     categoryId = categoria.id;
     candidatas = [categoria];
   }
-  if (!filtros.subcategoria) return { categoryId };
+  if (!filtros.subcategoria) return { categoryId, supplierId };
 
   const alvo = slugify(filtros.subcategoria);
   const subtipo = candidatas
     .flatMap((categoria) => categoria.subtypes ?? [])
     .find((item) => item.slug === alvo || slugify(item.name) === alvo);
   if (!subtipo) return undefined;
-  return { categoryId, subtypeId: subtipo.id };
+  return { categoryId, subtypeId: subtipo.id, supplierId };
 }
 
 /** Com um único checkbox marcado filtra; com nenhum ou os dois, não envia filtro. */
@@ -282,6 +407,7 @@ function traduzirDisponibilidade(
 
 export function useCatalogoProdutos() {
   const categoriasStore = useCategoriasStore();
+  const fornecedoresCatalogo = useFornecedoresCatalogo();
   const products = ref<CatalogProductItem[]>([]);
   const pagination = ref<PaginationMeta>({ ...PAGINACAO_VAZIA });
   const loading = ref(false);
@@ -300,7 +426,10 @@ export function useCatalogoProdutos() {
     const pagina = filtros.page ?? 1;
 
     try {
-      await categoriasStore.carregar();
+      await Promise.all([
+        categoriasStore.carregar(),
+        fornecedoresCatalogo.carregar(),
+      ]);
       if (requisicao !== ultimaRequisicao) return;
 
       const precisaDeCategorias = !!(filtros.categoria || filtros.subcategoria);
@@ -310,7 +439,18 @@ export function useCatalogoProdutos() {
         );
       }
 
-      const ids = resolverIds(filtros, categoriasStore.lista);
+      if (filtros.fornecedor && !fornecedoresCatalogo.carregados.value) {
+        throw new Error(
+          fornecedoresCatalogo.error.value ??
+            "Não foi possível carregar os fornecedores.",
+        );
+      }
+
+      const ids = resolverIds(
+        filtros,
+        categoriasStore.lista,
+        fornecedoresCatalogo.lista.value,
+      );
       if (!ids) {
         limpar(pagina);
         return;
@@ -335,11 +475,16 @@ export function useCatalogoProdutos() {
         ...resposta.pagination,
         totalPages: resposta.pagination.totalPages || 1,
       };
-    } catch {
+    } catch (err: unknown) {
       if (requisicao !== ultimaRequisicao) return;
       limpar(pagina);
-      // Erro do axios traz mensagem técnica ("Network Error"); a tela mostra um texto próprio
-      error.value = "Verifique sua conexão e tente de novo em instantes.";
+      if (isAxiosError(err) && err.response?.status === 403) {
+        error.value =
+          "Você não tem permissão para consultar produtos deste fornecedor.";
+      } else {
+        // Erro do axios traz mensagem técnica ("Network Error"); a tela mostra um texto próprio
+        error.value = "Verifique sua conexão e tente de novo em instantes.";
+      }
     } finally {
       if (requisicao === ultimaRequisicao) loading.value = false;
     }
