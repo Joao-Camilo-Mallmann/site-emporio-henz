@@ -194,7 +194,7 @@ const resumos = computed(() =>
             :id="variationFieldId.name(variation.key)"
             v-model="variation.name"
             type="text"
-            label="Nome da variação *"
+            label="Nome da variação"
             maxlength="255"
             placeholder="Ex.: Carvalho Mel / Off White"
             :disabled="locked"

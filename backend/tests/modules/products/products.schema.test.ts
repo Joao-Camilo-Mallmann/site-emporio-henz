@@ -48,7 +48,6 @@ describe("Validação de Produtos com campo e mapa de erros", () => {
       heightMm: expect.any(String),
       widthMm: expect.any(String),
       depthMm: expect.any(String),
-      "variations.0.name": expect.any(String),
       "variations.0.colorsHex.0": expect.any(String),
     });
   });
