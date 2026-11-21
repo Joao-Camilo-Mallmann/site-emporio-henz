@@ -2,6 +2,7 @@
 import type { ColorGroupSlug, FieldErrors, VariationFormItem } from "@/types";
 import {
   CORES_GRUPOS,
+  CORES_MOVEIS,
   encontrarCorPorHex,
   filtrarCoresMoveis,
   rotuloCorHex,
@@ -15,8 +16,8 @@ import {
 import { Icon } from "@iconify/vue";
 import { computed, ref } from "vue";
 
-// Aparência e disponibilidade de uma variação: seletor direto da paleta de 50
-// cores de móveis, detalhes de acabamento e estoque. Edita direto no `v-model`.
+// Aparência e disponibilidade de uma variação: seletor direto da paleta
+// de cores de móveis, detalhes de acabamento e estoque. Edita direto no `v-model`.
 
 const variation = defineModel<VariationFormItem>({ required: true });
 
@@ -138,8 +139,8 @@ function removeColor(index: number) {
             </span>
             <UiButton
               variant="ghost"
-              size="none"
-              class="w-5 h-5 rounded-full text-stone-400 hover:text-rose-600"
+              size="icon"
+              class="size-5! rounded-full! text-stone-400 hover:text-rose-600"
               :disabled="locked"
               :title="`Remover ${item.name}`"
               :aria-label="`Remover cor ${item.name}`"
@@ -154,7 +155,7 @@ function removeColor(index: number) {
         </p>
       </div>
 
-      <!-- Painel de seleção direta das 50 cores -->
+      <!-- Painel de seleção direta da paleta -->
       <div
         class="rounded-xl border border-stone-200 bg-white p-3 space-y-3"
         :class="{ 'opacity-65': locked }"
@@ -173,7 +174,7 @@ function removeColor(index: number) {
             />
           </div>
           <span class="text-xs text-stone-500 shrink-0">
-            {{ filteredPalette.length }} de 50 cores
+            {{ filteredPalette.length }} de {{ CORES_MOVEIS.length }} cores
           </span>
         </div>
 

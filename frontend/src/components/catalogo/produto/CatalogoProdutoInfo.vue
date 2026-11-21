@@ -130,12 +130,12 @@ function handleFilterBySupplier() {
           v-for="variation in product.variations"
           :key="variation.id"
           variant="custom"
-          size="none"
+          size="icon"
           role="radio"
           :aria-checked="selectedVariation?.id === variation.id"
           :aria-label="variation.name"
           :title="variation.name"
-          class="w-9 h-9 sm:w-10 sm:h-10 rounded-full shrink-0 shadow-xs relative border border-black/10"
+          class="size-9! sm:size-10! rounded-full! shadow-xs relative border border-black/10"
           :class="
             selectedVariation?.id === variation.id
               ? 'ring-2 ring-secondary/80 ring-offset-2 ring-offset-white scale-105'

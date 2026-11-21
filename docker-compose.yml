@@ -41,6 +41,8 @@ services:
 
     build:
       context: ./backend
+      additional_contexts:
+        shared: ./shared
       target: backend
 
     container_name: emporio-henz-backend
@@ -85,6 +87,8 @@ services:
 
     build:
       context: ./frontend
+      additional_contexts:
+        shared: ./shared
       target: nginx
       args:
         VITE_API_URL: ${VITE_API_URL}
@@ -110,6 +114,8 @@ services:
 
     build:
       context: ./backend
+      additional_contexts:
+        shared: ./shared
       target: backend-dev
 
     container_name: emporio-henz-backend-dev
@@ -122,6 +128,7 @@ services:
     # Em dev, /app/uploads cai em ./backend/uploads no host (ignorado pelo git).
     volumes:
       - ./backend:/app
+      - ./shared:/shared
       - /app/node_modules
 
     environment:
@@ -150,6 +157,8 @@ services:
 
     build:
       context: ./frontend
+      additional_contexts:
+        shared: ./shared
       target: frontend-dev
 
     container_name: emporio-henz-frontend-dev
@@ -160,6 +169,7 @@ services:
 
     volumes:
       - ./frontend:/app
+      - ./shared:/shared
       - /app/node_modules
 
     environment:

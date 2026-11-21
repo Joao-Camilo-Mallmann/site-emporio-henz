@@ -143,13 +143,12 @@ function validateVariationItem(
 
   if (
     typeof name !== "string" ||
-    name.trim().length < 1 ||
     name.trim().length > NAME_MAX_LENGTH
   ) {
     addError(
       errors,
       `variations.${index}.name`,
-      `O nome da variação na posição ${index} é obrigatório e deve ter entre 1 e ${NAME_MAX_LENGTH} caracteres.`,
+      `O nome da variação na posição ${index} deve ter no máximo ${NAME_MAX_LENGTH} caracteres.`,
     );
   }
 

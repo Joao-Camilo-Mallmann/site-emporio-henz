@@ -146,8 +146,8 @@ function formatPrice(value: number) {
         v-for="cor in visibleColorGroups"
         :key="cor.slug"
         variant="custom"
-        size="none"
-        class="w-9 h-9 rounded-full p-0.5 border transition-all"
+        size="icon"
+        class="size-9! rounded-full! p-0.5 border"
         :class="
           cores.includes(cor.slug)
             ? 'border-secondary ring-2 ring-secondary/25'
