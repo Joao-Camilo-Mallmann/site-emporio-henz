@@ -7,7 +7,7 @@ meta {
 get {
   url: {{baseUrl}}/categorias?page=1&limit=20
   body: none
-  auth: bearer
+  auth: none
 }
 
 params:query {
@@ -17,12 +17,9 @@ params:query {
   ~active: false
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 docs {
-  Com token de Administrador a listagem paginada inclui categorias inativas e os subtipos inativos de cada categoria.
+  Com sessão de Administrador a listagem paginada inclui categorias inativas e os subtipos inativos de cada categoria.
   `active=true` ou `active=false` filtra pelo status; sem o parâmetro, retorna ambos.
-  Tokens de Cliente ou Vendedor recebem a mesma resposta do público (somente ativas).
+  Sessões de Cliente ou Vendedor recebem a mesma resposta do público (somente ativas).
 }

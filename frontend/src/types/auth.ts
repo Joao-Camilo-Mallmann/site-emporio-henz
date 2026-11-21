@@ -33,7 +33,6 @@ export interface RegisterInput {
 
 export interface AuthResponse {
   user: UserProfile;
-  token: string;
 }
 
 export interface UpdateProfileInput {

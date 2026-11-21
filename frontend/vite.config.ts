@@ -4,11 +4,12 @@ import { readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import Components from "unplugin-vue-components/vite";
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 import vueDevTools from "vite-plugin-vue-devtools";
 import { invalidateTypeCache } from "vue/compiler-sfc";
 
 const typesDir = fileURLToPath(new URL("./src/types", import.meta.url));
+const envDir = fileURLToPath(new URL("../", import.meta.url));
 
 /**
  * O compilador de SFC guarda em cache os tipos usados em `defineProps<...>()`.
@@ -33,38 +34,48 @@ function invalidarCacheDeTipos(): Plugin {
 }
 
 // https://vite.dev/config/
-export default defineConfig({
-  envDir: "../",
-  plugins: [
-    invalidarCacheDeTipos(),
-    vue(),
-    Components({
-      dirs: ["src/components"],
-      extensions: ["vue"],
-      deep: true,
-      dts: "src/components.d.ts",
-      resolvers: [
-        (componentName) => {
-          if (componentName === "Icon" || componentName === "UiIcon") {
-            return { name: "Icon", from: "@iconify/vue" };
-          }
+export default defineConfig(({ mode }) => {
+  const { VITE_API_URL } = loadEnv(mode, envDir, "VITE_");
+
+  return {
+    envDir: "../",
+    plugins: [
+      invalidarCacheDeTipos(),
+      vue(),
+      Components({
+        dirs: ["src/components"],
+        extensions: ["vue"],
+        deep: true,
+        dts: "src/components.d.ts",
+        resolvers: [
+          (componentName) => {
+            if (componentName === "Icon" || componentName === "UiIcon") {
+              return { name: "Icon", from: "@iconify/vue" };
+            }
+          },
+        ],
+      }),
+      tailwindcss(),
+      vueDevTools({ launchEditor: "code" }),
+    ],
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+      },
+    },
+    server: {
+      port: 3000,
+      host: "0.0.0.0",
+      proxy: {
+        "/api": {
+          target: VITE_API_URL || "http://localhost:3001",
+          changeOrigin: true,
         },
-      ],
-    }),
-    tailwindcss(),
-    vueDevTools({ launchEditor: "code" }),
-  ],
-  resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      },
+      watch: {
+        usePolling: true,
+        interval: 100,
+      },
     },
-  },
-  server: {
-    port: 3000,
-    host: "0.0.0.0",
-    watch: {
-      usePolling: true,
-      interval: 100,
-    },
-  },
+  };
 });

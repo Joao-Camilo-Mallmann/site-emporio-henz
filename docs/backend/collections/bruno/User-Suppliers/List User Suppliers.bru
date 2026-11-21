@@ -7,7 +7,7 @@ meta {
 get {
   url: {{baseUrl}}/users/:userId/suppliers?page=1&limit=20
   body: none
-  auth: bearer
+  auth: none
 }
 
 params:query {
@@ -19,9 +19,6 @@ params:path {
   userId: 00000000-0000-0000-0000-000000000000
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 docs {
   Listagem paginada dos fornecedores vinculados ao usuário, em ordem alfabética. Exclusiva do Administrador.

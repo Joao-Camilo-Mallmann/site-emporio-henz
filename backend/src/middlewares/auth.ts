@@ -1,3 +1,4 @@
+import { getTokenFromCookie } from "@/lib/cookie";
 import { userFromToken } from "@/lib/jwt";
 import { unauthorized } from "@/lib/response";
 import { RequestContext, RouteHandler } from "@/lib/router";
@@ -6,14 +7,9 @@ export const authMiddleware: RouteHandler = async (
   req: Request,
   ctx: RequestContext,
 ) => {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return unauthorized("Token de autenticação não fornecido.");
-  }
-
-  const token = authHeader.slice(7).trim();
+  const token = getTokenFromCookie(req);
   if (!token) {
-    return unauthorized("Token de autenticação ausente.");
+    return unauthorized("Token de autenticação não fornecido.");
   }
 
   const user = await userFromToken(token);
@@ -30,12 +26,7 @@ export const attachUserIfAuthenticated: RouteHandler = async (
   req: Request,
   ctx: RequestContext,
 ) => {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return;
-  }
-
-  const token = authHeader.slice(7).trim();
+  const token = getTokenFromCookie(req);
   if (!token) {
     return;
   }

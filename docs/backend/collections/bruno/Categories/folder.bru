@@ -5,7 +5,7 @@ meta {
 docs {
   ## Regras comuns
 
-  - **Visibilidade**: sem token de Administrador, as leituras retornam apenas categorias ativas. Categoria inativa responde `404` em `GET /categorias/:id`.
+  - **Visibilidade**: sem cookie de sessão de Administrador, as leituras retornam apenas categorias ativas. Categoria inativa responde `404` em `GET /categorias/:id`.
   - **`:id`**: deve ser um UUID válido; caso contrário a resposta é `400 Bad Request`.
   - **`name` e `slug`**: máximo de 255 caracteres (`400` acima disso). Sem `slug`, um `name` que não gere slug (ex.: só símbolos) também dá `400`.
   - **Slug duplicado** entre registros não deletados: `409 Conflict`, inclusive em requisições concorrentes.

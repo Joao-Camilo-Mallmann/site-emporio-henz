@@ -7,7 +7,7 @@ meta {
 put {
   url: {{baseUrl}}/produtos/:id/variacoes/:variationId/amostra
   body: multipartForm
-  auth: bearer
+  auth: none
 }
 
 params:path {
@@ -15,9 +15,6 @@ params:path {
   variationId: 00000000-0000-0000-0000-000000000000
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 body:multipart-form {
   file: @file(/caminho/para/textura.jpg)

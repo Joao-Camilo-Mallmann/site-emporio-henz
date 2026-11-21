@@ -7,7 +7,7 @@ meta {
 get {
   url: {{baseUrl}}/users?page=1&limit=20
   body: none
-  auth: bearer
+  auth: none
 }
 
 params:query {
@@ -17,9 +17,6 @@ params:query {
   ~role: 
 }
 
-auth:bearer {
-  token: {{token}}
-}
 
 docs {
   Listagem paginada de usuários, do mais recente para o mais antigo. Exclusiva do Administrador.

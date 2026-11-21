@@ -1,4 +1,5 @@
 import { badRequest, created, ok, unauthorized } from "@/lib/response";
+import { clearTokenCookie, createTokenCookie } from "@/lib/cookie";
 import { RequestContext } from "@/lib/router";
 import { authService, AuthService } from "@/modules/auth/auth.service";
 import {
@@ -24,7 +25,10 @@ export class AuthController {
     }
 
     const result = await this.service.register(value);
-    return created(result);
+    return created(
+      { user: result.user },
+      { "Set-Cookie": createTokenCookie(result.token, req) },
+    );
   }
 
   async login(req: Request): Promise<Response> {
@@ -41,7 +45,17 @@ export class AuthController {
     }
 
     const result = await this.service.login(value);
-    return ok(result);
+    return ok(
+      { user: result.user },
+      { "Set-Cookie": createTokenCookie(result.token, req) },
+    );
+  }
+
+  logout(req: Request): Response {
+    return ok(
+      { message: "Sessão encerrada." },
+      { "Set-Cookie": clearTokenCookie(req) },
+    );
   }
 
   async me(_req: Request, ctx: RequestContext): Promise<Response> {

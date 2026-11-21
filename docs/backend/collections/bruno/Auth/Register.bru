@@ -19,9 +19,3 @@ body:json {
     "city": "Lajeado"
   }
 }
-
-script:post-response {
-  if (res.status === 201 && res.body.token) {
-    bru.setEnvVar("token", res.body.token);
-  }
-}
