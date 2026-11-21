@@ -9,7 +9,8 @@
  * - Cadastra 3 produtos por categoria. Slug já existente é ignorado, então o
  *   seed pode rodar várias vezes.
  * - Envia a foto de `mock-images/<slug>.jpg` para os produtos que ainda não
- *   têm foto.
+ *   têm foto geral, e `mock-images/variacoes/<slug>--<variação>.jpg` para cada
+ *   variação ainda sem foto (vale também para produtos que já existiam).
  */
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -103,13 +104,13 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Linho Cru / Freijó",
         variationType: "FABRIC",
-        colorsHex: ["#D8CFC0", "#8A6A47"],
+        colorsHex: ["#DDD2BE", "#8E6743"],
         finishDetails: { cabeceira: "Linho Cru", estrutura: "Freijó" },
       },
       {
         name: "Linho Grafite / Nogueira",
         variationType: "FABRIC",
-        colorsHex: ["#4A4A4A", "#5C4033"],
+        colorsHex: ["#55585B", "#5E402D"],
         finishDetails: { cabeceira: "Linho Grafite", estrutura: "Nogueira" },
       },
     ],
@@ -141,13 +142,13 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Carvalho Mel / Off White",
         variationType: "WOOD",
-        colorsHex: ["#B8860B", "#F5F5EC"],
+        colorsHex: ["#B88642", "#F4EFE6"],
         finishDetails: { corpo: "Carvalho Mel", portas: "Off White" },
       },
       {
         name: "Freijó / Grafite",
         variationType: "WOOD",
-        colorsHex: ["#8A6A47", "#3C3C3C"],
+        colorsHex: ["#8E6743", "#3B3D40"],
         finishDetails: { corpo: "Freijó", portas: "Grafite" },
       },
     ],
@@ -177,12 +178,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Nature",
         variationType: "WOOD",
-        colorsHex: ["#C19A6B"],
+        colorsHex: ["#C29B6B"],
       },
       {
         name: "Branco Acetinado",
         variationType: "FINISH",
-        colorsHex: ["#F4F4F2"],
+        colorsHex: ["#F4F4F0"],
       },
     ],
   },
@@ -215,17 +216,17 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Suede Cinza",
         variationType: "FABRIC",
-        colorsHex: ["#8C8C8C"],
+        colorsHex: ["#8E9194"],
       },
       {
         name: "Linho Areia",
         variationType: "FABRIC",
-        colorsHex: ["#CDBA96"],
+        colorsHex: ["#D4C3A3"],
       },
       {
         name: "Veludo Verde Musgo",
         variationType: "FABRIC",
-        colorsHex: ["#4B5D3A"],
+        colorsHex: ["#4E6044"],
         inStock: false,
       },
     ],
@@ -256,13 +257,13 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Cinamomo / Off White",
         variationType: "WOOD",
-        colorsHex: ["#A0522D", "#F5F5EC"],
+        colorsHex: ["#A16440", "#F4EFE6"],
         finishDetails: { estrutura: "Cinamomo", portas: "Off White" },
       },
       {
         name: "Nogueira / Preto Fosco",
         variationType: "WOOD",
-        colorsHex: ["#5C4033", "#1E1E1E"],
+        colorsHex: ["#5E402D", "#242424"],
         finishDetails: { estrutura: "Nogueira", portas: "Preto Fosco" },
       },
     ],
@@ -292,12 +293,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Bouclé Off White",
         variationType: "FABRIC",
-        colorsHex: ["#EFEBE3"],
+        colorsHex: ["#EFEAE1"],
       },
       {
         name: "Veludo Terracota",
         variationType: "FABRIC",
-        colorsHex: ["#B5543C"],
+        colorsHex: ["#B85941"],
       },
     ],
   },
@@ -328,13 +329,13 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Off White / Freijó",
         variationType: "FINISH",
-        colorsHex: ["#F5F5EC", "#8A6A47"],
+        colorsHex: ["#F4EFE6", "#8E6743"],
         finishDetails: { tampo: "Off White", base: "Freijó" },
       },
       {
         name: "Preto Fosco / Nogueira",
         variationType: "FINISH",
-        colorsHex: ["#1E1E1E", "#5C4033"],
+        colorsHex: ["#242424", "#5E402D"],
         finishDetails: { tampo: "Preto Fosco", base: "Nogueira" },
       },
     ],
@@ -364,12 +365,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Linho Bege / Imbuia",
         variationType: "FABRIC",
-        colorsHex: ["#D9C9A8", "#4E3B2A"],
+        colorsHex: ["#C8B496", "#4B3224"],
       },
       {
         name: "Linho Cinza / Natural",
         variationType: "FABRIC",
-        colorsHex: ["#9E9E9E", "#C19A6B"],
+        colorsHex: ["#8E9194", "#C29B6B"],
       },
     ],
   },
@@ -398,12 +399,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Freijó",
         variationType: "WOOD",
-        colorsHex: ["#8A6A47"],
+        colorsHex: ["#8E6743"],
       },
       {
         name: "Carvalho / Off White",
         variationType: "WOOD",
-        colorsHex: ["#B8860B", "#F5F5EC"],
+        colorsHex: ["#B88642", "#F4EFE6"],
       },
     ],
   },
@@ -435,12 +436,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Branco / Freijó",
         variationType: "FINISH",
-        colorsHex: ["#FFFFFF", "#8A6A47"],
+        colorsHex: ["#FFFFFF", "#8E6743"],
       },
       {
         name: "Grafite / Carvalho",
         variationType: "FINISH",
-        colorsHex: ["#3C3C3C", "#B8860B"],
+        colorsHex: ["#3B3D40", "#B88642"],
       },
     ],
   },
@@ -474,7 +475,7 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Grafite",
         variationType: "COLOR",
-        colorsHex: ["#3C3C3C"],
+        colorsHex: ["#3B3D40"],
       },
     ],
   },
@@ -503,12 +504,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Natural",
         variationType: "WOOD",
-        colorsHex: ["#C19A6B"],
+        colorsHex: ["#C29B6B"],
       },
       {
         name: "Preto",
         variationType: "COLOR",
-        colorsHex: ["#1E1E1E"],
+        colorsHex: ["#242424"],
       },
     ],
   },
@@ -540,12 +541,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Carvalho / Preto",
         variationType: "FINISH",
-        colorsHex: ["#B8860B", "#1E1E1E"],
+        colorsHex: ["#B88642", "#242424"],
       },
       {
         name: "Off White / Branco",
         variationType: "FINISH",
-        colorsHex: ["#F5F5EC", "#FFFFFF"],
+        colorsHex: ["#F4EFE6", "#FFFFFF"],
       },
     ],
   },
@@ -575,12 +576,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Couro Sintético Preto",
         variationType: "FABRIC",
-        colorsHex: ["#1E1E1E"],
+        colorsHex: ["#242424"],
       },
       {
         name: "Tela Mesh Cinza",
         variationType: "FABRIC",
-        colorsHex: ["#7A7A7A"],
+        colorsHex: ["#7D7F7D"],
       },
     ],
   },
@@ -609,7 +610,7 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Freijó",
         variationType: "WOOD",
-        colorsHex: ["#8A6A47"],
+        colorsHex: ["#8E6743"],
       },
       {
         name: "Branco",
@@ -651,7 +652,7 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Carvalho Malva",
         variationType: "WOOD",
-        colorsHex: ["#A67B5B"],
+        colorsHex: ["#9E7656"],
       },
     ],
   },
@@ -685,7 +686,7 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Carvalho Malva",
         variationType: "WOOD",
-        colorsHex: ["#A67B5B"],
+        colorsHex: ["#9E7656"],
       },
     ],
   },
@@ -714,12 +715,12 @@ const PRODUCTS: MockProduct[] = [
       {
         name: "Off White",
         variationType: "COLOR",
-        colorsHex: ["#F5F5EC"],
+        colorsHex: ["#F4EFE6"],
       },
       {
         name: "Freijó",
         variationType: "WOOD",
-        colorsHex: ["#8A6A47"],
+        colorsHex: ["#8E6743"],
       },
     ],
   },
@@ -794,7 +795,8 @@ async function findProductBySlug(
     SELECT p.id,
            EXISTS (
              SELECT 1 FROM product_images pi
-             WHERE pi.product_id = p.id AND pi.deleted_at IS NULL
+             WHERE pi.product_id = p.id AND pi.variation_id IS NULL
+               AND pi.deleted_at IS NULL
            ) AS "hasImage"
     FROM products p
     WHERE p.slug = ${slug} AND p.deleted_at IS NULL
@@ -863,9 +865,13 @@ async function createProducts(
 }
 
 // O service de fotos lê um multipart com Content-Length, como na rota da API.
-async function buildUploadRequest(path: string): Promise<Request> {
+async function buildUploadRequest(
+  path: string,
+  variationId?: string,
+): Promise<Request> {
   const form = new FormData();
   form.append("file", Bun.file(path));
+  if (variationId) form.append("variationId", variationId);
   const encoded = new Request("http://seed.local/upload", {
     method: "POST",
     body: form,
@@ -887,25 +893,50 @@ async function uploadImages(admin: AuthenticatedUser) {
   let uploaded = 0;
   let missing = 0;
 
+  const send = async (
+    productId: string,
+    file: string,
+    label: string,
+    variationId?: string,
+  ) => {
+    const path = join(MOCK_IMAGES_DIR, file);
+    if (!existsSync(path)) {
+      missing++;
+      console.log(`! Sem foto em mock-images/: ${file}`);
+      return;
+    }
+    await productImagesService.uploadProductImage(
+      productId,
+      admin,
+      await buildUploadRequest(path, variationId),
+    );
+    uploaded++;
+    console.log(`+ Foto enviada: ${label}`);
+  };
+
   for (const mock of PRODUCTS) {
     const slug = slugify(mock.name);
     const product = await findProductBySlug(slug);
-    if (!product || product.hasImage) continue;
+    if (!product) continue;
+    if (!product.hasImage) await send(product.id, `${slug}.jpg`, mock.name);
 
-    const path = join(MOCK_IMAGES_DIR, `${slug}.jpg`);
-    if (!existsSync(path)) {
-      missing++;
-      console.log(`! Sem foto em mock-images/: ${slug}`);
-      continue;
+    const variations = await sql<{ id: string; name: string }[]>`
+      SELECT v.id, v.name FROM product_variations v
+      WHERE v.product_id = ${product.id} AND v.deleted_at IS NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM product_images pi
+          WHERE pi.variation_id = v.id AND pi.deleted_at IS NULL
+        )
+      ORDER BY v.sort_order;
+    `;
+    for (const v of variations) {
+      await send(
+        product.id,
+        `variacoes/${slug}--${slugify(v.name)}.jpg`,
+        `${mock.name} — ${v.name}`,
+        v.id,
+      );
     }
-
-    await productImagesService.uploadProductImage(
-      product.id,
-      admin,
-      await buildUploadRequest(path),
-    );
-    uploaded++;
-    console.log(`+ Foto enviada: ${mock.name}`);
   }
 
   console.log(`✓ Fotos: ${uploaded} enviadas, ${missing} sem arquivo.`);

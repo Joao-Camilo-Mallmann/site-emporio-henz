@@ -1,0 +1,29 @@
+meta {
+  name: Listar Fornecedores (Admin / Vendedor)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/suppliers?page=1&limit=20
+  body: none
+  auth: bearer
+}
+
+params:query {
+  page: 1
+  limit: 20
+  ~search: henz
+  ~active: true
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  Com token de Administrador, lista todos os fornecedores não deletados (ativos e inativos), inclui `contact`, aceita o filtro `active=true|false` e busca em `name` e `contact` (RF05).
+  Com token de Vendedor, lista apenas os fornecedores aos quais está vinculado ativamente (`user_suppliers`), com `contact` preservado; vendedor sem vínculo recebe `200` com `data: []` e `total: 0` (RF16).
+  Tokens de Cliente ou requisições sem token recebem a resposta pública (somente ativos e `contact: null`).
+  Resposta 200: `{ data: [...], pagination: { page, limit, total, totalPages } }`.
+}

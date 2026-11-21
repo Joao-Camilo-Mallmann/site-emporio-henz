@@ -20,6 +20,7 @@ params:query {
   ~availabilityType: ON_DEMAND
   ~minPrice: 1000
   ~maxPrice: 3000
+  ~colors: madeira-media,off-white-bege
   ~active: true
   ~status: active
 }
@@ -29,7 +30,7 @@ docs {
   Listagem administrativa paginada de produtos:
   - **Administrador (`role = 3`)**: visão global de todos os fornecedores, incluindo ativos e inativos (`active=true|false` ou `status=active|inactive`).
   - **Vendedor (`role = 2`)**: retorna exclusivamente produtos dos fornecedores vinculados ativamente ao vendedor em `user_suppliers`. Retorna `403 Forbidden` se o vendedor não possuir nenhum vínculo ativo ou se informar um `supplierId` fora de seus vínculos.
-  - Aceita os mesmos filtros da listagem pública, incluindo a faixa de preço `minPrice` / `maxPrice`.
+  - Aceita os mesmos filtros da listagem pública, incluindo `colors` e a faixa de preço `minPrice` / `maxPrice`.
   - O `search` segue a mesma regra da listagem pública: normalizado para a forma de slug (sem acentos, minúsculas, separadores viram hífen) e comparado com nome, descrição e linha/coleção também normalizados. `ROUPEIRO_Romã` encontra "Roupeiro Roma".
-  - Cada item traz `thumbnailUrl` da capa (primeira foto ativa sem variação; depois a primeira de variação; `null` sem foto), como na listagem pública.
+  - Cada item traz `supplierName` (nome do fornecedor vinculado, ou `null` se removido logicamente) e `thumbnailUrl` da capa (primeira foto ativa sem variação; depois a primeira de variação; `null` sem foto), como na listagem pública.
 }

@@ -234,6 +234,21 @@ onMounted(() => {
                 <span>Painel Admin</span>
               </UiButton>
 
+              <UiButton
+                v-if="authStore.isEquipe"
+                variant="custom"
+                size="none"
+                block
+                @click="navigateTo('/admin/atendimento')"
+                class="w-full flex items-center justify-start gap-3.5 py-2.5 px-1 font-semibold text-white hover:text-amber-200 hover:bg-white/10 rounded-lg transition-colors cursor-pointer group text-left"
+              >
+                <Icon
+                  icon="mdi:face-agent"
+                  class="w-5 h-5 text-white shrink-0 transition-colors group-hover:text-amber-200"
+                />
+                <span>Atendimento</span>
+              </UiButton>
+
               <!-- Minha conta / Editar Usuário / Meu Perfil -->
               <UiButton
                 variant="custom"

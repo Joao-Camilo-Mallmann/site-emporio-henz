@@ -1,7 +1,18 @@
 <script setup lang="ts">
+import CatalogoFiltroAtributos from "@/components/catalogo/CatalogoFiltroAtributos.vue";
 import UiButton from "@/components/ui/UiButton.vue";
+import {
+  encontrarFornecedor,
+  useFornecedoresCatalogo,
+} from "@/composables/useCatalogoProdutos";
 import { encontrarCategoria, useCategoriasStore } from "@/stores/categorias";
-import type { CatalogAvailability, CatalogFilterParams, Subtype } from "@/types";
+import type {
+  CatalogAvailability,
+  CatalogFilterParams,
+  ColorGroupSlug,
+  Subtype,
+  Supplier,
+} from "@/types";
 import { slugify } from "@/utils/slug";
 import { storeToRefs } from "pinia";
 import { computed, onMounted, ref, watch } from "vue";
@@ -24,16 +35,27 @@ const {
   error: categoriasError,
 } = storeToRefs(categoriasStore);
 
+// Fornecedores ativos vindos de GET /suppliers (listagem pública)
+const {
+  lista: fornecedores,
+  loading: fornecedoresLoading,
+  error: fornecedoresError,
+  carregar: carregarFornecedores,
+} = useFornecedoresCatalogo();
+
 onMounted(() => {
   categoriasStore.carregar();
+  carregarFornecedores();
 });
 
 // Estado local reativo sincronizado com props.filters
 const localCategoria = ref(props.filters.categoria || "");
 const localSubcategoria = ref(props.filters.subcategoria || "");
+const localFornecedor = ref(props.filters.fornecedor || "");
 const localDisponibilidade = ref<CatalogAvailability[]>([
   ...(props.filters.disponibilidade || []),
 ]);
+const localCores = ref<ColorGroupSlug[]>([...(props.filters.cores || [])]);
 const localMinPreco = ref<number | undefined>(props.filters.minPreco);
 const localMaxPreco = ref<number | undefined>(props.filters.maxPreco);
 
@@ -42,14 +64,16 @@ watch(
   (newVal) => {
     localCategoria.value = newVal.categoria || "";
     localSubcategoria.value = newVal.subcategoria || "";
+    localFornecedor.value = newVal.fornecedor || "";
     localDisponibilidade.value = [...(newVal.disponibilidade || [])];
+    localCores.value = [...(newVal.cores || [])];
     localMinPreco.value = newVal.minPreco;
     localMaxPreco.value = newVal.maxPreco;
   },
   { deep: true },
 );
 
-// A URL guarda o slug da categoria e o nome (ou slug) do subtipo
+// A URL guarda o slug da categoria, o nome (ou slug) do subtipo e o slug (ou UUID) do fornecedor
 const categoriaSelecionada = computed(() =>
   localCategoria.value
     ? encontrarCategoria(categorias.value, slugify(localCategoria.value))
@@ -60,6 +84,12 @@ const subcategoriasDisponiveis = computed<Subtype[]>(
   () => categoriaSelecionada.value?.subtypes ?? [],
 );
 
+const fornecedorSelecionado = computed(() =>
+  localFornecedor.value
+    ? encontrarFornecedor(fornecedores.value, localFornecedor.value)
+    : undefined,
+);
+
 function isCategoriaAtiva(slug: string) {
   return categoriaSelecionada.value?.slug === slug;
 }
@@ -68,6 +98,10 @@ function isSubcategoriaAtiva(sub: Subtype) {
   if (!localSubcategoria.value) return false;
   const alvo = slugify(localSubcategoria.value);
   return sub.slug === alvo || slugify(sub.name) === alvo;
+}
+
+function isFornecedorAtivo(supplier: Supplier) {
+  return fornecedorSelecionado.value?.id === supplier.id;
 }
 
 function toggleCategory(slug: string) {
@@ -83,55 +117,12 @@ function toggleSubcategory(sub: Subtype) {
   emit("apply");
 }
 
-const availabilityOptions: { value: CatalogAvailability; label: string }[] = [
-  { value: "IN_STOCK", label: "Pronta Entrega" },
-  { value: "ON_DEMAND", label: "Sob Encomenda" },
-];
-
-function toggleAvailability(value: CatalogAvailability) {
-  const index = localDisponibilidade.value.indexOf(value);
-  if (index > -1) {
-    localDisponibilidade.value.splice(index, 1);
-  } else {
-    localDisponibilidade.value.push(value);
-  }
+function toggleSupplier(supplier: Supplier) {
+  localFornecedor.value = isFornecedorAtivo(supplier)
+    ? ""
+    : slugify(supplier.name);
   emitFilterChange();
-}
-
-// Slider de faixa de preço (dois pontos)
-const PRICE_MIN = 0;
-const PRICE_MAX = 10000;
-const PRICE_STEP = 100;
-
-const sliderMin = computed<number>({
-  get: () => localMinPreco.value ?? PRICE_MIN,
-  set: (v) => {
-    const clamped = Math.min(v, sliderMax.value - PRICE_STEP);
-    localMinPreco.value = clamped <= PRICE_MIN ? undefined : clamped;
-  },
-});
-
-const sliderMax = computed<number>({
-  get: () => localMaxPreco.value ?? PRICE_MAX,
-  set: (v) => {
-    const clamped = Math.max(v, sliderMin.value + PRICE_STEP);
-    localMaxPreco.value = clamped >= PRICE_MAX ? undefined : clamped;
-  },
-});
-
-const minPercent = computed(
-  () => ((sliderMin.value - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100,
-);
-const maxPercent = computed(
-  () => ((sliderMax.value - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100,
-);
-
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 0,
-  }).format(value);
+  emit("apply");
 }
 
 function emitFilterChange() {
@@ -139,9 +130,11 @@ function emitFilterChange() {
     ...props.filters,
     categoria: localCategoria.value || undefined,
     subcategoria: localSubcategoria.value || undefined,
+    fornecedor: localFornecedor.value || undefined,
     disponibilidade: localDisponibilidade.value.length
       ? [...localDisponibilidade.value]
       : undefined,
+    cores: localCores.value.length ? [...localCores.value] : undefined,
     minPreco: localMinPreco.value,
     maxPreco: localMaxPreco.value,
     page: 1,
@@ -157,7 +150,9 @@ function handleApply() {
 function handleReset() {
   localCategoria.value = "";
   localSubcategoria.value = "";
+  localFornecedor.value = "";
   localDisponibilidade.value = [];
+  localCores.value = [];
   localMinPreco.value = undefined;
   localMaxPreco.value = undefined;
 
@@ -231,7 +226,6 @@ function handleReset() {
       </div>
     </div>
 
-    <!-- Divisória Sutil de Seção -->
     <hr class="border-stone-200 my-4" />
 
     <!-- Seção: Subcategoria (subtipos da categoria escolhida) -->
@@ -267,78 +261,63 @@ function handleReset() {
       <hr class="border-stone-200 my-4" />
     </template>
 
-     <!-- Seção: Disponibilidade -->
+    <!-- Seção: Fornecedor -->
     <div class="mb-5">
-      <h3 class="text-sm font-bold text-stone-900 mb-2.5">Disponibilidade</h3>
-      <div class="space-y-2.5">
-        <label
-          v-for="opt in availabilityOptions"
-          :key="opt.value"
-          class="flex items-center gap-2.5 text-xs sm:text-sm text-stone-700 cursor-pointer select-none group"
+      <h3 class="text-sm font-bold text-stone-900 mb-2.5">Fornecedor</h3>
+      <div
+        v-if="fornecedoresLoading && fornecedores.length === 0"
+        class="flex flex-wrap gap-2"
+        aria-hidden="true"
+      >
+        <span
+          v-for="n in 4"
+          :key="n"
+          class="h-7 w-24 rounded-lg bg-stone-100 animate-pulse"
+        ></span>
+      </div>
+      <p
+        v-else-if="fornecedores.length === 0"
+        class="text-xs text-stone-500"
+        role="status"
+      >
+        {{ fornecedoresError || "Nenhum fornecedor disponível." }}
+      </p>
+      <div v-else class="flex flex-wrap gap-2">
+        <UiButton
+          v-for="sup in fornecedores"
+          :key="sup.id"
+          variant="custom"
+          size="xs"
+          class="font-normal border text-xs py-1.5 px-3 rounded-lg transition-all"
+          :class="
+            isFornecedorAtivo(sup)
+              ? 'bg-sky-50 border-secondary text-secondary font-medium'
+              : 'bg-white border-stone-200 text-stone-700 hover:border-stone-400 hover:bg-stone-50'
+          "
+          :aria-pressed="isFornecedorAtivo(sup)"
+          @click="toggleSupplier(sup)"
         >
-          <input
-            type="checkbox"
-            :checked="localDisponibilidade.includes(opt.value)"
-            @change="toggleAvailability(opt.value)"
-            class="w-4 h-4 rounded border-stone-300 text-secondary focus:ring-secondary/20 cursor-pointer"
-          />
-          <span class="group-hover:text-stone-900 transition-colors">{{
-            opt.label
-          }}</span>
-        </label>
+          <span
+            v-if="isFornecedorAtivo(sup)"
+            class="text-xs font-bold leading-none mr-1"
+          >
+            ✕
+          </span>
+          <span>{{ sup.name }}</span>
+        </UiButton>
       </div>
     </div>
 
     <hr class="border-stone-200 my-4" />
 
-    <!-- Seção: Faixa de Preço -->
-     <div class="mb-6">
-      <h3 class="text-sm font-bold text-stone-900 mb-2.5">Faixa de preço</h3>
-
-      <div
-        class="flex items-center justify-between text-xs sm:text-sm text-stone-700 mb-3"
-      >
-        <span>{{ formatPrice(sliderMin) }}</span>
-        <span>{{
-          sliderMax >= PRICE_MAX
-            ? `${formatPrice(PRICE_MAX)}+`
-            : formatPrice(sliderMax)
-        }}</span>
-      </div>
-
-      <div class="price-slider relative h-6 mx-1">
-        <!-- Trilho e faixa selecionada -->
-        <div
-          class="absolute top-1/2 -translate-y-1/2 h-1 w-full rounded bg-stone-200"
-        ></div>
-        <div
-          class="absolute top-1/2 -translate-y-1/2 h-1 rounded bg-secondary"
-          :style="{
-            left: minPercent + '%',
-            width: maxPercent - minPercent + '%',
-          }"
-        ></div>
-
-        <input
-          v-model.number="sliderMin"
-          type="range"
-          :min="PRICE_MIN"
-          :max="PRICE_MAX"
-          :step="PRICE_STEP"
-          aria-label="Preço mínimo"
-          @input="emitFilterChange"
-        />
-        <input
-          v-model.number="sliderMax"
-          type="range"
-          :min="PRICE_MIN"
-          :max="PRICE_MAX"
-          :step="PRICE_STEP"
-          aria-label="Preço máximo"
-          @input="emitFilterChange"
-        />
-      </div>
-    </div>
+    <!-- Seções: Disponibilidade, Cor e Faixa de Preço -->
+    <CatalogoFiltroAtributos
+      v-model:disponibilidade="localDisponibilidade"
+      v-model:cores="localCores"
+      v-model:min-preco="localMinPreco"
+      v-model:max-preco="localMaxPreco"
+      @change="emitFilterChange"
+    />
 
     <!-- Botões de Ação com UiButton -->
     <div class="space-y-2 pt-2">
@@ -361,52 +340,3 @@ function handleReset() {
     </div>
   </aside>
 </template>
-<style scoped>
-/* Dois <input type="range"> sobrepostos: só as bolinhas recebem clique */
-.price-slider input[type="range"] {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  background: transparent;
-  pointer-events: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.price-slider input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px;
-  background: transparent;
-}
-
-.price-slider input[type="range"]::-moz-range-track {
-  height: 4px;
-  background: transparent;
-}
-
-.price-slider input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  pointer-events: auto;
-  width: 18px;
-  height: 18px;
-  margin-top: -7px;
-  border-radius: 9999px;
-  background: white;
-  border: 2px solid var(--color-secondary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-}
-
-.price-slider input[type="range"]::-moz-range-thumb {
-  pointer-events: auto;
-  width: 14px;
-  height: 14px;
-  border-radius: 9999px;
-  background: white;
-  border: 2px solid var(--color-secondary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-}
-</style>

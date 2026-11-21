@@ -12,7 +12,7 @@ import { storeToRefs } from "pinia";
 import { computed, watch } from "vue";
 
 // Etapa 1 do formulário de produto: nome, slug, categoria, subtipo,
-// fornecedor, linha, material e descrição. O slug acompanha o nome até ser
+// fornecedor, linha, material, descrição e status no catálogo. O slug acompanha o nome até ser
 // editado, e trocar a categoria limpa o subtipo escolhido.
 
 const store = useProdutoFormStore();
@@ -245,6 +245,28 @@ watch(
           placeholder="Conte o que torna o móvel especial: materiais, uso e diferenciais."
         />
       </div>
+
+      <!-- Status no catálogo -->
+      <label
+        :for="FIELD_IDS.active"
+        class="sm:col-span-6 flex items-start gap-3 cursor-pointer select-none border-t border-stone-100 pt-5"
+      >
+        <input
+          :id="FIELD_IDS.active"
+          v-model="form.active"
+          type="checkbox"
+          class="mt-0.5 w-4 h-4 rounded border-stone-300 text-secondary focus:ring-secondary cursor-pointer disabled:cursor-not-allowed"
+        />
+        <span>
+          <span class="text-sm font-medium text-neutral-dark block"
+            >Produto ativo no catálogo</span
+          >
+          <span class="text-xs text-stone-500 block mt-0.5">
+            Produtos inativos ficam guardados no painel e não aparecem para os
+            clientes.
+          </span>
+        </span>
+      </label>
     </fieldset>
   </ProdutoEtapaCartao>
 </template>

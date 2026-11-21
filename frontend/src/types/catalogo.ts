@@ -2,6 +2,35 @@ import type { PaginationParams } from "./pagination";
 
 export type CatalogAvailability = "IN_STOCK" | "ON_DEMAND";
 
+export type ColorGroupSlug =
+  | "madeira-clara"
+  | "madeira-escura"
+  | "off-white-bege"
+  | "preto"
+  | "madeira-media"
+  | "branco"
+  | "cinza"
+  | "verde"
+  | "azul"
+  | "terracota-rose-vinho"
+  | "amarelo-dourado";
+
+export interface ColorGroupOption {
+  slug: ColorGroupSlug;
+  name: string;
+  hex: string;
+  /** Verdadeiro para tons claros, que usam ícone escuro no estado selecionado. */
+  light?: boolean;
+}
+
+export interface FurnitureColorOption {
+  slug: string;
+  name: string;
+  hex: string;
+  group: ColorGroupSlug;
+  light?: boolean;
+}
+
 export interface CatalogVariationBadge {
   color: string;
   label?: string;
@@ -16,6 +45,8 @@ export interface CatalogProductItem {
   image: string;
   category: string;
   subcategory?: string;
+  supplierId?: string;
+  supplierName?: string;
   material?: string;
   brand?: string;
   finishes: CatalogVariationBadge[];
@@ -23,12 +54,14 @@ export interface CatalogProductItem {
   estimatedDays?: number;
 }
 
-/** Estado de filtros da tela do catálogo, espelhado na URL (`?categoria=&subcategoria=&name=...`). */
+/** Estado de filtros da tela do catálogo, espelhado na URL (`?categoria=&subcategoria=&fornecedor=&cores=&name=...`). */
 export interface CatalogFilterParams {
   name?: string;
   categoria?: string;
   subcategoria?: string;
+  fornecedor?: string;
   disponibilidade?: CatalogAvailability[];
+  cores?: ColorGroupSlug[];
   minPreco?: number;
   maxPreco?: number;
   page?: number;
@@ -40,7 +73,9 @@ export interface CatalogApiParams extends PaginationParams {
   search?: string;
   categoryId?: string;
   subtypeId?: string;
+  supplierId?: string;
   availabilityType?: CatalogAvailability;
+  colors?: string;
   minPrice?: number;
   maxPrice?: number;
 }
@@ -78,6 +113,8 @@ export interface ProductDetail {
   description: string;
   category: string;
   subcategory?: string;
+  supplierId?: string;
+  supplierName?: string;
   brand?: string;
   line?: string;
   mainFeatures?: string[];

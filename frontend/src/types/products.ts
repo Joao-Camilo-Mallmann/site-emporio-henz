@@ -44,6 +44,7 @@ export interface ProductListItemDto {
   categoryId: string;
   subtypeId: string | null;
   supplierId: string;
+  supplierName?: string | null;
   name: string;
   slug: string;
   collectionLine: string | null;

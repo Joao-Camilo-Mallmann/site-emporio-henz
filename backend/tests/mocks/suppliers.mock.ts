@@ -7,6 +7,7 @@ import {
   UpdateSupplierDto,
 } from "@/modules/suppliers/suppliers.types";
 import { paginate, resolvePagination } from "@/lib/pagination";
+import { slugify } from "@/lib/slug";
 
 export class MockSuppliersRepository extends SuppliersRepository {
   public suppliers: (SupplierDto & { deleted: boolean })[] = [];
@@ -17,7 +18,8 @@ export class MockSuppliersRepository extends SuppliersRepository {
     filters: SupplierQueryFilters = {},
   ): Promise<PaginatedSuppliersResult> {
     const { page, limit, offset } = resolvePagination(filters);
-    const search = filters.search?.toLowerCase();
+    const search = filters.search;
+    const includeContact = filters.includeContact !== false;
     const items = this.suppliers
       .filter((s) => !s.deleted)
       .filter(
@@ -31,8 +33,24 @@ export class MockSuppliersRepository extends SuppliersRepository {
           ),
       )
       .filter((s) => filters.active === undefined || s.active === filters.active)
-      .filter((s) => !search || s.name.toLowerCase().includes(search))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .filter((s) => {
+        if (!search) return true;
+        const nameMatch = slugify(s.name).includes(search);
+        const contactMatch =
+          includeContact && s.contact
+            ? slugify(s.contact).includes(search)
+            : false;
+        return nameMatch || contactMatch;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        contact: includeContact ? s.contact : null,
+        active: s.active,
+        createdAt: s.createdAt,
+        updatedAt: s.updatedAt,
+      }));
 
     return paginate(items.slice(offset, offset + limit), items.length, {
       page,

@@ -4,19 +4,11 @@ import { escapeLike, paginate, resolvePagination } from "@/lib/pagination";
 import {
   CreateSupplierDto,
   PaginatedSuppliersResult,
+  SupplierDbRow,
   SupplierDto,
   SupplierQueryFilters,
   UpdateSupplierDto,
 } from "@/modules/suppliers/suppliers.types";
-
-interface SupplierDbRow {
-  id: string;
-  name: string;
-  contact: string | null;
-  active: boolean;
-  created_at: Date;
-  updated_at: Date;
-}
 
 export class SuppliersRepository {
   async list(
@@ -26,6 +18,10 @@ export class SuppliersRepository {
     const search = filters.search ? escapeLike(filters.search) : null;
     const active = filters.active !== undefined ? filters.active : null;
     const linkedUserId = filters.linkedUserId ?? null;
+    const includeContact = filters.includeContact !== false;
+    const searchColumns = includeContact
+      ? [sql`name`, sql`contact`]
+      : [sql`name`];
 
     const [countRows, rows] = await Promise.all([
       sql<{ count: string }[]>`
@@ -37,7 +33,7 @@ export class SuppliersRepository {
             SELECT us.supplier_id FROM user_suppliers us
             WHERE us.user_id = ${linkedUserId}::uuid AND us.deleted_at IS NULL
           ))
-          AND ${slugSearchCondition(search, [sql`name`, sql`contact`])}
+          AND ${slugSearchCondition(search, searchColumns)}
       `,
       sql<SupplierDbRow[]>`
         SELECT id, name, contact, active, created_at, updated_at
@@ -48,7 +44,7 @@ export class SuppliersRepository {
             SELECT us.supplier_id FROM user_suppliers us
             WHERE us.user_id = ${linkedUserId}::uuid AND us.deleted_at IS NULL
           ))
-          AND ${slugSearchCondition(search, [sql`name`, sql`contact`])}
+          AND ${slugSearchCondition(search, searchColumns)}
         ORDER BY name ASC
         LIMIT ${limit} OFFSET ${offset}
       `,
@@ -58,7 +54,7 @@ export class SuppliersRepository {
     const data = rows.map((r: SupplierDbRow) => ({
       id: r.id,
       name: r.name,
-      contact: r.contact,
+      contact: includeContact ? r.contact : null,
       active: r.active,
       createdAt: r.created_at?.toISOString(),
       updatedAt: r.updated_at?.toISOString(),

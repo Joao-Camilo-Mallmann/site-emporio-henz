@@ -23,7 +23,6 @@ import {
   apiErrorMessage,
   createKeyValueRow,
   createLocalKey,
-  DEFAULT_VARIATION_COLOR,
   FIELD_IDS,
   INSTALLMENTS_MIN,
   normalizeHexColor,
@@ -202,10 +201,7 @@ function formFromProduct(product: ProductDto): ProductFormState {
         id: variation.id,
         name: variation.name ?? "",
         variationType: variation.variationType,
-        colorsHex:
-          variation.colorsHex.length > 0
-            ? variation.colorsHex.map(normalizeHexColor)
-            : [DEFAULT_VARIATION_COLOR],
+        colorsHex: variation.colorsHex.map(normalizeHexColor),
         finishDetails: recordToRows(variation.finishDetails),
         inStock: variation.inStock,
         sample: null,

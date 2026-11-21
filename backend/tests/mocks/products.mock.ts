@@ -54,6 +54,12 @@ export class MockProductsRepository extends ProductsRepository {
     { id: "sub-sofa", categoryId: "cat-sala" },
   ];
   public suppliers: string[] = [SUP_A_ID, SUP_B_ID, SUP_C_ID, "sup-henz"];
+  public supplierNames: Record<string, string> = {
+    [SUP_A_ID]: "Fornecedor A",
+    [SUP_B_ID]: "Fornecedor B",
+    [SUP_C_ID]: "Fornecedor C",
+    "sup-henz": "Empório Henz",
+  };
   public sellerSuppliers: { userId: string; supplierId: string }[] = [];
 
   async listPaginated(
@@ -94,6 +100,16 @@ export class MockProductsRepository extends ProductsRepository {
         return false;
       if (filters.active !== undefined && p.active !== filters.active) {
         return false;
+      }
+      if (filters.colorHexes && filters.colorHexes.length > 0) {
+        const wanted = new Set(filters.colorHexes.map((c) => c.toUpperCase()));
+        const hasMatchingColor = this.variations.some(
+          (v) =>
+            v.productId === p.id &&
+            !v.deleted &&
+            v.colorsHex.some((c) => wanted.has(c.toUpperCase())),
+        );
+        if (!hasMatchingColor) return false;
       }
       if (search) {
         const matchesName = slugify(p.name).includes(search);
@@ -232,6 +248,7 @@ export class MockProductsRepository extends ProductsRepository {
       categoryId: data.categoryId,
       subtypeId: data.subtypeId ?? null,
       supplierId: data.supplierId,
+      supplierName: this.supplierNames[data.supplierId] ?? null,
       name: data.name,
       slug: data.slug,
       collectionLine: data.collectionLine ?? null,
@@ -405,6 +422,10 @@ export function createDummyProduct(
     subtypeId:
       overrides.subtypeId !== undefined ? overrides.subtypeId : "sub-sofa",
     supplierId: overrides.supplierId || "sup-henz",
+    supplierName:
+      overrides.supplierName !== undefined
+        ? overrides.supplierName
+        : "Empório Henz",
     name: overrides.name || "Sofá Retrátil",
     slug: overrides.slug || "sofa-retratil",
     collectionLine: overrides.collectionLine || "Conforto",

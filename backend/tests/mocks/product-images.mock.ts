@@ -41,6 +41,7 @@ export function product(id: string, supplierId: string): ProductDto {
     categoryId: "11111111-1111-4111-a111-111111111111",
     subtypeId: null,
     supplierId,
+    supplierName: "Fornecedor Teste",
     name: `Produto ${id.slice(0, 4)}`,
     slug: `produto-${id.slice(0, 4)}`,
     collectionLine: null,

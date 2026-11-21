@@ -4,9 +4,11 @@ import CatalogoProdutoCard from "@/components/catalogo/CatalogoProdutoCard.vue";
 import UiButton from "@/components/ui/UiButton.vue";
 import {
   CATALOGO_POR_PAGINA,
+  encontrarFornecedor,
   lerFiltrosDaRota,
   montarQueryDaRota,
   useCatalogoProdutos,
+  useFornecedoresCatalogo,
 } from "@/composables/useCatalogoProdutos";
 import { encontrarCategoria, useCategoriasStore } from "@/stores/categorias";
 import type { CatalogFilterParams } from "@/types";
@@ -18,6 +20,7 @@ import { useRoute, useRouter } from "vue-router";
 const route = useRoute();
 const router = useRouter();
 const categoriasStore = useCategoriasStore();
+const fornecedoresCatalogo = useFornecedoresCatalogo();
 
 // Produtos e paginação vêm de GET /produtos; filtros e paginação ficam no servidor
 const {
@@ -103,7 +106,7 @@ function handleResetFilters() {
   isMobileFiltersOpen.value = false;
 }
 
-// Nomes para o resumo: a URL guarda o slug da categoria e o nome (ou slug) do subtipo
+// Nomes para o resumo: a URL guarda o slug da categoria, o nome (ou slug) do subtipo e o slug do fornecedor
 const categoriaAtual = computed(() =>
   filters.value.categoria
     ? encontrarCategoria(
@@ -127,6 +130,14 @@ const subcategoriaLabel = computed(() => {
   return subtipo?.name ?? valor;
 });
 
+const fornecedorLabel = computed(() => {
+  const valor = filters.value.fornecedor;
+  if (!valor) return "";
+  return (
+    encontrarFornecedor(fornecedoresCatalogo.lista.value, valor)?.name ?? valor
+  );
+});
+
 const totalLabel = computed(() => {
   const total = pagination.value.total;
   return total === 1 ? "1 móvel" : `${total} móveis`;
@@ -136,7 +147,9 @@ const activeFiltersCount = computed(() => {
   let count = 0;
   if (filters.value.categoria) count++;
   if (filters.value.subcategoria) count++;
+  if (filters.value.fornecedor) count++;
   count += filters.value.disponibilidade?.length ?? 0;
+  count += filters.value.cores?.length ?? 0;
   if (
     filters.value.minPreco !== undefined ||
     filters.value.maxPreco !== undefined
@@ -180,6 +193,12 @@ const activeFiltersCount = computed(() => {
           <template v-else-if="filters.categoria">
             Exibindo móveis para
             <span class="font-bold text-stone-900">“{{ categoriaLabel }}”</span>
+          </template>
+          <template v-else-if="filters.fornecedor">
+            Exibindo móveis de
+            <span class="font-bold text-stone-900"
+              >“{{ fornecedorLabel }}”</span
+            >
           </template>
           <template v-else> Todos os móveis do catálogo </template>
         </h1>
@@ -247,6 +266,12 @@ const activeFiltersCount = computed(() => {
                   Exibindo móveis para
                   <span class="font-bold text-stone-900">{{
                     categoriaLabel
+                  }}</span>
+                </template>
+                <template v-else-if="filters.fornecedor">
+                  Exibindo móveis de
+                  <span class="font-bold text-stone-900">{{
+                    fornecedorLabel
                   }}</span>
                 </template>
                 <template v-else> Todos os móveis do catálogo </template>

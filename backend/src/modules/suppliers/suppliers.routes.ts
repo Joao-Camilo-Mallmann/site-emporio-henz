@@ -1,16 +1,15 @@
 import { Router } from "@/lib/router";
-import { authMiddleware } from "@/middlewares/auth";
+import { attachUserIfAuthenticated, authMiddleware } from "@/middlewares/auth";
 import { requireRole, ROLES } from "@/middlewares/rbac";
 import { suppliersController } from "@/modules/suppliers/suppliers.controller";
 
 export const suppliersRoutes = new Router();
 
-// Leitura: Permitida para ADMIN (3) e VENDEDOR (2)
-suppliersRoutes.get(
-  "/",
-  authMiddleware,
-  requireRole(ROLES.SELLER, ROLES.ADMIN),
-  (req, ctx) => suppliersController.list(req, ctx),
+// Leitura pública da listagem de fornecedores.
+// Visitantes/CLIENTES recebem apenas fornecedores ativos (sem contato);
+// VENDEDOR (2) recebe apenas fornecedores vinculados (RF16); ADMIN (3) recebe todos.
+suppliersRoutes.get("/", attachUserIfAuthenticated, (req, ctx) =>
+  suppliersController.list(req, ctx),
 );
 
 suppliersRoutes.get(

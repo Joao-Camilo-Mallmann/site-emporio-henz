@@ -17,11 +17,30 @@ export class SuppliersService {
     filters: SupplierQueryFilters = {},
     actor?: AuthenticatedUser,
   ): Promise<PaginatedSuppliersResult> {
+    if (actor?.role === ROLES.ADMIN) {
+      return await this.repo.list({
+        ...filters,
+        linkedUserId: undefined,
+        includeContact: true,
+      });
+    }
+
     // Vendedor enxerga só as empresas às quais está vinculado (RF16); sem vínculo = lista vazia.
     if (actor?.role === ROLES.SELLER) {
-      return await this.repo.list({ ...filters, linkedUserId: actor.id });
+      return await this.repo.list({
+        ...filters,
+        linkedUserId: actor.id,
+        includeContact: true,
+      });
     }
-    return await this.repo.list({ ...filters, linkedUserId: undefined });
+
+    // Acesso público (visitante anônimo ou cliente): apenas fornecedores ativos, sem expor contato B2B.
+    return await this.repo.list({
+      ...filters,
+      active: true,
+      linkedUserId: undefined,
+      includeContact: false,
+    });
   }
 
   async getById(id: string): Promise<SupplierDto> {
