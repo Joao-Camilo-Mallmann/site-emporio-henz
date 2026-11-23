@@ -51,5 +51,6 @@ export function storeWhatsappUrl(message?: string): string {
  */
 export function storeSiteUrl(path = ""): string {
   const origin = (contato.siteUrl || window.location.origin).replace(/\/$/, "");
-  return `${origin}${path}`;
+  const normalizedPath = path && !path.startsWith("/") ? `/${path}` : path;
+  return `${origin}${normalizedPath}`;
 }

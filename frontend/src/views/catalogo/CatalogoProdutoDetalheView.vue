@@ -7,6 +7,7 @@ import { mapearDetalheProduto } from "@/composables/useCatalogoProdutos";
 import { useCategoriasStore } from "@/stores/categorias";
 import { useListasStore } from "@/stores/listas";
 import { storeSiteUrl, storeWhatsappUrl } from "@/utils/phone";
+import { shareOrCopyLink } from "@/utils/share";
 import type {
   ProductDetail,
   ProductVariationItem,
@@ -127,13 +128,17 @@ async function handleShare() {
     name: "catalogo-produto",
     params: { slug: product.value.slug || product.value.id },
   });
-  const url = new URL(productRoute.href, window.location.origin).toString();
+  const url = storeSiteUrl(productRoute.href);
 
-  try {
-    await navigator.clipboard.writeText(url);
+  const result = await shareOrCopyLink({
+    title: `${product.value.name} | Empório Henz`,
+    url,
+  });
+
+  if (result === "copied") {
     toast.success("Link copiado para a área de transferência!");
-  } catch {
-    toast.error("Não foi possível copiar o link do produto.");
+  } else if (result === "failed") {
+    toast.info(`Não foi possível copiar. Link do produto: ${url}`);
   }
 }
 

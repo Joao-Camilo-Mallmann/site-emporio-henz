@@ -14,7 +14,6 @@ import type {
   ProductSpecificationItem,
   Supplier,
 } from "@/types";
-import { getAuthToken } from "@/utils/cookie";
 import { lerGruposCorDaQuery } from "@/utils/coresMoveis";
 import { slugify } from "@/utils/slug";
 import { toApiAssetUrl } from "@/utils/uploads";
@@ -80,7 +79,7 @@ const fornecedoresLoading = ref(false);
 const fornecedoresError = ref<string | null>(null);
 const fornecedoresCarregados = ref(false);
 let fornecedoresPendente: Promise<void> | null = null;
-let fornecedoresTokenNaCarga: string | null = null;
+let fornecedoresSessaoNaCarga: string | null = null;
 
 async function buscarTodosFornecedoresAtivos(): Promise<Supplier[]> {
   const acumulados: Supplier[] = [];
@@ -101,7 +100,7 @@ async function buscarTodosFornecedoresAtivos(): Promise<Supplier[]> {
 }
 
 async function executarCargaFornecedores(
-  token: string | null,
+  sessao: string | null,
   verificarAtual: () => boolean,
 ): Promise<void> {
   fornecedoresLoading.value = true;
@@ -111,7 +110,7 @@ async function executarCargaFornecedores(
     if (verificarAtual()) {
       fornecedoresLista.value = proximos;
       fornecedoresCarregados.value = true;
-      fornecedoresTokenNaCarga = token;
+      fornecedoresSessaoNaCarga = sessao;
     }
   } catch {
     if (verificarAtual()) {
@@ -129,20 +128,20 @@ export function useFornecedoresCatalogo() {
   const authStore = useAuthStore();
 
   function carregar(forcar = false): Promise<void> {
-    const tokenAtual = authStore.token ?? getAuthToken() ?? null;
-    const tokenMudou =
-      fornecedoresCarregados.value && tokenAtual !== fornecedoresTokenNaCarga;
-    if (fornecedoresCarregados.value && !forcar && !tokenMudou) {
+    const sessaoAtual = authStore.user?.id ?? null;
+    const sessaoMudou =
+      fornecedoresCarregados.value && sessaoAtual !== fornecedoresSessaoNaCarga;
+    if (fornecedoresCarregados.value && !forcar && !sessaoMudou) {
       return Promise.resolve();
     }
 
-    if (forcar || tokenMudou) {
+    if (forcar || sessaoMudou) {
       fornecedoresPendente = null;
     }
 
     if (!fornecedoresPendente) {
       const requisicao = executarCargaFornecedores(
-        tokenAtual,
+        sessaoAtual,
         () => fornecedoresPendente === requisicao,
       );
       fornecedoresPendente = requisicao;

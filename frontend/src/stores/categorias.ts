@@ -15,6 +15,11 @@ export interface CardCategoriaHome {
   image: string;
 }
 
+export interface LinkCategoriaRodape {
+  slug: string;
+  name: string;
+}
+
 export const CARDS_HOME: readonly CardCategoriaHome[] = [
   {
     slug: "quarto",
@@ -57,6 +62,21 @@ export function encontrarCategoria(
     lista.find((categoria) => categoria.slug === slug) ??
     lista.find((categoria) => slugify(categoria.name) === slug)
   );
+}
+
+/**
+ * Resolve os links de categoria do rodapé. Enquanto a API não carrega (ou se
+ * falhar), mantém as categorias padrão para não haver salto de layout; depois
+ * usa os slugs e nomes ativos retornados pela API.
+ */
+export function resolverCategoriasRodape(
+  lista: readonly Category[],
+  carregadas: boolean,
+): LinkCategoriaRodape[] {
+  if (!carregadas) {
+    return CARDS_HOME.map(({ slug, name }) => ({ slug, name }));
+  }
+  return lista.map(({ slug, name }) => ({ slug, name }));
 }
 
 export const useCategoriasStore = defineStore("categorias", () => {
@@ -168,6 +188,10 @@ export const useCategoriasStore = defineStore("categorias", () => {
     });
   });
 
+  const rodape = computed<LinkCategoriaRodape[]>(() =>
+    resolverCategoriasRodape(lista.value, carregadas.value),
+  );
+
   return {
     todas,
     lista,
@@ -177,6 +201,7 @@ export const useCategoriasStore = defineStore("categorias", () => {
     barra,
     mais,
     cardsHome,
+    rodape,
     carregar,
     recarregar,
   };
