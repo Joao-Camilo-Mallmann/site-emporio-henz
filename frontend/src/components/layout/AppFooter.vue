@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import contato from "@/data/contato.json";
+import { useCategoriasStore } from "@/stores/categorias";
 import { storeWhatsappUrl } from "@/utils/phone";
+import { onMounted } from "vue";
+
+const categoriasStore = useCategoriasStore();
+
+onMounted(() => {
+  void categoriasStore.carregar();
+});
 </script>
 
 <template>
@@ -24,46 +32,24 @@ import { storeWhatsappUrl } from "@/utils/phone";
       </div>
 
       <!-- Coluna 2: Categorias e Setas de Navegação -->
-      <div class="flex flex-col items-start gap-4">
+      <div
+        v-if="categoriasStore.rodape.length > 0"
+        class="flex flex-col items-start gap-4"
+      >
         <h3 class="text-sm font-bold text-white tracking-wide">Categorias</h3>
-        <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-xs text-white">
+        <nav
+          aria-label="Categorias"
+          class="grid grid-cols-2 gap-x-8 gap-y-2 text-xs text-white"
+        >
           <RouterLink
-            to="/"
+            v-for="cat in categoriasStore.rodape"
+            :key="cat.slug"
+            :to="{ path: '/catalogo', query: { categoria: cat.slug } }"
             class="hover:text-sky-300 opacity-90 hover:opacity-100 transition-all duration-150 cursor-pointer"
           >
-            Quarto
+            {{ cat.name }}
           </RouterLink>
-          <RouterLink
-            to="/"
-            class="hover:text-sky-300 opacity-90 hover:opacity-100 transition-all duration-150 cursor-pointer"
-          >
-            Cozinha
-          </RouterLink>
-          <RouterLink
-            to="/"
-            class="hover:text-sky-300 opacity-90 hover:opacity-100 transition-all duration-150 cursor-pointer"
-          >
-            Sala de Estar
-          </RouterLink>
-          <RouterLink
-            to="/"
-            class="hover:text-sky-300 opacity-90 hover:opacity-100 transition-all duration-150 cursor-pointer"
-          >
-            Escritório
-          </RouterLink>
-          <RouterLink
-            to="/"
-            class="hover:text-sky-300 opacity-90 hover:opacity-100 transition-all duration-150 cursor-pointer"
-          >
-            Sala de Jantar
-          </RouterLink>
-          <RouterLink
-            to="/"
-            class="hover:text-sky-300 opacity-90 hover:opacity-100 transition-all duration-150 cursor-pointer"
-          >
-            Banheiro
-          </RouterLink>
-        </div>
+        </nav>
       </div>
 
       <!-- Coluna 3: Empório Henz, Sobre, Endereço e Redes Sociais -->
