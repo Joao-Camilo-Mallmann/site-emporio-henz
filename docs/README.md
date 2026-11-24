@@ -17,6 +17,7 @@ Este diretório reúne a documentação de produto, planejamento e implementaç�
 | Comandos de produção (deploy, migrações, backup) | [Produção](./infra/producao.md) |
 | Consultar materiais da apresentação | [Apresentação da Parcial 1](./slides/apresentacao-parcial-1.md) |
 | Registrar ou triar achados de usabilidade | [Feedback de usabilidade](./feedback-usabilidade/README.md) |
+| Gerar de novo o vídeo promocional do site | [Vídeo promocional](./promo/README.md) |
 
 ### Frontend
 
@@ -70,6 +71,7 @@ docs/
 │   ├── desenvolvimento.md          # Comandos de desenvolvimento
 │   └── producao.md                 # Comandos de produção, deploy e backup
 ├── slides/                         # Apresentação e roteiro
+├── promo/                          # Vídeo promocional do site e como gerá-lo
 └── prints/                         # Evidências visuais da aplicação
 ```
 
