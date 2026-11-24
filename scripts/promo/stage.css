@@ -1,0 +1,430 @@
+/* Palco do vídeo promocional: 1920x1080. Todo movimento é definido em stage.js, quadro a quadro;
+   aqui ficam só a aparência e as posições de repouso. Nada de transition/animation do CSS. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy-900: #061224;
+  --navy-800: #0a1c33;
+  --navy-700: #0c2340;
+  --navy-600: #123854;
+  --blue: #007cd8;
+  --sky: #38bdf8;
+  --sky-soft: #7dd3fc;
+  --ice: #beddf4;
+  --white: #ffffff;
+  --sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --serif: 'Playfair Display', Georgia, serif;
+}
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--navy-900);
+  font-family: var(--sans);
+  color: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: var(--navy-900);
+}
+
+.layer { position: absolute; inset: 0; }
+
+/* ---------------------------------------------------------------- fundo */
+.bg {
+  background: radial-gradient(ellipse 80% 70% at 50% 40%, #12385a 0%, #0b2340 45%, #061224 100%);
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+}
+.orb-a { width: 900px; height: 900px; left: -200px; top: -260px; background: rgba(0, 124, 216, 0.32); }
+.orb-b { width: 1000px; height: 1000px; right: -260px; bottom: -380px; background: rgba(190, 221, 244, 0.16); }
+
+/* ---------------------------------------------------------------- parede de móveis */
+.wall-blur { position: absolute; inset: 0; }
+.wall {
+  position: absolute;
+  inset: 0;
+  perspective: 2400px;
+  perspective-origin: 50% 50%;
+  overflow: hidden;
+}
+.wall-plane {
+  position: absolute;
+  left: 960px;
+  top: 540px;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  transform-origin: 0 0;
+}
+.tile {
+  position: absolute;
+  width: 420px;
+  height: 314px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #1a2b40;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.45);
+}
+.tile img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tile-edge {
+  position: absolute;
+  top: -10%;
+  height: 120%;
+  width: 1.2px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.8);
+  opacity: 0;
+}
+
+.shade { position: absolute; inset: 0; opacity: 0; }
+.shade-hook {
+  background:
+    linear-gradient(90deg, rgba(4, 13, 27, 0.82) 0%, rgba(4, 13, 27, 0.55) 34%, rgba(4, 13, 27, 0) 62%),
+    linear-gradient(0deg, rgba(4, 13, 27, 0.55) 0%, rgba(4, 13, 27, 0) 40%);
+}
+.shade-center {
+  background: radial-gradient(ellipse 58% 46% at 50% 50%, rgba(4, 13, 27, 0.86) 0%, rgba(4, 13, 27, 0.55) 55%, rgba(4, 13, 27, 0.18) 100%);
+}
+.shade-dark { background: rgba(5, 15, 30, 0.72); }
+
+/* ---------------------------------------------------------------- texto cinético */
+.kt { position: absolute; }
+.k-line { display: block; white-space: nowrap; }
+.k-clip {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding: 0.04em 0.02em 0.16em;
+  margin: -0.04em -0.02em -0.16em;
+}
+.k-word { display: inline-block; will-change: transform; }
+.hl { color: var(--sky-soft); }
+.serif-it .hl { color: var(--ice); }
+
+.t-sans-xl { font-family: var(--sans); font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; }
+.t-serif-it { font-family: var(--serif); font-style: italic; font-weight: 600; letter-spacing: -0.01em; line-height: 1.06; }
+.t-shadow { text-shadow: 0 8px 40px rgba(0, 0, 0, 0.45); }
+
+/* abertura */
+.hook { left: 120px; top: 560px; }
+.hook .k-line:nth-child(1) { font-size: 168px; }
+.hook .k-line:nth-child(2) { font-size: 140px; margin-top: 4px; }
+
+.fabrics { position: absolute; right: 120px; bottom: 96px; width: 360px; }
+.fabric-row { display: flex; gap: 14px; align-items: flex-end; }
+.fabric {
+  width: 92px;
+  height: 92px;
+  border-radius: 10px;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  background-size: 1700%;
+  /* Encosto da almofada da direita: um trecho liso do tecido nas três fotos do sofá. */
+  background-position: 68% 45%;
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.45);
+  transform-origin: 50% 100%;
+}
+.fabric-name-clip { position: relative; height: 46px; margin-top: 16px; overflow: hidden; }
+.fabric-name {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+}
+
+/* parede */
+.wall-text { left: 0; right: 0; top: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.wall-text .k-line:nth-child(1) { font-size: 132px; }
+.wall-text .k-line:nth-child(2) { font-size: 104px; margin-top: 6px; }
+
+/* paleta */
+.palette-title { left: 0; right: 0; top: 250px; text-align: center; font-size: 132px; }
+.swatch-ball {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 104px;
+  height: 104px;
+  margin-left: -52px;
+  margin-top: -52px;
+  border-radius: 50%;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), inset 0 -6px 14px rgba(0, 0, 0, 0.18), inset 0 6px 12px rgba(255, 255, 255, 0.18);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+}
+.swatch-ball.light { border-color: rgba(255, 255, 255, 0.9); }
+
+/* ---------------------------------------------------------------- navegador */
+.browser-wrap {
+  position: absolute;
+  left: 530px;
+  top: 114px;
+  width: 1300px;
+  height: 852.5px;
+  transform-origin: 50% 50%;
+}
+.browser {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 50px 120px rgba(0, 6, 18, 0.65), 0 14px 36px rgba(0, 6, 18, 0.35), 0 0 0 1px rgba(190, 221, 244, 0.16);
+}
+.browser-bar {
+  height: 40px;
+  background: linear-gradient(180deg, #f3f6fa 0%, #e8eef5 100%);
+  border-bottom: 1px solid #d8e2ee;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  position: relative;
+}
+.browser-dots { display: flex; gap: 8px; }
+.browser-dots span { width: 12px; height: 12px; border-radius: 50%; }
+.browser-dots span:nth-child(1) { background: #ff5f57; }
+.browser-dots span:nth-child(2) { background: #febc2e; }
+.browser-dots span:nth-child(3) { background: #28c840; }
+.browser-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 26px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #d5e1ed;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+.browser-title svg { width: 34px; height: auto; }
+.viewport {
+  position: absolute;
+  left: 0;
+  top: 40px;
+  width: 1300px;
+  height: 812.5px;
+  overflow: hidden;
+  background: #ffffff;
+}
+.cam {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1440px;
+  height: 900px;
+  transform-origin: 0 0;
+}
+.screen { position: absolute; left: 0; top: 0; width: 1440px; height: 900px; }
+.cta-glow {
+  position: absolute;
+  border-radius: 14px;
+  border: 3px solid var(--sky);
+  box-shadow: 0 0 34px rgba(56, 189, 248, 0.85), inset 0 0 16px rgba(56, 189, 248, 0.35);
+  opacity: 0;
+}
+.viewport-overlay { position: absolute; inset: 0; pointer-events: none; }
+.cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 42px;
+  height: 42px;
+  transform-origin: 5px 4px;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+  opacity: 0;
+}
+.ripple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 120px;
+  height: 120px;
+  margin-left: -60px;
+  margin-top: -60px;
+  border-radius: 50%;
+  border: 4px solid var(--blue);
+  background: rgba(56, 189, 248, 0.18);
+  opacity: 0;
+}
+.ripple.r2 { background: none; border-width: 3px; border-color: rgba(56, 189, 248, 0.9); }
+
+/* balão do WhatsApp */
+.chat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 540px;
+  transform-origin: 100% 100%;
+  opacity: 0;
+}
+.chat-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 6px 16px 6px 6px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+  font-size: 17px;
+  font-weight: 800;
+  color: #0b3d2c;
+}
+.chat-head .wa-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chat-head .wa-badge svg { width: 20px; height: 20px; }
+.chat-bubble {
+  position: relative;
+  background: #d9fdd3;
+  color: #111b21;
+  border-radius: 22px 22px 6px 22px;
+  padding: 20px 24px 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  font-size: 22px;
+  line-height: 1.4;
+}
+.chat-bubble b { display: block; font-size: 25px; font-weight: 800; color: #0b3d2c; }
+.chat-meta { display: flex; justify-content: flex-end; align-items: center; gap: 6px; font-size: 15px; color: #5b6b73; margin-top: 4px; }
+.chat-meta svg { width: 22px; height: 14px; }
+
+/* passos ao lado do navegador */
+.steps { position: absolute; left: 92px; top: 0; width: 420px; }
+.step { position: absolute; left: 0; display: flex; align-items: center; gap: 20px; white-space: nowrap; }
+.step-num {
+  position: relative;
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: 2px solid rgba(190, 221, 244, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ice);
+}
+.step-num-fill { position: absolute; inset: -2px; border-radius: 50%; background: var(--sky); opacity: 0; }
+.step-num span, .step-num svg { position: relative; }
+.step-check { position: absolute; width: 26px; height: 26px; opacity: 0; }
+.step-label { font-size: 33px; font-weight: 700; letter-spacing: -0.01em; }
+
+/* ---------------------------------------------------------------- história */
+.history { overflow: hidden; }
+.history-photo {
+  position: absolute;
+  left: -40px;
+  top: -40px;
+  width: 2000px;
+  height: 1160px;
+  object-fit: cover;
+  transform-origin: 60% 50%;
+}
+.history-grade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(5, 16, 33, 0.92) 0%, rgba(5, 16, 33, 0.7) 38%, rgba(5, 16, 33, 0.2) 72%, rgba(5, 16, 33, 0.05) 100%),
+    linear-gradient(0deg, rgba(5, 16, 33, 0.6) 0%, rgba(5, 16, 33, 0) 45%);
+}
+.years { position: absolute; left: 120px; top: 250px; }
+.years-eyebrow { font-family: var(--serif); font-style: italic; font-weight: 600; font-size: 64px; color: var(--ice); }
+.years-row { display: flex; align-items: baseline; gap: 26px; margin-top: -10px; }
+.years-num {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 300px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: lining-nums tabular-nums;
+  min-width: 330px;
+}
+.years-unit { font-family: var(--serif); font-style: italic; font-weight: 600; font-size: 132px; }
+.years-line { font-size: 54px; font-weight: 700; letter-spacing: -0.02em; margin-top: 6px; }
+
+.team-card {
+  position: absolute;
+  left: 930px;
+  top: 190px;
+  width: 880px;
+  height: 660px;
+  padding: 14px;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 50px 110px rgba(0, 0, 0, 0.55);
+  transform-origin: 50% 60%;
+}
+.team-card img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; border-radius: 18px; display: block; }
+.family { left: 120px; top: 420px; }
+.family .k-line:nth-child(1) { font-size: 78px; }
+.family .k-line:nth-child(2) { font-size: 46px; margin-top: 14px; font-family: var(--sans); font-style: normal; font-weight: 600; letter-spacing: -0.01em; color: var(--ice); }
+
+/* ---------------------------------------------------------------- encerramento */
+.end-glow {
+  position: absolute;
+  left: 960px;
+  top: 900px;
+  width: 1500px;
+  height: 700px;
+  margin-left: -750px;
+  margin-top: -350px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(190, 221, 244, 0.38) 0%, rgba(125, 211, 252, 0.12) 45%, rgba(125, 211, 252, 0) 70%);
+}
+.end-sofa {
+  position: absolute;
+  left: 450px;
+  top: 590px;
+  width: 1020px;
+}
+.end-logo { position: absolute; left: 0; right: 0; top: 150px; display: flex; justify-content: center; }
+.end-logo-inner { width: 560px; }
+.end-logo-inner svg { width: 560px; height: auto; display: block; }
+.end-tagline { left: 0; right: 0; top: 322px; text-align: center; font-size: 66px; }
+.end-pills { position: absolute; left: 0; right: 0; top: 462px; display: flex; justify-content: center; gap: 34px; }
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #eaf4fc;
+}
+.contact + .contact { padding-left: 34px; border-left: 1px solid rgba(190, 221, 244, 0.35); }
+.contact-icon { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
+.contact-icon svg { width: 28px; height: 28px; }
+
+/* ---------------------------------------------------------------- flash */
+.flash { background: #ffffff; opacity: 0; }
